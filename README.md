@@ -48,8 +48,8 @@ requires this library. An SSH key was created for "deploy" purposes.
 It has read-only access to the repository and is stored in an S3 bucket.
 In S3, the SSH keys are located at:
 
-	/barchart-deploy-keys/beanstalk.deploy
-	/barchart-deploy-keys/beanstalk.deploy.pub
+	/barchart-deploy-keys/barchart-common-node-js.deploy
+	/barchart-deploy-keys/barchart-common-node-js.pub
 	
 
 So, in your consuming application, take the following steps:
