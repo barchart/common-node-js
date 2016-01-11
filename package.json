@@ -1,0 +1,58 @@
+{
+  "name": "common-node",
+  "version": "0.0.1",
+  "description": "Common classes, utilities, and functions for building Node.js servers",
+  "author": {
+    "name": "Bryan Ingle",
+    "email": "bryan.ingle@barchart.com",
+    "url": "http://www.barchart.com"
+  },
+  "main": "./index.js",
+  "scripts": {
+    "test": "echo \"Error: Please use gulp to run tests\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://github.com/barchart/barchart-common-node-js"
+  },
+  "keywords": [
+    "Barchart",
+    "Utilities",
+    "JavaScript",
+    "Node",
+    "Server",
+    "Express",
+    "REST",
+    "Socket.IO",
+    "AWS",
+    "SNS",
+    "SQS"
+  ],
+  "dependencies": {
+    "aws-sdk": "^2.2.28",
+    "body-parser": "^1.14.2",
+    "class.extend": "^0.9.1",
+    "common": "git+ssh://github.com/barchart/barchart-common-js",
+    "express": "^4.13.3",
+    "lodash": "^3.10.1",
+    "log4js": "^0.6.29",
+    "socket.io": "^1.4.0",
+    "uuid": "^2.0.1",
+    "when": "3.7.3"
+  },
+  "devDependencies": {
+    "gulp": "~3.9.0",
+    "gulp-browserify": "^0.5.1",
+    "gulp-bump": "~1.0.0",
+    "gulp-git": "~1.6.0",
+    "gulp-gitmodified": "~1.0.0",
+    "gulp-jasmine": "^2.2.1",
+    "gulp-jshint": "~1.11.2",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-util": "^3.0.7",
+    "jasmine": "^2.4.1",
+    "run-sequence": "~1.1.4"
+  },
+  "license": "UNLICENSED",
+  "private": true
+}
