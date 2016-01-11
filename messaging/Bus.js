@@ -6,8 +6,8 @@ var assert = require('common/lang/assert');
 var Event = require('common/messaging/Event');
 var Disposable = require('common/lang/Disposable');
 
-var Publisher = require('./Publisher');
-var Router = require('./Router');
+var Publisher = require('./publishers/Publisher');
+var Router = require('./routers/Router');
 
 module.exports = function() {
 	'use strict';
