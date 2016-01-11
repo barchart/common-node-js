@@ -13,9 +13,9 @@ Features include:
 
 ##Simple Setup
 
-1.	Clone the [repository](https://github.com/barchart/aws-beanstalk-nodejs-jerqaggregator).
+1.	Clone the [repository](https://github.com/barchart/barchart-common-node-js).
 
-		git clone git@github.com:barchart/aws-beanstalk-nodejs-jerqaggregator.git
+		git clone git@github.com:barchart/barchart-common-node-js.git
 
 2.	Download third-party dependencies
 		
