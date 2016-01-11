@@ -445,7 +445,7 @@ module.exports = function() {
 
 						logger.debug('Deleted', deletedCount, 'message(s) from SQS Queue:', queueName);
 
-						if (deletedCount !== 0) {
+						if (deletedCount !== messageCount) {
 							logger.warn('Failed to delete', data.Failed.length, 'message(s) from SQS Queue:', queueName);
 
 							rejectCallback('Failed to delete some messages from SQS queue.');
