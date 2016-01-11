@@ -1,5 +1,4 @@
 .gitignore
 .idea
 node_modules
-aws/
 .DS_Store
