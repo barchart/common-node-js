@@ -12,7 +12,7 @@ var Router = require('./Router');
 module.exports = function() {
 	'use strict';
 
-	var logger = log4js.getLogger('messaging/Bus');
+	var logger = log4js.getLogger('common-node/messaging/Bus');
 
 	var Bus = Disposable.extend({
 		init: function() {

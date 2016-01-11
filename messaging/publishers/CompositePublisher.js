@@ -4,12 +4,12 @@ var when = require('when');
 
 var DisposableStack = require('common/collections/specialized/DisposableStack');
 
-var Publisher = require('./../Publisher');
+var Publisher = require('./Publisher');
 
 module.exports = function() {
 	'use strict';
 
-	var logger = log4js.getLogger('messaging/CompositePublisher');
+	var logger = log4js.getLogger('common-node/messaging/publishers/CompositePublisher');
 
 	var CompositePublisher = Publisher.extend({
 		init: function(publishers) {

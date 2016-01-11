@@ -8,13 +8,13 @@ var Event = require('common/messaging/Event');
 var Disposable = require('common/lang/Disposable');
 var DisposableStack = require('common/collections/specialized/Disposable');
 
-var Router = require('./../Router');
+var Router = require('./Router');
 var SqsProvider = require('./../../aws/SqsProvider');
 
 module.exports = function() {
 	'use strict';
 
-	var logger = log4js.getLogger('messaging/AwsRouter');
+	var logger = log4js.getLogger('common-node/messaging/routers/AwsRouter');
 
 	var AwsRouter = Router.extend({
 		init: function(sqsProvider) {

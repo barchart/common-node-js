@@ -21,7 +21,7 @@ var Verb = require('./../../http/Verb');
 module.exports = function() {
     'use strict';
 
-    var logger = log4js.getLogger('http/server/express/ExpressServerFactory');
+    var logger = log4js.getLogger('common-node/network/server/express/ExpressServerFactory');
 
     var ExpressServerFactory = ServerFactory.extend({
         init: function() {

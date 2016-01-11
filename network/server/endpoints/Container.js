@@ -7,7 +7,7 @@ var assert = require('common/lang/assert');
 module.exports = function() {
     'use strict';
 
-    var logger = log4js.getLogger('http/server/endpoints/Container');
+    var logger = log4js.getLogger('common-node/network/server/endpoints/Container');
 
     var Container = Class.extend({
         init: function(port, path, secure) {

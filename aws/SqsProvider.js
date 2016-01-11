@@ -10,7 +10,7 @@ var Scheduler = require('common/timing/Scheduler');
 module.exports = function() {
 	'use strict';
 
-	var logger = log4js.getLogger('messaging/SqsProvider');
+	var logger = log4js.getLogger('common-node/messaging/SqsProvider');
 
 	var SqsProvider = Disposable.extend({
 		init: function() {

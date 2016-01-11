@@ -4,12 +4,12 @@ var log4js = require('log4js');
 var Event = require('common/messaging/Event');
 var Disposable = require('common/lang/Disposable');
 
-var Router = require('./../Router');
+var Router = require('./Router');
 
 module.exports = function() {
 	'use strict';
 
-	var logger = log4js.getLogger('messaging/LocalRouter');
+	var logger = log4js.getLogger('common-node/messaging/routers/LocalRouter');
 
 	var LocalRouter = Router.extend({
 		init: function() {

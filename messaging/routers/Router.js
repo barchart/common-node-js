@@ -9,19 +9,19 @@ var Disposable = require('common/lang/Disposable');
 module.exports = function() {
 	'use strict';
 
-	var logger = log4js.getLogger('messaging/Publisher');
+	var logger = log4js.getLogger('common-node/messaging/routers/Router');
 
-	var Publisher = Disposable.extend({
+	var Router = Disposable.extend({
 		init: function() {
 			this._super();
-			
+
 			this._starting = false;
 			this._started = false;
 		},
 
 		start: function() {
 			var that = this;
-			
+
 			if (that._starting) {
 				throw new Error('The publisher has already been started.');
 			}
@@ -37,54 +37,78 @@ module.exports = function() {
 					that._started = true;
 				});
 		},
-		
+
 		_start: function() {
 			return;
 		},
-		
-		publish: function(messageType, payload) {
+
+		canRoute: function(messageType) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
-			assert.argumentIsRequired(payload, 'payload', Object);
 
 			var that = this;
 
 			if (!that._started) {
-				throw new Error('The publisher has not started.');
+				throw new Error('The router has not started.');
 			}
-			
+
 			if (that.getIsDisposed()) {
-				throw new Error('The message publisher has been disposed');
+				throw new Error('The message router has been disposed');
+			}
+
+			return that._canRoute(messageType);
+		},
+
+		_canRoute: function() {
+			return false;
+		},
+
+		route: function(messageType, payload) {
+			assert.argumentIsRequired(messageType, 'messageType', String);
+			assert.argumentIsRequired(payload, 'payload');
+
+			var that = this;
+
+			if (!that._started) {
+				throw new Error('The router has not started.');
+			}
+
+			if (that.getIsDisposed()) {
+				throw new Error('The message router has been disposed');
+			}
+
+			if (!that.canRoute(messageType)) {
+				throw new Error('The message router does not support the message type.');
 			}
 
 			return when(function() {
-				return that._publish(messageType, payload);
+				return that._route(messageType, payload);
 			});
 		},
 
-		_publish: function(messageType, payload) {
+		_route: function(messageType, payload) {
 			return;
 		},
 
-		subscribe: function(messageType, handler) {
+		register: function(messageType, handler) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
 			assert.argumentIsRequired(handler, 'handler', Function);
 
 			var that = this;
 
 			if (!that._started) {
-				throw new Error('The publisher has not started.');
+				throw new Error('The router has not started.');
 			}
-			
+
 			if (that.getIsDisposed()) {
-				throw new Error('The message publisher has been disposed');
+				throw new Error('The message router has been disposed');
 			}
 
 			return when(function() {
-				return that._subscribe(messageType, handler);
+				return that._register(messageType, handler);
 			});
 		},
 
-		_subscribe: function(messageType, handler) {
+		_register: function(messageType, handler) {
 			return Disposable.fromAction(function() {
 				return;
 			});
@@ -95,9 +119,9 @@ module.exports = function() {
 		},
 
 		toString: function() {
-			return '[Publisher]';
+			return '[Router]';
 		}
 	});
 
-	return Publisher;
+	return Router;
 }();

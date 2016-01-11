@@ -8,14 +8,14 @@ var Event = require('common/messaging/Event');
 var Disposable = require('common/lang/Disposable');
 var DisposableStack = require('common/collections/specialized/Disposable');
 
-var Publisher = require('./../Publisher');
+var Publisher = require('./Publisher');
 var SnsProvider = require('./../../aws/SnsProvider');
 var SqsProvider = require('./../../aws/SqsProvider');
 
 module.exports = function() {
 	'use strict';
 
-	var logger = log4js.getLogger('messaging/AwsPublisher');
+	var logger = log4js.getLogger('common-node/messaging/publishers/AwsPublisher');
 
 	var AwsPublisher = Publisher.extend({
 		init: function(snsProvider, sqsProvider, suppressEcho) {

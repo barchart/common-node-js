@@ -11,7 +11,7 @@ var RestAction = require('./RestAction');
 module.exports = function() {
     'use strict';
 
-    var logger = log4js.getLogger('http/endpoints/RestContainer');
+    var logger = log4js.getLogger('common-node/network/server/endpoints/rest/RestContainer');
 
     var RestContainer = Container.extend({
         init: function (port, path, secure) {

@@ -4,12 +4,12 @@ var when = require('when');
 
 var DisposableStack = require('common/collections/specialized/DisposableStack');
 
-var Router = require('./../Router');
+var Router = require('./Router');
 
 module.exports = function() {
 	'use strict';
 
-	var logger = log4js.getLogger('messaging/CompositeRouter');
+	var logger = log4js.getLogger('common-node/messaging/routers/CompositeRouter');
 
 	var CompositeRouter = Router.extend({
 		init: function(routers) {

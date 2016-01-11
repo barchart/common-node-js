@@ -4,12 +4,12 @@ var log4js = require('log4js');
 var Event = require('common/messaging/Event');
 var Disposable = require('common/lang/Disposable');
 
-var Publisher = require('./../Publisher');
+var Publisher = require('./Publisher');
 
 module.exports = function() {
 	'use strict';
 
-	var logger = log4js.getLogger('messaging/LocalPublisher');
+	var logger = log4js.getLogger('common-node/messaging/publishers/LocalPublisher');
 
 	var LocalPublisher = Publisher.extend({
 		init: function() {

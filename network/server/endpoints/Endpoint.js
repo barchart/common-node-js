@@ -8,7 +8,7 @@ var CommandHandler = require('common/commands/CommandHandler');
 module.exports = function() {
     'use strict';
 
-    var logger = log4js.getLogger('http/endpoints/Endpoint');
+    var logger = log4js.getLogger('common-node/network/server/endpoints/Endpoint');
 
     var Endpoint = Class.extend({
         init: function(command) {
