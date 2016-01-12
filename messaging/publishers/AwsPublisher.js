@@ -35,6 +35,15 @@ module.exports = function() {
 			this._subscriptionPromises = { };
 		},
 
+		_start: function() {
+			var that = this;
+
+			return when.join(that._snsProvider.start(), that._sqsProvider.start())
+				.then(function(ignored) {
+					return;
+				});
+		},
+
 		_publish: function(messageType, payload) {
 			var that = this;
 

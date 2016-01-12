@@ -33,21 +33,25 @@ module.exports = function() {
 		_start: function() {
 			var that = this;
 
-			var responseQueueName = getResponseChannel(that._routerId);
+			return when.try(function() {
+				that._sqsProvider.start();
+			}).then(function(ignored) {
+				var responseQueueName = getResponseChannel(that._routerId);
 
-			var responseObserver = that._sqsProvider.observe(responseQueueName, function(message) {
-				if (_.isString(message.id) && _.has(that._pendingRequests, message.id)) {
-					var deferred = that._pendingRequests[message.id];
+				var responseObserver = that._sqsProvider.observe(responseQueueName, function(message) {
+					if (_.isString(message.id) && _.has(that._pendingRequests, message.id)) {
+						var deferred = that._pendingRequests[message.id];
 
-					delete that._pendingRequests[message.id];
+						delete that._pendingRequests[message.id];
 
-					if (_.isObject(message.payload)) {
-						deferred.resolve(message.payload);
+						if (_.isObject(message.payload)) {
+							deferred.resolve(message.payload);
+						}
 					}
-				}
-			});
+				});
 
-			that._disposeStack.push(responseObserver);
+				that._disposeStack.push(responseObserver);
+			});
 		},
 
 		_canRoute: function(messageType) {

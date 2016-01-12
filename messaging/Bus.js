@@ -35,7 +35,9 @@ module.exports = function() {
 			if (that._startPromise === null) {
 				that._startPromise = when.join(that._publisher.start(), that._router.start())
 					.then(function(ignored) {
-						return that._started = true;
+						that._started = true;
+
+						return that._started;
 					});
 			}
 

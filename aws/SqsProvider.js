@@ -13,7 +13,13 @@ module.exports = function() {
 	var logger = log4js.getLogger('common-node/messaging/SqsProvider');
 
 	var SqsProvider = Disposable.extend({
-		init: function() {
+		init: function(configuration) {
+			assert.argumentIsRequired(configuration, 'configuration');
+			assert.argumentIsRequired(configuration.region, 'configuration.region', String);
+			assert.argumentIsOptional(configuration.apiVersion, 'configuration.apiVersion', String);
+
+			this._super();
+
 			this._sqs = null;
 			this._scheduler = new Scheduler();
 
@@ -27,11 +33,7 @@ module.exports = function() {
 			this._counter = 0;
 		},
 
-		start: function(configuration) {
-			assert.argumentIsRequired(configuration, 'configuration');
-			assert.argumentIsRequired(configuration.region, 'configuration.region', String);
-			assert.argumentIsOptional(configuration.apiVersion, 'configuration.apiVersion', String);
-
+		start: function() {
 			var that = this;
 
 			if (that.getIsDisposed()) {
@@ -42,21 +44,25 @@ module.exports = function() {
 				throw new Error('The AWS SQS Provider has already been started.');
 			}
 
-			that._started = true;
+			if (that._startPromise === null) {
+				that._startPromsie = when.try(function () {
+					aws.config.update({region: configuration.region});
 
-			return when.try(function() {
-				aws.config.update({ region: configuration.region });
+					that._sqs = new aws.SQS({apiVersion: configuration.apiVersion || '2012-11-05'});
+				}).then(function () {
+					logger.debug('SQS provider started');
 
-				that._sqs = new aws.SQS({ apiVersion: configuration.apiVersion || '2012-11-05' });
-			}).then(function() {
-				logger.debug('SQS provider started');
+					that._started = true;
 
-				return that._started;
-			}).catch(function(e) {
-				logger.error('SQS provider failed to start', e);
+					return that._started;
+				}).catch(function (e) {
+					logger.error('SQS provider failed to start', e);
 
-				throw e;
-			});
+					throw e;
+				});
+			}
+
+			return that._startPromise;
 		},
 
 		getQueueUrl: function(queueName) {

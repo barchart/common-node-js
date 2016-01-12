@@ -12,44 +12,50 @@ module.exports = function() {
 	var logger = log4js.getLogger('common-node/messaging/SnsProvider');
 
 	var SnsProvider = Disposable.extend({
-		init: function() {
+		init: function(configuration) {
+			assert.argumentIsRequired(configuration, 'configuration');
+			assert.argumentIsRequired(configuration.region, 'configuration.region', String);
+			assert.argumentIsOptional(configuration.apiVersion, 'configuration.apiVersion', String);
+
+			this._super();
+
 			this._sns = null;
+
+			this._configuration = configuration;
+
+			this._startPromise = null;
 			this._started = false;
 
 			this._topicPromises = { };
 			this._subscriptionPromises = { };
 		},
 
-		start: function(configuration) {
-			assert.argumentIsRequired(configuration, 'configuration');
-			assert.argumentIsRequired(configuration.region, 'configuration.region', String);
-			assert.argumentIsOptional(configuration.apiVersion, 'configuration.apiVersion', String);
-
+		start: function() {
 			var that = this;
 
 			if (that.getIsDisposed()) {
 				throw new Error('The SNS Provider has been disposed.');
 			}
 
-			if (that._started) {
-				throw new Error('The AWS SNS Provider has already been started.');
+			if (that._startPromise === null) {
+				that._startPromise = when.try(function() {
+					aws.config.update({ region: that._configuration.region });
+
+					that._sns = new aws.SNS({ apiVersion: that._configuration.apiVersion || '2010-03-31' });
+				}).then(function() {
+					logger.debug('SNS provider started');
+
+					that._started = true;
+
+					return that._started;
+				}).catch(function(e) {
+					logger.error('SNS provider failed to start', e);
+
+					throw e;
+				});
 			}
 
-			that._started = true;
-
-			return when.try(function() {
-				aws.config.update({ region: configuration.region });
-
-				that._sns = new aws.SNS({ apiVersion: configuration.apiVersion || '2010-03-31' });
-			}).then(function() {
-				logger.debug('SNS provider started');
-
-				return that._started;
-			}).catch(function(e) {
-				logger.error('SNS provider failed to start', e);
-
-				throw e;
-			});
+			return that._startPromise;
 		},
 
 		getTopicArn: function(topicName) {
