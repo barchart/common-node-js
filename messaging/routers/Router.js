@@ -15,27 +15,26 @@ module.exports = function() {
 		init: function() {
 			this._super();
 
-			this._starting = false;
+			this._startPromise = null;
 			this._started = false;
 		},
 
 		start: function() {
 			var that = this;
 
-			if (that._starting) {
-				throw new Error('The publisher has already been started.');
-			}
-
 			if (that.getIsDisposed()) {
 				throw new Error('The message publisher has been disposed');
 			}
 
-			that._starting = true;
-
-			return when(that._start())
-				.then(function() {
-					that._started = true;
+			if (that._startPromise === null) {
+				that._startPromise = when.try(function() {
+					return that._start();
+				}).then(function () {
+					return that._started = true;
 				});
+			}
+
+			return that._startPromise;
 		},
 
 		_start: function() {
@@ -80,7 +79,7 @@ module.exports = function() {
 				throw new Error('The message router does not support the message type.');
 			}
 
-			return when(function() {
+			return when.try(function() {
 				return that._route(messageType, payload);
 			});
 		},
@@ -103,7 +102,7 @@ module.exports = function() {
 				throw new Error('The message router has been disposed');
 			}
 
-			return when(function() {
+			return when.try(function() {
 				return that._register(messageType, handler);
 			});
 		},

@@ -2,6 +2,7 @@ var _ = require('lodash');
 var log4js = require('log4js');
 var when = require('when');
 
+var assert = require('common/lang/assert');
 var DisposableStack = require('common/collections/specialized/DisposableStack');
 
 var Publisher = require('./Publisher');
@@ -13,35 +14,53 @@ module.exports = function() {
 
 	var CompositePublisher = Publisher.extend({
 		init: function(publishers) {
+			assert.argumentIsArray(publishers, 'publishers', Publisher, 'Publisher');
+
 			this._super();
 
 			this._publishers = publishers;
 		},
 
-		_publish: function(messageType, payload) {
+		_start: function() {
 			var that = this;
 
 			return when.map(that._publishers, function(publisher) {
-				return publisher.publish(messageType, payload);
-			}).then(function(ignored) {
-				return;
+				return publisher.start();
+			}).then(function() {
+				return true;
 			});
+		},
+
+		_publish: function(messageType, payload) {
+			var that = this;
+
+			var publishPromises = _.map(that._publishers, function(publisher) {
+				return publisher.publish(messageType, payload);
+			});
+
+			return when.all(publishPromises)
+				.then(function(ignored) {
+					return;
+				});
 		},
 
 		_subscribe: function(messageType, handler) {
 			var that = this;
 
-			return when.map(that._publishers, function(publisher) {
+			var subscribePromises = _.map(that._publishers, function(publisher) {
 				return publisher.subscribe(messageType, handler);
-			}).then(function(disposables) {
-				var disposableStack = new DisposableStack();
-
-				for (var i = 0; i < disposables.length; i++) {
-					disposableStack.push(disposables[i]);
-				}
-
-				return disposableStack;
 			});
+
+			return when.all(subscribePromises)
+				.then(function(subscriptions) {
+					var disposableStack = new DisposableStack();
+
+					for (var i = 0; i < subscriptions.length; i++) {
+						disposableStack.push(subscriptions[i]);
+					}
+
+					return disposableStack;
+				});
 		},
 
 		_onDispose: function() {

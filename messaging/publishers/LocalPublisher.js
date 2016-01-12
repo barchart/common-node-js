@@ -19,6 +19,8 @@ module.exports = function() {
 		},
 
 		_publish: function(messageType, payload) {
+			var that = this;
+
 			if (_.has(this._subscriptions, messageType)) {
 				this._subscriptions[messageType].fire(payload);
 			}

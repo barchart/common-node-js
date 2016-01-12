@@ -416,7 +416,7 @@ module.exports = function() {
 		var messageCount = messages.length;
 
 		if (messageCount === 0) {
-			return when(function() {
+			return when.try(function() {
 				return;
 			});
 		}

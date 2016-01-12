@@ -6,7 +6,7 @@ var when = require('when');
 var assert = require('common/lang/assert');
 var Event = require('common/messaging/Event');
 var Disposable = require('common/lang/Disposable');
-var DisposableStack = require('common/collections/specialized/Disposable');
+var DisposableStack = require('common/collections/specialized/DisposableStack');
 
 var Publisher = require('./Publisher');
 var SnsProvider = require('./../../aws/SnsProvider');
