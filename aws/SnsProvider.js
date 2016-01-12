@@ -70,13 +70,13 @@ module.exports = function() {
 			if (!_.has(that._topicPromises, topicName)) {
 				that._topicPromises[topicName] = when.promise(
 					function(resolveCallback, rejectCallback) {
-						logger.trace('Creating SNS topic:', topicName);
+						logger.debug('Creating SNS topic:', topicName);
 
 						that._sns.createTopic({
 							Name: topicName
 						}, function(error, data) {
 							if (error === null) {
-								logger.trace('SNS topic created:', topicName);
+								logger.debug('SNS topic created:', topicName);
 
 								resolveCallback(data.TopicArn);
 							} else {
@@ -127,13 +127,13 @@ module.exports = function() {
 				.then(function(topicArn) {
 					return when.promise(
 						function(resolveCallback, rejectCallback) {
-							logger.trace('Deleting SNS topic:', topicName);
+							logger.debug('Deleting SNS topic:', topicName);
 
 							that._sns.deleteTopic({
 								TopicArn: topicArn
 							}, function(error, data) {
 								if (error === null) {
-									logger.trace('SNS topic deleted:', topicName);
+									logger.debug('SNS topic deleted:', topicName);
 
 									resolveCallback();
 								} else {
@@ -162,7 +162,7 @@ module.exports = function() {
 				.then(function(topicArn) {
 					return when.promise(
 						function(resolveCallback, rejectCallback) {
-							logger.trace('Deleting SNS topic:', topicName);
+							logger.debug('Deleting SNS topic:', topicName);
 
 							that._sns.publish({
 								TopicArn: topicArn,
@@ -196,7 +196,7 @@ module.exports = function() {
 					.then(function(topicArn) {
 						return when.promise(
 							function(resolveCallback, rejectCallback) {
-								logger.trace('Subscribing SQS queue to SNS topic:', topicName);
+								logger.debug('Subscribing SQS queue to SNS topic:', topicName);
 
 								that._sns.subscribe({
 									'TopicArn': topicArn,
@@ -211,7 +211,7 @@ module.exports = function() {
 												return;
 											}
 
-											logger.trace('Unsubscribing SQS queue from SNS topic:', topicName);
+											logger.debug('Unsubscribing SQS queue from SNS topic:', topicName);
 
 											delete that._subscriptionPromises[topicName];
 

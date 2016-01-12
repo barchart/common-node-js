@@ -127,7 +127,7 @@ module.exports = function() {
             app.use(bodyParser.json());
 
             app.use(function(req, res, next) {
-                logger.trace('Applying HTTP headers for ' + req.originalUrl);
+                logger.debug('Applying HTTP headers for ' + req.originalUrl);
 
                 res.header('Access-Control-Allow-Origin', '*');
                 res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');

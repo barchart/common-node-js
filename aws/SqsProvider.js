@@ -86,13 +86,13 @@ module.exports = function() {
 			if (!_.has(that._queueUrlPromises, queueName)) {
 				that._queueUrlPromises[queueName] = when.promise(
 					function(resolveCallback, rejectCallback) {
-						logger.trace('Creating SQS queue:', queueName);
+						logger.debug('Creating SQS queue:', queueName);
 
 						that._sqs.createQueue({
 							QueueName: queueName
 						}, function(error, data) {
 							if (error === null) {
-								logger.trace('SQS queue created:', queueName);
+								logger.debug('SQS queue created:', queueName);
 
 								var queueUrl = data.QueueUrl;
 
@@ -131,7 +131,7 @@ module.exports = function() {
 					.then(function(queueUrl) {
 						return when.promise(
 							function(resolveCallback, rejectCallback) {
-								logger.trace('Getting SQS Queue attributes:', queueName);
+								logger.debug('Getting SQS Queue attributes:', queueName);
 
 								that._sqs.getQueueAttributes({
 									QueueUrl: queueUrl,
@@ -222,6 +222,7 @@ module.exports = function() {
 						function(resolveCallback, rejectCallback) {
 							var counter = ++that._counter;
 
+							logger.debug('Sending message', counter,'to SQS Queue:', queueName);
 							logger.trace('Sending message', counter,'to SQS Queue:', queueName, '\n\r', payload);
 
 							that._sqs.sendMessage({
@@ -369,7 +370,7 @@ module.exports = function() {
 			.then(function(queueUrl) {
 				return when.promise(
 					function(resolveCallback, rejectCallback) {
-						logger.trace('Receiving message(s) from SQS Queue:', queueName);
+						logger.debug('Receiving message(s) from SQS Queue:', queueName);
 
 						that._sqs.receiveMessage({
 							QueueUrl: queueUrl
@@ -427,7 +428,7 @@ module.exports = function() {
 
 		return when.promise(
 			function(resolveCallback, rejectCallback) {
-				logger.trace('Deleting', messageCount, 'message(s) from SQS Queue:', queueName);
+				logger.debug('Deleting', messageCount, 'message(s) from SQS Queue:', queueName);
 
 				that._sqs.deleteMessageBatch({
 					QueueUrl: queueUrl,
@@ -472,7 +473,7 @@ module.exports = function() {
 
 		return when.promise(
 			function(resolveCallback, rejectCallback) {
-				logger.trace('Deleting SQS Queue:', queueName);
+				logger.debug('Deleting SQS Queue:', queueName);
 
 				that._sqs.deleteQueue({
 					QueueUrl: queueUrl

@@ -1,4 +1,5 @@
 var Class = require('class.extend');
+var log4js = require('log4js');
 var pg = require('pg');
 var when = require('when');
 
@@ -8,6 +9,8 @@ var ClientProvider = require('./ClientProvider');
 module.exports = function() {
     'use strict';
 
+	var logger = log4js.getLogger('common-node/database/postgres/DirectClientProvider');
+
     var DirectClientProvider = ClientProvider.extend({
         init: function(host, database, username, password, port, applicationName) {
             this._super(host, database, username, password, port, applicationName);
@@ -16,6 +19,8 @@ module.exports = function() {
         _getClient: function() {
             var that = this;
 
+			logger.debug('Creating new connection.');
+
             return when.promise(function(resolveCallback, rejectCallback) {
                 var pgClient = new pg.Client(that._getConfiguration());
 
@@ -23,10 +28,16 @@ module.exports = function() {
                     if (err) {
                         rejectCallback(err);
                     } else {
-                        resolveCallback(new Client(pgClient));
+						logger.debug('Connection created.');
+
+                        resolveCallback(new DirectClient(pgClient));
                     }
                 });
             });
+        },
+
+        _onDispose: function() {
+            pg.end();
         },
 
         toString: function() {
@@ -39,9 +50,11 @@ module.exports = function() {
             this._super(pgClient, { });
         },
 
-        _dispose: function() {
+		_onDispose: function() {
             this._pgClient.end();
             this._pgClient = null;
+
+			logger.debug('Connection disposed');
         }
     });
 

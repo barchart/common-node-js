@@ -1,5 +1,6 @@
 var pg = require('pg');
 
+var assert = require('common/lang/assert');
 var Disposable = require('common/lang/Disposable');
 
 module.exports = function() {
@@ -7,6 +8,15 @@ module.exports = function() {
 
     var ClientProvider = Disposable.extend({
         init: function(host, database, username, password, port, applicationName) {
+            assert.argumentIsRequired(host, 'host', String);
+			assert.argumentIsRequired(database, 'database', String);
+			assert.argumentIsRequired(username, 'username', String);
+			assert.argumentIsRequired(password, 'password', String);
+			assert.argumentIsOptional(port, 'port', Number);
+			assert.argumentIsOptional(applicationName, 'applicationName', String);
+
+			this._super();
+
             this._configuration = {
                 host: host,
                 port: port || 5432,
