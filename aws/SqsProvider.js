@@ -21,13 +21,18 @@ module.exports = function() {
 			this._super();
 
 			this._sqs = null;
+
+			this._configuration = configuration;
+
 			this._scheduler = new Scheduler();
 
 			this._queueUrlPromises = { };
 			this._queueArnPromises =  { };
 
 			this._queueObservers = { };
+			this._knownQueues = { };
 
+			this._startPromise = null;
 			this._started = false;
 
 			this._counter = 0;
@@ -46,9 +51,9 @@ module.exports = function() {
 
 			if (that._startPromise === null) {
 				that._startPromsie = when.try(function () {
-					aws.config.update({region: configuration.region});
+					aws.config.update({ region: that._configuration.region });
 
-					that._sqs = new aws.SQS({apiVersion: configuration.apiVersion || '2012-11-05'});
+					that._sqs = new aws.SQS({ apiVersion: that._configuration.apiVersion || '2012-11-05' });
 				}).then(function () {
 					logger.debug('SQS provider started');
 
@@ -89,7 +94,11 @@ module.exports = function() {
 							if (error === null) {
 								logger.trace('SQS queue created:', queueName);
 
-								resolveCallback(data.QueueUrl);
+								var queueUrl = data.QueueUrl;
+
+								that._knownQueues[queueName] = queueUrl;
+
+								resolveCallback(queueUrl);
 							} else {
 								logger.error('SQS queue creation failed:', queueName);
 								logger.error(error);
@@ -179,29 +188,18 @@ module.exports = function() {
 				throw new Error('The SQS Provider has not been started.');
 			}
 
-			return that.getQueueUrl(queueName)
-				.then(function(queueUrl) {
-					return when.promise(
-						function(resolveCallback, rejectCallback) {
-							logger.trace('Deleting SQS Queue:', queueName);
+			var deletePromise;
 
-							that._sqs.deleteQueue({
-								QueueUrl: queueUrl
-							}, function(error, data) {
-								if (error === null) {
-									logger.debug('SQS Queue deleted:', queueName);
+			if (_.has(that._knownQueues, queueName)) {
+				deletePromise = executeQueueDelete.call(that, queueName, that._knownQueues[queueName]);
+			} else {
+				deletePromise = that.getQueueUrl(queueName)
+					.then(function(queueUrl) {
+						return executeQueueDelete.call(that, queueName, queueUrl);
+					});
+			}
 
-									resolveCallback();
-								} else {
-									logger.error('SQS queue delete failed:', queueName);
-									logger.error(error);
-
-									rejectCallback('Failed to delete SQS queue.');
-								}
-							});
-						}
-					);
-				});
+			return deletePromise;
 		},
 
 		send: function(queueName, payload) {
@@ -348,7 +346,7 @@ module.exports = function() {
 
 			this._queueObservers = null;
 
-			logger.debug(this, 'disposed');
+			logger.debug('SQS provider disposed');
 		},
 
 		toString: function() {
@@ -405,7 +403,7 @@ module.exports = function() {
 									rejectCallback('Failed to parse message(s) received from SQS queue.');
 								}
 							} else {
-								logger.error('SQS receieve messages failed:', queueName);
+								logger.error('SQS receive messages failed:', queueName);
 								logger.error(error);
 
 								rejectCallback('Failed to receive messages from SQS queue.');
@@ -463,6 +461,31 @@ module.exports = function() {
 						logger.error(error);
 
 						rejectCallback('Failed to delete messages from SQS queue.');
+					}
+				});
+			}
+		);
+	}
+
+	function executeQueueDelete(queueName, queueUrl) {
+		var that = this;
+
+		return when.promise(
+			function(resolveCallback, rejectCallback) {
+				logger.trace('Deleting SQS Queue:', queueName);
+
+				that._sqs.deleteQueue({
+					QueueUrl: queueUrl
+				}, function(error, data) {
+					if (error === null) {
+						logger.debug('SQS Queue deleted:', queueName);
+
+						resolveCallback();
+					} else {
+						logger.error('SQS queue delete failed:', queueName);
+						logger.error(error);
+
+						rejectCallback('Failed to delete SQS queue.');
 					}
 				});
 			}

@@ -69,6 +69,8 @@ module.exports = function() {
 			});
 
 			this._publishers = null;
+
+			logger.debug('Composite publisher disposed');
 		},
 
 		toString: function() {

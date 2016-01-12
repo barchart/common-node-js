@@ -246,6 +246,8 @@ module.exports = function() {
 
 			this._topicPromises = null;
 			this._subscriptionPromises = null;
+
+			logger.debug('SNS provider disposed');
 		},
 
 		toString: function() {

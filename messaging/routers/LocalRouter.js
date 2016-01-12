@@ -40,6 +40,8 @@ module.exports = function() {
 
 		_onDispose: function() {
 			this._requestHandlers = null;
+
+			logger.debug('Local router disposed');
 		},
 
 		toString: function() {

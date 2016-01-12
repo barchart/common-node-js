@@ -71,6 +71,8 @@ module.exports = function() {
 			});
 
 			this._routers = null;
+
+			logger.debug('Composite router disposed');
 		},
 
 		toString: function() {

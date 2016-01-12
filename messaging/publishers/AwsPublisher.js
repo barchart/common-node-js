@@ -40,7 +40,7 @@ module.exports = function() {
 
 			return when.join(that._snsProvider.start(), that._sqsProvider.start())
 				.then(function(ignored) {
-					return;
+					logger.debug('AWS publisher started');
 				});
 		},
 
@@ -123,6 +123,8 @@ module.exports = function() {
 			when.map(subscriptionPromises, function(subscriptionData) {
 				subscriptionData.binding.dispose();
 			});
+
+			logger.debug('AWS publisher disposed');
 		},
 
 		toString: function() {

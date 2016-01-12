@@ -50,7 +50,14 @@ module.exports = function() {
 					}
 				});
 
+				var responseQueueBinding = Disposable.fromAction(function() {
+					that._sqsProvider.deleteQueue(responseQueueName);
+				});
+
+				that._disposeStack.push(responseQueueBinding);
 				that._disposeStack.push(responseObserver);
+
+				logger.debug('AWS router started');
 			});
 		},
 
@@ -103,7 +110,11 @@ module.exports = function() {
 		},
 
 		_onDispose: function() {
+			var that = this;
+
 			that._disposeStack.dispose();
+
+			logger.debug('AWS router disposed');
 		},
 
 		toString: function() {
@@ -112,7 +123,7 @@ module.exports = function() {
 	});
 
 	function getResponseChannel(routerId) {
-		return 'response-' + this._routerId;
+		return 'response-' + routerId;
 	}
 
 	return AwsRouter;

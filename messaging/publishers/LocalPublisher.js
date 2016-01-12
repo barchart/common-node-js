@@ -40,6 +40,8 @@ module.exports = function() {
 			});
 
 			this._subscriptions = null;
+
+			logger.debug('Local publisher disposed');
 		},
 
 		toString: function() {
