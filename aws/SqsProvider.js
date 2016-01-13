@@ -331,7 +331,48 @@ module.exports = function() {
 
 			return that._queueObservers[queueName];
 		},
-		
+
+		setQueuePolicy: function(queueName, policy) {
+			assert.argumentIsRequired(queueName, 'queueName', String);
+			assert.argumentIsRequired(policy, 'policy', Object);
+
+			var that = this;
+
+			if (that.getIsDisposed()) {
+				throw new Error('The SQS Provider has been disposed.');
+			}
+
+			if (!that._started) {
+				throw new Error('The SQS Provider has not been started.');
+			}
+
+			return that.getQueueUrl(queueName)
+				.then(function(queueUrl) {
+					logger.debug('Setting SQS queue policy:', queueName);
+					logger.trace(policy);
+
+					return when.promise(function(resolveCallback, rejectCallback) {
+						that._sqs.setQueueAttributes({
+							QueueUrl: queueUrl,
+							Attributes: {
+								Policy: JSON.stringify(policy)
+							}
+						}, function (error, data) {
+							if (error === null) {
+								logger.warn('SQS queue policy set.');
+
+								resolveCallback();
+							} else {
+								logger.error('SQS queue policy update failed:', queueName);
+								logger.error(error);
+
+								rejectCallback('Failed to create SQS queue.');
+							}
+						});
+					});
+				});
+		},
+
 		_onDispose: function() {
 			this._sqs = null;
 
@@ -492,6 +533,29 @@ module.exports = function() {
 			}
 		);
 	}
+
+	SqsProvider.getPolicyForSnsDelivery = function(queueArn, topicArn) {
+		var currentDate = new Date();
+
+		return {
+			Version: "2008-10-17",
+			Id: queueArn + "/SQSDefaultPolicy",
+			Statement: [{
+				Sid: "Sid" + currentDate.getTime(),
+				Effect: "Allow",
+				Principal: {
+					AWS: "*"
+				},
+				Action: "SQS:SendMessage",
+				Resource: queueArn,
+				Condition: {
+					ArnEquals: {
+						"aws:SourceArn": topicArn
+					}
+				}
+			}]
+		};
+	};
 
 	return SqsProvider;
 }();

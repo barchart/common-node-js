@@ -66,92 +66,58 @@ module.exports = function() {
 
 				subscriptionStack.push(subscriptionEvent);
 
-				that._subscriptionPromises[messageType] = that._sqsProvider.getQueueArn(subscriptionQueueName)
-					.then(function(queueArn) {
-						subscriptionStack.push(Disposable.fromAction(function() {
-							that._sqsProvider.deleteQueue(subscriptionQueueName);
-						}));
+				that._subscriptionPromises[messageType] = when.join(
+					that._snsProvider.getTopicArn(messageType),
+					that._sqsProvider.getQueueArn(subscriptionQueueName))
+						.then(function(resultGroup) {
+							var topicArn = resultGroup[0];
+							var queueArn = resultGroup[1];
 
-						return that._snsProvider.getTopicArn(messageType)
-							.then(function(topicArn) {
-								return that._snsProvider.subscribe(messageType, queueArn)
-									.then(function() {
-										var currentDate = new Date();
+							subscriptionStack.push(Disposable.fromAction(function() {
+								that._sqsProvider.deleteQueue(subscriptionQueueName);
+							}));
 
-										return that._sqsProvider.getQueueUrl(subscriptionQueueName)
-											.then(function(queueUrl) {
-												return when.promise(function(resolveCallback, rejectCallback) {
-													var attributes = {
-														Version: "2008-10-17",
-														Id: queueArn + "/SQSDefaultPolicy",
-														Statement: [{
-															Sid: "Sid" + currentDate.getTime(),
-															Effect: "Allow",
-															Principal: {
-																AWS: "*"
-															},
-															Action: "SQS:SendMessage",
-															Resource: queueArn,
-															Condition: {
-																ArnEquals: {
-																	"aws:SourceArn": topicArn
-																}
-															}
-														}]
-													};
+							return that._sqsProvider.setQueuePolicy(subscriptionQueueName, SqsProvider.getPolicyForSnsDelivery(queueArn, topicArn))
+								.then(function() {
+									return that._snsProvider.subscribe(messageType, queueArn);
+								});
+						}).then(function(queueBinding) {
+							subscriptionStack.push(queueBinding);
 
-													that._sqsProvider._sqs.setQueueAttributes({
-														QueueUrl: queueUrl,
-														Attributes: {
-															'Policy': JSON.stringify(attributes)
-														}
-													}, function (error, data) {
-														if (error === null) {
-															logger.warn('attributes set');
-															logger.warn(data);
+							return that._sqsProvider.observe(subscriptionQueueName, function(envelope) {
+								if (!_.isObject(envelope) || !_.isString(envelope.Message)) {
+									return;
+								}
 
-															resolveCallback();
-														} else {
-															logger.warn(error);
+								var message = JSON.parse(envelope.Message);
 
-															rejectCallback();
-														}
-													});
-												});
-											});
-									});
+								var content;
+								var echo;
+
+								if (_.isString(message.publisher) && _.isObject(message.payload)) {
+									content = message.payload;
+									echo = message.publisher === that._publisherId;
+								} else {
+									content = message;
+									echo = false;
+								}
+
+								if (!echo || !that._suppressEcho) {
+									subscriptionEvent.fire(content);
+								}
 							});
-					}).then(function(queueBinding) {
-						subscriptionStack.push(queueBinding);
+						}).then(function(queueObserver) {
+							subscriptionStack.push(queueObserver);
 
-						return that._sqsProvider.observe(subscriptionQueueName, function(message) {
-							var content;
-							var echo;
-							
-							if (_.isString(message.publisher) && _.isObject(message.payload)) {
-								content = message.payload;
-								echo = message.publisher === that._publisherId;
-							} else {
-								content = message;
-								echo = false;
-							}
-							
-							if (!echo || !that._suppressEcho) {
-								subscriptionEvent.fire(message);
-							}
+							subscriptionStack.push(Disposable.fromAction(function() {
+								delete that._subscriptionPromises[messageType];
+							}));
+
+							return {
+								binding: subscriptionStack,
+								event: subscriptionEvent
+							};
 						});
-					}).then(function(queueObserver) {
-						subscriptionStack.push(queueObserver);
-
-						subscriptionStack.push(Disposable.fromAction(function() {
-							delete that._subscriptionPromises[messageType];
-						}));
-
-						return {
-							binding: subscriptionStack,
-							event: subscriptionEvent
-						};
-					});
 			}
 			
 			return that._subscriptionPromises[messageType]
@@ -183,6 +149,6 @@ module.exports = function() {
 	function getSubscriptionQueue(messageType) {
 		return messageType + '-subscriber-' + this._publisherId;
 	}
-	
+
 	return AwsPublisher;
 }();
