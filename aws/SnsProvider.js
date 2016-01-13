@@ -162,13 +162,15 @@ module.exports = function() {
 				.then(function(topicArn) {
 					return when.promise(
 						function(resolveCallback, rejectCallback) {
-							logger.debug('Deleting SNS topic:', topicName);
+							logger.debug('Publishing to SNS topic:', topicName);
 
 							that._sns.publish({
 								TopicArn: topicArn,
 								Message: JSON.stringify(payload)
 							}, function(error, data) {
 								if (error === null) {
+									logger.debug('Published to SNS topic:', topicName);
+
 									resolveCallback();
 								} else {
 									logger.error(error);
