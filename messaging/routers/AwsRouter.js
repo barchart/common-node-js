@@ -65,7 +65,6 @@ module.exports = function() {
 			return true;
 		},
 
-
 		_route: function(messageType, payload) {
 			var that = this;
 

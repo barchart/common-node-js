@@ -72,7 +72,55 @@ module.exports = function() {
 							that._sqsProvider.deleteQueue(subscriptionQueueName);
 						}));
 
-						return that._snsProvider.subscribe(messageType, queueArn);
+						return that._snsProvider.getTopicArn(messageType)
+							.then(function(topicArn) {
+								return that._snsProvider.subscribe(messageType, queueArn)
+									.then(function() {
+										var currentDate = new Date();
+
+										return that._sqsProvider.getQueueUrl(subscriptionQueueName)
+											.then(function(queueUrl) {
+												return when.promise(function(resolveCallback, rejectCallback) {
+													var attributes = {
+														Version: "2008-10-17",
+														Id: queueArn + "/SQSDefaultPolicy",
+														Statement: [{
+															Sid: "Sid" + currentDate.getTime(),
+															Effect: "Allow",
+															Principal: {
+																AWS: "*"
+															},
+															Action: "SQS:SendMessage",
+															Resource: queueArn,
+															Condition: {
+																ArnEquals: {
+																	"aws:SourceArn": topicArn
+																}
+															}
+														}]
+													};
+
+													that._sqsProvider._sqs.setQueueAttributes({
+														QueueUrl: queueUrl,
+														Attributes: {
+															'Policy': JSON.stringify(attributes)
+														}
+													}, function (error, data) {
+														if (error === null) {
+															logger.warn('attributes set');
+															logger.warn(data);
+
+															resolveCallback();
+														} else {
+															logger.warn(error);
+
+															rejectCallback();
+														}
+													});
+												});
+											});
+									});
+							});
 					}).then(function(queueBinding) {
 						subscriptionStack.push(queueBinding);
 

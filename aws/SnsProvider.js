@@ -68,26 +68,9 @@ module.exports = function() {
 			}
 
 			if (!_.has(that._topicPromises, topicName)) {
-				that._topicPromises[topicName] = when.promise(
-					function(resolveCallback, rejectCallback) {
-						logger.debug('Creating SNS topic:', topicName);
+				logger.debug('The SNS Provider has not cached the topic ARN. Issuing request to create topic.');
 
-						that._sns.createTopic({
-							Name: topicName
-						}, function(error, data) {
-							if (error === null) {
-								logger.debug('SNS topic created:', topicName);
-
-								resolveCallback(data.TopicArn);
-							} else {
-								logger.error('SNS topic creation failed:', topicName);
-								logger.error(error);
-
-								rejectCallback('Failed to create SNS topic.');
-							}
-						});
-					}
-				);
+				that._topicPromises[topicName] = that.createTopic(topicName);
 			}
 
 			return that._topicPromises[topicName];
@@ -96,18 +79,36 @@ module.exports = function() {
 		createTopic: function(topicName) {
 			assert.argumentIsRequired(topicName, 'topicName', String);
 
-			if (this.getIsDisposed()) {
+			var that = this;
+
+			if (that.getIsDisposed()) {
 				throw new Error('The SNS Provider has been disposed.');
 			}
 
-			if (!this._started) {
+			if (!that._started) {
 				throw new Error('The SNS Provider has not been started.');
 			}
 
-			return this.getTopicArn(topicName)
-				.then(function(ignored) {
-					return;
-				});
+			return when.promise(
+				function(resolveCallback, rejectCallback) {
+					logger.debug('Creating SNS topic:', topicName);
+
+					that._sns.createTopic({
+						Name: topicName
+					}, function(error, data) {
+						if (error === null) {
+							logger.debug('SNS topic created:', topicName);
+
+							resolveCallback(data.TopicArn);
+						} else {
+							logger.error('SNS topic creation failed:', topicName);
+							logger.error(error);
+
+							rejectCallback('Failed to create SNS topic.');
+						}
+					});
+				}
+			);
 		},
 
 		deleteTopic: function(topicName) {
