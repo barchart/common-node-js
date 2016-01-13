@@ -104,6 +104,8 @@ module.exports = function() {
 
 								if (!echo || !that._suppressEcho) {
 									subscriptionEvent.fire(content);
+								} else {
+									logger.debug('AWS publisher dropped an "echo" message for', messageType);
 								}
 							});
 						}).then(function(queueObserver) {
