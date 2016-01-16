@@ -92,11 +92,8 @@ module.exports = function() {
 			var that = this;
 
 			var registerObserver = that._sqsProvider.observe(messageType, function(message) {
-				console.log(message);
-
 				if (!_.isString(message.id) || !_.isString(message.sender) || !_.isObject(message.payload)) {
 					logger.warn('Dropping malformed request received from SQS queue (' + messageType + ').');
-
 					return;
 				}
 
@@ -110,7 +107,7 @@ module.exports = function() {
 						payload: response || { }
 					};
 
-					that._sqsProvider.send(responseQueueName, envelope);
+					return that._sqsProvider.send(responseQueueName, envelope);
 				}).catch(function(e) {
 					logger.error('Request processing failed. Unable to respond.', e);
 				});
