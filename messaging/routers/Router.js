@@ -65,7 +65,7 @@ module.exports = function() {
 
 		route: function(messageType, payload) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
-			assert.argumentIsRequired(payload, 'payload');
+			assert.argumentIsRequired(payload, 'payload', Object);
 
 			var that = this;
 

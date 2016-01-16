@@ -72,13 +72,15 @@ module.exports = function() {
 
 			var envelope = {
 				id: messageId,
-				sender: this._publisherId,
+				sender: that._routerId,
 				payload: payload
 			};
 
+			console.log('sending', envelope);
+
 			var deferred = when.defer();
 
-			that._pendingRequests[messageId] = defer;
+			that._pendingRequests[messageId] = deferred;
 
 			return that._sqsProvider.send(messageType, envelope)
 				.then(function() {
@@ -90,19 +92,28 @@ module.exports = function() {
 			var that = this;
 
 			var registerObserver = that._sqsProvider.observe(messageType, function(message) {
-				return when(handler(message))
-					.then(function(response) {
-						if (_.isObject(response) && _.isString(message.sender) && _.isString(message.id)) {
-							var responseQueueName = getResponseChannel(message.sender);
+				console.log(message);
 
-							var envelope = {
-								id: message.id,
-								payload: response
-							};
+				if (!_.isString(message.id) || !_.isString(message.sender) || !_.isObject(message.payload)) {
+					logger.warn('Dropping malformed request received from SQS queue (' + messageType + ').');
 
-							that._sqsProvider.send(responseQueueName, envelope);
-						}
-					});
+					return;
+				}
+
+				return when.try(function() {
+					return handler(message.payload);
+				}).then(function(response) {
+					var responseQueueName = getResponseChannel(message.sender);
+
+					var envelope = {
+						id: message.id,
+						payload: response || { }
+					};
+
+					that._sqsProvider.send(responseQueueName, envelope);
+				}).catch(function(e) {
+					logger.error('Request processing failed. Unable to respond.', e);
+				});
 			});
 
 			that._disposeStack.push(registerObserver);
