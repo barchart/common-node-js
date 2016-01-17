@@ -132,7 +132,7 @@ module.exports = function() {
 			var qualifiedQueueName = getQualifiedQueueName(that._configuration.prefix, queueName);
 
 			if (!_.has(that._queueArnPromises, qualifiedQueueName)) {
-				that._queueArnPromises[qualifiedQueueName] = that.getQueueUrl(qualifiedQueueName)
+				that._queueArnPromises[qualifiedQueueName] = that.getQueueUrl(queueName)
 					.then(function(queueUrl) {
 						return when.promise(
 							function(resolveCallback, rejectCallback) {
@@ -273,7 +273,7 @@ module.exports = function() {
 				throw new Error('The SQS queue is being observed.');
 			}
 
-			return receiveMessages.call(that, qualifiedQueueName);
+			return receiveMessages.call(that, queueName);
 		},
 
 		observe: function(queueName, callback, interval) {
@@ -314,7 +314,7 @@ module.exports = function() {
 					return;
 				}
 
-				receiveMessages.call(that, qualifiedQueueName)
+				receiveMessages.call(that, queueName)
 					.then(function(messages) {
 						return when.map(messages, function(message) {
 							if (disposed) {
@@ -411,7 +411,7 @@ module.exports = function() {
 		}
 	});
 
-	function receiveMessages(qualifiedQueueName) {
+	function receiveMessages(queueName) {
 		var that = this;
 
 		if (that.getIsDisposed()) {
@@ -422,10 +422,12 @@ module.exports = function() {
 			throw new Error('The SQS Provider has not been started.');
 		}
 
-		return that.getQueueUrl(qualifiedQueueName)
+		return that.getQueueUrl(queueName)
 			.then(function(queueUrl) {
 				return when.promise(
 					function(resolveCallback, rejectCallback) {
+						var qualifiedQueueName = getQualifiedQueueName(that._configuration.prefix, queueName);
+
 						logger.debug('Receiving message(s) from SQS Queue:', qualifiedQueueName);
 
 						that._sqs.receiveMessage({

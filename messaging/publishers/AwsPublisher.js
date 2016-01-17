@@ -38,6 +38,8 @@ module.exports = function() {
 		_start: function() {
 			var that = this;
 
+			logger.debug('AWS publisher starting');
+
 			return when.join(that._snsProvider.start(), that._sqsProvider.start())
 				.then(function(ignored) {
 					logger.debug('AWS publisher started');
@@ -52,11 +54,16 @@ module.exports = function() {
 				payload: payload
 			};
 
+			logger.debug('Publishing message to AWS:', messageType);
+			logger.trace(payload);
+
 			that._snsProvider.publish(messageType, envelope);
 		},
 
 		_subscribe: function(messageType, handler) {
 			var that = this;
+
+			logger.debug('Subscribing to AWS messages:', messageType);
 
 			if (!_.has(that._subscriptionPromises, messageType)) {
 				var subscriptionStack = new DisposableStack();
@@ -149,7 +156,7 @@ module.exports = function() {
 	});
 
 	function getSubscriptionQueue(messageType) {
-		return messageType + '-subscriber-' + this._publisherId;
+		return messageType + '-' + this._publisherId;
 	}
 
 	return AwsPublisher;

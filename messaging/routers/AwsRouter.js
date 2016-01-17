@@ -33,6 +33,8 @@ module.exports = function() {
 		_start: function() {
 			var that = this;
 
+			logger.debug('AWS router starting');
+
 			return when.try(function() {
 				that._sqsProvider.start();
 			}).then(function(ignored) {
@@ -68,6 +70,9 @@ module.exports = function() {
 		_route: function(messageType, payload) {
 			var that = this;
 
+			logger.debug('Routing message to AWS:', messageType);
+			logger.trace(payload);
+
 			var messageId = uuid.v4();
 
 			var envelope = {
@@ -88,6 +93,8 @@ module.exports = function() {
 
 		_register: function(messageType, handler) {
 			var that = this;
+
+			logger.debug('Registering AWS handler for:', messageType);
 
 			var registerObserver = that._sqsProvider.observe(messageType, function(message) {
 				if (!_.isString(message.id) || !_.isString(message.sender) || !_.isObject(message.payload)) {
