@@ -15,6 +15,7 @@ module.exports = function() {
 		init: function(configuration) {
 			assert.argumentIsRequired(configuration, 'configuration');
 			assert.argumentIsRequired(configuration.region, 'configuration.region', String);
+			assert.argumentIsRequired(configuration.prefix, 'configuration.prefix', String);
 			assert.argumentIsOptional(configuration.apiVersion, 'configuration.apiVersion', String);
 
 			this._super();
@@ -67,13 +68,19 @@ module.exports = function() {
 				throw new Error('The SNS Provider has been disposed.');
 			}
 
-			if (!_.has(that._topicPromises, topicName)) {
-				logger.debug('The SNS Provider has not cached the topic ARN. Issuing request to create topic.');
-
-				that._topicPromises[topicName] = that.createTopic(topicName);
+			if (!that._started) {
+				throw new Error('The SNS Provider has not been started.');
 			}
 
-			return that._topicPromises[topicName];
+			var qualifiedTopicName = getQualifiedTopicName(that._configuration.prefix, topicName);
+
+			if (!_.has(that._topicPromises, qualifiedTopicName)) {
+				logger.debug('The SNS Provider has not cached the topic ARN. Issuing request to create topic.');
+
+				that._topicPromises[qualifiedTopicName] = that.createTopic(topicName);
+			}
+
+			return that._topicPromises[qualifiedTopicName];
 		},
 
 		createTopic: function(topicName) {
@@ -91,17 +98,19 @@ module.exports = function() {
 
 			return when.promise(
 				function(resolveCallback, rejectCallback) {
-					logger.debug('Creating SNS topic:', topicName);
+					var qualifiedTopicName = getQualifiedTopicName(that._configuration.prefix, topicName);
+
+					logger.debug('Creating SNS topic:', qualifiedTopicName);
 
 					that._sns.createTopic({
-						Name: topicName
+						Name: qualifiedTopicName
 					}, function(error, data) {
 						if (error === null) {
-							logger.debug('SNS topic created:', topicName);
+							logger.debug('SNS topic created:', qualifiedTopicName);
 
 							resolveCallback(data.TopicArn);
 						} else {
-							logger.error('SNS topic creation failed:', topicName);
+							logger.error('SNS topic creation failed:', qualifiedTopicName);
 							logger.error(error);
 
 							rejectCallback('Failed to create SNS topic.');
@@ -114,31 +123,33 @@ module.exports = function() {
 		deleteTopic: function(topicName) {
 			assert.argumentIsRequired(topicName, 'topicName', String);
 
-			if (this.getIsDisposed()) {
+			var that = this;
+
+			if (that.getIsDisposed()) {
 				throw new Error('The SNS Provider has been disposed.');
 			}
 
-			if (!this._started) {
+			if (!that._started) {
 				throw new Error('The SNS Provider has not been started.');
 			}
 
-			var that = this;
-
 			return that.getTopicArn(topicName)
 				.then(function(topicArn) {
+					var qualifiedTopicName = getQualifiedTopicName(that._configuration.prefix, topicName);
+
 					return when.promise(
 						function(resolveCallback, rejectCallback) {
-							logger.debug('Deleting SNS topic:', topicName);
+							logger.debug('Deleting SNS topic:', qualifiedTopicName);
 
 							that._sns.deleteTopic({
 								TopicArn: topicArn
 							}, function(error, data) {
 								if (error === null) {
-									logger.debug('SNS topic deleted:', topicName);
+									logger.debug('SNS topic deleted:', qualifiedTopicName);
 
 									resolveCallback();
 								} else {
-									logger.error('SNS topic deletion failed:', topicName);
+									logger.error('SNS topic deletion failed:', qualifiedTopicName);
 									logger.error(error);
 
 									rejectCallback('Failed to delete SNS topic.');
@@ -159,18 +170,25 @@ module.exports = function() {
 				throw new Error('The SNS Provider has been disposed.');
 			}
 
+			if (!that._started) {
+				throw new Error('The SNS Provider has not been started.');
+			}
+
 			return that.getTopicArn(topicName)
 				.then(function(topicArn) {
+					var qualifiedTopicName = getQualifiedTopicName(that._configuration.prefix, topicName);
+
 					return when.promise(
 						function(resolveCallback, rejectCallback) {
-							logger.debug('Publishing to SNS topic:', topicName);
+							logger.debug('Publishing to SNS topic:', qualifiedTopicName);
+							logger.trace(payload);
 
 							that._sns.publish({
 								TopicArn: topicArn,
 								Message: JSON.stringify(payload)
 							}, function(error, data) {
 								if (error === null) {
-									logger.debug('Published to SNS topic:', topicName);
+									logger.debug('Published to SNS topic:', qualifiedTopicName);
 
 									resolveCallback();
 								} else {
@@ -194,12 +212,18 @@ module.exports = function() {
 				throw new Error('The SNS Provider has been disposed.');
 			}
 
-			if (!_.has(that._subscriptionPromises, topicName)) {
-				that._subscriptionPromises[topicName] = that.getTopicArn(topicName)
+			if (!that._started) {
+				throw new Error('The SNS Provider has not been started.');
+			}
+
+			var qualifiedTopicName = getQualifiedTopicName(that._configuration.prefix, topicName);
+
+			if (!_.has(that._subscriptionPromises, qualifiedTopicName)) {
+				that._subscriptionPromises[qualifiedTopicName] = that.getTopicArn(topicName)
 					.then(function(topicArn) {
 						return when.promise(
 							function(resolveCallback, rejectCallback) {
-								logger.debug('Subscribing SQS queue to SNS topic:', topicName);
+								logger.debug('Subscribing SQS queue to SNS topic:', qualifiedTopicName);
 
 								that._sns.subscribe({
 									'TopicArn': topicArn,
@@ -207,30 +231,30 @@ module.exports = function() {
 									'Protocol': 'sqs'
 								}, function(error, data) {
 									if (error === null) {
-										logger.debug('SNS subscription to SQS topic complete:', topicName);
+										logger.debug('SNS subscription to SQS topic complete:', qualifiedTopicName);
 
 										resolveCallback(Disposable.fromAction(function() {
 											if (that.getIsDisposed()) {
 												return;
 											}
 
-											logger.debug('Unsubscribing SQS queue from SNS topic:', topicName);
+											logger.debug('Unsubscribing SQS queue from SNS topic:', qualifiedTopicName);
 
-											delete that._subscriptionPromises[topicName];
+											delete that._subscriptionPromises[qualifiedTopicName];
 
 											that._sns.unsubscribe({
 												SubscriptionArn: data.SubscriptionArn
 											}, function(error, data) {
 												if (error === null) {
-													logger.debug('SQS unsubscribe from SNS topic complete:', topicName);
+													logger.debug('SQS unsubscribe from SNS topic complete:', qualifiedTopicName);
 												} else {
-													logger.error('SQS unsubscribe from SNS topic failed:', topicName);
+													logger.error('SQS unsubscribe from SNS topic failed:', qualifiedTopicName);
 													logger.error(error);
 												}
 											});
 										}));
 									} else {
-										logger.error('SNS subscription to SQS topic failed:', topicName);
+										logger.error('SNS subscription to SQS topic failed:', qualifiedTopicName);
 										logger.error(error);
 
 										rejectCallback('Failed to subscribe to SNS topic.');
@@ -241,7 +265,7 @@ module.exports = function() {
 					});
 			}
 
-			return that._subscriptionPromises[topicName];
+			return that._subscriptionPromises[qualifiedTopicName];
 		},
 
 		_onDispose: function() {
@@ -257,6 +281,10 @@ module.exports = function() {
 			return '[SnsProvider]';
 		}
 	});
+
+	function getQualifiedTopicName(prefix, topicName) {
+		return prefix + '-' + topicName;
+	}
 
 	return SnsProvider;
 }();

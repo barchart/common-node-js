@@ -16,6 +16,7 @@ module.exports = function() {
 		init: function(configuration) {
 			assert.argumentIsRequired(configuration, 'configuration');
 			assert.argumentIsRequired(configuration.region, 'configuration.region', String);
+			assert.argumentIsRequired(configuration.prefix, 'configuration.prefix', String);
 			assert.argumentIsOptional(configuration.apiVersion, 'configuration.apiVersion', String);
 
 			this._super();
@@ -73,34 +74,36 @@ module.exports = function() {
 		getQueueUrl: function(queueName) {
 			assert.argumentIsRequired(queueName, 'queueName', String);
 
-			if (this.getIsDisposed()) {
+			var that = this;
+			
+			if (that.getIsDisposed()) {
 				throw new Error('The SQS Provider has been disposed.');
 			}
 
-			if (!this._started) {
+			if (!that._started) {
 				throw new Error('The SQS Provider has not been started.');
 			}
+			
+			var qualifiedQueueName = getQualifiedQueueName(that._configuration.prefix, queueName);
 
-			var that = this;
-
-			if (!_.has(that._queueUrlPromises, queueName)) {
-				that._queueUrlPromises[queueName] = when.promise(
+			if (!_.has(that._queueUrlPromises, qualifiedQueueName)) {
+				that._queueUrlPromises[qualifiedQueueName] = when.promise(
 					function(resolveCallback, rejectCallback) {
-						logger.debug('Creating SQS queue:', queueName);
+						logger.debug('Creating SQS queue:', qualifiedQueueName);
 
 						that._sqs.createQueue({
-							QueueName: queueName
+							QueueName: qualifiedQueueName
 						}, function(error, data) {
 							if (error === null) {
-								logger.debug('SQS queue created:', queueName);
+								logger.debug('SQS queue created:', qualifiedQueueName);
 
 								var queueUrl = data.QueueUrl;
 
-								that._knownQueues[queueName] = queueUrl;
+								that._knownQueues[qualifiedQueueName] = queueUrl;
 
 								resolveCallback(queueUrl);
 							} else {
-								logger.error('SQS queue creation failed:', queueName);
+								logger.error('SQS queue creation failed:', qualifiedQueueName);
 								logger.error(error);
 
 								rejectCallback('Failed to create SQS queue.');
@@ -110,39 +113,41 @@ module.exports = function() {
 				);
 			}
 
-			return that._queueUrlPromises[queueName];
+			return that._queueUrlPromises[qualifiedQueueName];
 		},
 
 		getQueueArn: function(queueName) {
 			assert.argumentIsRequired(queueName, 'queueName', String);
 
-			if (this.getIsDisposed()) {
+			var that = this;
+			
+			if (that.getIsDisposed()) {
 				throw new Error('The SQS Provider has been disposed.');
 			}
 
-			if (!this._started) {
+			if (!that._started) {
 				throw new Error('The SQS Provider has not been started.');
 			}
 
-			var that = this;
+			var qualifiedQueueName = getQualifiedQueueName(that._configuration.prefix, queueName);
 
-			if (!_.has(that._queueArnPromises, queueName)) {
-				that._queueArnPromises[queueName] = that.getQueueUrl(queueName)
+			if (!_.has(that._queueArnPromises, qualifiedQueueName)) {
+				that._queueArnPromises[qualifiedQueueName] = that.getQueueUrl(qualifiedQueueName)
 					.then(function(queueUrl) {
 						return when.promise(
 							function(resolveCallback, rejectCallback) {
-								logger.debug('Getting SQS Queue attributes:', queueName);
+								logger.debug('Getting SQS Queue attributes:', qualifiedQueueName);
 
 								that._sqs.getQueueAttributes({
 									QueueUrl: queueUrl,
 									AttributeNames: [ 'QueueArn' ]
 								}, function(error, data) {
 									if (error === null) {
-										logger.debug('SQS Queue attribute lookup complete:', queueName);
+										logger.debug('SQS Queue attribute lookup complete:', qualifiedQueueName);
 
 										resolveCallback(data.Attributes.QueueArn);
 									} else {
-										logger.error('SQS queue attribute lookup failed:', queueName);
+										logger.error('SQS queue attribute lookup failed:', qualifiedQueueName);
 										logger.error(error);
 
 										rejectCallback('Failed to lookup ARN for SQS queue.');
@@ -153,7 +158,7 @@ module.exports = function() {
 					});
 			}
 
-			return that._queueArnPromises[queueName];
+			return that._queueArnPromises[qualifiedQueueName];
 		},
 
 		createQueue: function(queueName) {
@@ -188,14 +193,16 @@ module.exports = function() {
 				throw new Error('The SQS Provider has not been started.');
 			}
 
+			var qualifiedQueueName = getQualifiedQueueName(that._configuration.prefix, queueName);
+			
 			var deletePromise;
 
-			if (_.has(that._knownQueues, queueName)) {
-				deletePromise = executeQueueDelete.call(that, queueName, that._knownQueues[queueName]);
+			if (_.has(that._knownQueues, qualifiedQueueName)) {
+				deletePromise = executeQueueDelete.call(that, qualifiedQueueName, that._knownQueues[qualifiedQueueName]);
 			} else {
 				deletePromise = that.getQueueUrl(queueName)
 					.then(function(queueUrl) {
-						return executeQueueDelete.call(that, queueName, queueUrl);
+						return executeQueueDelete.call(that, qualifiedQueueName, queueUrl);
 					});
 			}
 
@@ -215,26 +222,28 @@ module.exports = function() {
 			if (!that._started) {
 				throw new Error('The SQS Provider has not been started.');
 			}
-
+			
 			return that.getQueueUrl(queueName)
 				.then(function(queueUrl) {
 					return when.promise(
 						function(resolveCallback, rejectCallback) {
 							var counter = ++that._counter;
 
-							logger.debug('Sending message', counter,'to SQS Queue:', queueName);
-							logger.trace('Sending message', counter,'to SQS Queue:', queueName, '\n\r', payload);
+							var qualifiedQueueName = getQualifiedQueueName(that._configuration.prefix, queueName);
+							
+							logger.debug('Sending message', counter,'to SQS Queue:', qualifiedQueueName);
+							logger.trace(payload);
 
 							that._sqs.sendMessage({
 								QueueUrl: queueUrl,
 								MessageBody: JSON.stringify(payload)
 							}, function(error, data) {
 								if (error === null) {
-									logger.debug('Sent message', counter,'to SQS Queue:', queueName);
+									logger.debug('Sent message', counter,'to SQS Queue:', qualifiedQueueName);
 
 									resolveCallback();
 								} else {
-									logger.error('SQS queue send', counter,' failed:', queueName);
+									logger.error('SQS queue send', counter,' failed:', qualifiedQueueName);
 									logger.error(error);
 
 									rejectCallback('Failed to send messages to SQS queue.');
@@ -258,11 +267,13 @@ module.exports = function() {
 				throw new Error('The SQS Provider has not been started.');
 			}
 
-			if (_.has(that._queueObservers, queueName)) {
+			var qualifiedQueueName = getQualifiedQueueName(that._configuration.prefix, queueName);
+			
+			if (_.has(that._queueObservers, qualifiedQueueName)) {
 				throw new Error('The SQS queue is being observed.');
 			}
 
-			return receiveMessages.call(that, queueName);
+			return receiveMessages.call(that, qualifiedQueueName);
 		},
 
 		observe: function(queueName, callback, interval) {
@@ -280,20 +291,22 @@ module.exports = function() {
 				throw new Error('The SQS Provider has not been started.');
 			}
 
-			if (_.has(that._queueObservers, queueName)) {
+			var qualifiedQueueName = getQualifiedQueueName(that._configuration.prefix, queueName);
+			
+			if (_.has(that._queueObservers, qualifiedQueueName)) {
 				throw new Error('The SQS queue is already being observed.');
 			}
 
-			logger.debug('Creating observer for SQS queue:', queueName);
+			logger.debug('Creating observer for SQS queue:', qualifiedQueueName);
 
 			var disposed = false;
 
-			that._queueObservers[queueName] = Disposable.fromAction(function() {
-				logger.debug('Disposing observer of SQS queue:', queueName);
+			that._queueObservers[qualifiedQueueName] = Disposable.fromAction(function() {
+				logger.debug('Disposing observer of SQS queue:', qualifiedQueueName);
 
 				disposed = true;
 
-				delete that._queueObservers[queueName];
+				delete that._queueObservers[qualifiedQueueName];
 			});
 
 			var checkQueue = function() {
@@ -301,7 +314,7 @@ module.exports = function() {
 					return;
 				}
 
-				receiveMessages.call(that, queueName)
+				receiveMessages.call(that, qualifiedQueueName)
 					.then(function(messages) {
 						return when.map(messages, function(message) {
 							if (disposed) {
@@ -322,14 +335,14 @@ module.exports = function() {
 								delay = 0;
 							}
 
-							that._scheduler.schedule(checkQueue, delay, 'Check SQS Queue (' + queueName + ')');
+							that._scheduler.schedule(checkQueue, delay, 'Check SQS Queue (' + qualifiedQueueName + ')');
 						});
 					});
 			};
 
 			checkQueue();
 
-			return that._queueObservers[queueName];
+			return that._queueObservers[qualifiedQueueName];
 		},
 
 		setQueuePolicy: function(queueName, policy) {
@@ -348,7 +361,9 @@ module.exports = function() {
 
 			return that.getQueueUrl(queueName)
 				.then(function(queueUrl) {
-					logger.debug('Setting SQS queue policy:', queueName);
+					var qualifiedQueueName = getQualifiedQueueName(that._configuration.prefix, queueName);
+					
+					logger.debug('Updating SQS queue policy:', qualifiedQueueName);
 					logger.trace(policy);
 
 					return when.promise(function(resolveCallback, rejectCallback) {
@@ -359,14 +374,14 @@ module.exports = function() {
 							}
 						}, function (error, data) {
 							if (error === null) {
-								logger.warn('SQS queue policy set.');
+								logger.warn('SQS queue policy updated for:', qualifiedQueueName);
 
 								resolveCallback();
 							} else {
-								logger.error('SQS queue policy update failed:', queueName);
+								logger.error('SQS queue policy update failed:', qualifiedQueueName);
 								logger.error(error);
 
-								rejectCallback('Failed to create SQS queue.');
+								rejectCallback('Failed to update SQS queue policy.');
 							}
 						});
 					});
@@ -396,7 +411,7 @@ module.exports = function() {
 		}
 	});
 
-	function receiveMessages(queueName) {
+	function receiveMessages(qualifiedQueueName) {
 		var that = this;
 
 		if (that.getIsDisposed()) {
@@ -407,11 +422,11 @@ module.exports = function() {
 			throw new Error('The SQS Provider has not been started.');
 		}
 
-		return that.getQueueUrl(queueName)
+		return that.getQueueUrl(qualifiedQueueName)
 			.then(function(queueUrl) {
 				return when.promise(
 					function(resolveCallback, rejectCallback) {
-						logger.debug('Receiving message(s) from SQS Queue:', queueName);
+						logger.debug('Receiving message(s) from SQS Queue:', qualifiedQueueName);
 
 						that._sqs.receiveMessage({
 							QueueUrl: queueUrl
@@ -420,7 +435,8 @@ module.exports = function() {
 								var messagesExist = _.isArray(data.Messages) && data.Messages.length !== 0;
 
 								if (messagesExist) {
-									logger.debug('Received', data.Messages.length, 'message(s) from SQS Queue:', queueName);
+									logger.debug('Received', data.Messages.length, 'message(s) from SQS Queue:', qualifiedQueueName);
+									logger.trace(data.Messages);
 								}
 
 								var messages;
@@ -435,7 +451,7 @@ module.exports = function() {
 									messages = null;
 								} finally {
 									if (messagesExist) {
-										deleteMessages.call(that, queueName, queueUrl, data.Messages);
+										deleteMessages.call(that, qualifiedQueueName, queueUrl, data.Messages);
 									}
 								}
 
@@ -445,7 +461,7 @@ module.exports = function() {
 									rejectCallback('Failed to parse message(s) received from SQS queue.');
 								}
 							} else {
-								logger.error('SQS receive messages failed:', queueName);
+								logger.error('SQS receive messages failed:', qualifiedQueueName);
 								logger.error(error);
 
 								rejectCallback('Failed to receive messages from SQS queue.');
@@ -456,7 +472,7 @@ module.exports = function() {
 			});
 	}
 	
-	function deleteMessages(queueName, queueUrl, messages) {
+	function deleteMessages(qualifiedQueueName, queueUrl, messages) {
 		var that = this;
 
 		var messageCount = messages.length;
@@ -469,7 +485,7 @@ module.exports = function() {
 
 		return when.promise(
 			function(resolveCallback, rejectCallback) {
-				logger.debug('Deleting', messageCount, 'message(s) from SQS Queue:', queueName);
+				logger.debug('Deleting', messageCount, 'message(s) from SQS Queue:', qualifiedQueueName);
 
 				that._sqs.deleteMessageBatch({
 					QueueUrl: queueUrl,
@@ -489,17 +505,17 @@ module.exports = function() {
 							deletedCount = messageCount;
 						}
 
-						logger.debug('Deleted', deletedCount, 'message(s) from SQS Queue:', queueName);
+						logger.debug('Deleted', deletedCount, 'message(s) from SQS Queue:', qualifiedQueueName);
 
 						if (deletedCount !== messageCount) {
-							logger.warn('Failed to delete', data.Failed.length, 'message(s) from SQS Queue:', queueName);
+							logger.warn('Failed to delete', data.Failed.length, 'message(s) from SQS Queue:', qualifiedQueueName);
 
 							rejectCallback('Failed to delete some messages from SQS queue.');
 						} else {
 							resolveCallback();
 						}
 					} else {
-						logger.error('SQS message delete failed:', queueName);
+						logger.error('SQS message delete failed:', qualifiedQueueName);
 						logger.error(error);
 
 						rejectCallback('Failed to delete messages from SQS queue.');
@@ -509,22 +525,22 @@ module.exports = function() {
 		);
 	}
 
-	function executeQueueDelete(queueName, queueUrl) {
+	function executeQueueDelete(qualifiedQueueName, queueUrl) {
 		var that = this;
 
 		return when.promise(
 			function(resolveCallback, rejectCallback) {
-				logger.debug('Deleting SQS Queue:', queueName);
+				logger.debug('Deleting SQS Queue:', qualifiedQueueName);
 
 				that._sqs.deleteQueue({
 					QueueUrl: queueUrl
 				}, function(error, data) {
 					if (error === null) {
-						logger.debug('SQS Queue deleted:', queueName);
+						logger.debug('SQS Queue deleted:', qualifiedQueueName);
 
 						resolveCallback();
 					} else {
-						logger.error('SQS queue delete failed:', queueName);
+						logger.error('SQS queue delete failed:', qualifiedQueueName);
 						logger.error(error);
 
 						rejectCallback('Failed to delete SQS queue.');
@@ -557,5 +573,9 @@ module.exports = function() {
 		};
 	};
 
+	function getQualifiedQueueName(prefix, queueName) {
+		return prefix + '-' + queueName;
+	}
+	
 	return SqsProvider;
 }();

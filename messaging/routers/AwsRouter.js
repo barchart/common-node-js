@@ -75,7 +75,7 @@ module.exports = function() {
 				sender: that._routerId,
 				payload: payload
 			};
-			
+
 			var deferred = when.defer();
 
 			that._pendingRequests[messageId] = deferred;
