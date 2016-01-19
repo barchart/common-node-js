@@ -116,7 +116,7 @@ module.exports = function() {
                 throw new Error('Unable to add handler for socket.io channel, the server has already been started.');
             }
 
-			var completePath = path + channel;
+			var completePath = 'request' + path + channel;
 
 			if (_.has(this._socketMap, completePath)) {
 				throw new Error('Unable to add handler for socket.io channel, another handler is already using this channel.');
@@ -130,10 +130,12 @@ module.exports = function() {
                 throw new Error('Unable to start server, the has already been started.');
             }
 
-            this._started = true;
+			var that = this;
 
-            var secure = this.getIsSecure();
-            var port = this.getPort();
+			that._started = true;
+
+            var secure = that.getIsSecure();
+            var port = that.getPort();
 
             var app = new express();
 
@@ -150,10 +152,10 @@ module.exports = function() {
                 next();
             });
 
-			if (_.some(this._routeMap)) {
+			if (_.some(that._routeMap)) {
 				var routeBindingStrategies = ExpressRouteBindingStrategy.getStrategies();
 
-				_.forEach(this._routeMap, function (routeData) {
+				_.forEach(that._routeMap, function (routeData) {
 					var basePath = routeData.path;
 					var router = express.Router();
 
@@ -187,11 +189,11 @@ module.exports = function() {
 				server = http.createServer(app);
 			}
 
-			if (_.some(this._socketMap)) {
+			if (_.some(that._socketMap)) {
 				var io = socketIO.listen(server);
 
-				_.forEach(this._socketMap, function(command, channel) {
-					logger.info('Socket.IO handler on port', port, 'will respond to channel', channel);
+				_.forEach(that._socketMap, function(command, channel) {
+					logger.info('Bound handler for Socket.IO on port', port, 'to channel', channel);
 				});
 
 				io.on('connection', function(socket) {
@@ -203,8 +205,8 @@ module.exports = function() {
 						logger.info('Socket.io now has', +_.size(socket.adapter.sids), 'connections');
 					});
 
-					_.forEach(this._socketMap, function(command, channel) {
-						socket.on(channel, buildChannelHandler(name, channel, command, socket));
+					_.forEach(that._socketMap, function(command, channel) {
+						socket.on(channel, buildChannelRequestHandler(channel, command, socket));
 					});
 
 					logger.info('Socket.io client [', socket.id, '] at', socket.conn.remoteAddress, 'on port', port, 'is ready to accept messages');
@@ -452,35 +454,62 @@ module.exports = function() {
             logger.debug('Processing starting for', verb.getCode(), 'at', basePath + routePath, '(' + sequence + ')');
 
             return when.try(function() {
-                logger.debug('Processing completed for', verb.getCode(), 'at', basePath + routePath, '(' + sequence + ')');
-
                 return command.process(argumentExtractionStrategy.getCommandArguments(verb, request));
             }).then(function(result) {
                 if (_.isObject(result) || _.isArray(result)) {
                     response.json(result);
                 } else if (verb === Verb.GET && (_.isNull(result) || _.isUndefined(result))) {
                     response.status(404);
-                    response.json(generateResponse('no data'));
+                    response.json(generateRestResponse('no data'));
                 } else {
                     response.status(200);
-                    response.json(generateResponse('success'));
+                    response.json(generateRestResponse('success'));
                 }
+
+				logger.debug('Processing completed for', verb.getCode(), 'at', basePath + routePath, '(' + sequence + ')');
             }).catch(function(error) {
+				logger.error('Processing failed for', verb.getCode(), 'at', basePath + routePath, '(' + sequence + ')');
                 logger.error(error);
 
                 response.status(500);
-                response.json(generateResponse(error.message || error.toString() || 'internal server error'));
+                response.json(generateRestResponse(error.message || error.toString() || 'internal server error'));
             });
         };
     }
 
-	function buildChannelHandler(namespace, channel, command, socket) {
-		return function(socket) {
+	function buildChannelRequestHandler(channel, command, socket) {
+        var sequencer = 0;
 
+		return function(request) {
+            var sequence = sequencer++;
+
+			var requestId = request.requestId;
+
+			if (!_.isString(requestId)) {
+				throw new Error('Unable to process Socket.IO request. A "requestId" property is expected.');
+			}
+
+			logger.debug('Processing starting for Socket.IO event on', channel, '(' + sequence + ')');
+
+			return when.try(function() {
+				return command.process(request.request);
+			}).then(function(result) {
+				var envelope = {
+					requestId: request.requestId,
+					response: result || { }
+				};
+
+				socket.emit('response', envelope);
+
+				logger.debug('Processing completed for Socket.IO event on', channel, '(' + sequence + ')');
+			}).catch(function(error) {
+				logger.error('Processing failed for Socket.IO event on', channel, '(' + sequence + ')');
+				logger.error(error);
+			});
 		};
 	}
 
-    function generateResponse(message) {
+    function generateRestResponse(message) {
         return {
             message: message
         };
