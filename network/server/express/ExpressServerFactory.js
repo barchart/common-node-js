@@ -5,6 +5,7 @@ var express = require('express');
 var http = require('http');
 var https = require('https');
 var log4js = require('log4js');
+var socketIO = require('socket.io');
 var when = require('when');
 
 var Disposable = require('common/lang/Disposable');
@@ -67,6 +68,7 @@ module.exports = function() {
             this._secure = secure;
 
             this._routeMap = { };
+			this._socketMap = { };
 
             this._started = false;
         },
@@ -105,10 +107,22 @@ module.exports = function() {
             this._routeMap[basePath].handlers.push(handlerData);
         },
 
-        addSocket: function() {
+        addChannel: function(path, channel, command) {
+			assert.argumentIsRequired(path, 'path', String);
+			assert.argumentIsRequired(channel, 'channel', String);
+			assert.argumentIsRequired(command, 'command', CommandHandler, 'CommandHandler');
+
             if (this._started) {
-                throw new Error('Unable to add socket, the server has already been started.');
+                throw new Error('Unable to add handler for socket.io channel, the server has already been started.');
             }
+
+			var completePath = path + channel;
+
+			if (_.has(this._socketMap, completePath)) {
+				throw new Error('Unable to add handler for socket.io channel, another handler is already using this channel.');
+			}
+
+			this._socketMap[completePath] = command;
         },
         
         start: function() {
@@ -135,41 +149,67 @@ module.exports = function() {
 
                 next();
             });
-            
-            var routeBindingStrategies = ExpressRouteBindingStrategy.getStrategies();
 
-            _.forEach(this._routeMap, function(routeData) {
-                var basePath = routeData.path;
-                var router = express.Router();
+			if (_.some(this._routeMap)) {
+				var routeBindingStrategies = ExpressRouteBindingStrategy.getStrategies();
 
-                _.forEach(routeData.handlers, function(handlerData) {
-                    var verb = handlerData.verb;
-                    var handler = handlerData.handler;
-                    var routePath = handlerData.path;
+				_.forEach(this._routeMap, function (routeData) {
+					var basePath = routeData.path;
+					var router = express.Router();
 
-                    var routeBindingStrategy = _.find(routeBindingStrategies, function (candidate) {
-                        return candidate.canBind(verb);
-                    });
+					_.forEach(routeData.handlers, function (handlerData) {
+						var verb = handlerData.verb;
+						var handler = handlerData.handler;
+						var routePath = handlerData.path;
 
-                    if (routeBindingStrategy) {
-                        routeBindingStrategy.bind(router, verb, routePath, handler);
+						var routeBindingStrategy = _.find(routeBindingStrategies, function(candidate) {
+							return candidate.canBind(verb);
+						});
 
-                        logger.info('Bound handler for ' + (secure ? 'HTTPS' : 'HTTP') + ' ' + verb.getCode() + ' on port ' + port + ' at ' +  basePath + routePath);
-                    } else {
-                        logger.warn('Unable to find appropriate binding strategy for endpoint using HTTP verb (' + verb.getCode() + ')');
-                    }
-                });
-                
-                app.use(basePath, router);
-            });
+						if (routeBindingStrategy) {
+							routeBindingStrategy.bind(router, verb, routePath, handler);
 
-            var server;
+							logger.info('Bound handler for', (secure ? 'HTTPS' : 'HTTP'), verb.getCode(), 'on port', port, 'at', basePath + routePath);
+						} else {
+							logger.warn('Unable to find appropriate binding strategy for endpoint using HTTP verb (' + verb.getCode() + ')');
+						}
+					});
 
-            if (secure) {
-                server = https.createServer(app);
-            } else {
-                server = http.createServer(app);
-            }
+					app.use(basePath, router);
+				});
+			}
+
+			var server;
+
+			if (secure) {
+				server = https.createServer(app);
+			} else {
+				server = http.createServer(app);
+			}
+
+			if (_.some(this._socketMap)) {
+				var io = socketIO.listen(server);
+
+				_.forEach(this._socketMap, function(command, channel) {
+					logger.info('Socket.IO handler on port', port, 'will respond to channel', channel);
+				});
+
+				io.on('connection', function(socket) {
+					logger.info('Socket.io client [', socket.id, '] at', socket.conn.remoteAddress, 'connected on port', port);
+					logger.info('Socket.io now has', _.size(socket.adapter.sids), 'connections');
+
+					socket.on('disconnect', function() {
+						logger.info('Socket.io client [', socket.id, '] at', socket.conn.remoteAddress, 'on port', port, 'disconnected');
+						logger.info('Socket.io now has', +_.size(socket.adapter.sids), 'connections');
+					});
+
+					_.forEach(this._socketMap, function(command, channel) {
+						socket.on(channel, buildChannelHandler(name, channel, command, socket));
+					});
+
+					logger.info('Socket.io client [', socket.id, '] at', socket.conn.remoteAddress, 'on port', port, 'is ready to accept messages');
+				});
+			}
 
             server.listen(port);
 
@@ -372,7 +412,15 @@ module.exports = function() {
         },
 
         _bind: function(container, serverContainer) {
-            return true;
+			var endpoints = container.getEndpoints();
+
+			var server = serverContainer.getServer(container.getPort(), container.getIsSecure());
+
+			_.forEach(endpoints, function(endpoint) {
+				server.addChannel(container.getPath(), endpoint.getChannel(), endpoint.getCommand());
+			});
+
+			return true;
         }
     });
 
@@ -425,6 +473,12 @@ module.exports = function() {
             });
         };
     }
+
+	function buildChannelHandler(namespace, channel, command, socket) {
+		return function(socket) {
+
+		};
+	}
 
     function generateResponse(message) {
         return {

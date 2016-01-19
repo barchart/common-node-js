@@ -12,11 +12,11 @@ module.exports = function() {
         },
 
         _getEndpointType: function() {
-            return SocketIOEndpoint;
+            return SocketEndpoint;
         },
 
         toString: function() {
-            return '[SocketContainer (name=' + this.getName() + ']';
+            return '[SocketContainer]';
         }
     });
 

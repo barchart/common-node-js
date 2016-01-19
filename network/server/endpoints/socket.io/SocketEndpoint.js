@@ -6,8 +6,16 @@ module.exports = function() {
     'use strict';
 
     var SocketEndpoint = Endpoint.extend({
-        init: function(command) {
+        init: function(channel, command) {
+            assert.argumentIsRequired(channel, 'channel', String);
+
             this._super(command);
+
+            this._channel = channel;
+        },
+
+        getChannel: function() {
+            return this._channel;
         },
 
         toString: function() {
