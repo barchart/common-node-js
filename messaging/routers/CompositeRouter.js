@@ -54,15 +54,16 @@ module.exports = function() {
 				return router.register(messageType, handler);
 			});
 
-			return when.all(function(registrations) {
-				var disposableStack = new DisposableStack();
+			return when.all(registerPromises)
+				.then(function(registrations) {
+					var disposableStack = new DisposableStack();
 
-				for (var i = 0; i < registrations.length; i++) {
-					disposableStack.push(registrations[i]);
-				}
+					for (var i = 0; i < registrations.length; i++) {
+						disposableStack.push(registrations[i]);
+					}
 
-				return disposableStack;
-			});
+					return disposableStack;
+				});
 		},
 
 		_onDispose: function() {
