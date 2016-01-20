@@ -56,7 +56,7 @@ module.exports = function() {
 
 					that._sqs = new aws.SQS({ apiVersion: that._configuration.apiVersion || '2012-11-05' });
 				}).then(function () {
-					logger.debug('SQS provider started');
+					logger.info('SQS provider started');
 
 					that._started = true;
 
@@ -95,7 +95,7 @@ module.exports = function() {
 							QueueName: qualifiedQueueName
 						}, function(error, data) {
 							if (error === null) {
-								logger.debug('SQS queue created:', qualifiedQueueName);
+								logger.info('SQS queue created:', qualifiedQueueName);
 
 								var queueUrl = data.QueueUrl;
 
@@ -143,7 +143,7 @@ module.exports = function() {
 									AttributeNames: [ 'QueueArn' ]
 								}, function(error, data) {
 									if (error === null) {
-										logger.debug('SQS Queue attribute lookup complete:', qualifiedQueueName);
+										logger.info('SQS Queue attribute lookup complete:', qualifiedQueueName);
 
 										resolveCallback(data.Attributes.QueueArn);
 									} else {
@@ -239,7 +239,7 @@ module.exports = function() {
 								MessageBody: JSON.stringify(payload)
 							}, function(error, data) {
 								if (error === null) {
-									logger.debug('Sent message', counter,'to SQS Queue:', qualifiedQueueName);
+									logger.info('Sent message', counter,'to SQS Queue:', qualifiedQueueName);
 
 									resolveCallback();
 								} else {
@@ -302,7 +302,7 @@ module.exports = function() {
 			var disposed = false;
 
 			that._queueObservers[qualifiedQueueName] = Disposable.fromAction(function() {
-				logger.debug('Disposing observer of SQS queue:', qualifiedQueueName);
+				logger.info('Disposing observer of SQS queue:', qualifiedQueueName);
 
 				disposed = true;
 
@@ -374,7 +374,7 @@ module.exports = function() {
 							}
 						}, function (error, data) {
 							if (error === null) {
-								logger.warn('SQS queue policy updated for:', qualifiedQueueName);
+								logger.info('SQS queue policy updated for:', qualifiedQueueName);
 
 								resolveCallback();
 							} else {
@@ -403,7 +403,7 @@ module.exports = function() {
 
 			this._queueObservers = null;
 
-			logger.debug('SQS provider disposed');
+			logger.info('SQS provider disposed');
 		},
 
 		toString: function() {
@@ -437,7 +437,7 @@ module.exports = function() {
 								var messagesExist = _.isArray(data.Messages) && data.Messages.length !== 0;
 
 								if (messagesExist) {
-									logger.debug('Received', data.Messages.length, 'message(s) from SQS Queue:', qualifiedQueueName);
+									logger.info('Received', data.Messages.length, 'message(s) from SQS Queue:', qualifiedQueueName);
 									logger.trace(data.Messages);
 								}
 
@@ -507,7 +507,7 @@ module.exports = function() {
 							deletedCount = messageCount;
 						}
 
-						logger.debug('Deleted', deletedCount, 'message(s) from SQS Queue:', qualifiedQueueName);
+						logger.info('Deleted', deletedCount, 'message(s) from SQS Queue:', qualifiedQueueName);
 
 						if (deletedCount !== messageCount) {
 							logger.warn('Failed to delete', data.Failed.length, 'message(s) from SQS Queue:', qualifiedQueueName);
@@ -538,7 +538,7 @@ module.exports = function() {
 					QueueUrl: queueUrl
 				}, function(error, data) {
 					if (error === null) {
-						logger.debug('SQS Queue deleted:', qualifiedQueueName);
+						logger.info('SQS Queue deleted:', qualifiedQueueName);
 
 						resolveCallback();
 					} else {

@@ -44,7 +44,7 @@ module.exports = function() {
 
 					that._sns = new aws.SNS({ apiVersion: that._configuration.apiVersion || '2010-03-31' });
 				}).then(function() {
-					logger.debug('SNS provider started');
+					logger.info('SNS provider started');
 
 					that._started = true;
 
@@ -106,7 +106,7 @@ module.exports = function() {
 						Name: qualifiedTopicName
 					}, function(error, data) {
 						if (error === null) {
-							logger.debug('SNS topic created:', qualifiedTopicName);
+							logger.info('SNS topic created:', qualifiedTopicName);
 
 							resolveCallback(data.TopicArn);
 						} else {
@@ -145,7 +145,7 @@ module.exports = function() {
 								TopicArn: topicArn
 							}, function(error, data) {
 								if (error === null) {
-									logger.debug('SNS topic deleted:', qualifiedTopicName);
+									logger.info('SNS topic deleted:', qualifiedTopicName);
 
 									resolveCallback();
 								} else {
@@ -188,7 +188,7 @@ module.exports = function() {
 								Message: JSON.stringify(payload)
 							}, function(error, data) {
 								if (error === null) {
-									logger.debug('Published to SNS topic:', qualifiedTopicName);
+									logger.info('Published to SNS topic:', qualifiedTopicName);
 
 									resolveCallback();
 								} else {
@@ -231,7 +231,7 @@ module.exports = function() {
 									'Protocol': 'sqs'
 								}, function(error, data) {
 									if (error === null) {
-										logger.debug('SNS subscription to SQS topic complete:', qualifiedTopicName);
+										logger.info('SNS subscription to SQS topic complete:', qualifiedTopicName);
 
 										resolveCallback(Disposable.fromAction(function() {
 											if (that.getIsDisposed()) {
@@ -246,7 +246,7 @@ module.exports = function() {
 												SubscriptionArn: data.SubscriptionArn
 											}, function(error, data) {
 												if (error === null) {
-													logger.debug('SQS unsubscribe from SNS topic complete:', qualifiedTopicName);
+													logger.info('SQS unsubscribe from SNS topic complete:', qualifiedTopicName);
 												} else {
 													logger.error('SQS unsubscribe from SNS topic failed:', qualifiedTopicName);
 													logger.error(error);
