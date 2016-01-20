@@ -27,6 +27,8 @@ module.exports = function() {
 			this._pendingRequests = { };
 			this._routerId = uuid.v4();
 
+			this._requestHandlers = { };
+
 			this._disposeStack = new DisposableStack();
 		},
 
@@ -118,7 +120,9 @@ module.exports = function() {
 				});
 			});
 
-			that._disposeStack.push(registerObserver);
+			that._requestHandlers[messageType] = registerObserver;
+
+			return registerObserver;
 		},
 
 		_onDispose: function() {
