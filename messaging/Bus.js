@@ -78,9 +78,10 @@ module.exports = function() {
 			return that._publisher.subscribe(messageType, handler);
 		},
 
-		request: function(messageType, payload) {
+		request: function(messageType, payload, timeout) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
 			assert.argumentIsRequired(payload, 'payload', Object);
+			assert.argumentIsOptional(timeout, 'timeout', Number);
 
 			var that = this;
 
@@ -96,6 +97,18 @@ module.exports = function() {
 
 			if (that._router.canRoute(messageType)) {
 				requestPromise = that._router.route(messageType, payload);
+
+				var timeoutToUse;
+
+				if (_.isNumber(timeout)) {
+					timeoutToUse = Math.max(0, timeout);
+				} else {
+					timeoutToUse = DEFAULT_TIMEOUT_MILLISECONDS;
+				}
+
+				if (timeoutToUse > 0) {
+					requestPromise = requestPromise.timeout(timeoutToUse);
+				}
 			} else {
 				requestPromise = when.reject('Existing routers are unable to handle request.');
 			}
@@ -132,6 +145,8 @@ module.exports = function() {
 			return '[Bus]';
 		}
 	});
+
+	var DEFAULT_TIMEOUT_MILLISECONDS = 15000;
 
 	return Bus;
 }();

@@ -87,30 +87,9 @@ module.exports = function() {
 			var qualifiedQueueName = getQualifiedQueueName(that._configuration.prefix, queueName);
 
 			if (!_.has(that._queueUrlPromises, qualifiedQueueName)) {
-				that._queueUrlPromises[qualifiedQueueName] = when.promise(
-					function(resolveCallback, rejectCallback) {
-						logger.debug('Creating SQS queue:', qualifiedQueueName);
+				logger.debug('The SQS Provider has not cached the queue URL. Issuing request to create queue.');
 
-						that._sqs.createQueue({
-							QueueName: qualifiedQueueName
-						}, function(error, data) {
-							if (error === null) {
-								logger.info('SQS queue created:', qualifiedQueueName);
-
-								var queueUrl = data.QueueUrl;
-
-								that._knownQueues[qualifiedQueueName] = queueUrl;
-
-								resolveCallback(queueUrl);
-							} else {
-								logger.error('SQS queue creation failed:', qualifiedQueueName);
-								logger.error(error);
-
-								rejectCallback('Failed to create SQS queue.');
-							}
-						});
-					}
-				);
+				that._queueUrlPromises[qualifiedQueueName] = that.createQueue(queueName);
 			}
 
 			return that._queueUrlPromises[qualifiedQueueName];
@@ -161,8 +140,9 @@ module.exports = function() {
 			return that._queueArnPromises[qualifiedQueueName];
 		},
 
-		createQueue: function(queueName) {
+		createQueue: function(queueName, retentionTime) {
 			assert.argumentIsRequired(queueName, 'queueName', String);
+			assert.argumentIsOptional(retentionTime, 'retentionTime', Number);
 
 			var that = this;
 
@@ -174,10 +154,43 @@ module.exports = function() {
 				throw new Error('The SQS Provider has not been started.');
 			}
 
-			return that.getQueueUrl(queueName)
-				.then(function(ignored) {
-					return;
-				});
+			var qualifiedQueueName = getQualifiedQueueName(that._configuration.prefix, queueName);
+
+			return when.promise(
+				function(resolveCallback, rejectCallback) {
+					logger.debug('Creating SQS queue:', qualifiedQueueName);
+
+					var retentionTimeToUse;
+
+					if (_.isNumber(retentionTime)) {
+						retentionTimeToUse = retentionTime;
+					} else {
+						retentionTimeToUse = 120000;
+					}
+
+					that._sqs.createQueue({
+						QueueName: qualifiedQueueName,
+						Attributes:{
+							MessageRetentionPeriod: retentionTimeToUse.toString()
+						}
+					}, function(error, data) {
+						if (error === null) {
+							logger.info('SQS queue created:', qualifiedQueueName);
+
+							var queueUrl = data.QueueUrl;
+
+							that._knownQueues[qualifiedQueueName] = queueUrl;
+
+							resolveCallback(queueUrl);
+						} else {
+							logger.error('SQS queue creation failed:', qualifiedQueueName);
+							logger.error(error);
+
+							rejectCallback('Failed to create SQS queue.');
+						}
+					});
+				}
+			);
 		},
 
 		deleteQueue: function(queueName) {
