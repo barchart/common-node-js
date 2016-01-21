@@ -8,6 +8,8 @@ var jshint = require('gulp-jshint');
 var runSequence = require('run-sequence');
 var util = require('gulp-util');
 
+var fs = require('fs');
+
 function getVersionFromPackage() {
     return JSON.parse(fs.readFileSync('./package.json', 'utf8')).version;
 }
