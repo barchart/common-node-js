@@ -7,9 +7,9 @@ module.exports = function() {
 
     var SocketEndpoint = Endpoint.extend({
         init: function(channel, command) {
-            assert.argumentIsRequired(channel, 'channel', String);
-
             this._super(command);
+
+            assert.argumentIsRequired(channel, 'channel', String);
 
             this._channel = channel;
         },

@@ -34,6 +34,7 @@
     "class.extend": "^0.9.1",
     "common": "git+ssh://github.com/barchart/barchart-common-js",
     "express": "^4.13.3",
+    "express-handlebars": "^2.0.1",
     "lodash": "^3.10.1",
     "log4js": "^0.6.29",
     "node-yaml-config": "0.0.3",

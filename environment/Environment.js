@@ -52,6 +52,9 @@ module.exports = function() {
 
 		var configuration = configurator.load(path.resolve(configurationPath + '/config/config.yml'), name);
 
+		configuration.server = configuration.server || { };
+		configuration.server.path = configuration.server.path || configurationPath;
+
 		instance = new Environment(name, configuration, version);
 
 		return instance;

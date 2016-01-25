@@ -15,11 +15,11 @@ module.exports = function() {
         build: function(serverDefinition) {
             assert.argumentIsRequired(serverDefinition, 'serverDefinition', ServerDefinition, 'ServerDefinition');
 
-            return when(this._build(serverDefinition.getContainers()));
+            return when(this._build(serverDefinition.getContainers(), serverDefinition.getStaticPath(), serverDefinition.getTemplatePath()));
         },
 
-        _build: function(containers) {
-            return Disposable.fromAction(function () {
+        _build: function(containers, staticPath, templatePath) {
+            return Disposable.fromAction(function() {
                 return;
             });
         },

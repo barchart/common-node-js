@@ -10,6 +10,9 @@ module.exports = function() {
     var ServerDefinition = Class.extend({
         init: function() {
             this._containers = [ ];
+
+            this._staticPath = null;
+            this._templatePath = null;
         },
 
         withContainer: function(container) {
@@ -20,8 +23,32 @@ module.exports = function() {
             return this;
         },
 
+        withStaticPath: function(staticPath) {
+            assert.argumentIsRequired(staticPath, 'staticPath', String);
+
+            this._staticPath = staticPath;
+
+            return this;
+        },
+
+        withTemplatePath: function(templatePath) {
+            assert.argumentIsRequired(templatePath, 'templatePath', String);
+
+            this._templatePath = templatePath;
+
+            return this;
+        },
+
         getContainers: function() {
             return this._containers;
+        },
+
+        getStaticPath: function() {
+            return this._staticPath;
+        },
+
+        getTemplatePath: function() {
+            return this._templatePath;
         },
 
         toString: function() {

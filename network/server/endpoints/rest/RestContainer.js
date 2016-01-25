@@ -1,5 +1,4 @@
 var _ = require('lodash');
-var log4js = require('log4js');
 var when = require('when');
 
 var assert = require('common/lang/assert');
@@ -10,8 +9,6 @@ var RestAction = require('./RestAction');
 
 module.exports = function() {
     'use strict';
-
-    var logger = log4js.getLogger('common-node/network/server/endpoints/rest/RestContainer');
 
     var RestContainer = Container.extend({
         init: function (port, path, secure) {

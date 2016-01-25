@@ -2,9 +2,11 @@ var _ = require('lodash');
 var bodyParser = require('body-parser');
 var Class = require('class.extend');
 var express = require('express');
+var expressHandlebars = require('express-handlebars');
 var http = require('http');
 var https = require('https');
 var log4js = require('log4js');
+var path = require('path');
 var socketIO = require('socket.io');
 var when = require('when');
 
@@ -14,6 +16,7 @@ var CommandHandler = require('common/commands/CommandHandler');
 var assert = require('common/lang/assert');
 
 var Container = require('./../endpoints/Container');
+var PageContainer = require('./../endpoints/html/PageContainer');
 var RestContainer = require('./../endpoints/rest/RestContainer');
 var ServerFactory = require('./../ServerFactory');
 var SocketContainer = require('./../endpoints/socket.io/SocketContainer');
@@ -29,8 +32,8 @@ module.exports = function() {
 
         },
         
-        _build: function(containers) {
-            var serverContainer = new ExpressServerContainer();
+        _build: function(containers, staticPath, templatePath) {
+            var serverContainer = new ExpressServerContainer(staticPath, templatePath);
             var containerBindingStrategies = ContainerBindingStrategy.getStrategies();
 
             return when.map(containers, function(container) {
@@ -60,13 +63,19 @@ module.exports = function() {
     });
 
     var ExpressServer = Class.extend({
-        init: function(port, secure) {
+        init: function(port, secure, staticPath, templatePath) {
             assert.argumentIsRequired(port, 'port', Number);
             assert.argumentIsRequired(secure, 'secure', Boolean);
+			assert.argumentIsOptional(staticPath, 'staticPath', String);
+			assert.argumentIsOptional(templatePath, 'templatePath', String);
 
             this._port = port;
             this._secure = secure;
 
+			this._staticPath = staticPath;
+			this._templatePath = templatePath;
+
+			this._pageMap = { };
             this._routeMap = { };
 			this._socketMap = { };
 
@@ -80,6 +89,30 @@ module.exports = function() {
         getIsSecure: function() {
             return this._secure;
         },
+
+		addPage: function(basePath, pagePath, template, verb, command) {
+            assert.argumentIsRequired(basePath, 'basePath', String);
+            assert.argumentIsRequired(pagePath, 'pagePath', String);
+            assert.argumentIsRequired(template, 'template', String);
+            assert.argumentIsRequired(verb, 'verb', Verb, 'Verb');
+            assert.argumentIsRequired(command, 'command', CommandHandler, 'CommandHandler');
+
+			if (!_.has(this._pageMap, basePath)) {
+				this._pageMap[basePath] = {
+					path: basePath,
+					handlers: [ ]
+				};
+			}
+
+			var handlerData = {
+				verb: verb,
+				path: pagePath,
+				template: template,
+				handler: buildPageHandler(verb, basePath, pagePath, template, command)
+			};
+
+			this._pageMap[basePath].handlers.push(handlerData);
+		},
 
         addRoute: function(basePath, routePath, verb, command) {
             assert.argumentIsRequired(basePath, 'basePath', String);
@@ -101,7 +134,7 @@ module.exports = function() {
             var handlerData = {
                 verb: verb,
                 path: routePath,
-                handler: buildRequestHandler(verb, basePath, routePath, command)
+                handler: buildRestHandler(verb, basePath, routePath, command)
             };
 
             this._routeMap[basePath].handlers.push(handlerData);
@@ -152,14 +185,48 @@ module.exports = function() {
                 next();
             });
 
+			if (_.isString(that._templatePath) && _.some(that._pageMap)) {
+				var routeBindingStrategies = ExpressRouteBindingStrategy.getStrategies();
+
+				app.set('views', that._templatePath);
+				app.engine('.hbs', expressHandlebars({ extname: '.hbs' }));
+				app.set('view engine', '.hbs');
+
+				_.forEach(that._pageMap, function(pageData) {
+					var basePath = pageData.path;
+					var router = express.Router();
+
+					_.forEach(pageData.handlers, function(handlerData) {
+						var verb = handlerData.verb;
+						var handler = handlerData.handler;
+						var pagePath = handlerData.path;
+						var template = handlerData.template;
+
+						var routeBindingStrategy = _.find(routeBindingStrategies, function(candidate) {
+							return candidate.canBind(verb);
+						});
+
+						if (routeBindingStrategy) {
+							routeBindingStrategy.bind(router, verb, pagePath, handler);
+
+							logger.info('Bound handler for', (secure ? 'HTTPS' : 'HTTP'), verb.getCode(), 'on port', port, 'at', basePath + pagePath, 'to', template + '.hbs');
+						} else {
+							logger.warn('Unable to find appropriate binding strategy for endpoint using HTTP verb (' + verb.getCode() + ')');
+						}
+					});
+
+					app.use(basePath, router);
+				});
+			}
+
 			if (_.some(that._routeMap)) {
 				var routeBindingStrategies = ExpressRouteBindingStrategy.getStrategies();
 
-				_.forEach(that._routeMap, function (routeData) {
+				_.forEach(that._routeMap, function(routeData) {
 					var basePath = routeData.path;
 					var router = express.Router();
 
-					_.forEach(routeData.handlers, function (handlerData) {
+					_.forEach(routeData.handlers, function(handlerData) {
 						var verb = handlerData.verb;
 						var handler = handlerData.handler;
 						var routePath = handlerData.path;
@@ -171,7 +238,7 @@ module.exports = function() {
 						if (routeBindingStrategy) {
 							routeBindingStrategy.bind(router, verb, routePath, handler);
 
-							logger.info('Bound handler for', (secure ? 'HTTPS' : 'HTTP'), verb.getCode(), 'on port', port, 'at', basePath + routePath);
+							logger.info('Bound REST handler for', (secure ? 'HTTPS' : 'HTTP'), verb.getCode(), 'on port', port, 'at', basePath + routePath);
 						} else {
 							logger.warn('Unable to find appropriate binding strategy for endpoint using HTTP verb (' + verb.getCode() + ')');
 						}
@@ -193,7 +260,7 @@ module.exports = function() {
 				var io = socketIO.listen(server);
 
 				_.forEach(that._socketMap, function(command, channel) {
-					logger.info('Bound handler for Socket.IO on port', port, 'to channel', channel);
+					logger.info('Bound Socket.IO handler on port', port, 'to channel', channel);
 				});
 
 				io.on('connection', function(socket) {
@@ -206,7 +273,7 @@ module.exports = function() {
 					});
 
 					_.forEach(that._socketMap, function(command, channel) {
-						socket.on(channel, buildChannelRequestHandler(channel, command, socket));
+						socket.on(channel, buildChannelHandler(channel, command, socket));
 					});
 
 					logger.info('Socket.io client [', socket.id, '] at', socket.conn.remoteAddress, 'on port', port, 'is ready to accept messages');
@@ -222,8 +289,11 @@ module.exports = function() {
     });
 
     var ExpressServerContainer = Class.extend({
-        init: function() {
+        init: function(staticPath, templatePath) {
             this._serverMap = { };
+
+			this._staticPath = staticPath || null;
+			this._templatePath = templatePath || null;
 
             this._started = false;
         },
@@ -234,7 +304,7 @@ module.exports = function() {
             }
 
             if (!_.has(this._serverMap, port)) {
-                this._serverMap[port] = new ExpressServer(port, secure);
+                this._serverMap[port] = new ExpressServer(port, secure, this._staticPath, this._templatePath);
             }
 
             var returnRef = this._serverMap[port];
@@ -426,14 +496,67 @@ module.exports = function() {
         }
     });
 
+	var HtmlContainerBindingStrategy = ContainerBindingStrategy.extend({
+		init: function() {
+			this._super();
+		},
+
+		_canBind: function(container) {
+			return container instanceof PageContainer;
+		},
+
+		_bind: function(container, serverContainer) {
+			var endpoints = container.getEndpoints();
+
+			var server = serverContainer.getServer(container.getPort(), container.getIsSecure());
+
+			_.forEach(endpoints, function(endpoint) {
+				server.addPage(container.getPath(), endpoint.getPath(), endpoint.getTemplate(), endpoint.getVerb(), endpoint.getCommand());
+			});
+
+			return true;
+		}
+	});
+
     ContainerBindingStrategy.getStrategies = function() {
         return [
             new RestContainerBindingStrategy(),
-            new SocketContainerBindingStrategy()
+            new SocketContainerBindingStrategy(),
+			new HtmlContainerBindingStrategy()
         ];
     };
 
-    function buildRequestHandler(verb, basePath, routePath, command) {
+	function buildPageHandler(verb, basePath, routePath, template, command) {
+		var sequencer = 0;
+
+		var argumentExtractionStrategy = _.find(ExpressArgumentExtractionStrategy.getStrategies(), function(candidate) {
+			return candidate.canProcess(verb);
+		});
+
+		if (!argumentExtractionStrategy) {
+			logger.warn('Unable to find appropriate argument extraction strategy for HTTP ' + verb.getCode() + ' requests');
+
+			argumentExtractionStrategy = function() {
+				return { };
+			};
+		}
+
+		return function(request, response) {
+			var sequence = sequencer++;
+
+			logger.debug('Processing starting for', verb.getCode(), 'at', basePath + routePath, '(' + sequence + ')');
+
+			return when.try(function() {
+				return command.process(argumentExtractionStrategy.getCommandArguments(verb, request));
+			}).then(function(result) {
+				response.render(template, result);
+
+				logger.debug('Processing completed for', verb.getCode(), 'at', basePath + routePath, '(' + sequence + ')');
+			});
+		};
+	}
+
+    function buildRestHandler(verb, basePath, routePath, command) {
         var sequencer = 0;
 
         var argumentExtractionStrategy = _.find(ExpressArgumentExtractionStrategy.getStrategies(), function(candidate) {
@@ -477,7 +600,7 @@ module.exports = function() {
         };
     }
 
-	function buildChannelRequestHandler(channel, command, socket) {
+	function buildChannelHandler(channel, command, socket) {
         var sequencer = 0;
 
 		return function(request) {
