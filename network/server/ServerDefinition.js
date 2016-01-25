@@ -1,3 +1,4 @@
+var _ = require('lodash');
 var Class = require('class.extend');
 
 var assert = require('common/lang/assert');
@@ -11,7 +12,7 @@ module.exports = function() {
         init: function() {
             this._containers = [ ];
 
-            this._staticPath = null;
+            this._staticPaths = null;
             this._templatePath = null;
         },
 
@@ -23,10 +24,17 @@ module.exports = function() {
             return this;
         },
 
-        withStaticPath: function(staticPath) {
-            assert.argumentIsRequired(staticPath, 'staticPath', String);
+        withStaticPath: function(staticFilePath, staticServerPath) {
+            assert.argumentIsRequired(staticFilePath, 'staticFilePath', String);
+			assert.argumentIsRequired(staticServerPath, 'staticServerPath', String);
 
-            this._staticPath = staticPath;
+			this._staticPaths = this._staticPaths || { };
+
+			if (_.has(this._staticPaths, staticServerPath)) {
+				throw new Error('The path for serving static files has already been defined.');
+			}
+
+			this._staticPaths[staticServerPath] = staticFilePath;
 
             return this;
         },
@@ -43,8 +51,8 @@ module.exports = function() {
             return this._containers;
         },
 
-        getStaticPath: function() {
-            return this._staticPath;
+        getStaticPaths: function() {
+            return this._staticPaths;
         },
 
         getTemplatePath: function() {

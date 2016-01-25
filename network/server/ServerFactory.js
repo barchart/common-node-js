@@ -15,7 +15,7 @@ module.exports = function() {
         build: function(serverDefinition) {
             assert.argumentIsRequired(serverDefinition, 'serverDefinition', ServerDefinition, 'ServerDefinition');
 
-            return when(this._build(serverDefinition.getContainers(), serverDefinition.getStaticPath(), serverDefinition.getTemplatePath()));
+            return when(this._build(serverDefinition.getContainers(), serverDefinition.getStaticPaths(), serverDefinition.getTemplatePath()));
         },
 
         _build: function(containers, staticPath, templatePath) {

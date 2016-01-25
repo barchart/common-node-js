@@ -29,11 +29,11 @@ module.exports = function() {
 
     var ExpressServerFactory = ServerFactory.extend({
         init: function() {
-
+			this._super();
         },
         
-        _build: function(containers, staticPath, templatePath) {
-            var serverContainer = new ExpressServerContainer(staticPath, templatePath);
+        _build: function(containers, staticPaths, templatePath) {
+            var serverContainer = new ExpressServerContainer(staticPaths, templatePath);
             var containerBindingStrategies = ContainerBindingStrategy.getStrategies();
 
             return when.map(containers, function(container) {
@@ -63,16 +63,16 @@ module.exports = function() {
     });
 
     var ExpressServer = Class.extend({
-        init: function(port, secure, staticPath, templatePath) {
+        init: function(port, secure, staticPaths, templatePath) {
             assert.argumentIsRequired(port, 'port', Number);
             assert.argumentIsRequired(secure, 'secure', Boolean);
-			assert.argumentIsOptional(staticPath, 'staticPath', String);
+			assert.argumentIsOptional(staticPaths, 'staticPaths', Object);
 			assert.argumentIsOptional(templatePath, 'templatePath', String);
 
             this._port = port;
             this._secure = secure;
 
-			this._staticPath = staticPath;
+			this._staticPaths = staticPaths;
 			this._templatePath = templatePath;
 
 			this._pageMap = { };
@@ -185,6 +185,14 @@ module.exports = function() {
                 next();
             });
 
+			if (_.some(that._staticPaths)) {
+				_.forEach(that._staticPaths, function(filePath, serverPath) {
+					logger.info('Bound static', (secure ? 'HTTPS' : 'HTTP'), 'path on port', port, filePath, 'to', serverPath);
+
+					app.use(serverPath, express.static(filePath));
+				});
+			}
+
 			if (_.isString(that._templatePath) && _.some(that._pageMap)) {
 				var routeBindingStrategies = ExpressRouteBindingStrategy.getStrategies();
 
@@ -209,7 +217,7 @@ module.exports = function() {
 						if (routeBindingStrategy) {
 							routeBindingStrategy.bind(router, verb, pagePath, handler);
 
-							logger.info('Bound handler for', (secure ? 'HTTPS' : 'HTTP'), verb.getCode(), 'on port', port, 'at', basePath + pagePath, 'to', template + '.hbs');
+							logger.info('Bound handler for', (secure ? 'HTTPS' : 'HTTP'), verb.getCode(), 'on port', port, 'at', path.join(basePath + pagePath), 'to', template + '.hbs');
 						} else {
 							logger.warn('Unable to find appropriate binding strategy for endpoint using HTTP verb (' + verb.getCode() + ')');
 						}
@@ -238,7 +246,7 @@ module.exports = function() {
 						if (routeBindingStrategy) {
 							routeBindingStrategy.bind(router, verb, routePath, handler);
 
-							logger.info('Bound REST handler for', (secure ? 'HTTPS' : 'HTTP'), verb.getCode(), 'on port', port, 'at', basePath + routePath);
+							logger.info('Bound REST handler for', (secure ? 'HTTPS' : 'HTTP'), verb.getCode(), 'on port', port, 'at', path.join(basePath + routePath));
 						} else {
 							logger.warn('Unable to find appropriate binding strategy for endpoint using HTTP verb (' + verb.getCode() + ')');
 						}
@@ -289,10 +297,10 @@ module.exports = function() {
     });
 
     var ExpressServerContainer = Class.extend({
-        init: function(staticPath, templatePath) {
+        init: function(staticPaths, templatePath) {
             this._serverMap = { };
 
-			this._staticPath = staticPath || null;
+			this._staticPaths = staticPaths || null;
 			this._templatePath = templatePath || null;
 
             this._started = false;
@@ -304,7 +312,7 @@ module.exports = function() {
             }
 
             if (!_.has(this._serverMap, port)) {
-                this._serverMap[port] = new ExpressServer(port, secure, this._staticPath, this._templatePath);
+                this._serverMap[port] = new ExpressServer(port, secure, this._staticPaths, this._templatePath);
             }
 
             var returnRef = this._serverMap[port];
@@ -544,14 +552,14 @@ module.exports = function() {
 		return function(request, response) {
 			var sequence = sequencer++;
 
-			logger.debug('Processing starting for', verb.getCode(), 'at', basePath + routePath, '(' + sequence + ')');
+			logger.debug('Processing starting for', verb.getCode(), 'at', path.join(basePath + routePath), '(' + sequence + ')');
 
 			return when.try(function() {
 				return command.process(argumentExtractionStrategy.getCommandArguments(verb, request));
 			}).then(function(result) {
 				response.render(template, result);
 
-				logger.debug('Processing completed for', verb.getCode(), 'at', basePath + routePath, '(' + sequence + ')');
+				logger.debug('Processing completed for', verb.getCode(), 'at', path.join(basePath + routePath), '(' + sequence + ')');
 			});
 		};
 	}
@@ -574,7 +582,7 @@ module.exports = function() {
         return function(request, response) {
             var sequence = sequencer++;
 
-            logger.debug('Processing starting for', verb.getCode(), 'at', basePath + routePath, '(' + sequence + ')');
+            logger.debug('Processing starting for', verb.getCode(), 'at', path.join(basePath + routePath), '(' + sequence + ')');
 
             return when.try(function() {
                 return command.process(argumentExtractionStrategy.getCommandArguments(verb, request));
@@ -589,9 +597,9 @@ module.exports = function() {
                     response.json(generateRestResponse('success'));
                 }
 
-				logger.debug('Processing completed for', verb.getCode(), 'at', basePath + routePath, '(' + sequence + ')');
+				logger.debug('Processing completed for', verb.getCode(), 'at', path.join(basePath + routePath), '(' + sequence + ')');
             }).catch(function(error) {
-				logger.error('Processing failed for', verb.getCode(), 'at', basePath + routePath, '(' + sequence + ')');
+				logger.error('Processing failed for', verb.getCode(), 'at', path.join(basePath + routePath), '(' + sequence + ')');
                 logger.error(error);
 
                 response.status(500);
