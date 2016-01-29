@@ -194,9 +194,9 @@ module.exports = function() {
 				});
 			}
 
-			if (_.isString(that._templatePath) && _.some(that._pageMap)) {
-				var routeBindingStrategies = ExpressRouteBindingStrategy.getStrategies();
+			var routeBindingStrategies = ExpressRouteBindingStrategy.getStrategies();
 
+			if (_.isString(that._templatePath) && _.some(that._pageMap)) {
 				app.set('views', that._templatePath);
 				app.engine('.hbs', expressHandlebars({ extname: '.hbs' }));
 				app.set('view engine', '.hbs');
@@ -229,8 +229,6 @@ module.exports = function() {
 			}
 
 			if (_.some(that._serviceMap)) {
-				var routeBindingStrategies = ExpressRouteBindingStrategy.getStrategies();
-
 				_.forEach(that._serviceMap, function(routeData) {
 					var basePath = routeData.path;
 					var router = express.Router();
