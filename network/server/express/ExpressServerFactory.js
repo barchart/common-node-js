@@ -76,7 +76,7 @@ module.exports = function() {
 			this._templatePath = templatePath;
 
 			this._pageMap = { };
-            this._routeMap = { };
+            this._serviceMap = { };
 			this._socketMap = { };
 
             this._started = false;
@@ -90,12 +90,13 @@ module.exports = function() {
             return this._secure;
         },
 
-		addPage: function(basePath, pagePath, template, verb, command) {
+		addPage: function(basePath, pagePath, template, verb, command, cache) {
             assert.argumentIsRequired(basePath, 'basePath', String);
             assert.argumentIsRequired(pagePath, 'pagePath', String);
             assert.argumentIsRequired(template, 'template', String);
             assert.argumentIsRequired(verb, 'verb', Verb, 'Verb');
             assert.argumentIsRequired(command, 'command', CommandHandler, 'CommandHandler');
+			assert.argumentIsRequired(cache, 'cache', Boolean);
 
 			if (!_.has(this._pageMap, basePath)) {
 				this._pageMap[basePath] = {
@@ -108,13 +109,13 @@ module.exports = function() {
 				verb: verb,
 				path: pagePath,
 				template: template,
-				handler: buildPageHandler(verb, basePath, pagePath, template, command)
+				handler: buildPageHandler(verb, basePath, pagePath, template, command, cache)
 			};
 
 			this._pageMap[basePath].handlers.push(handlerData);
 		},
 
-        addRoute: function(basePath, routePath, verb, command) {
+        addService: function(basePath, routePath, verb, command) {
             assert.argumentIsRequired(basePath, 'basePath', String);
             assert.argumentIsRequired(routePath, 'routePath', String);
             assert.argumentIsRequired(verb, 'verb', Verb, 'Verb');
@@ -124,8 +125,8 @@ module.exports = function() {
                 throw new Error('Unable to add route, the server has already been started.');
             }
 
-            if (!_.has(this._routeMap, basePath)) {
-                this._routeMap[basePath] = {
+            if (!_.has(this._serviceMap, basePath)) {
+                this._serviceMap[basePath] = {
                     path: basePath,
                     handlers: [ ]
                 };
@@ -137,7 +138,7 @@ module.exports = function() {
                 handler: buildRestHandler(verb, basePath, routePath, command)
             };
 
-            this._routeMap[basePath].handlers.push(handlerData);
+            this._serviceMap[basePath].handlers.push(handlerData);
         },
 
         addChannel: function(path, channel, command) {
@@ -227,10 +228,10 @@ module.exports = function() {
 				});
 			}
 
-			if (_.some(that._routeMap)) {
+			if (_.some(that._serviceMap)) {
 				var routeBindingStrategies = ExpressRouteBindingStrategy.getStrategies();
 
-				_.forEach(that._routeMap, function(routeData) {
+				_.forEach(that._serviceMap, function(routeData) {
 					var basePath = routeData.path;
 					var router = express.Router();
 
@@ -475,7 +476,7 @@ module.exports = function() {
             var server = serverContainer.getServer(container.getPort(), container.getIsSecure());
 
             _.forEach(endpoints, function(endpoint) {
-                server.addRoute(container.getPath(), endpoint.getPath(), endpoint.getRestAction().getVerb(), endpoint.getCommand());
+                server.addService(container.getPath(), endpoint.getPath(), endpoint.getRestAction().getVerb(), endpoint.getCommand());
             });
 
             return true;
@@ -519,7 +520,7 @@ module.exports = function() {
 			var server = serverContainer.getServer(container.getPort(), container.getIsSecure());
 
 			_.forEach(endpoints, function(endpoint) {
-				server.addPage(container.getPath(), endpoint.getPath(), endpoint.getTemplate(), endpoint.getVerb(), endpoint.getCommand());
+				server.addPage(container.getPath(), endpoint.getPath(), endpoint.getTemplate(), endpoint.getVerb(), endpoint.getCommand(), endpoint.getCache());
 			});
 
 			return true;
@@ -534,7 +535,7 @@ module.exports = function() {
         ];
     };
 
-	function buildPageHandler(verb, basePath, routePath, template, command) {
+	function buildPageHandler(verb, basePath, routePath, template, command, cache) {
 		var sequencer = 0;
 
 		var argumentExtractionStrategy = _.find(ExpressArgumentExtractionStrategy.getStrategies(), function(candidate) {
@@ -557,6 +558,10 @@ module.exports = function() {
 			return when.try(function() {
 				return command.process(argumentExtractionStrategy.getCommandArguments(verb, request));
 			}).then(function(result) {
+				if (!cache) {
+					response.setHeader('Cache-Control', 'private, max-age=0, no-cache');
+				}
+
 				response.render(template, result);
 
 				logger.debug('Processing completed for', verb.getCode(), 'at', path.join(basePath + routePath), '(' + sequence + ')');
