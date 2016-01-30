@@ -6,31 +6,31 @@ var attributes = require('common/lang/attributes');
 var MutateResultProcessor = require('./MutateResultProcessor');
 
 module.exports = function() {
-    'use strict';
+	'use strict';
 
-    var logger = log4js.getLogger('data/processors/ReplaceResultProcessor');
+	var logger = log4js.getLogger('data/processors/ReplaceResultProcessor');
 
-    var ReplaceResultProcessor = MutateResultProcessor.extend({
-        init: function(configuration) {
-            this._super(configuration);
-        },
+	var ReplaceResultProcessor = MutateResultProcessor.extend({
+		init: function(configuration) {
+			this._super(configuration);
+		},
 
-        _processItem: function(resultItemToProcess, configurationToUse) {
-            var propertyName = configurationToUse.propertyName;
-            var propertyValue = attributes.read(resultItemToProcess, propertyName);
+		_processItem: function(resultItemToProcess, configurationToUse) {
+			var propertyName = configurationToUse.propertyName;
+			var propertyValue = attributes.read(resultItemToProcess, propertyName);
 
-            if (_.isString(propertyValue)) {
-                var selectExpression = configurationToUse.selectExpression;
-                var replaceExpression = configurationToUse.replaceExpression;
+			if (_.isString(propertyValue)) {
+				var selectExpression = configurationToUse.selectExpression;
+				var replaceExpression = configurationToUse.replaceExpression;
 
-                attributes.write(resultItemToProcess, propertyName, propertyValue.replace(new RegExp(selectExpression, 'g'), replaceExpression));
-            }
-        },
+				attributes.write(resultItemToProcess, propertyName, propertyValue.replace(new RegExp(selectExpression, 'g'), replaceExpression));
+			}
+		},
 
-        toString: function() {
-            return '[ReplaceResultProcessor]';
-        }
-    });
+		toString: function() {
+			return '[ReplaceResultProcessor]';
+		}
+	});
 
-    return ReplaceResultProcessor;
+	return ReplaceResultProcessor;
 }();

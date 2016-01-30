@@ -1,6 +1,6 @@
 var Class = require('class.extend');
 var log4js = require('log4js');
-var when  = require('when');
+var when = require('when');
 
 module.exports = function() {
 	'use strict';
@@ -9,7 +9,7 @@ module.exports = function() {
 
 	var QueryProvider = Class.extend({
 		init: function(configuration) {
-			this._configuration = configuration || { };
+			this._configuration = configuration || {};
 		},
 
 		_getConfiguration: function() {

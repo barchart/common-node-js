@@ -26,7 +26,7 @@ module.exports = function() {
 					map[property] = attributes.read(Environment.getInstance().getConfiguration(), property);
 
 					return map;
-				}, { });
+				}, {});
 			} else if (_.isString(configuration.property)) {
 				returnRef = attributes.read(Environment.getInstance().getConfiguration(), configuration.property);
 			} else {

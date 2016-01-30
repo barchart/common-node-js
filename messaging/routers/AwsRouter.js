@@ -24,10 +24,10 @@ module.exports = function() {
 
 			this._sqsProvider = sqsProvider;
 
-			this._pendingRequests = { };
+			this._pendingRequests = {};
 			this._routerId = uuid.v4();
 
-			this._requestHandlers = { };
+			this._requestHandlers = {};
 
 			this._disposeStack = new DisposableStack();
 		},
@@ -111,7 +111,7 @@ module.exports = function() {
 
 					var envelope = {
 						id: message.id,
-						payload: response || { }
+						payload: response || {}
 					};
 
 					return that._sqsProvider.send(responseQueueName, envelope);

@@ -22,17 +22,17 @@ module.exports = function() {
 			assert.argumentIsRequired(snsProvider, 'snsProvider', SnsProvider, 'SnsProvider');
 			assert.argumentIsRequired(sqsProvider, 'sqsProvider', SqsProvider, 'SqsProvider');
 			assert.argumentIsOptional(suppressEcho, 'suppressEcho', Boolean);
-			
+
 			this._super();
 
 			this._snsProvider = snsProvider;
 			this._sqsProvider = sqsProvider;
-			
+
 			this._suppressEcho = suppressEcho || false;
 
 			this._publisherId = uuid.v4();
 
-			this._subscriptionPromises = { };
+			this._subscriptionPromises = {};
 		},
 
 		_start: function() {
@@ -76,59 +76,59 @@ module.exports = function() {
 				that._subscriptionPromises[messageType] = when.join(
 					that._snsProvider.getTopicArn(messageType),
 					that._sqsProvider.getQueueArn(subscriptionQueueName))
-						.then(function(resultGroup) {
-							var topicArn = resultGroup[0];
-							var queueArn = resultGroup[1];
+					.then(function(resultGroup) {
+						var topicArn = resultGroup[0];
+						var queueArn = resultGroup[1];
 
-							subscriptionStack.push(Disposable.fromAction(function() {
-								that._sqsProvider.deleteQueue(subscriptionQueueName);
-							}));
+						subscriptionStack.push(Disposable.fromAction(function() {
+							that._sqsProvider.deleteQueue(subscriptionQueueName);
+						}));
 
-							return that._sqsProvider.setQueuePolicy(subscriptionQueueName, SqsProvider.getPolicyForSnsDelivery(queueArn, topicArn))
-								.then(function() {
-									return that._snsProvider.subscribe(messageType, queueArn);
-								});
-						}).then(function(queueBinding) {
-							subscriptionStack.push(queueBinding);
-
-							return that._sqsProvider.observe(subscriptionQueueName, function(envelope) {
-								if (!_.isObject(envelope) || !_.isString(envelope.Message)) {
-									return;
-								}
-
-								var message = JSON.parse(envelope.Message);
-
-								var content;
-								var echo;
-
-								if (_.isString(message.publisher) && _.isObject(message.payload)) {
-									content = message.payload;
-									echo = message.publisher === that._publisherId;
-								} else {
-									content = message;
-									echo = false;
-								}
-
-								if (!echo || !that._suppressEcho) {
-									subscriptionEvent.fire(content);
-								} else {
-									logger.debug('AWS publisher dropped an "echo" message for', messageType);
-								}
+						return that._sqsProvider.setQueuePolicy(subscriptionQueueName, SqsProvider.getPolicyForSnsDelivery(queueArn, topicArn))
+							.then(function() {
+								return that._snsProvider.subscribe(messageType, queueArn);
 							});
-						}).then(function(queueObserver) {
-							subscriptionStack.push(queueObserver);
+					}).then(function(queueBinding) {
+						subscriptionStack.push(queueBinding);
 
-							subscriptionStack.push(Disposable.fromAction(function() {
-								delete that._subscriptionPromises[messageType];
-							}));
+						return that._sqsProvider.observe(subscriptionQueueName, function(envelope) {
+							if (!_.isObject(envelope) || !_.isString(envelope.Message)) {
+								return;
+							}
 
-							return {
-								binding: subscriptionStack,
-								event: subscriptionEvent
-							};
+							var message = JSON.parse(envelope.Message);
+
+							var content;
+							var echo;
+
+							if (_.isString(message.publisher) && _.isObject(message.payload)) {
+								content = message.payload;
+								echo = message.publisher === that._publisherId;
+							} else {
+								content = message;
+								echo = false;
+							}
+
+							if (!echo || !that._suppressEcho) {
+								subscriptionEvent.fire(content);
+							} else {
+								logger.debug('AWS publisher dropped an "echo" message for', messageType);
+							}
 						});
+					}).then(function(queueObserver) {
+						subscriptionStack.push(queueObserver);
+
+						subscriptionStack.push(Disposable.fromAction(function() {
+							delete that._subscriptionPromises[messageType];
+						}));
+
+						return {
+							binding: subscriptionStack,
+							event: subscriptionEvent
+						};
+					});
 			}
-			
+
 			return that._subscriptionPromises[messageType]
 				.then(function(subscriberData) {
 					return subscriberData.event.register(function(data, ignored) {

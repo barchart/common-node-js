@@ -7,27 +7,27 @@ var Disposable = require('common/lang/Disposable');
 var ServerDefinition = require('./ServerDefinition');
 
 module.exports = function() {
-    var ServerFactory = Class.extend({
-        init: function () {
+	var ServerFactory = Class.extend({
+		init: function() {
 
-        },
+		},
 
-        build: function(serverDefinition) {
-            assert.argumentIsRequired(serverDefinition, 'serverDefinition', ServerDefinition, 'ServerDefinition');
+		build: function(serverDefinition) {
+			assert.argumentIsRequired(serverDefinition, 'serverDefinition', ServerDefinition, 'ServerDefinition');
 
-            return when(this._build(serverDefinition.getContainers(), serverDefinition.getStaticPaths(), serverDefinition.getTemplatePath()));
-        },
+			return when(this._build(serverDefinition.getContainers(), serverDefinition.getStaticPaths(), serverDefinition.getTemplatePath()));
+		},
 
-        _build: function(containers, staticPath, templatePath) {
-            return Disposable.fromAction(function() {
-                return;
-            });
-        },
+		_build: function(containers, staticPath, templatePath) {
+			return Disposable.fromAction(function() {
+				return;
+			});
+		},
 
-        toString: function () {
-            return '[ServerFactory]';
-        }
-    });
+		toString: function() {
+			return '[ServerFactory]';
+		}
+	});
 
-    return ServerFactory;
+	return ServerFactory;
 }();

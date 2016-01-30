@@ -19,10 +19,10 @@ module.exports = function() {
 			var configuration = this._getConfiguration();
 
 			if (configuration.properties) {
-				results = _.map(results, function (result) {
-					var transform = { };
+				results = _.map(results, function(result) {
+					var transform = {};
 
-					_.forEach(configuration.properties, function (outputPropertyName, inputPropertyName) {
+					_.forEach(configuration.properties, function(outputPropertyName, inputPropertyName) {
 						attributes.write(transform, outputPropertyName, attributes.read(result, inputPropertyName));
 					});
 

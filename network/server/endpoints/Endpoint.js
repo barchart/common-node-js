@@ -6,25 +6,25 @@ var assert = require('common/lang/assert');
 var CommandHandler = require('common/commands/CommandHandler');
 
 module.exports = function() {
-    'use strict';
+	'use strict';
 
-    var logger = log4js.getLogger('common-node/network/server/endpoints/Endpoint');
+	var logger = log4js.getLogger('common-node/network/server/endpoints/Endpoint');
 
-    var Endpoint = Class.extend({
-        init: function(command) {
-            assert.argumentIsRequired(command, 'command', CommandHandler, 'CommandHandler');
+	var Endpoint = Class.extend({
+		init: function(command) {
+			assert.argumentIsRequired(command, 'command', CommandHandler, 'CommandHandler');
 
-            this._command = command;
-        },
+			this._command = command;
+		},
 
-        getCommand: function() {
-            return this._command;
-        },
+		getCommand: function() {
+			return this._command;
+		},
 
-        toString: function() {
-            return '[Endpoint]';
-        }
-    });
+		toString: function() {
+			return '[Endpoint]';
+		}
+	});
 
-    return Endpoint;
+	return Endpoint;
 }();

@@ -12,24 +12,24 @@ module.exports = function() {
 	var logger = log4js.getLogger('data/processors/FilterResultProcessor');
 
 	var FilterResultProcessor = ResultProcessor.extend({
-		init: function (configuration) {
+		init: function(configuration) {
 			this._super(configuration);
 		},
 
-		_process: function (results) {
+		_process: function(results) {
 			var configuration = this._getConfiguration();
 
 			if (_.isObject(configuration.equals)) {
-				results = _.filter(results, function (result) {
-					return _.every(configuration.equals, function (expectedValue, propertyName) {
+				results = _.filter(results, function(result) {
+					return _.every(configuration.equals, function(expectedValue, propertyName) {
 						return attributes.has(result, propertyName) && attributes.read(result, propertyName) === expectedValue;
 					});
 				});
 			}
 
 			if (_.isObject(configuration.regex)) {
-				results = _.filter(results, function (result) {
-					return _.every(configuration.regex, function (expression, propertyName) {
+				results = _.filter(results, function(result) {
+					return _.every(configuration.regex, function(expression, propertyName) {
 						var regex = new RegExp(expression);
 
 						return attributes.has(result, propertyName) && regex.test(attributes.read(result, propertyName));
@@ -40,8 +40,8 @@ module.exports = function() {
 			if (_.isObject(configuration.special)) {
 				var now = moment();
 
-				results = _.filter(results, function (result) {
-					return _.every(configuration.special, function (specialOperation, propertyName) {
+				results = _.filter(results, function(result) {
+					return _.every(configuration.special, function(specialOperation, propertyName) {
 						var returnVal = attributes.has(result, propertyName);
 
 						if (returnVal) {
@@ -65,7 +65,7 @@ module.exports = function() {
 			return results;
 		},
 
-		toString: function () {
+		toString: function() {
 			return '[FilterResultProcessor]';
 		}
 	});

@@ -1,7 +1,7 @@
 var ExpressServerFactory = require('./express/ExpressServerFactory');
 
 module.exports = function() {
-    'use strict';
+	'use strict';
 
-    return new ExpressServerFactory();
+	return new ExpressServerFactory();
 }();

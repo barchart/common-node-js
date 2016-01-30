@@ -15,7 +15,7 @@ module.exports = function() {
 		init: function() {
 			this._super();
 
-			this._requestHandlers = { };
+			this._requestHandlers = {};
 		},
 
 		_canRoute: function(messageType) {

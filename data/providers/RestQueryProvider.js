@@ -84,7 +84,7 @@ module.exports = function() {
 		},
 
 		_getRequestOptions: function(criteria) {
-			return { };
+			return {};
 		},
 
 		_getAuthenticationOptions: function(criteria) {

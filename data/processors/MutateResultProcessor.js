@@ -19,7 +19,7 @@ module.exports = function() {
 			if (_.isArray(configuration.items)) {
 				configurationArray = configuration.items;
 			} else {
-				configurationArray = [ configuration ];
+				configurationArray = [configuration];
 			}
 
 			this._configurationArray = configurationArray;
@@ -39,11 +39,11 @@ module.exports = function() {
 			if (_.isArray(results)) {
 				resultsToProcess = results;
 			} else {
-				resultsToProcess = [ results ];
+				resultsToProcess = [results];
 			}
 
-			var processedResults = _.map(resultsToProcess, function (result) {
-				_.forEach(that._configurationArray, function (configurationItem) {
+			var processedResults = _.map(resultsToProcess, function(result) {
+				_.forEach(that._configurationArray, function(configurationItem) {
 					that._processItem(result, configurationItem);
 				});
 

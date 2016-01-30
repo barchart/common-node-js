@@ -4,35 +4,35 @@ var log4js = require('log4js');
 var ResultProcessor = require('./../ResultProcessor');
 
 module.exports = function() {
-    'use strict';
+	'use strict';
 
-    var logger = log4js.getLogger('data/processors/FirstResultProcessor');
+	var logger = log4js.getLogger('data/processors/FirstResultProcessor');
 
-    var FirstResultProcessor = ResultProcessor.extend({
-        init: function(configuration) {
-            this._super(configuration);
-        },
+	var FirstResultProcessor = ResultProcessor.extend({
+		init: function(configuration) {
+			this._super(configuration);
+		},
 
-        _process: function(results) {
-            var result;
+		_process: function(results) {
+			var result;
 
-            if (_.isArray(results)) {
-                if (results.length !== 0) {
-                    result = results[0];
-                } else {
-                    result = undefined;
-                }
-            } else {
-                result = results;
-            }
+			if (_.isArray(results)) {
+				if (results.length !== 0) {
+					result = results[0];
+				} else {
+					result = undefined;
+				}
+			} else {
+				result = results;
+			}
 
-            return result;
-        },
+			return result;
+		},
 
-        toString: function() {
-            return '[FirstResultProcessor]';
-        }
-    });
+		toString: function() {
+			return '[FirstResultProcessor]';
+		}
+	});
 
-    return FirstResultProcessor;
+	return FirstResultProcessor;
 }();

@@ -1,15 +1,15 @@
 var Class = require('class.extend');
-var when  = require('when');
+var when = require('when');
 
 module.exports = function() {
 	'use strict';
 
 	var DataProviderFactory = Class.extend({
-		init: function () {
+		init: function() {
 			this._started = false;
 		},
 
-		start: function () {
+		start: function() {
 			if (this._started) {
 				throw new Error(this.toString() + ' has already been started.');
 			}
@@ -25,11 +25,11 @@ module.exports = function() {
 			});
 		},
 
-		_start: function () {
+		_start: function() {
 			return true;
 		},
 
-		build: function (configuration) {
+		build: function(configuration) {
 			if (!this._started) {
 				throw new Error('Unable to build data provider, the data provider factory has not been started.');
 			}
@@ -41,11 +41,11 @@ module.exports = function() {
 			});
 		},
 
-		_build: function (configuration) {
+		_build: function(configuration) {
 			return null;
 		},
 
-		toString: function () {
+		toString: function() {
 			return '[DataProviderFactory]';
 		}
 	});

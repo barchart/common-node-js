@@ -8,33 +8,33 @@ var assert = require('common/lang/assert');
 module.exports = function() {
 	'use strict';
 
-    var Environment = Class.extend({
-        init: function (environmentName, configuration, version) {
+	var Environment = Class.extend({
+		init: function(environmentName, configuration, version) {
 			assert.argumentIsRequired(environmentName, 'environmentName', String);
 			assert.argumentIsRequired(configuration, 'configuration', Object);
 			assert.argumentIsRequired(version, 'version', String);
 
-            this._name = environmentName;
-            this._configuration = configuration;
-            this._version = version;
-        },
+			this._name = environmentName;
+			this._configuration = configuration;
+			this._version = version;
+		},
 
-        getName: function() {
-            return this._name;
-        },
+		getName: function() {
+			return this._name;
+		},
 
-        getConfiguration: function() {
-            return this._configuration;
-        },
+		getConfiguration: function() {
+			return this._configuration;
+		},
 
-        getVersion: function() {
-            return this._version;
-        },
+		getVersion: function() {
+			return this._version;
+		},
 
-        getIsProduction: function() {
-            return this._name === 'production';
-        }
-    });
+		getIsProduction: function() {
+			return this._name === 'production';
+		}
+	});
 
 	var instance = null;
 
@@ -52,7 +52,7 @@ module.exports = function() {
 
 		var configuration = configurator.load(path.resolve(configurationPath + '/config/config.yml'), name);
 
-		configuration.server = configuration.server || { };
+		configuration.server = configuration.server || {};
 		configuration.server.path = configuration.server.path || configurationPath;
 
 		instance = new Environment(name, configuration, version);
@@ -68,5 +68,5 @@ module.exports = function() {
 		return instance;
 	};
 
-    return Environment;
+	return Environment;
 }();

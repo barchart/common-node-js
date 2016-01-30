@@ -40,7 +40,7 @@ module.exports = function() {
 
 			return prefix + '://';
 		},
-		
+
 		toString: function() {
 			return '[Protocol (description=' + this._description + ')]';
 		}

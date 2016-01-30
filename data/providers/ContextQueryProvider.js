@@ -11,17 +11,17 @@ module.exports = function() {
 	var logger = log4js.getLogger('data/providers/ContextQueryProvider');
 
 	var ContextQueryProvider = QueryProvider.extend({
-		init: function (configuration) {
+		init: function(configuration) {
 			this._super(configuration);
 		},
 
-		_runQuery: function (criteria) {
+		_runQuery: function(criteria) {
 			var configuration = this._getConfiguration();
 
 			var returnRef;
 
 			if (_.isArray(configuration.properties)) {
-				returnRef = _.reduce(configuration.properties, function (map, property) {
+				returnRef = _.reduce(configuration.properties, function(map, property) {
 					map[property] = attributes.read(criteria, property);
 
 					return map;
@@ -35,7 +35,7 @@ module.exports = function() {
 			return returnRef;
 		},
 
-		toString: function () {
+		toString: function() {
 			return '[ContextQueryProvider]';
 		}
 	});

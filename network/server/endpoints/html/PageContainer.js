@@ -10,11 +10,11 @@ module.exports = function() {
 	'use strict';
 
 	var PageContainer = Container.extend({
-		init: function (port, path, secure) {
+		init: function(port, path, secure) {
 			this._super(port, path, secure);
 		},
 
-		_getEndpointType: function () {
+		_getEndpointType: function() {
 			return PageEndpoint;
 		},
 

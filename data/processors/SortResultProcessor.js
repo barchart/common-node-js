@@ -21,11 +21,11 @@ module.exports = function() {
 			var properties;
 
 			if (configuration.property) {
-				properties = [ configuration.property ];
+				properties = [configuration.property];
 			} else if (_.isArray(configuration.properties)) {
 				properties = configuration.properties;
 			} else {
-				properties = [ ];
+				properties = [];
 			}
 
 			if (properties.length !== 0) {

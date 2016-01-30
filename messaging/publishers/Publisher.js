@@ -29,7 +29,7 @@ module.exports = function() {
 			if (that._startPromise === null) {
 				that._startPromise = when.try(function() {
 					return that._start();
-				}).then(function () {
+				}).then(function() {
 					that._started = true;
 
 					return that._started;
@@ -38,11 +38,11 @@ module.exports = function() {
 
 			return that._startPromise;
 		},
-		
+
 		_start: function() {
 			return;
 		},
-		
+
 		publish: function(messageType, payload) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
 			assert.argumentIsRequired(payload, 'payload', Object);
@@ -52,7 +52,7 @@ module.exports = function() {
 			if (!that._started) {
 				throw new Error('The publisher has not started.');
 			}
-			
+
 			if (that.getIsDisposed()) {
 				throw new Error('The message publisher has been disposed');
 			}
@@ -75,7 +75,7 @@ module.exports = function() {
 			if (!that._started) {
 				throw new Error('The publisher has not started.');
 			}
-			
+
 			if (that.getIsDisposed()) {
 				throw new Error('The message publisher has been disposed');
 			}

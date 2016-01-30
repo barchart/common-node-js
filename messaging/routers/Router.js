@@ -29,7 +29,7 @@ module.exports = function() {
 			if (that._startPromise === null) {
 				that._startPromise = when.try(function() {
 					return that._start();
-				}).then(function () {
+				}).then(function() {
 					that._started = true;
 
 					return that._started;

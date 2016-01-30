@@ -10,7 +10,7 @@ module.exports = function() {
 	var logger = log4js.getLogger('data/providers/OnDemandQueryProvider');
 
 	var OnDemandQueryProvider = RestQueryProvider.extend({
-		init: function (configuration) {
+		init: function(configuration) {
 			this._super(configuration);
 		},
 
@@ -42,7 +42,7 @@ module.exports = function() {
 			});
 		},
 
-		_getRequestOptions: function (criteria) {
+		_getRequestOptions: function(criteria) {
 			var that = this;
 
 			var module = that._getModule();
@@ -59,7 +59,7 @@ module.exports = function() {
 				output: 'json'
 			}, that._getStaticCriteria());
 
-			_.forOwn(dynamicCriteria, function (defaultValue, key) {
+			_.forOwn(dynamicCriteria, function(defaultValue, key) {
 				var valueToUse;
 
 				if (_.has(criteria, key)) {
@@ -73,7 +73,7 @@ module.exports = function() {
 				query[key] = valueToUse;
 			});
 
-			_.forOwn(query, function (value, key) {
+			_.forOwn(query, function(value, key) {
 				var stringValue;
 
 				if (_.isArray(value)) {
@@ -93,7 +93,7 @@ module.exports = function() {
 			};
 		},
 
-		_parseResponse: function (responseText) {
+		_parseResponse: function(responseText) {
 			var response = JSON.parse(responseText);
 			var responseCode = response.status.code;
 
@@ -110,7 +110,7 @@ module.exports = function() {
 			return returnRef;
 		},
 
-		_getModule: function () {
+		_getModule: function() {
 			var configuration = this._getConfiguration();
 
 			var returnRef;
@@ -132,7 +132,7 @@ module.exports = function() {
 			if (_.isObject(configuration.staticCriteria)) {
 				returnRef = configuration.staticCriteria;
 			} else {
-				returnRef = { };
+				returnRef = {};
 			}
 
 			return returnRef;
@@ -146,7 +146,7 @@ module.exports = function() {
 			if (_.isObject(configuration.dynamicCriteria)) {
 				returnRef = configuration.dynamicCriteria;
 			} else {
-				returnRef = { };
+				returnRef = {};
 			}
 
 			return returnRef;

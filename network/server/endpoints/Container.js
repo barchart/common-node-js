@@ -5,79 +5,79 @@ var log4js = require('log4js');
 var assert = require('common/lang/assert');
 
 module.exports = function() {
-    'use strict';
+	'use strict';
 
-    var logger = log4js.getLogger('common-node/network/server/endpoints/Container');
+	var logger = log4js.getLogger('common-node/network/server/endpoints/Container');
 
-    var Container = Class.extend({
-        init: function(port, path, secure) {
-            assert.argumentIsOptional(port, 'port', Number);
-            assert.argumentIsOptional(path, 'path', String);
-            assert.argumentIsOptional(secure, 'secure', Boolean);
+	var Container = Class.extend({
+		init: function(port, path, secure) {
+			assert.argumentIsOptional(port, 'port', Number);
+			assert.argumentIsOptional(path, 'path', String);
+			assert.argumentIsOptional(secure, 'secure', Boolean);
 
-            var sequence = sequencer++;
+			var sequence = sequencer++;
 
-            this._port = getEffectivePort(port);
-            this._path = path || null;
-            this._secure = secure || false;
+			this._port = getEffectivePort(port);
+			this._path = path || null;
+			this._secure = secure || false;
 
-            this._endpoints = [ ];
-        },
+			this._endpoints = [];
+		},
 
-        addEndpoint: function(endpoint) {
-            assert.argumentIsRequired(endpoint, 'endpoint', this.getEndpointType(), this._getEndpointType().toString());
+		addEndpoint: function(endpoint) {
+			assert.argumentIsRequired(endpoint, 'endpoint', this.getEndpointType(), this._getEndpointType().toString());
 
-            this._endpoints.push(endpoint);
+			this._endpoints.push(endpoint);
 
-            return this;
-        },
+			return this;
+		},
 
-        getEndpoints: function() {
-            return this._endpoints;
-        },
+		getEndpoints: function() {
+			return this._endpoints;
+		},
 
-        getEndpointType: function() {
-            return this._getEndpointType();
-        },
+		getEndpointType: function() {
+			return this._getEndpointType();
+		},
 
-        _getEndpointType: function() {
-            return null;
-        },
+		_getEndpointType: function() {
+			return null;
+		},
 
-        getPort: function () {
-            return this._port;
-        },
+		getPort: function() {
+			return this._port;
+		},
 
-        getPath: function() {
-            return this._path;
-        },
+		getPath: function() {
+			return this._path;
+		},
 
-        getIsSecure: function () {
-            return this._secure;
-        },
+		getIsSecure: function() {
+			return this._secure;
+		},
 
-        toString: function() {
-            return '[Container]';
-        }
-    });
+		toString: function() {
+			return '[Container]';
+		}
+	});
 
-    var sequencer = 0;
+	var sequencer = 0;
 
-    function getEffectivePort(port) {
-        var returnVal;
+	function getEffectivePort(port) {
+		var returnVal;
 
-        if (_.isNumber(port)) {
-            returnVal = port;
-        } else {
-            returnVal = parseInt(process.env.PORT);
+		if (_.isNumber(port)) {
+			returnVal = port;
+		} else {
+			returnVal = parseInt(process.env.PORT);
 
-            if (_.isNaN(returnVal)) {
-                returnVal = 80;
-            }
-        }
+			if (_.isNaN(returnVal)) {
+				returnVal = 80;
+			}
+		}
 
-        return returnVal;
-    }
+		return returnVal;
+	}
 
-    return Container;
+	return Container;
 }();

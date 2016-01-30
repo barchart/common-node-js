@@ -44,7 +44,7 @@ module.exports = function() {
 	});
 
 	var emptyCommand = CommandHandler.fromFunction(function(ignored) {
-		return { };
+		return {};
 	});
 
 	return PageEndpoint;

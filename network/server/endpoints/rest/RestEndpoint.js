@@ -4,31 +4,31 @@ var Endpoint = require('./../Endpoint');
 var RestAction = require('./RestAction');
 
 module.exports = function() {
-    'use strict';
+	'use strict';
 
-    var RestEndpoint = Endpoint.extend({
-        init: function(action, path, command) {
-            this._super(command);
+	var RestEndpoint = Endpoint.extend({
+		init: function(action, path, command) {
+			this._super(command);
 
-            assert.argumentIsRequired(action, 'action', RestAction, 'RestAction');
-            assert.argumentIsRequired(path, 'path', String);
+			assert.argumentIsRequired(action, 'action', RestAction, 'RestAction');
+			assert.argumentIsRequired(path, 'path', String);
 
-            this._action = action;
-            this._path = path;
-        },
+			this._action = action;
+			this._path = path;
+		},
 
-        getRestAction: function() {
-            return this._action;
-        },
+		getRestAction: function() {
+			return this._action;
+		},
 
-        getPath: function() {
-            return this._path;
-        },
+		getPath: function() {
+			return this._path;
+		},
 
-        toString: function() {
-            return '[RestEndpoint]';
-        }
-    });
+		toString: function() {
+			return '[RestEndpoint]';
+		}
+	});
 
-    return RestEndpoint;
+	return RestEndpoint;
 }();

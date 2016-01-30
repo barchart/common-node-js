@@ -6,48 +6,48 @@ var attributes = require('common/lang/attributes');
 var ResultProcessor = require('./../ResultProcessor');
 
 module.exports = function() {
-    'use strict';
+	'use strict';
 
-    var logger = log4js.getLogger('data/processors/DistinctResultProcessor');
+	var logger = log4js.getLogger('data/processors/DistinctResultProcessor');
 
-    var DistinctResultProcessor = ResultProcessor.extend({
-        init: function(configuration) {
-            this._super(configuration);
-        },
+	var DistinctResultProcessor = ResultProcessor.extend({
+		init: function(configuration) {
+			this._super(configuration);
+		},
 
-        _process: function(results) {
-            var configuration = this._getConfiguration();
+		_process: function(results) {
+			var configuration = this._getConfiguration();
 
-            var returnRef;
+			var returnRef;
 
-            if (_.isString(configuration.property)) {
-                var propertyName = configuration.property;
+			if (_.isString(configuration.property)) {
+				var propertyName = configuration.property;
 
-                returnRef =
-                    _.map(
-                        _.unique(
-                            _.map(results, function(result) {
-                                return attributes.read(result, propertyName);
-                            })
-                        ), function(uniqueValue) {
-                            var uniqueItem = { };
+				returnRef =
+					_.map(
+						_.unique(
+							_.map(results, function(result) {
+								return attributes.read(result, propertyName);
+							})
+						), function(uniqueValue) {
+							var uniqueItem = {};
 
-                            uniqueItem[propertyName] = uniqueValue;
+							uniqueItem[propertyName] = uniqueValue;
 
-                            return uniqueItem;
-                        }
-                    );
-            } else {
-                returnRef = results;
-            }
+							return uniqueItem;
+						}
+					);
+			} else {
+				returnRef = results;
+			}
 
-            return returnRef;
-        },
+			return returnRef;
+		},
 
-        toString: function() {
-            return '[DistinctResultProcessor]';
-        }
-    });
+		toString: function() {
+			return '[DistinctResultProcessor]';
+		}
+	});
 
-    return DistinctResultProcessor;
+	return DistinctResultProcessor;
 }();

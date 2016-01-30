@@ -15,7 +15,7 @@ module.exports = function() {
 		init: function() {
 			this._super();
 
-			this._subscriptions = { };
+			this._subscriptions = {};
 		},
 
 		_publish: function(messageType, payload) {

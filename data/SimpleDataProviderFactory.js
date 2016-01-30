@@ -45,8 +45,8 @@ module.exports = function() {
 		init: function(customProcessors, customProviders) {
 			this._super();
 
-			this._customProcessors = customProcessors || { };
-			this._customProviders = customProviders || { };
+			this._customProcessors = customProcessors || {};
+			this._customProviders = customProviders || {};
 		},
 
 		_build: function(configuration) {

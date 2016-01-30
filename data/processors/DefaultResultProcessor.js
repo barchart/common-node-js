@@ -6,28 +6,28 @@ var attributes = require('common/lang/attributes');
 var MutateResultProcessor = require('./MutateResultProcessor');
 
 module.exports = function() {
-    'use strict';
+	'use strict';
 
-    var logger = log4js.getLogger('data/processors/DefaultResultProcessor');
+	var logger = log4js.getLogger('data/processors/DefaultResultProcessor');
 
-    var DefaultResultProcessor = MutateResultProcessor.extend({
-        init: function(configuration) {
-            this._super(configuration);
-        },
+	var DefaultResultProcessor = MutateResultProcessor.extend({
+		init: function(configuration) {
+			this._super(configuration);
+		},
 
-        _processItem: function(resultItemToProcess, configurationToUse) {
-            var propertyName = configurationToUse.propertyName;
-            var propertyValue = attributes.read(resultItemToProcess, propertyName);
+		_processItem: function(resultItemToProcess, configurationToUse) {
+			var propertyName = configurationToUse.propertyName;
+			var propertyValue = attributes.read(resultItemToProcess, propertyName);
 
-            if (_.isUndefined(propertyValue)) {
-                attributes.write(resultItemToProcess, propertyName, configurationToUse.defaultValue);
-            }
-        },
+			if (_.isUndefined(propertyValue)) {
+				attributes.write(resultItemToProcess, propertyName, configurationToUse.defaultValue);
+			}
+		},
 
-        toString: function() {
-            return '[DefaultResultProcessor]';
-        }
-    });
+		toString: function() {
+			return '[DefaultResultProcessor]';
+		}
+	});
 
-    return DefaultResultProcessor;
+	return DefaultResultProcessor;
 }();

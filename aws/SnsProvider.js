@@ -27,8 +27,8 @@ module.exports = function() {
 			this._startPromise = null;
 			this._started = false;
 
-			this._topicPromises = { };
-			this._subscriptionPromises = { };
+			this._topicPromises = {};
+			this._subscriptionPromises = {};
 		},
 
 		start: function() {
@@ -40,9 +40,9 @@ module.exports = function() {
 
 			if (that._startPromise === null) {
 				that._startPromise = when.try(function() {
-					aws.config.update({ region: that._configuration.region });
+					aws.config.update({region: that._configuration.region});
 
-					that._sns = new aws.SNS({ apiVersion: that._configuration.apiVersion || '2010-03-31' });
+					that._sns = new aws.SNS({apiVersion: that._configuration.apiVersion || '2010-03-31'});
 				}).then(function() {
 					logger.info('SNS provider started');
 

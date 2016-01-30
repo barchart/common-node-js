@@ -19,7 +19,7 @@ module.exports = function() {
 
 			var hostname = configuration.hostname;
 			var path = configuration.path || '';
-			var query = configuration.query || { };
+			var query = configuration.query || {};
 			var port = configuration.port || 80;
 
 			if (!_.isString(hostname) || hostname.length === 0) {
