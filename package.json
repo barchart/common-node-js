@@ -1,6 +1,6 @@
 {
   "name": "common-node",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Common classes, utilities, and functions for building Node.js servers",
   "author": {
     "name": "Bryan Ingle",
