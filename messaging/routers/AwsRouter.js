@@ -38,7 +38,7 @@ module.exports = function() {
 			logger.debug('AWS router starting');
 
 			return when.try(function() {
-				that._sqsProvider.start();
+				return that._sqsProvider.start();
 			}).then(function(ignored) {
 				var responseQueueName = getResponseChannel(that._routerId);
 
