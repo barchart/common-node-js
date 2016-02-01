@@ -165,7 +165,7 @@ module.exports = function() {
 					if (_.isNumber(retentionTime)) {
 						retentionTimeToUse = retentionTime;
 					} else {
-						retentionTimeToUse = 120000;
+						retentionTimeToUse = 120;
 					}
 
 					that._sqs.createQueue({
