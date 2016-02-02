@@ -9,7 +9,7 @@ var Disposable = require('common/lang/Disposable');
 module.exports = function() {
 	'use strict';
 
-	var logger = log4js.getLogger('common-node/messaging/SnsProvider');
+	var logger = log4js.getLogger('common-node/aws/SnsProvider');
 
 	var SnsProvider = Disposable.extend({
 		init: function(configuration) {
