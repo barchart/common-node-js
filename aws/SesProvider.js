@@ -19,7 +19,7 @@ module.exports = function() {
 
 			this._super();
 
-			this._sns = null;
+			this._ses = null;
 
 			this._configuration = configuration;
 
@@ -38,7 +38,7 @@ module.exports = function() {
 				that._startPromise = when.try(function() {
 					aws.config.update({region: that._configuration.region});
 
-					that._sns = new aws.SES({apiVersion: that._configuration.apiVersion || '2010-12-01'});
+					that._ses = new aws.SES({apiVersion: that._configuration.apiVersion || '2010-12-01'});
 				}).then(function() {
 					logger.info('SES provider started');
 
