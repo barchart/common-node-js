@@ -78,8 +78,6 @@ module.exports = function() {
 				throw new Error('The SES Provider has not been started.');
 			}
 
-			var that = this;
-
 			var recipientAddressesToUse;
 
 			if (_.isArray(recipientAddress)) {
