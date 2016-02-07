@@ -52,7 +52,7 @@ module.exports = function() {
 							deferred.resolve(message.payload);
 						}
 					}
-				});
+				}, 500, 20000);
 
 				var responseQueueBinding = Disposable.fromAction(function() {
 					that._sqsProvider.deleteQueue(responseQueueName);

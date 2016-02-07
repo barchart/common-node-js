@@ -76,57 +76,57 @@ module.exports = function() {
 				that._subscriptionPromises[messageType] = when.join(
 					that._snsProvider.getTopicArn(messageType),
 					that._sqsProvider.getQueueArn(subscriptionQueueName))
-					.then(function(resultGroup) {
-						var topicArn = resultGroup[0];
-						var queueArn = resultGroup[1];
+						.then(function(resultGroup) {
+							var topicArn = resultGroup[0];
+							var queueArn = resultGroup[1];
 
-						subscriptionStack.push(Disposable.fromAction(function() {
-							that._sqsProvider.deleteQueue(subscriptionQueueName);
-						}));
+							subscriptionStack.push(Disposable.fromAction(function() {
+								that._sqsProvider.deleteQueue(subscriptionQueueName);
+							}));
 
-						return that._sqsProvider.setQueuePolicy(subscriptionQueueName, SqsProvider.getPolicyForSnsDelivery(queueArn, topicArn))
-							.then(function() {
-								return that._snsProvider.subscribe(messageType, queueArn);
+							return that._sqsProvider.setQueuePolicy(subscriptionQueueName, SqsProvider.getPolicyForSnsDelivery(queueArn, topicArn))
+								.then(function() {
+									return that._snsProvider.subscribe(messageType, queueArn);
+								});
+						}).then(function(queueBinding) {
+							subscriptionStack.push(queueBinding);
+
+							return that._sqsProvider.observe(subscriptionQueueName, function(envelope) {
+								if (!_.isObject(envelope) || !_.isString(envelope.Message)) {
+									return;
+								}
+
+								var message = JSON.parse(envelope.Message);
+
+								var content;
+								var echo;
+
+								if (_.isString(message.publisher) && _.isObject(message.payload)) {
+									content = message.payload;
+									echo = message.publisher === that._publisherId;
+								} else {
+									content = message;
+									echo = false;
+								}
+
+								if (!echo || !that._suppressEcho) {
+									subscriptionEvent.fire(content);
+								} else {
+									logger.debug('AWS publisher dropped an "echo" message for', messageType);
+								}
 							});
-					}).then(function(queueBinding) {
-						subscriptionStack.push(queueBinding);
+						}).then(function(queueObserver) {
+							subscriptionStack.push(queueObserver);
 
-						return that._sqsProvider.observe(subscriptionQueueName, function(envelope) {
-							if (!_.isObject(envelope) || !_.isString(envelope.Message)) {
-								return;
-							}
+							subscriptionStack.push(Disposable.fromAction(function() {
+								delete that._subscriptionPromises[messageType];
+							}));
 
-							var message = JSON.parse(envelope.Message);
-
-							var content;
-							var echo;
-
-							if (_.isString(message.publisher) && _.isObject(message.payload)) {
-								content = message.payload;
-								echo = message.publisher === that._publisherId;
-							} else {
-								content = message;
-								echo = false;
-							}
-
-							if (!echo || !that._suppressEcho) {
-								subscriptionEvent.fire(content);
-							} else {
-								logger.debug('AWS publisher dropped an "echo" message for', messageType);
-							}
+							return {
+								binding: subscriptionStack,
+								event: subscriptionEvent
+							};
 						});
-					}).then(function(queueObserver) {
-						subscriptionStack.push(queueObserver);
-
-						subscriptionStack.push(Disposable.fromAction(function() {
-							delete that._subscriptionPromises[messageType];
-						}));
-
-						return {
-							binding: subscriptionStack,
-							event: subscriptionEvent
-						};
-					});
 			}
 
 			return that._subscriptionPromises[messageType]

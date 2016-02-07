@@ -267,8 +267,9 @@ module.exports = function() {
 				});
 		},
 
-		receive: function(queueName) {
+		receive: function(queueName, waitDuration) {
 			assert.argumentIsRequired(queueName, 'queueName', String);
+			assert.argumentIsOptional(waitDuration, 'waitDuration', Number);
 
 			var that = this;
 
@@ -286,13 +287,14 @@ module.exports = function() {
 				throw new Error('The SQS queue is being observed.');
 			}
 
-			return receiveMessages.call(that, queueName);
+			return receiveMessages.call(that, queueName, waitDuration);
 		},
 
-		observe: function(queueName, callback, interval) {
+		observe: function(queueName, callback, pollInterval, pollDuration) {
 			assert.argumentIsRequired(queueName, 'queueName', String);
 			assert.argumentIsRequired(callback, 'callback', Function);
-			assert.argumentIsOptional(interval, 'interval', Number);
+			assert.argumentIsOptional(pollInterval, 'pollInterval', Number);
+			assert.argumentIsOptional(pollDuration, 'pollDuration', Number);
 
 			var that = this;
 
@@ -327,7 +329,7 @@ module.exports = function() {
 					return;
 				}
 
-				receiveMessages.call(that, queueName)
+				receiveMessages.call(that, queueName, pollDuration)
 					.then(function(messages) {
 						return when.map(messages, function(message) {
 							if (disposed) {
@@ -343,7 +345,7 @@ module.exports = function() {
 							var delay;
 
 							if (messages.length === 0) {
-								delay = interval || 2000;
+								delay = pollInterval || 2000;
 							} else {
 								delay = 0;
 							}
@@ -424,7 +426,7 @@ module.exports = function() {
 		}
 	});
 
-	function receiveMessages(queueName) {
+	function receiveMessages(queueName, waitTime) {
 		var that = this;
 
 		if (that.getIsDisposed()) {
@@ -433,6 +435,18 @@ module.exports = function() {
 
 		if (!that._started) {
 			throw new Error('The SQS Provider has not been started.');
+		}
+
+		var waitTimeToUse;
+
+		if (_.isNumber(waitTime)) {
+			if (waitTime === 0) {
+				waitTimeToUse = 0;
+			} else {
+				waitTimeToUse = _.round(waitTime / 1000);
+			}
+		} else {
+			waitTimeToUse = 10;
 		}
 
 		return that.getQueueUrl(queueName)
@@ -444,7 +458,8 @@ module.exports = function() {
 						logger.debug('Receiving message(s) from SQS Queue:', qualifiedQueueName);
 
 						that._sqs.receiveMessage({
-							QueueUrl: queueUrl
+							QueueUrl: queueUrl,
+							WaitTimeSeconds: waitTimeToUse
 						}, function(error, data) {
 							if (error === null) {
 								var messagesExist = _.isArray(data.Messages) && data.Messages.length !== 0;

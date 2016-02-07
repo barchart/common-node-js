@@ -146,7 +146,7 @@ module.exports = function() {
 		}
 	});
 
-	var DEFAULT_TIMEOUT_MILLISECONDS = 15000;
+	var DEFAULT_TIMEOUT_MILLISECONDS = 20000;
 
 	return Bus;
 }();
