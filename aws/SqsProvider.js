@@ -329,6 +329,8 @@ module.exports = function() {
 					return;
 				}
 
+				var delay;
+
 				receiveMessages.call(that, queueName, pollDuration)
 					.then(function(messages) {
 						return when.map(messages, function(message) {
@@ -337,21 +339,29 @@ module.exports = function() {
 							}
 
 							return callback(message);
-						}).then(function(ignored) {
-							if (disposed) {
-								return;
-							}
-
-							var delay;
-
+						}).catch(function(error) {
+							logger.error('An error occurred while processing message(s) from SQS queue:', qualifiedQueueName);
+							logger.error(error);
+						}).finally(function() {
 							if (messages.length === 0) {
 								delay = pollInterval || 2000;
 							} else {
 								delay = 0;
 							}
-
-							that._scheduler.schedule(checkQueue, delay, 'Check SQS Queue (' + qualifiedQueueName + ')');
 						});
+					}).catch(function(error) {
+						logger.error('An error occurred while receiving message(s) from SQS queue:', qualifiedQueueName);
+						logger.error(error);
+					}).finally(function() {
+						if (disposed) {
+							return;
+						}
+
+						if (!_.isNumber(delay)) {
+							delay = 5000;
+						}
+
+						that._scheduler.schedule(checkQueue, delay, 'Check SQS Queue (' + qualifiedQueueName + ')');
 					});
 			};
 
