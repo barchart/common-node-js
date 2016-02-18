@@ -32,6 +32,7 @@
     "aws-sdk": "^2.2.28",
     "body-parser": "^1.14.2",
     "class.extend": "^0.9.1",
+    "client-sessions": "^0.7.0",
     "common": "git+ssh://github.com/barchart/barchart-common-js",
     "express": "^4.13.3",
     "express-handlebars": "^2.0.1",

@@ -10,12 +10,20 @@ module.exports = function() {
 	'use strict';
 
 	var PageContainer = Container.extend({
-		init: function(port, path, secure) {
+		init: function(port, path, secure, useSession) {
+			assert.argumentIsOptional(useSession, 'useSession', Boolean);
+
 			this._super(port, path, secure);
+
+			this._useSession = useSession || false;
 		},
 
 		_getEndpointType: function() {
 			return PageEndpoint;
+		},
+
+		getUsesSession: function() {
+			return this._useSession;
 		},
 
 		toString: function() {

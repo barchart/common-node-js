@@ -1,6 +1,7 @@
 var _ = require('lodash');
 var bodyParser = require('body-parser');
 var Class = require('class.extend');
+var clientSessions = require('client-sessions');
 var express = require('express');
 var expressHandlebars = require('express-handlebars');
 var http = require('http');
@@ -72,6 +73,8 @@ module.exports = function() {
 			this._port = port;
 			this._secure = secure;
 
+			this._useSessions = false;
+
 			this._staticPaths = staticPaths;
 			this._templatePath = templatePath;
 
@@ -90,13 +93,16 @@ module.exports = function() {
 			return this._secure;
 		},
 
-		addPage: function(basePath, pagePath, template, verb, command, cache) {
+		addPage: function(basePath, pagePath, template, verb, command, cache, useSession) {
 			assert.argumentIsRequired(basePath, 'basePath', String);
 			assert.argumentIsRequired(pagePath, 'pagePath', String);
 			assert.argumentIsRequired(template, 'template', String);
 			assert.argumentIsRequired(verb, 'verb', Verb, 'Verb');
 			assert.argumentIsRequired(command, 'command', CommandHandler, 'CommandHandler');
 			assert.argumentIsRequired(cache, 'cache', Boolean);
+			assert.argumentIsRequired(useSession, 'useSession', Boolean);
+
+			this._useSessions = this._useSessions || useSession;
 
 			if (!_.has(this._pageMap, basePath)) {
 				this._pageMap[basePath] = {
@@ -109,7 +115,7 @@ module.exports = function() {
 				verb: verb,
 				path: pagePath,
 				template: template,
-				handler: buildPageHandler(verb, basePath, pagePath, template, command, cache)
+				handler: buildPageHandler(verb, basePath, pagePath, template, command, cache, useSession)
 			};
 
 			this._pageMap[basePath].handlers.push(handlerData);
@@ -185,6 +191,14 @@ module.exports = function() {
 
 				next();
 			});
+
+			if (that._useSessions) {
+				app.use(clientSessions({
+					cookieName: 'session',
+					secret: 'barchart-session-secret-1234567890',
+					duration: 24 * 60 * 60 * 1000
+				}));
+			}
 
 			if (_.some(that._staticPaths)) {
 				_.forEach(that._staticPaths, function(filePath, serverPath) {
@@ -402,14 +416,20 @@ module.exports = function() {
 			return this._verb === verb;
 		},
 
-		getCommandArguments: function(verb, request) {
+		getCommandArguments: function(verb, request, useSession) {
 			assert.argumentIsRequired(request, 'request');
 
 			if (!this.canProcess(verb)) {
 				logger.warn('Unable to extract arguments from HTTP request.');
 			}
 
-			return this._action(request);
+			var returnRef = this._action(request);
+
+			if (useSession) {
+				returnRef.session = request.session || { };
+			}
+
+			return returnRef;
 		}
 	});
 
@@ -518,7 +538,7 @@ module.exports = function() {
 			var server = serverContainer.getServer(container.getPort(), container.getIsSecure());
 
 			_.forEach(endpoints, function(endpoint) {
-				server.addPage(container.getPath(), endpoint.getPath(), endpoint.getTemplate(), endpoint.getVerb(), endpoint.getCommand(), endpoint.getCache());
+				server.addPage(container.getPath(), endpoint.getPath(), endpoint.getTemplate(), endpoint.getVerb(), endpoint.getCommand(), endpoint.getCache(), container.getUsesSession());
 			});
 
 			return true;
@@ -533,7 +553,7 @@ module.exports = function() {
 		];
 	};
 
-	function buildPageHandler(verb, basePath, routePath, template, command, cache) {
+	function buildPageHandler(verb, basePath, routePath, template, command, cache, useSession) {
 		var sequencer = 0;
 
 		var argumentExtractionStrategy = _.find(ExpressArgumentExtractionStrategy.getStrategies(), function(candidate) {
@@ -553,8 +573,10 @@ module.exports = function() {
 
 			logger.debug('Processing starting for', verb.getCode(), 'at', path.join(basePath + routePath), '(' + sequence + ')');
 
+			var commandArguments = argumentExtractionStrategy.getCommandArguments(verb, request, useSession);
+
 			return when.try(function() {
-				return command.process(argumentExtractionStrategy.getCommandArguments(verb, request));
+				return command.process(commandArguments);
 			}).then(function(result) {
 				if (!cache) {
 					response.setHeader('Cache-Control', 'private, max-age=0, no-cache');
