@@ -7,6 +7,7 @@ var expressHandlebars = require('express-handlebars');
 var http = require('http');
 var https = require('https');
 var log4js = require('log4js');
+var multer = require('multer');
 var path = require('path');
 var socketIO = require('socket.io');
 var when = require('when');
@@ -93,7 +94,7 @@ module.exports = function() {
 			return this._secure;
 		},
 
-		addPage: function(basePath, pagePath, template, verb, command, cache, useSession) {
+		addPage: function(basePath, pagePath, template, verb, command, cache, useSession, acceptFile) {
 			assert.argumentIsRequired(basePath, 'basePath', String);
 			assert.argumentIsRequired(pagePath, 'pagePath', String);
 			assert.argumentIsRequired(template, 'template', String);
@@ -101,6 +102,7 @@ module.exports = function() {
 			assert.argumentIsRequired(command, 'command', CommandHandler, 'CommandHandler');
 			assert.argumentIsRequired(cache, 'cache', Boolean);
 			assert.argumentIsRequired(useSession, 'useSession', Boolean);
+			assert.argumentIsRequired(useSession, 'acceptFile', Boolean);
 
 			this._useSessions = this._useSessions || useSession;
 
@@ -115,7 +117,7 @@ module.exports = function() {
 				verb: verb,
 				path: pagePath,
 				template: template,
-				handler: buildPageHandler(verb, basePath, pagePath, template, command, cache, useSession)
+				handlers: buildPageHandlers(verb, basePath, pagePath, template, command, cache, useSession, acceptFile)
 			};
 
 			this._pageMap[basePath].handlers.push(handlerData);
@@ -221,7 +223,7 @@ module.exports = function() {
 
 					_.forEach(pageData.handlers, function(handlerData) {
 						var verb = handlerData.verb;
-						var handler = handlerData.handler;
+						var handlers = handlerData.handlers;
 						var pagePath = handlerData.path;
 						var template = handlerData.template;
 
@@ -230,7 +232,7 @@ module.exports = function() {
 						});
 
 						if (routeBindingStrategy) {
-							routeBindingStrategy.bind(router, verb, pagePath, handler);
+							routeBindingStrategy.bind(router, verb, pagePath, handlers);
 
 							logger.info('Bound handler for', (secure ? 'HTTPS' : 'HTTP'), verb.getCode(), 'on port', port, 'at', path.join(basePath + pagePath), 'to', template + '.hbs');
 						} else {
@@ -257,7 +259,7 @@ module.exports = function() {
 						});
 
 						if (routeBindingStrategy) {
-							routeBindingStrategy.bind(router, verb, routePath, handler);
+							routeBindingStrategy.bind(router, verb, routePath, [ handler ]);
 
 							logger.info('Bound REST handler for', (secure ? 'HTTPS' : 'HTTP'), verb.getCode(), 'on port', port, 'at', path.join(basePath + routePath));
 						} else {
@@ -372,33 +374,34 @@ module.exports = function() {
 			return this._verb === verb;
 		},
 
-		bind: function(router, verb, path, handler) {
+		bind: function(router, verb, path, handlers) {
 			assert.argumentIsRequired(router, router);
 			assert.argumentIsRequired(verb, 'verb', Verb, 'Verb');
 			assert.argumentIsRequired(path, 'path', String);
-			assert.argumentIsRequired(handler, 'handler', Function);
+
+			assert.argumentIsArray(handlers, 'handlers', Function, 'Function');
 
 			if (!this.canBind(verb)) {
 				logger.warn('Unable to bind endpoint. The strategy does not support the HTTP verb (' + verb.getCode() + ')');
 			}
 
-			return this._action(router, path, handler);
+			return this._action(router, path, handlers);
 		}
 	});
 
 	ExpressRouteBindingStrategy.getStrategies = function() {
 		return [
-			new ExpressRouteBindingStrategy(Verb.GET, function(router, path, handler) {
-				router.get(path, handler);
+			new ExpressRouteBindingStrategy(Verb.GET, function(router, path, handlers) {
+				router.get.apply(router, [path].concat(handlers));
 			}),
-			new ExpressRouteBindingStrategy(Verb.POST, function(router, path, handler) {
-				router.post(path, handler);
+			new ExpressRouteBindingStrategy(Verb.POST, function(router, path, handlers) {
+				router.post.apply(router, [path].concat(handlers));
 			}),
-			new ExpressRouteBindingStrategy(Verb.PUT, function(router, path, handler) {
-				router.put(path, handler);
+			new ExpressRouteBindingStrategy(Verb.PUT, function(router, path, handlers) {
+				router.put.apply(router, [path].concat(handlers));
 			}),
-			new ExpressRouteBindingStrategy(Verb.DELETE, function(router, path, handler) {
-				router.delete(path, handler);
+			new ExpressRouteBindingStrategy(Verb.DELETE, function(router, path, handlers) {
+				router.delete.apply(router, [path].concat(handlers));
 			})
 		];
 	};
@@ -416,7 +419,7 @@ module.exports = function() {
 			return this._verb === verb;
 		},
 
-		getCommandArguments: function(verb, request, useSession) {
+		getCommandArguments: function(verb, request, useSession, acceptFile) {
 			assert.argumentIsRequired(request, 'request');
 
 			if (!this.canProcess(verb)) {
@@ -427,6 +430,10 @@ module.exports = function() {
 
 			if (useSession) {
 				returnRef.session = request.session || { };
+			}
+
+			if (acceptFile) {
+				returnRef.file = request.file;
 			}
 
 			return returnRef;
@@ -538,7 +545,7 @@ module.exports = function() {
 			var server = serverContainer.getServer(container.getPort(), container.getIsSecure());
 
 			_.forEach(endpoints, function(endpoint) {
-				server.addPage(container.getPath(), endpoint.getPath(), endpoint.getTemplate(), endpoint.getVerb(), endpoint.getCommand(), endpoint.getCache(), container.getUsesSession());
+				server.addPage(container.getPath(), endpoint.getPath(), endpoint.getTemplate(), endpoint.getVerb(), endpoint.getCommand(), endpoint.getCache(), container.getUsesSession(), endpoint.getAcceptFile());
 			});
 
 			return true;
@@ -553,7 +560,15 @@ module.exports = function() {
 		];
 	};
 
-	function buildPageHandler(verb, basePath, routePath, template, command, cache, useSession) {
+	function buildPageHandlers(verb, basePath, routePath, template, command, cache, useSession, acceptFile) {
+		var handlers = [ ];
+
+		if (acceptFile) {
+			var uploader = multer({ storage: multer.memoryStorage(), limits: { files: 1, fileSize: 10485760 } });
+
+			handlers.push(uploader.single('file'));
+		}
+
 		var sequencer = 0;
 
 		var argumentExtractionStrategy = _.find(ExpressArgumentExtractionStrategy.getStrategies(), function(candidate) {
@@ -568,12 +583,12 @@ module.exports = function() {
 			};
 		}
 
-		return function(request, response) {
+		handlers.push(function(request, response) {
 			var sequence = sequencer++;
 
 			logger.debug('Processing starting for', verb.getCode(), 'at', path.join(basePath + routePath), '(' + sequence + ')');
 
-			var commandArguments = argumentExtractionStrategy.getCommandArguments(verb, request, useSession);
+			var commandArguments = argumentExtractionStrategy.getCommandArguments(verb, request, useSession, acceptFile);
 
 			return when.try(function() {
 				return command.process(commandArguments);
@@ -586,7 +601,9 @@ module.exports = function() {
 
 				logger.debug('Processing completed for', verb.getCode(), 'at', path.join(basePath + routePath), '(' + sequence + ')');
 			});
-		};
+		});
+
+		return handlers;
 	}
 
 	function buildRestHandler(verb, basePath, routePath, command) {

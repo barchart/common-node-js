@@ -8,18 +8,20 @@ module.exports = function() {
 	'use strict';
 
 	var PageEndpoint = Endpoint.extend({
-		init: function(verb, path, template, command, cache) {
+		init: function(verb, path, template, command, cache, acceptFile) {
 			this._super(command || emptyCommand);
 
 			assert.argumentIsRequired(verb, 'verb', Verb, 'Verb');
 			assert.argumentIsRequired(path, 'path', String);
 			assert.argumentIsRequired(template, 'template', String);
 			assert.argumentIsOptional(cache, 'cache', Boolean);
+			assert.argumentIsOptional(acceptFile, 'acceptFile', Boolean);
 
 			this._verb = verb;
 			this._path = path;
 			this._template = template;
 			this._cache = cache || false;
+			this._acceptFile = acceptFile || false;
 		},
 
 		getVerb: function() {
@@ -36,6 +38,10 @@ module.exports = function() {
 
 		getCache: function() {
 			return this._cache;
+		},
+
+		getAcceptFile: function() {
+			return this._acceptFile;
 		},
 
 		toString: function() {
