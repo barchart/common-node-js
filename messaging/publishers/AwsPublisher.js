@@ -57,7 +57,7 @@ module.exports = function() {
 			logger.debug('Publishing message to AWS:', messageType);
 			logger.trace(payload);
 
-			that._snsProvider.publish(messageType, envelope);
+			return that._snsProvider.publish(messageType, envelope);
 		},
 
 		_subscribe: function(messageType, handler) {
