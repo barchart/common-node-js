@@ -9,7 +9,10 @@ var https = require('https');
 var log4js = require('log4js');
 var multer = require('multer');
 var path = require('path');
+var proxy = require('express-http-proxy');
 var socketIO = require('socket.io');
+var url = require('url');
+var querystring = require('querystring');
 var when = require('when');
 
 var Disposable = require('common/lang/Disposable');
@@ -19,6 +22,7 @@ var assert = require('common/lang/assert');
 
 var Container = require('./../endpoints/Container');
 var PageContainer = require('./../endpoints/html/PageContainer');
+var RelayContainer = require('./../endpoints/html/RelayContainer');
 var RestContainer = require('./../endpoints/rest/RestContainer');
 var ServerFactory = require('./../ServerFactory');
 var SocketContainer = require('./../endpoints/socket.io/SocketContainer');
@@ -80,6 +84,7 @@ module.exports = function() {
 			this._templatePath = templatePath;
 
 			this._pageMap = {};
+			this._relayMap = {};
 			this._serviceMap = {};
 			this._socketMap = {};
 
@@ -121,6 +126,31 @@ module.exports = function() {
 			};
 
 			this._pageMap[basePath].handlers.push(handlerData);
+		},
+
+		addRelay: function(basePath, acceptPath, forwardHost, forwardPath, verb, headerOverrides, parameterOverrides) {
+			assert.argumentIsRequired(basePath, 'basePath', String);
+			assert.argumentIsRequired(acceptPath, 'acceptPath', String);
+			assert.argumentIsRequired(forwardHost, 'forwardHost', String);
+			assert.argumentIsRequired(forwardPath, 'forwardPath', String);
+			assert.argumentIsRequired(verb, 'verb', Verb, 'Verb');
+			assert.argumentIsRequired(headerOverrides, 'headerOverrides', Object);
+			assert.argumentIsRequired(parameterOverrides, 'paramterOverrides', Object);
+
+			if (!_.has(this._relayMap, basePath)) {
+				this._relayMap[basePath] = {
+					path: basePath,
+					relays: [ ]
+				};
+			}
+
+			this._relayMap[basePath].relays.push({
+				verb: verb,
+				acceptPath: acceptPath,
+				forwardHost: forwardHost,
+				forwardPath: forwardPath,
+				handler: buildRelayHandler(basePath, acceptPath, forwardHost, forwardPath, verb, headerOverrides, parameterOverrides)
+			});
 		},
 
 		addService: function(basePath, routePath, verb, command) {
@@ -234,7 +264,36 @@ module.exports = function() {
 						if (routeBindingStrategy) {
 							routeBindingStrategy.bind(router, verb, pagePath, handlers);
 
-							logger.info('Bound handler for', (secure ? 'HTTPS' : 'HTTP'), verb.getCode(), 'on port', port, 'at', path.join(basePath + pagePath), 'to', template + '.hbs');
+							logger.info('Bound handler for', (secure ? 'HTTPS' : 'HTTP'), verb.getCode(), 'on port', port, 'at', path.join(basePath, pagePath), 'to', template + '.hbs');
+						} else {
+							logger.warn('Unable to find appropriate binding strategy for endpoint using HTTP verb (' + verb.getCode() + ')');
+						}
+					});
+
+					app.use(basePath, router);
+				});
+			}
+
+			if (_.some(that._relayMap)) {
+				_.forEach(that._relayMap, function(rootData) {
+					var basePath = rootData.path;
+					var router = express.Router();
+
+					_.forEach(rootData.relays, function(relayData) {
+						var verb = relayData.verb;
+						var handler = relayData.handler;
+						var acceptPath = relayData.acceptPath;
+						var forwardHost = relayData.forwardHost;
+						var forwardPath = relayData.forwardPath;
+
+						var routeBindingStrategy = _.find(routeBindingStrategies, function(candidate) {
+							return candidate.canBind(verb);
+						});
+
+						if (routeBindingStrategy) {
+							routeBindingStrategy.bind(router, verb, acceptPath, [ handler ]);
+
+							logger.info('Bound relay for', (secure ? 'HTTPS' : 'HTTP'), verb.getCode(), 'on port', port, 'at', path.join(basePath, acceptPath), 'to', path.join(forwardHost, forwardPath));
 						} else {
 							logger.warn('Unable to find appropriate binding strategy for endpoint using HTTP verb (' + verb.getCode() + ')');
 						}
@@ -261,7 +320,7 @@ module.exports = function() {
 						if (routeBindingStrategy) {
 							routeBindingStrategy.bind(router, verb, routePath, [ handler ]);
 
-							logger.info('Bound REST handler for', (secure ? 'HTTPS' : 'HTTP'), verb.getCode(), 'on port', port, 'at', path.join(basePath + routePath));
+							logger.info('Bound REST handler for', (secure ? 'HTTPS' : 'HTTP'), verb.getCode(), 'on port', port, 'at', path.join(basePath, routePath));
 						} else {
 							logger.warn('Unable to find appropriate binding strategy for endpoint using HTTP verb (' + verb.getCode() + ')');
 						}
@@ -552,11 +611,34 @@ module.exports = function() {
 		}
 	});
 
+	var RelayContainerBindingStrategy = ContainerBindingStrategy.extend({
+		init: function() {
+			this._super();
+		},
+
+		_canBind: function(container) {
+			return container instanceof RelayContainer;
+		},
+
+		_bind: function(container, serverContainer) {
+			var endpoints = container.getEndpoints();
+
+			var server = serverContainer.getServer(container.getPort(), container.getIsSecure());
+
+			_.forEach(endpoints, function(endpoint) {
+				server.addRelay(container.getPath(), endpoint.getAcceptPath(), endpoint.getForwardHost(), endpoint.getForwardPath(), endpoint.getVerb(), endpoint.getHeaderOverrides(), endpoint.getParameterOverrides());
+			});
+
+			return true;
+		}
+	});
+
 	ContainerBindingStrategy.getStrategies = function() {
 		return [
 			new RestContainerBindingStrategy(),
 			new SocketContainerBindingStrategy(),
-			new HtmlContainerBindingStrategy()
+			new HtmlContainerBindingStrategy(),
+			new RelayContainerBindingStrategy()
 		];
 	};
 
@@ -586,7 +668,7 @@ module.exports = function() {
 		handlers.push(function(request, response) {
 			var sequence = sequencer++;
 
-			logger.debug('Processing starting for', verb.getCode(), 'at', path.join(basePath + routePath), '(' + sequence + ')');
+			logger.debug('Processing starting for', verb.getCode(), 'at', path.join(basePath, routePath), '(' + sequence + ')');
 
 			var commandArguments = argumentExtractionStrategy.getCommandArguments(verb, request, useSession, acceptFile);
 
@@ -604,6 +686,38 @@ module.exports = function() {
 		});
 
 		return handlers;
+	}
+
+	function buildRelayHandler(basePath, acceptPath, forwardHost, forwardPath, verb, headerOverrides, parameterOverrides) {
+		var sequencer = 0;
+
+		return proxy(forwardHost, {
+			filter: function(request, response) {
+				return request.method == verb.getCode();
+			},
+			forwardPath: function(request, response) {
+				var returnRef = forwardPath;
+
+				if (Verb.GET === verb) {
+					_.merge(request.query || { }, parameterOverrides);
+
+					if (_.some(request.query)) {
+						returnRef = returnRef + '?' + querystring.stringify(request.query);
+					}
+				}
+
+				return returnRef;
+			},
+			decorateRequest: function(request) {
+				_.merge(request.headers, headerOverrides);
+
+				if (Verb.GET !== verb) {
+					_.merge(request.body || { }, parameterOverrides);
+				}
+
+				return request;
+			}
+		});
 	}
 
 	function buildRestHandler(verb, basePath, routePath, command) {
@@ -624,7 +738,7 @@ module.exports = function() {
 		return function(request, response) {
 			var sequence = sequencer++;
 
-			logger.debug('Processing starting for', verb.getCode(), 'at', path.join(basePath + routePath), '(' + sequence + ')');
+			logger.debug('Processing starting for', verb.getCode(), 'at', path.join(basePath, routePath), '(' + sequence + ')');
 
 			return when.try(function() {
 				return command.process(argumentExtractionStrategy.getCommandArguments(verb, request));
@@ -639,9 +753,9 @@ module.exports = function() {
 					response.json(generateRestResponse('success'));
 				}
 
-				logger.debug('Processing completed for', verb.getCode(), 'at', path.join(basePath + routePath), '(' + sequence + ')');
+				logger.debug('Processing completed for', verb.getCode(), 'at', path.join(basePath, routePath), '(' + sequence + ')');
 			}).catch(function(error) {
-				logger.error('Processing failed for', verb.getCode(), 'at', path.join(basePath + routePath), '(' + sequence + ')');
+				logger.error('Processing failed for', verb.getCode(), 'at', path.join(basePath, routePath), '(' + sequence + ')');
 				logger.error(error);
 
 				response.status(500);

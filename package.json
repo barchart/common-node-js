@@ -36,6 +36,7 @@
     "common": "git+ssh://github.com/barchart/barchart-common-js",
     "express": "^4.13.3",
     "express-handlebars": "^2.0.1",
+    "express-http-proxy": "^0.6.0",
     "http-digest-client": "0.0.3",
     "lodash": "^3.10.1",
     "log4js": "^0.6.29",
