@@ -264,7 +264,7 @@ module.exports = function() {
 						if (routeBindingStrategy) {
 							routeBindingStrategy.bind(router, verb, pagePath, handlers);
 
-							logger.info('Bound handler for', (secure ? 'HTTPS' : 'HTTP'), verb.getCode(), 'on port', port, 'at', path.join(basePath, pagePath), 'to', template + '.hbs');
+							logger.info('Bound page handler for', (secure ? 'HTTPS' : 'HTTP'), verb.getCode(), 'on port', port, 'at', path.join(basePath, pagePath), 'to', template + '.hbs');
 						} else {
 							logger.warn('Unable to find appropriate binding strategy for endpoint using HTTP verb (' + verb.getCode() + ')');
 						}
@@ -689,8 +689,6 @@ module.exports = function() {
 	}
 
 	function buildRelayHandler(basePath, acceptPath, forwardHost, forwardPath, verb, headerOverrides, parameterOverrides) {
-		var sequencer = 0;
-
 		return proxy(forwardHost, {
 			filter: function(request, response) {
 				return request.method == verb.getCode();

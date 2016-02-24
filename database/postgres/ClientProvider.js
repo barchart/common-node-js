@@ -1,5 +1,3 @@
-var pg = require('pg');
-
 var assert = require('common/lang/assert');
 var Disposable = require('common/lang/Disposable');
 
