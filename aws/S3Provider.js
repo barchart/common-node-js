@@ -110,7 +110,7 @@ module.exports = function() {
 			});
 		},
 
-		deleteObject: function(key,bucket){
+		deleteObject: function(bucket,key){
 			var that = this;
 
 			if (that.getIsDisposed()) {
