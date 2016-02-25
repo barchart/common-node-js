@@ -115,14 +115,14 @@ module.exports = function() {
 					.then(function(queueUrl) {
 						return when.promise(
 							function(resolveCallback, rejectCallback) {
-								logger.debug('Getting SQS Queue attributes:', qualifiedQueueName);
+								logger.debug('Getting SQS queue attributes:', qualifiedQueueName);
 
 								that._sqs.getQueueAttributes({
 									QueueUrl: queueUrl,
 									AttributeNames: ['QueueArn']
 								}, function(error, data) {
 									if (error === null) {
-										logger.info('SQS Queue attribute lookup complete:', qualifiedQueueName);
+										logger.info('SQS queue attribute lookup complete:', qualifiedQueueName);
 
 										resolveCallback(data.Attributes.QueueArn);
 									} else {
@@ -244,7 +244,7 @@ module.exports = function() {
 
 							var qualifiedQueueName = getQualifiedQueueName(that._configuration.prefix, queueName);
 
-							logger.debug('Sending message', counter, 'to SQS Queue:', qualifiedQueueName);
+							logger.debug('Sending message', counter, 'to SQS queue:', qualifiedQueueName);
 							logger.trace(payload);
 
 							that._sqs.sendMessage({
@@ -252,7 +252,7 @@ module.exports = function() {
 								MessageBody: JSON.stringify(payload)
 							}, function(error, data) {
 								if (error === null) {
-									logger.info('Sent message', counter, 'to SQS Queue:', qualifiedQueueName);
+									logger.info('Sent message', counter, 'to SQS queue:', qualifiedQueueName);
 
 									resolveCallback();
 								} else {
@@ -361,7 +361,7 @@ module.exports = function() {
 							delay = 5000;
 						}
 
-						that._scheduler.schedule(checkQueue, delay, 'Check SQS Queue (' + qualifiedQueueName + ')');
+						that._scheduler.schedule(checkQueue, delay, 'Check SQS queue (' + qualifiedQueueName + ')');
 					});
 			};
 
@@ -465,7 +465,7 @@ module.exports = function() {
 					function(resolveCallback, rejectCallback) {
 						var qualifiedQueueName = getQualifiedQueueName(that._configuration.prefix, queueName);
 
-						logger.debug('Receiving message(s) from SQS Queue:', qualifiedQueueName);
+						logger.debug('Receiving message(s) from SQS queue:', qualifiedQueueName);
 
 						that._sqs.receiveMessage({
 							QueueUrl: queueUrl,
@@ -475,7 +475,7 @@ module.exports = function() {
 								var messagesExist = _.isArray(data.Messages) && data.Messages.length !== 0;
 
 								if (messagesExist) {
-									logger.info('Received', data.Messages.length, 'message(s) from SQS Queue:', qualifiedQueueName);
+									logger.info('Received', data.Messages.length, 'message(s) from SQS queue:', qualifiedQueueName);
 									logger.trace(data.Messages);
 								}
 
@@ -525,7 +525,7 @@ module.exports = function() {
 
 		return when.promise(
 			function(resolveCallback, rejectCallback) {
-				logger.debug('Deleting', messageCount, 'message(s) from SQS Queue:', qualifiedQueueName);
+				logger.debug('Deleting', messageCount, 'message(s) from SQS queue:', qualifiedQueueName);
 
 				that._sqs.deleteMessageBatch({
 					QueueUrl: queueUrl,
@@ -545,10 +545,10 @@ module.exports = function() {
 							deletedCount = messageCount;
 						}
 
-						logger.info('Deleted', deletedCount, 'message(s) from SQS Queue:', qualifiedQueueName);
+						logger.info('Deleted', deletedCount, 'message(s) from SQS queue:', qualifiedQueueName);
 
 						if (deletedCount !== messageCount) {
-							logger.warn('Failed to delete', data.Failed.length, 'message(s) from SQS Queue:', qualifiedQueueName);
+							logger.warn('Failed to delete', data.Failed.length, 'message(s) from SQS queue:', qualifiedQueueName);
 
 							rejectCallback('Failed to delete some messages from SQS queue.');
 						} else {
@@ -570,13 +570,13 @@ module.exports = function() {
 
 		return when.promise(
 			function(resolveCallback, rejectCallback) {
-				logger.debug('Deleting SQS Queue:', qualifiedQueueName);
+				logger.debug('Deleting SQS queue:', qualifiedQueueName);
 
 				that._sqs.deleteQueue({
 					QueueUrl: queueUrl
 				}, function(error, data) {
 					if (error === null) {
-						logger.info('SQS Queue deleted:', qualifiedQueueName);
+						logger.info('SQS queue deleted:', qualifiedQueueName);
 
 						resolveCallback();
 					} else {
