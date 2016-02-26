@@ -55,7 +55,7 @@ module.exports = function() {
 			return that._startPromise;
 		},
 
-		getBucketContents: function(bucket){
+		getBucketContents: function(bucket) {
 			var that = this;
 
 			if (that.getIsDisposed()) {
@@ -67,21 +67,20 @@ module.exports = function() {
 			}
 
 			return when.promise(function(resolveCallback, rejectCallback) {
-				that._s3.listObjects({"Bucket": bucket}, function(err, data){ 
-					if(err){
+				that._s3.listObjects({Bucket: bucket}, function(err, data) {
+					if (err) {
 						logger.error('S3 failed to retrieve contents: ', err);
 						rejectCallback(err);
-					} else{
-						resolveCallback({  
-							content: data.Contents,
-							success: false
+					} else {
+						resolveCallback({
+							content: data.Contents
 						});
 					}
 				});
 			});
 		},
 
-		uploadObject: function(bucket, fileName, buffer, mimeType){
+		uploadObject: function(bucket, fileName, buffer, mimeType) {
 			var that = this;
 
 			if (that.getIsDisposed()) {
@@ -92,22 +91,32 @@ module.exports = function() {
 				throw new Error('The SES Provider has not been started.');
 			}
 
-			var params = {Bucket: bucket, Key: fileName, ACL: 'public-read', Body: buffer, ContentType: mimeType};
-			var options = {partSize: 10 * 1024 * 1024, queueSize: 1};
-
 			return when.promise(function(resolveCallback, rejectCallback) {
+				var params = {
+					Bucket: bucket,
+					Key: fileName,
+					ACL: 'public-read',
+					Body: buffer,
+					ContentType: mimeType
+				};
+
+				var options = {
+					partSize: 10 * 1024 * 1024,
+					queueSize: 1
+				};
+
 				that._s3.upload(params, options, function(err, data) {
-					if(err){
+					if (err) {
 						logger.error('S3 failed to upload object: ', err);
 						rejectCallback(err);
-					} else{
-						resolveCallback({success: false, data: data});
+					} else {
+						resolveCallback({data: data});
 					}
 				});
 			});
 		},
 
-		deleteObject: function(bucket,key){
+		deleteObject: function(bucket, key) {
 			var that = this;
 
 			if (that.getIsDisposed()) {
@@ -118,15 +127,18 @@ module.exports = function() {
 				throw new Error('The SES Provider has not been started.');
 			}
 
-			var params = {Bucket: bucket, Key: key, };
+			return when.promise(function(resolveCallback, rejectCallback) {
+				var params = {
+					Bucket: bucket,
+					Key: key
+				};
 
-			return when.promise(function(resolveCallback, rejectCallback) {	
 				that._s3.deleteObject(params, function(err, data) {
-					if(err){
+					if (err) {
 						logger.error('S3 failed to delete object: ', err);
 						rejectCallback(err);
-					} else{
-						resolveCallback({success: false, data: data});
+					} else {
+						resolveCallback({data: data});
 					}
 				});
 			});
