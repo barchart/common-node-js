@@ -70,10 +70,7 @@ module.exports = function() {
 				that._s3.listObjects({"Bucket": bucket}, function(err, data){ 
 					if(err){
 						logger.error('S3 failed to retrieve contents: ', err);
-						resolveCallback({
-							content: "",
-							error: true
-						});
+						rejectCallback(err);
 					} else{
 						resolveCallback({  
 							content: data.Contents,
@@ -102,7 +99,7 @@ module.exports = function() {
 				that._s3.upload(params, options, function(err, data) {
 					if(err){
 						logger.error('S3 failed to upload object: ', err);
-						resolveCallback({success: false, error: err});
+						rejectCallback(err);
 					} else{
 						resolveCallback({success: false, data: data});
 					}
@@ -127,7 +124,7 @@ module.exports = function() {
 				that._s3.deleteObject(params, function(err, data) {
 					if(err){
 						logger.error('S3 failed to delete object: ', err);
-						resolveCallback({success: false, error: err});
+						rejectCallback(err);
 					} else{
 						resolveCallback({success: false, data: data});
 					}
