@@ -287,10 +287,18 @@ module.exports = function() {
 	}
 
 	function sanitizedName(messageType) {
-		return messageType.replace('*', 'star')
-			.replace('^', 'hat')
-			.replace('.', 'dot');
+		return messageType.replace(finalStarRegex, '-star')
+			.replace(finalHatRegex, '-hat')
+			.replace(finalDotRegex, '-dot')
+			.replace('*', '-star-')
+			.replace('^', '-hat-')
+			.replace('.', '-dot-');
 	}
+
+	var finalStarRegex = new RegExp('(\\*)$');
+	var finalHatRegex = new RegExp('(\\^)$');
+	var finalDotRegex = new RegExp('(\\.)$');
+
 
 	return SnsProvider;
 }();
