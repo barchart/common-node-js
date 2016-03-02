@@ -614,7 +614,13 @@ module.exports = function() {
 	};
 
 	function getQualifiedQueueName(prefix, queueName) {
-		return prefix + '-' + queueName;
+		return sanitizedName(prefix + '-' + queueName);
+	}
+
+	function sanitizedName(messageType) {
+		return messageType.replace('*', 'star')
+			.replace('^', 'hat')
+			.replace('.', 'dot');
 	}
 
 	return SqsProvider;

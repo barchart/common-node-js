@@ -283,7 +283,13 @@ module.exports = function() {
 	});
 
 	function getQualifiedTopicName(prefix, topicName) {
-		return prefix + '-' + topicName;
+		return sanitizedName(prefix + '-' + topicName);
+	}
+
+	function sanitizedName(messageType) {
+		return messageType.replace('*', 'star')
+			.replace('^', 'hat')
+			.replace('.', 'dot');
 	}
 
 	return SnsProvider;
