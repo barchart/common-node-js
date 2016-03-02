@@ -51,7 +51,7 @@ module.exports = function() {
 			}
 
 			if (that._startPromise === null) {
-				that._startPromsie = when.try(function() {
+				that._startPromise = when.try(function() {
 					aws.config.update({region: that._configuration.region});
 
 					that._sqs = new aws.SQS({apiVersion: that._configuration.apiVersion || '2012-11-05'});
