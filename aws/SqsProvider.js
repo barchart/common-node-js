@@ -414,8 +414,6 @@ module.exports = function() {
 		},
 
 		_onDispose: function() {
-			this._sqs = null;
-
 			_.forEach(this._queueObservers, function(observer) {
 				observer.dispose();
 			});
@@ -618,12 +616,12 @@ module.exports = function() {
 	}
 
 	function sanitizedName(messageType) {
-		return messageType.replace(finalStarRegex, '-star')
-			.replace(finalHatRegex, '-hat')
-			.replace(finalDotRegex, '-dot')
-			.replace('*', '-star-')
-			.replace('^', '-hat-')
-			.replace('.', '-dot-');
+		return messageType.replace(finalStarRegex, '_star')
+			.replace(finalHatRegex, '_hat')
+			.replace(finalDotRegex, '_dot')
+			.replace('*', '_star_')
+			.replace('^', '_hat_')
+			.replace('.', '_dot_');
 	}
 
 	var finalStarRegex = new RegExp('(\\*)$');
