@@ -70,8 +70,13 @@ module.exports = function() {
 					}
 
 					var priceFormatter = new marketDataUtilities.PriceFormatter(fractionSeparator, specialFractions);
+					var formattedPrice = priceFormatter.format(propertyValue, unitCode);
 
-					attributes.write(resultItemToProcess, propertyName, priceFormatter.format(propertyValue, unitCode));
+					if (_.isBoolean(configurationToUse.usePlusPrefix) && configurationToUse.usePlusPrefix && !(propertyValue < 0)) {
+						formattedPrice = '+' + formattedPrice;
+					}
+
+					attributes.write(resultItemToProcess, propertyName, formattedPrice);
 				}
 			}
 		},
