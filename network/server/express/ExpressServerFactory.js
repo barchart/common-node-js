@@ -135,7 +135,7 @@ module.exports = function() {
 			assert.argumentIsRequired(forwardPath, 'forwardPath', String);
 			assert.argumentIsRequired(verb, 'verb', Verb, 'Verb');
 			assert.argumentIsRequired(headerOverrides, 'headerOverrides', Object);
-			assert.argumentIsRequired(parameterOverrides, 'paramterOverrides', Object);
+			assert.argumentIsRequired(parameterOverrides, 'parameterOverrides', Object);
 
 			if (!_.has(this._relayMap, basePath)) {
 				this._relayMap[basePath] = {
