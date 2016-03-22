@@ -1,4 +1,4 @@
-var ServerDefinition = require('./../../../network/server/ServerDefinition');
+var ServerDefinition = require('./../../../../network/server/ServerDefinition');
 
 describe('When a ServerDefinition is created', function() {
 	'use strict';

@@ -21,6 +21,7 @@ var FormatNumberResultProcessor = require('./processors/FormatNumberResultProces
 var FormatPriceResultProcessor = require('./processors/FormatPriceResultProcessor');
 var JoinResultProcessor = require('./processors/JoinResultProcessor');
 var MapResultProcessor = require('./processors/MapResultProcessor');
+var NullCoalescingResultProcessor = require('./processors/NullCoalescingResultProcessor');
 var OverwriteResultProcessor = require('./processors/OverwriteResultProcessor');
 var ReplaceResultProcessor = require('./processors/ReplaceResultProcessor');
 var ScalarResultProcessor = require('./processors/ScalarResultProcessor');
@@ -128,6 +129,7 @@ module.exports = function() {
 		FormatPriceResultProcessor: FormatPriceResultProcessor,
 		JoinResultProcessor: JoinResultProcessor,
 		MapResultProcessor: MapResultProcessor,
+		NullCoalescingResultProcessor: NullCoalescingResultProcessor,
 		OverwriteResultProcessor: OverwriteResultProcessor,
 		ReplaceResultProcessor: ReplaceResultProcessor,
 		ScalarResultProcessor: ScalarResultProcessor,
