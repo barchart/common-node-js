@@ -69,8 +69,7 @@ module.exports = function() {
 						specialFractions = false;
 					}
 
-					var priceFormatter = new marketDataUtilities.PriceFormatter(fractionSeparator, specialFractions);
-					var formattedPrice = priceFormatter.format(propertyValue, unitCode);
+					var formattedPrice = this._formatPrice(fractionSeparator, specialFractions, propertyValue, unitCode);
 
 					if (_.isBoolean(configurationToUse.usePlusPrefix) && configurationToUse.usePlusPrefix && !(propertyValue < 0)) {
 						formattedPrice = '+' + formattedPrice;
@@ -79,6 +78,12 @@ module.exports = function() {
 					attributes.write(resultItemToProcess, propertyName, formattedPrice);
 				}
 			}
+		},
+
+		_formatPrice: function(fractionSeparator, specialFractions, valueToFormat, unitCode) {
+			var priceFormatter = new marketDataUtilities.PriceFormatter(fractionSeparator, specialFractions);
+
+			return priceFormatter.format(valueToFormat, unitCode);
 		},
 
 		toString: function() {
