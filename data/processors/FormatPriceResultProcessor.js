@@ -69,10 +69,24 @@ module.exports = function() {
 						specialFractions = false;
 					}
 
-					var formattedPrice = this._formatPrice(fractionSeparator, specialFractions, propertyValue, unitCode);
+					var zeroOverride;
 
-					if (_.isBoolean(configurationToUse.usePlusPrefix) && configurationToUse.usePlusPrefix && !(propertyValue < 0)) {
-						formattedPrice = '+' + formattedPrice;
+					if (_.isString(configurationToUse.zeroOverride)) {
+						zeroOverride = configurationToUse.zeroOverride;
+					} else {
+						zeroOverride = null;
+					}
+
+					var formattedPrice;
+
+					if (propertyValue === 0 && _.isString(zeroOverride)) {
+						formattedPrice = zeroOverride
+					} else {
+						formattedPrice = this._formatPrice(fractionSeparator, specialFractions, propertyValue, unitCode);
+
+						if (_.isBoolean(configurationToUse.usePlusPrefix) && configurationToUse.usePlusPrefix && !(propertyValue < 0) && zeroOverride !== null) {
+							formattedPrice = '+' + formattedPrice;
+						}
 					}
 
 					attributes.write(resultItemToProcess, propertyName, formattedPrice);
@@ -80,8 +94,8 @@ module.exports = function() {
 			}
 		},
 
-		_formatPrice: function(fractionSeparator, specialFractions, valueToFormat, unitCode) {
-			var priceFormatter = new marketDataUtilities.PriceFormatter(fractionSeparator, specialFractions);
+		_formatPrice: function(fractionSeparator, specialFractions, valueToFormat, unitCode, zeroOverride) {
+			var priceFormatter = new marketDataUtilities.PriceFormatter(fractionSeparator, specialFractions, zeroOverride);
 
 			return priceFormatter.format(valueToFormat, unitCode);
 		},
