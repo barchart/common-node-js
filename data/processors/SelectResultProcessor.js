@@ -19,15 +19,32 @@ module.exports = function() {
 			var configuration = this._getConfiguration();
 
 			if (configuration.properties) {
-				results = _.map(results, function(result) {
+				var resultsToProcess;
+
+				if (_.isArray(results)) {
+					resultsToProcess = results;
+				} else {
+					resultsToProcess = [ results ];
+				}
+
+				resultsToProcess = _.map(resultsToProcess, function(result) {
 					var transform = {};
 
 					_.forEach(configuration.properties, function(outputPropertyName, inputPropertyName) {
+						console.log(inputPropertyName);
+						console.log(attributes.read(result, inputPropertyName));
+
 						attributes.write(transform, outputPropertyName, attributes.read(result, inputPropertyName));
 					});
 
 					return transform;
 				});
+
+				if (_.isArray(results)) {
+					results = resultsToProcess;
+				} else {
+					results = resultsToProcess[0];
+				}
 			}
 
 			return results;

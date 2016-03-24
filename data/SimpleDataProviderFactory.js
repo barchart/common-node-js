@@ -11,7 +11,9 @@ var ResultProcessor = require('./ResultProcessor');
 var AddResultProcessor = require('./processors/AddResultProcessor');
 var CompositeResultProcessor = require('./processors/CompositeResultProcessor');
 var CopyResultProcessor = require('./processors/CopyResultProcessor');
+var CountResultProcessor = require('./processors/CountResultProcessor');
 var DefaultResultProcessor = require('./processors/DefaultResultProcessor');
+var DeleteResultProcessor = require('./processors/DeleteResultProcessor');
 var DistinctResultProcessor = require('./processors/DistinctResultProcessor');
 var EncodeUriResultProcessor = require('./processors/EncodeUriResultProcessor');
 var FilterResultProcessor = require('./processors/FilterResultProcessor');
@@ -119,7 +121,9 @@ module.exports = function() {
 	var processorMap = {
 		AddResultProcessor: AddResultProcessor,
 		CopyResultProcessor: CopyResultProcessor,
+		CountResultProcessor: CountResultProcessor,
 		DefaultResultProcessor: DefaultResultProcessor,
+		DeleteResultProcessor: DeleteResultProcessor,
 		DistinctResultProcessor: DistinctResultProcessor,
 		EncodeUriResultProcessor: EncodeUriResultProcessor,
 		FilterResultProcessor: FilterResultProcessor,
