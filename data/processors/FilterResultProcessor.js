@@ -37,6 +37,24 @@ module.exports = function() {
 				});
 			}
 
+			if (_.isArray(configuration.empty)) {
+				results = _.filter(results, function(result) {
+					return _.every(configuration.empty, function(propertyName) {
+						var returnVal;
+
+						if (attributes.has(result, propertyName)) {
+							var value = attributes.read(result, propertyName);
+
+							returnVal = _.isNull(value) || _.isUndefined(value) || value === '';
+						} else {
+							returnVal = true;
+						}
+
+						return returnVal;
+					});
+				});
+			}
+
 			if (_.isObject(configuration.special)) {
 				var now = moment();
 
