@@ -21,6 +21,7 @@ var FirstResultProcessor = require('./processors/FirstResultProcessor');
 var FormatDateResultProcessor = require('./processors/FormatDateResultProcessor');
 var FormatNumberResultProcessor = require('./processors/FormatNumberResultProcessor');
 var FormatPriceResultProcessor = require('./processors/FormatPriceResultProcessor');
+var GroupingResultProcessor = require('./processors/GroupingResultProcessor');
 var JoinResultProcessor = require('./processors/JoinResultProcessor');
 var MapResultProcessor = require('./processors/MapResultProcessor');
 var NullCoalescingResultProcessor = require('./processors/NullCoalescingResultProcessor');
@@ -131,6 +132,7 @@ module.exports = function() {
 		FormatDateResultProcessor: FormatDateResultProcessor,
 		FormatNumberResultProcessor: FormatNumberResultProcessor,
 		FormatPriceResultProcessor: FormatPriceResultProcessor,
+		GroupingResultProcessor: GroupingResultProcessor,
 		JoinResultProcessor: JoinResultProcessor,
 		MapResultProcessor: MapResultProcessor,
 		NullCoalescingResultProcessor: NullCoalescingResultProcessor,
