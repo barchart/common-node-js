@@ -31,9 +31,6 @@ module.exports = function() {
 					var transform = {};
 
 					_.forEach(configuration.properties, function(outputPropertyName, inputPropertyName) {
-						console.log(inputPropertyName);
-						console.log(attributes.read(result, inputPropertyName));
-
 						attributes.write(transform, outputPropertyName, attributes.read(result, inputPropertyName));
 					});
 
