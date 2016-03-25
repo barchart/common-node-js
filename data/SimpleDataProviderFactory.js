@@ -5,16 +5,17 @@ var assert = require('common/lang/assert');
 
 var DataProvider = require('./DataProvider');
 var DataProviderFactory = require('./DataProviderFactory');
-var QueryProvider = require('./QueryProvider');
 var ResultProcessor = require('./ResultProcessor');
 
 var AddResultProcessor = require('./processors/AddResultProcessor');
 var CompositeResultProcessor = require('./processors/CompositeResultProcessor');
+var ConvertResultProcessor = require('./processors/ConvertResultProcessor');
 var CopyResultProcessor = require('./processors/CopyResultProcessor');
 var CountResultProcessor = require('./processors/CountResultProcessor');
 var DefaultResultProcessor = require('./processors/DefaultResultProcessor');
 var DeleteResultProcessor = require('./processors/DeleteResultProcessor');
 var DistinctResultProcessor = require('./processors/DistinctResultProcessor');
+var EmptyCoalescingResultProcessor = require('./processors/EmptyCoalescingResultProcessor');
 var EncodeUriResultProcessor = require('./processors/EncodeUriResultProcessor');
 var FilterResultProcessor = require('./processors/FilterResultProcessor');
 var FirstResultProcessor = require('./processors/FirstResultProcessor');
@@ -121,11 +122,13 @@ module.exports = function() {
 
 	var processorMap = {
 		AddResultProcessor: AddResultProcessor,
+		ConvertResultProcessor: ConvertResultProcessor,
 		CopyResultProcessor: CopyResultProcessor,
 		CountResultProcessor: CountResultProcessor,
 		DefaultResultProcessor: DefaultResultProcessor,
 		DeleteResultProcessor: DeleteResultProcessor,
 		DistinctResultProcessor: DistinctResultProcessor,
+		EmptyCoalescingResultProcessor: EmptyCoalescingResultProcessor,
 		EncodeUriResultProcessor: EncodeUriResultProcessor,
 		FilterResultProcessor: FilterResultProcessor,
 		FirstResultProcessor: FirstResultProcessor,

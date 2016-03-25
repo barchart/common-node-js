@@ -80,7 +80,7 @@ module.exports = function() {
 					var formattedPrice;
 
 					if (propertyValue === 0 && _.isString(zeroOverride)) {
-						formattedPrice = zeroOverride
+						formattedPrice = zeroOverride;
 					} else {
 						formattedPrice = this._formatPrice(fractionSeparator, specialFractions, propertyValue, unitCode);
 
