@@ -16,7 +16,7 @@ module.exports = function() {
 		},
 
 		_processItem: function(resultItemToProcess, configurationToUse) {
-			if (!_.isString(configurationToUse.sourcePropertyName) || !_.isString(configurationToUse.sourcePropertyName) || !attributes.has(resultItemToProcess, configurationToUse.sourcePropertyName)) {
+			if (!(_.isString(configurationToUse.sourcePropertyName) && attributes.has(resultItemToProcess, configurationToUse.sourcePropertyName))) {
 				return;
 			}
 
