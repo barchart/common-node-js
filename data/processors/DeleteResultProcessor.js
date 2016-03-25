@@ -20,7 +20,7 @@ module.exports = function() {
 				return;
 			}
 
-			attributes.erase(resultItemToProcess, configurationToUse || configurationToUse.propertyName);
+			attributes.erase(resultItemToProcess, configurationToUse.propertyName || configurationToUse);
 		},
 
 		toString: function() {
