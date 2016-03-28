@@ -5,6 +5,9 @@ var log4js = require('log4js');
 
 var assert = require('common/lang/assert');
 var Disposable = require('common/lang/Disposable');
+var RateLimiter = require('common/timing/RateLimiter');
+
+var Environment = require('./../environment/Environment');
 
 module.exports = function() {
 	'use strict';
@@ -17,6 +20,14 @@ module.exports = function() {
 			assert.argumentIsRequired(configuration.region, 'configuration.region', String);
 			assert.argumentIsOptional(configuration.apiVersion, 'configuration.apiVersion', String);
 
+			if (_.isArray(configuration.recipientOverride)) {
+				assert.argumentIsArray(configuration.recipientOverride, 'configuration.recipientOverride', String);
+			} else {
+				assert.argumentIsOptional(configuration.recipientOverride, 'configuration.recipientOverride', String);
+			}
+
+			assert.argumentIsOptional(configuration.rateLimitPerSecond, 'configuration.rateLimitPerSecond', Number);
+
 			this._super();
 
 			this._ses = null;
@@ -25,6 +36,8 @@ module.exports = function() {
 
 			this._startPromise = null;
 			this._started = false;
+
+			this._rateLimiter = new RateLimiter(configuration.rateLimitPerSecond || 10, 1000);
 		},
 
 		start: function() {
@@ -78,6 +91,22 @@ module.exports = function() {
 				throw new Error('The SES Provider has not been started.');
 			}
 
+			if (this._configuration.recipientOverride && !Environment.getInstance().getIsProduction()) {
+				logger.warn('Overriding email recipient for testing purposes.');
+
+				recipientAddress = this._configuration.recipientOverride;
+			} else {
+				logger.error('no override used');
+			}
+
+			var recipientAddressesToUse;
+
+			if (_.isArray(recipientAddress)) {
+				recipientAddressesToUse = recipientAddress;
+			} else {
+				recipientAddressesToUse = [recipientAddress];
+			}
+
 			var recipientAddressesToUse;
 
 			if (_.isArray(recipientAddress)) {
@@ -114,25 +143,29 @@ module.exports = function() {
 				};
 			}
 
-			return when.promise(function(resolveCallback, rejectCallback) {
-				logger.debug('Sending email to', recipientAddress);
+			return this._rateLimiter.enqueue(function() {
+				return when.promise(function(resolveCallback, rejectCallback) {
+					logger.debug('Sending email to', recipientAddress);
 
-				that._ses.sendEmail(params, function(error, data) {
-					if (error) {
-						logger.error('SES Email Provider failed to send email message', params);
-						logger.error(error);
+					that._ses.sendEmail(params, function(error, data) {
+						if (error) {
+							logger.error('SES Email Provider failed to send email message', params);
+							logger.error(error);
 
-						rejectCallback(error);
-					} else {
-						logger.debug('Sent email to', recipientAddress);
+							rejectCallback(error);
+						} else {
+							logger.debug('Sent email to', recipientAddress);
 
-						resolveCallback();
-					}
+							resolveCallback();
+						}
+					});
 				});
 			});
 		},
 
 		_onDispose: function() {
+			this._rateLimiter.dispose();
+
 			logger.debug('SES provider disposed');
 		},
 
@@ -140,7 +173,6 @@ module.exports = function() {
 			return '[SesProvider]';
 		}
 	});
-
 
 	return SesProvider;
 }();
