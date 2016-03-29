@@ -95,8 +95,6 @@ module.exports = function() {
 				logger.warn('Overriding email recipient for testing purposes.');
 
 				recipientAddress = this._configuration.recipientOverride;
-			} else {
-				logger.error('no override used');
 			}
 
 			var recipientAddressesToUse;
