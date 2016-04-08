@@ -672,6 +672,8 @@ module.exports = function() {
 
 			var commandArguments = argumentExtractionStrategy.getCommandArguments(verb, request, useSession, acceptFile);
 
+			logger.trace('Processing command (' + sequence + ') with the following arguments:', commandArguments);
+
 			return when.try(function() {
 				return command.process(commandArguments);
 			}).then(function(result) {
