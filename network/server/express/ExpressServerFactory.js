@@ -672,8 +672,6 @@ module.exports = function() {
 
 			var commandArguments = argumentExtractionStrategy.getCommandArguments(verb, request, useSession, acceptFile);
 
-			logger.trace('Processing command (' + sequence + ') with the following arguments:', commandArguments);
-
 			return when.try(function() {
 				return command.process(commandArguments);
 			}).then(function(result) {
@@ -741,7 +739,11 @@ module.exports = function() {
 			logger.debug('Processing starting for', verb.getCode(), 'at', path.join(basePath, routePath), '(' + sequence + ')');
 
 			return when.try(function() {
-				return command.process(argumentExtractionStrategy.getCommandArguments(verb, request));
+				var commandArguments = argumentExtractionStrategy.getCommandArguments(verb, request);
+
+				logger.trace('Processing command (' + sequence + ') with the following arguments:', commandArguments);
+
+				return command.process(commandArguments);
 			}).then(function(result) {
 				if (_.isObject(result) || _.isArray(result)) {
 					response.json(result);
