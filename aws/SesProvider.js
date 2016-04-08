@@ -105,14 +105,6 @@ module.exports = function() {
 				recipientAddressesToUse = [recipientAddress];
 			}
 
-			var recipientAddressesToUse;
-
-			if (_.isArray(recipientAddress)) {
-				recipientAddressesToUse = recipientAddress;
-			} else {
-				recipientAddressesToUse = [recipientAddress];
-			}
-
 			var params = {
 				Destination: {
 					ToAddresses: recipientAddressesToUse
