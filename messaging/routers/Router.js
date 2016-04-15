@@ -59,7 +59,7 @@ module.exports = function() {
 			return that._canRoute(messageType);
 		},
 
-		_canRoute: function() {
+		_canRoute: function(messageType) {
 			return false;
 		},
 
