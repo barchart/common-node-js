@@ -99,25 +99,33 @@ module.exports = function() {
 			logger.debug('Registering AWS handler for:', messageType);
 
 			var registerObserver = that._sqsProvider.observe(messageType, function(message) {
-				if (!_.isString(message.id) || !_.isString(message.sender) || !_.isObject(message.payload)) {
+				if (!_.isString(message.id) || !_.isObject(message.payload) || !(_.isString(message.sender) || message.sender === null)) {
 					logger.warn('Dropping malformed request received from SQS queue (' + messageType + ').');
 					return;
 				}
 
-				return when.try(function() {
+				var handlerPromise = when.try(function() {
 					return handler(message.payload);
-				}).then(function(response) {
-					var responseQueueName = getResponseChannel(message.sender);
+				});
 
-					var envelope = {
-						id: message.id,
-						payload: response || {}
-					};
+				if (message.sender !== null) {
+					handlerPromise = handlerPromise.then(function(response) {
+						var responseQueueName = getResponseChannel(message.sender);
 
-					return that._sqsProvider.send(responseQueueName, envelope);
-				}).catch(function(e) {
+						var envelope = {
+							id: message.id,
+							payload: response || {}
+						};
+
+						return that._sqsProvider.send(responseQueueName, envelope);
+					});
+				}
+
+				handlerPromise = handlerPromise.catch(function(e) {
 					logger.error('Request processing failed. Unable to respond.', e);
 				});
+
+				return handlerPromise;
 			});
 
 			that._requestHandlers[messageType] = registerObserver;
