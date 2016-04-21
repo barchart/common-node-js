@@ -23,16 +23,37 @@ module.exports = function() {
 			var target = attributes.read(results, configuration.target);
 			var source = attributes.read(results, configuration.source);
 
-			var joinProperty = configuration.join;
+			var targetProperty;
+			var sourceProperty;
+
+			if (_.isString(configuration.targetProperty) && _.isString(configuration.sourceProperty)) {
+				targetProperty = configuration.targetProperty;
+				sourceProperty = configuration.sourceProperty;
+			} else {
+				targetProperty = configuration.join;
+				sourceProperty = configuration.join;
+			}
+
 			var aliasProperty = configuration.alias;
 
-			var sourceMap = _.indexBy(source, joinProperty);
+			var sourceItemMap = _.indexBy(source, sourceProperty);
 
 			_.forEach(target, function(targetItem) {
-				var joinValue = targetItem[joinProperty];
-				var sourceItem = sourceMap[joinValue];
+				var targetValue;
 
-				attributes.write(targetItem, aliasProperty, sourceItem);
+				if (_.isArray(targetItem[targetProperty])) {
+					var joinValues = targetItem[targetProperty];
+
+					targetValue = _.map(joinValues, function(joinValue) {
+						return sourceItemMap[joinValue];
+					});
+				} else {
+					var joinValue = targetItem[targetProperty];
+
+					targetValue = sourceItemMap[joinValue];
+				}
+
+				attributes.write(targetItem, aliasProperty, targetValue);
 			});
 
 			return target;

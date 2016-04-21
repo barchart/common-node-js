@@ -23,20 +23,42 @@ module.exports = function() {
 			if (_.isString(configuration.property)) {
 				var propertyName = configuration.property;
 
-				returnRef =
-					_.map(
-						_.unique(
-							_.map(results, function(result) {
-								return attributes.read(result, propertyName);
-							})
-						), function(uniqueValue) {
-							var uniqueItem = {};
+				var wrap;
 
-							uniqueItem[propertyName] = uniqueValue;
+				if (_.isBoolean(configuration.wrap)) {
+					wrap = configuration.wrap;
+				} else {
+					wrap = true;
+				}
 
-							return uniqueItem;
-						}
+				var items =
+					_.unique(
+						_.reduce(results, function(accumulator, result) {
+							var value = attributes.read(result, propertyName);
+
+							if (_.isArray(value)) {
+								_.forEach(value, function(item) {
+									accumulator.push(item);
+								});
+							} else {
+								accumulator.push(value);
+							}
+
+							return accumulator;
+						}, [ ])
 					);
+
+				if (wrap) {
+					returnRef = _.map(items, function(item) {
+						var wrapper = {};
+
+						wrapper[propertyName] = item;
+
+						return wrapper;
+					});
+				} else {
+					returnRef = items;
+				}
 			} else {
 				returnRef = results;
 			}
