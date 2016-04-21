@@ -153,7 +153,7 @@ module.exports = function() {
 		},
 
 		toString: function() {
-			return '[OnDemandQueryProvider (Module=' + (this._getModule() || 'unkown') + ')]';
+			return '[OnDemandQueryProvider (Module=' + (this._getModule() || 'unknown') + ')]';
 		}
 	});
 
