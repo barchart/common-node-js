@@ -36,7 +36,13 @@ module.exports = function() {
 
 			var aliasProperty = configuration.alias;
 
-			var sourceItemMap = _.indexBy(source, sourceProperty);
+			var sourceItemMap;
+
+			if (_.isBoolean(configuration.multiple) && _.isBoolean(configuration.multiple)) {
+				sourceItemMap = _.groupBy(source, sourceProperty);
+			} else {
+				sourceItemMap = _.indexBy(source, sourceProperty);
+			}
 
 			_.forEach(target, function(targetItem) {
 				var targetValue;
