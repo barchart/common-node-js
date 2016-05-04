@@ -25,6 +25,7 @@ var FormatPriceResultProcessor = require('./processors/FormatPriceResultProcesso
 var GroupingResultProcessor = require('./processors/GroupingResultProcessor');
 var JoinResultProcessor = require('./processors/JoinResultProcessor');
 var MapResultProcessor = require('./processors/MapResultProcessor');
+var MySqlBlobToArrayProcessor = require('./processors/MySqlBlobToArrayProcessor');
 var NullCoalescingResultProcessor = require('./processors/NullCoalescingResultProcessor');
 var OverwriteResultProcessor = require('./processors/OverwriteResultProcessor');
 var ReplaceResultProcessor = require('./processors/ReplaceResultProcessor');
@@ -35,10 +36,12 @@ var SliceResultProcessor = require('./processors/SliceResultProcessor');
 var SortResultProcessor = require('./processors/SortResultProcessor');
 var SplitResultProcessor = require('./processors/SplitResultProcessor');
 var SubtractResultProcessor = require('./processors/SubtractResultProcessor');
+var UppercaseResultProcessor = require('./processors/UppercaseResultProcessor');
 
 var ContextQueryProvider = require('./providers/ContextQueryProvider');
 var EnvironmentQueryProvider = require('./providers/EnvironmentQueryProvider');
 var HardcodeQueryProvider = require('./providers/HardcodeQueryProvider');
+var MySqlQueryProvider = require('./providers/MySqlQueryProvider');
 var OnDemandQueryProvider = require('./providers/OnDemandQueryProvider');
 var SimpleRestQueryProvider = require('./providers/SimpleRestQueryProvider');
 var TimestampQueryProvider = require('./providers/TimestampQueryProvider');
@@ -115,9 +118,10 @@ module.exports = function() {
 		ContextQueryProvider: ContextQueryProvider,
 		EnvironmentQueryProvider: EnvironmentQueryProvider,
 		HardcodeQueryProvider: HardcodeQueryProvider,
+		MySqlQueryProvider: MySqlQueryProvider,
 		OnDemandQueryProvider: OnDemandQueryProvider,
 		SimpleRestQueryProvider: SimpleRestQueryProvider,
-		TimestampQueryProvider: TimestampQueryProvider
+		TimestampQueryProvider: TimestampQueryProvider,
 	};
 
 	var processorMap = {
@@ -138,6 +142,7 @@ module.exports = function() {
 		GroupingResultProcessor: GroupingResultProcessor,
 		JoinResultProcessor: JoinResultProcessor,
 		MapResultProcessor: MapResultProcessor,
+		MySqlBlobToArrayProcessor: MySqlBlobToArrayProcessor,
 		NullCoalescingResultProcessor: NullCoalescingResultProcessor,
 		OverwriteResultProcessor: OverwriteResultProcessor,
 		ReplaceResultProcessor: ReplaceResultProcessor,
@@ -148,6 +153,7 @@ module.exports = function() {
 		SortResultProcessor: SortResultProcessor,
 		SplitResultProcessor: SplitResultProcessor,
 		SubtractResultProcessor: SubtractResultProcessor,
+		UppercaseResultProcessor: UppercaseResultProcessor,
 		Default: ResultProcessor
 	};
 
