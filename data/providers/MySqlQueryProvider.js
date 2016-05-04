@@ -11,6 +11,9 @@ module.exports = function() {
 	var logger = log4js.getLogger('data/providers/MySqlQueryProvider');
 
 	var MySqlQueryProvider = QueryProvider.extend({
+		init: function(configuration) {
+			this._super(configuration);
+		},
 
 		_runQuery: function(criteria) {
 			var that = this;

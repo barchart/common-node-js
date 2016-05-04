@@ -19,23 +19,33 @@ module.exports = function() {
 			var propertyName = configurationToUse.propertyName;
 			var propertyValue = attributes.read(resultItemToProcess, propertyName);
 
-			if (_.isArray(propertyValue)) {
-				var values = _.map(propertyValue, function(item) {
-					return item.toUpperCase();
-				});
+			var convertedValue;
 
-				attributes.write(resultItemToProcess, propertyName, values);
+			if (_.isArray(propertyValue)) {
+				convertedValue = _.map(propertyValue, convertToUppercase);
+			} else {
+				convertedValue = convertToUppercase(propertyValue);
 			}
 
-			// if (_.isNumber(propertyValue) && !_.isNaN(propertyValue)) {
-			// 	attributes.write(resultItemToProcess, propertyName, (propertyValue + configurationToUse.amount));
-			// }
+			attributes.write(resultItemToProcess, propertyName, convertedValue);
 		},
 
 		toString: function() {
 			return '[UppercaseResultProcessor]';
 		}
 	});
+
+	function convertToUppercase(target) {
+		var returnRef;
+
+		if (_.isString(target)) {
+			returnRef = target.toUpperCase();
+		} else {
+			returnRef = target;
+		}
+
+		return returnRef;
+	}
 
 	return UppercaseResultProcessor;
 }();
