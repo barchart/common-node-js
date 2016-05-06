@@ -212,7 +212,7 @@ module.exports = function() {
 			var app = new express();
 
 			app.use(bodyParser.urlencoded({extended: true, limit: '1mb'}));
-			app.use(bodyParser.json());
+			app.use(bodyParser.json({limit: '1mb'}));
 
 			app.use(function(req, res, next) {
 				logger.debug('Applying HTTP headers for ' + req.originalUrl);
