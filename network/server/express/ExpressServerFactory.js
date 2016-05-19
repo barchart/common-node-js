@@ -99,7 +99,7 @@ module.exports = function() {
 			return this._secure;
 		},
 
-		addPage: function(basePath, pagePath, template, verb, command, cache, useSession, acceptFile) {
+		addPage: function(basePath, pagePath, template, verb, command, cache, useSession, acceptFile, secureRedirect) {
 			assert.argumentIsRequired(basePath, 'basePath', String);
 			assert.argumentIsRequired(pagePath, 'pagePath', String);
 			assert.argumentIsRequired(template, 'template', String);
@@ -108,6 +108,7 @@ module.exports = function() {
 			assert.argumentIsRequired(cache, 'cache', Boolean);
 			assert.argumentIsRequired(useSession, 'useSession', Boolean);
 			assert.argumentIsRequired(useSession, 'acceptFile', Boolean);
+			assert.argumentIsRequired(secureRedirect, 'secureRedirect', Boolean);
 
 			this._useSessions = this._useSessions || useSession;
 
@@ -122,7 +123,7 @@ module.exports = function() {
 				verb: verb,
 				path: pagePath,
 				template: template,
-				handlers: buildPageHandlers(verb, basePath, pagePath, template, command, cache, useSession, acceptFile)
+				handlers: buildPageHandlers(verb, basePath, pagePath, template, command, cache, useSession, acceptFile, secureRedirect)
 			};
 
 			this._pageMap[basePath].handlers.push(handlerData);
@@ -557,7 +558,7 @@ module.exports = function() {
 		_bind: function(container, serverContainer) {
 			var endpoints = container.getEndpoints();
 
-			var server = serverContainer.getServer(container.getPort(), container.getIsSecure());
+			var server = serverContainer.getServer(container.getPort(), container.getIsSecure(), false);
 
 			_.forEach(endpoints, function(endpoint) {
 				server.addService(container.getPath(), endpoint.getPath(), endpoint.getRestAction().getVerb(), endpoint.getCommand());
@@ -604,7 +605,7 @@ module.exports = function() {
 			var server = serverContainer.getServer(container.getPort(), container.getIsSecure());
 
 			_.forEach(endpoints, function(endpoint) {
-				server.addPage(container.getPath(), endpoint.getPath(), endpoint.getTemplate(), endpoint.getVerb(), endpoint.getCommand(), endpoint.getCache(), container.getUsesSession(), endpoint.getAcceptFile());
+				server.addPage(container.getPath(), endpoint.getPath(), endpoint.getTemplate(), endpoint.getVerb(), endpoint.getCommand(), endpoint.getCache(), container.getUsesSession(), endpoint.getAcceptFile(), container.getSecureRedirect() || endpoint.getSecureRedirect());
 			});
 
 			return true;
@@ -642,7 +643,7 @@ module.exports = function() {
 		];
 	};
 
-	function buildPageHandlers(verb, basePath, routePath, template, command, cache, useSession, acceptFile) {
+	function buildPageHandlers(verb, basePath, routePath, template, command, cache, useSession, acceptFile, secureRedirect) {
 		var handlers = [ ];
 
 		if (acceptFile) {
@@ -670,19 +671,39 @@ module.exports = function() {
 
 			logger.debug('Processing starting for', verb.getCode(), 'at', path.join(basePath, routePath), '(' + sequence + ')');
 
-			var commandArguments = argumentExtractionStrategy.getCommandArguments(verb, request, useSession, acceptFile);
+			var handlerPromise;
 
-			return when.try(function() {
-				return command.process(commandArguments);
-			}).then(function(result) {
-				if (!cache) {
-					response.setHeader('Cache-Control', 'private, max-age=0, no-cache');
-				}
+			if (secureRedirect && request.headers['x-forwarded-proto'] === "http") {
+				handlerPromise = when.promise(function(resolveCallback, rejectCallback) {
+					if (verb === Verb.GET) {
+						logger.warn('Redirecting HTTP ', verb.getCode(), 'at', path.join(basePath, routePath), ' to HTTPS (' + sequence + ')');
 
-				response.render(template, result);
+						response.redirect("https://" + request.headers.host + request.url);
 
-				logger.debug('Processing completed for', verb.getCode(), 'at', path.join(basePath + routePath), '(' + sequence + ')');
-			});
+						resolveCallback();
+					} else {
+						logger.error('Unable to redirect HTTP ', verb.getCode(), 'at', path.join(basePath, routePath), ' to HTTPS (' + sequence + ')');
+
+						rejectCallback('Unable to redirect HTTP ', verb.getCode(), 'at', path.join(basePath, routePath), ' to HTTPS (' + sequence + ')');
+					}
+				});
+			} else {
+				handlerPromise = when.try(function() {
+					var commandArguments = argumentExtractionStrategy.getCommandArguments(verb, request, useSession, acceptFile);
+
+					return command.process(commandArguments);
+				}).then(function(result) {
+					if (!cache) {
+						response.setHeader('Cache-Control', 'private, max-age=0, no-cache');
+					}
+
+					response.render(template, result);
+
+					logger.debug('Processing completed for', verb.getCode(), 'at', path.join(basePath + routePath), '(' + sequence + ')');
+				});
+			}
+
+			return handlerPromise;
 		});
 
 		return handlers;
