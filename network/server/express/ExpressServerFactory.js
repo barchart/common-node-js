@@ -673,12 +673,12 @@ module.exports = function() {
 
 			var handlerPromise;
 
-			if (secureRedirect && request.headers['x-forwarded-proto'] === "http") {
+			if (secureRedirect && request.headers['x-forwarded-proto'] === 'http') {
 				handlerPromise = when.promise(function(resolveCallback, rejectCallback) {
 					if (verb === Verb.GET) {
 						logger.warn('Redirecting HTTP ', verb.getCode(), 'at', path.join(basePath, routePath), ' to HTTPS (' + sequence + ')');
 
-						response.redirect("https://" + request.headers.host + request.url);
+						response.redirect('https://' + request.headers.host + request.url);
 
 						resolveCallback();
 					} else {
