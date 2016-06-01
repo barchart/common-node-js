@@ -1,11 +1,5 @@
-var _ = require('lodash');
-var when = require('when');
-
-var assert = require('common/lang/assert');
-
 var Container = require('./../Container');
 var RestEndpoint = require('./RestEndpoint');
-var RestAction = require('./RestAction');
 
 module.exports = function() {
 	'use strict';

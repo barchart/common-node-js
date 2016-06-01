@@ -10,22 +10,24 @@ var log4js = require('log4js');
 var multer = require('multer');
 var path = require('path');
 var proxy = require('express-http-proxy');
+var querystring = require('querystring');
 var socketIO = require('socket.io');
 var url = require('url');
-var querystring = require('querystring');
 var when = require('when');
 
+var assert = require('common/lang/assert');
 var Disposable = require('common/lang/Disposable');
 var DisposableStack = require('common/collections/specialized/DisposableStack');
 var CommandHandler = require('common/commands/CommandHandler');
-var assert = require('common/lang/assert');
+var Event = require('common/messaging/Event');
 
 var Container = require('./../endpoints/Container');
 var PageContainer = require('./../endpoints/html/PageContainer');
 var RelayContainer = require('./../endpoints/html/RelayContainer');
 var RestContainer = require('./../endpoints/rest/RestContainer');
 var ServerFactory = require('./../ServerFactory');
-var SocketContainer = require('./../endpoints/socket.io/SocketContainer');
+var SocketRequestContainer = require('./../endpoints/socket/specialized/SocketRequestContainer');
+var SocketEmitterContainer = require('./../endpoints/socket/specialized/SocketEmitterContainer');
 var Verb = require('./../../http/Verb');
 
 module.exports = function() {
@@ -87,6 +89,8 @@ module.exports = function() {
 			this._relayMap = {};
 			this._serviceMap = {};
 			this._socketMap = {};
+
+			this._emitters = [ ];
 
 			this._started = false;
 		},
@@ -186,7 +190,7 @@ module.exports = function() {
 			assert.argumentIsRequired(command, 'command', CommandHandler, 'CommandHandler');
 
 			if (this._started) {
-				throw new Error('Unable to add handler for socket.io channel, the server has already been started.');
+				throw new Error('Unable to add request handler for socket.io channel, the server has already been started.');
 			}
 
 			var completePath = 'request' + path + channel;
@@ -198,6 +202,23 @@ module.exports = function() {
 			this._socketMap[completePath] = command;
 		},
 
+		addEmitter: function(path, channel, command, event) {
+			assert.argumentIsRequired(path, 'path', String);
+			assert.argumentIsRequired(channel, 'channel', String);
+			assert.argumentIsRequired(command, 'command', CommandHandler, 'CommandHandler');
+			assert.argumentIsRequired(event, 'event', Event, 'Event');
+
+			if (this._started) {
+				throw new Error('Unable to add emitter for socket.io channel, the server has already been started.');
+			}
+
+			this._emitters.push({
+				room: path + channel,
+				command: command,
+				event: event
+			});
+		},
+
 		start: function() {
 			if (this._started) {
 				throw new Error('Unable to start server, the has already been started.');
@@ -206,6 +227,8 @@ module.exports = function() {
 			var that = this;
 
 			that._started = true;
+
+			var startStack = new DisposableStack();
 
 			var secure = that.getIsSecure();
 			var port = that.getPort();
@@ -342,6 +365,12 @@ module.exports = function() {
 			if (_.some(that._socketMap)) {
 				var io = socketIO.listen(server);
 
+				_.forEach(that._emitters, function(emitterData) {
+					logger.info('Bound Socket.IO emitter on port', port, 'for room', emitterData.room);
+				});
+
+
+
 				_.forEach(that._socketMap, function(command, channel) {
 					logger.info('Bound Socket.IO handler on port', port, 'to channel', channel);
 				});
@@ -365,9 +394,11 @@ module.exports = function() {
 
 			server.listen(port);
 
-			return new Disposable.fromAction(function() {
+			startStack.push(new Disposable.fromAction(function() {
 				server.close();
-			});
+			}));
+
+			return startStack;
 		}
 	});
 
@@ -405,7 +436,6 @@ module.exports = function() {
 			}
 
 			this._started = true;
-
 
 			return when.map(_.values(this._serverMap), function(server) {
 				logger.info('Starting new ' + (server.getIsSecure() ? 'secure ' : '') + 'server on port ' + server.getPort());
@@ -568,13 +598,13 @@ module.exports = function() {
 		}
 	});
 
-	var SocketContainerBindingStrategy = ContainerBindingStrategy.extend({
+	var SocketRequestContainerBindingStrategy = ContainerBindingStrategy.extend({
 		init: function() {
 			this._super();
 		},
 
 		_canBind: function(container) {
-			return container instanceof SocketContainer;
+			return container instanceof SocketRequestContainer;
 		},
 
 		_bind: function(container, serverContainer) {
@@ -584,6 +614,28 @@ module.exports = function() {
 
 			_.forEach(endpoints, function(endpoint) {
 				server.addChannel(container.getPath(), endpoint.getChannel(), endpoint.getCommand());
+			});
+
+			return true;
+		}
+	});
+
+	var SocketEmitterContainerBindingStrategy = ContainerBindingStrategy.extend({
+		init: function() {
+			this._super();
+		},
+
+		_canBind: function(container) {
+			return container instanceof SocketEmitterContainer;
+		},
+
+		_bind: function(container, serverContainer) {
+			var endpoints = container.getEndpoints();
+
+			var server = serverContainer.getServer(container.getPort(), container.getIsSecure());
+
+			_.forEach(endpoints, function(endpoint) {
+				server.addEmitter(container.getPath(), endpoint.getChannel(), endpoint.getCommand(), endpoint.getEvent());
 			});
 
 			return true;
@@ -637,7 +689,8 @@ module.exports = function() {
 	ContainerBindingStrategy.getStrategies = function() {
 		return [
 			new RestContainerBindingStrategy(),
-			new SocketContainerBindingStrategy(),
+			new SocketRequestContainerBindingStrategy(),
+			new SocketEmitterContainerBindingStrategy(),
 			new HtmlContainerBindingStrategy(),
 			new RelayContainerBindingStrategy()
 		];

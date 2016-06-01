@@ -1,6 +1,5 @@
 var Class = require('class.extend');
 var log4js = require('log4js');
-var when = require('when');
 
 var assert = require('common/lang/assert');
 var CommandHandler = require('common/commands/CommandHandler');

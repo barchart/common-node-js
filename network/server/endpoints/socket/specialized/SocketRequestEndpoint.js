@@ -1,11 +1,11 @@
 var assert = require('common/lang/assert');
 
-var Endpoint = require('./../Endpoint');
+var Endpoint = require('./../../Endpoint');
 
 module.exports = function() {
 	'use strict';
 
-	var SocketEndpoint = Endpoint.extend({
+	var SocketRequestEndpoint = Endpoint.extend({
 		init: function(channel, command) {
 			this._super(command);
 
@@ -19,9 +19,9 @@ module.exports = function() {
 		},
 
 		toString: function() {
-			return '[SocketEndpoint]';
+			return '[SocketRequestEndpoint]';
 		}
 	});
 
-	return SocketEndpoint;
+	return SocketRequestEndpoint;
 }();
