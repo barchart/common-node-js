@@ -93,10 +93,10 @@ module.exports = function() {
 
 			var recipientNumbersToUse;
 
-			if (_.isArray(recipientAddress)) {
-				recipientNumbersToUse = recipientAddress;
+			if (_.isArray(recipientNumber)) {
+				recipientNumbersToUse = recipientNumber;
 			} else {
-				recipientNumbersToUse = [recipientAddress];
+				recipientNumbersToUse = [recipientNumber];
 			}
 
 			var sourceNumberToUse = sourceNumber || that._configuration.sourceNumber;
