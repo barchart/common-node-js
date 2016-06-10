@@ -7,8 +7,6 @@ var assert = require('common/lang/assert');
 var Disposable = require('common/lang/Disposable');
 var RateLimiter = require('common/timing/RateLimiter');
 
-var Environment = require('./../environment/Environment');
-
 module.exports = function() {
 	'use strict';
 
@@ -91,7 +89,7 @@ module.exports = function() {
 				throw new Error('The SES Provider has not been started.');
 			}
 
-			if (this._configuration.recipientOverride && !Environment.getInstance().getIsProduction()) {
+			if (this._configuration.recipientOverride) {
 				logger.warn('Overriding email recipient for testing purposes.');
 
 				recipientAddress = this._configuration.recipientOverride;
