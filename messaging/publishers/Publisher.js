@@ -12,8 +12,27 @@ module.exports = function() {
 	var logger = log4js.getLogger('common-node/messaging/publishers/Publisher');
 
 	var Publisher = Disposable.extend({
-		init: function() {
+		init: function(publishPredicate, subscribePredicate) {
 			this._super();
+
+			assert.argumentIsOptional(publishPredicate, 'publishPredicate', Function);
+			assert.argumentIsOptional(subscribePredicate, 'subscribePredicate', Function);
+
+			if (_.isFunction(publishPredicate)) {
+				this._publishPredicate = publishPredicate;
+			} else {
+				this._publishPredicate = function(ignored) {
+					return true;
+				};
+			}
+
+			if (_.isFunction(subscribePredicate)) {
+				this._subscribePredicate = subscribePredicate;
+			} else {
+				this._subscribePredicate = function(ignored) {
+					return true;
+				};
+			}
 
 			this._startPromise = null;
 			this._started = false;
@@ -58,7 +77,15 @@ module.exports = function() {
 			}
 
 			return when.try(function() {
-				return that._publish(messageType, payload);
+				var publishPromise;
+
+				if (this._publishPredicate(messageType, payload)) {
+					publishPromise = that._publish(messageType, payload);
+				} else {
+					publishPromise = when(false);
+				}
+
+				return publishPromise;
 			});
 		},
 
@@ -81,7 +108,17 @@ module.exports = function() {
 			}
 
 			return when.try(function() {
-				return that._subscribe(messageType, handler);
+				var subscription;
+
+				if (this._subscribePredicate(messageType)) {
+					subscription = that._subscribe(messageType, handler);
+				} else {
+					subscription = Disposable.fromAction(function() {
+						return;
+					});
+				}
+
+				return subscription;
 			});
 		},
 

@@ -18,12 +18,12 @@ module.exports = function() {
 	var logger = log4js.getLogger('common-node/messaging/publishers/AwsPublisher');
 
 	var AwsPublisher = Publisher.extend({
-		init: function(snsProvider, sqsProvider, suppressEcho) {
+		init: function(snsProvider, sqsProvider, suppressEcho, publishPredicate, subscribePredicate) {
 			assert.argumentIsRequired(snsProvider, 'snsProvider', SnsProvider, 'SnsProvider');
 			assert.argumentIsRequired(sqsProvider, 'sqsProvider', SqsProvider, 'SqsProvider');
 			assert.argumentIsOptional(suppressEcho, 'suppressEcho', Boolean);
 
-			this._super();
+			this._super(publishPredicate, subscribePredicate);
 
 			this._snsProvider = snsProvider;
 			this._sqsProvider = sqsProvider;
