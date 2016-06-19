@@ -38,11 +38,11 @@ module.exports = function() {
 					}
 
 					resolve(rows);
-				}).finally(function() {
-					connection.end(function(endError) {
-						logger.error('MySql connection error (on close)', endError);
-					});
 				})
+			}).finally(function() {
+				connection.end(function(endError) {
+					logger.error('MySql connection error (on close)', endError);
+				});
 			});
 		},
 
