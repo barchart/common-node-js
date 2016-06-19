@@ -19,15 +19,15 @@ module.exports = function() {
 			var that = this;
 
 			that.connection = mysql.createConnection({
-				host : that._configuration.host,
-				user : that._configuration.user,
-				password : that._configuration.password,
-				database : that._configuration.database
+				host: that._configuration.host,
+				user: that._configuration.user,
+				password: that._configuration.password,
+				database: that._configuration.database
 			});
 
 			return when.promise(function(resolve, reject) {
 				that.connection.query(that._configuration.query, function(err, rows) {
-					if ( err ) {
+					if (err) {
 						reject(err);
 					}
 
