@@ -25,8 +25,12 @@ module.exports = function() {
 				database: that._configuration.database
 			});
 
+			var canEnd = true;
+
 			connection.on('error', function(e) {
-				logger.error('MySql connection error (no callbacks)', e);
+				canEnd = false;
+
+				logger.error('MySql connection error (fatal)', e);
 			});
 
 			return when.promise(function(resolve, reject) {
@@ -40,9 +44,11 @@ module.exports = function() {
 					resolve(rows);
 				})
 			}).finally(function() {
-				connection.end(function(endError) {
-					logger.error('MySql connection error (on close)', endError);
-				});
+				if (canEnd) {
+					connection.end(function(endError) {
+						logger.error('MySql connection error (on close)', endError);
+					});
+				}
 			});
 		},
 
