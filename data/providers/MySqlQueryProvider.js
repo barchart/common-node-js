@@ -25,11 +25,7 @@ module.exports = function() {
 				database: that._configuration.database
 			});
 
-			var canEnd = true;
-
 			connection.on('error', function(e) {
-				canEnd = false;
-
 				logger.error('MySql connection error (fatal)', e);
 			});
 
@@ -44,11 +40,9 @@ module.exports = function() {
 					resolve(rows);
 				})
 			}).finally(function() {
-				if (canEnd) {
-					connection.end(function(endError) {
-						logger.error('MySql connection error (on close)', endError);
-					});
-				}
+				connection.end(function(endError) {
+					logger.error('MySql connection error (on close)', endError);
+				});
 			});
 		},
 
