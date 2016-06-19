@@ -18,21 +18,31 @@ module.exports = function() {
 		_runQuery: function(criteria) {
 			var that = this;
 
-			that.connection = mysql.createConnection({
+			var connection = mysql.createConnection({
 				host: that._configuration.host,
 				user: that._configuration.user,
 				password: that._configuration.password,
 				database: that._configuration.database
 			});
 
+			connection.on('error', function(e) {
+				logger.error('MySql connection error (no callbacks)', e);
+			});
+
 			return when.promise(function(resolve, reject) {
-				that.connection.query(that._configuration.query, function(err, rows) {
-					if (err) {
-						reject(err);
+				connection.query(that._configuration.query, function(e, rows) {
+					if (e) {
+						logger.error('MySql query error', e);
+
+						reject(e);
 					}
 
 					resolve(rows);
-				});
+				}).finally(function() {
+					connection.end(function(endError) {
+						logger.error('MySql connection error (on close)', endError);
+					});
+				})
 			});
 		},
 
