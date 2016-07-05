@@ -366,13 +366,11 @@ module.exports = function() {
 				var io = socketIO.listen(server);
 
 				_.forEach(that._emitters, function(emitterData) {
-					logger.info('Bound Socket.IO emitter on port', port, 'for room', emitterData.room);
+					logger.info('Bound socket.io emitter on port', port, 'for room', emitterData.room);
 				});
 
-
-
 				_.forEach(that._socketMap, function(command, channel) {
-					logger.info('Bound Socket.IO handler on port', port, 'to channel', channel);
+					logger.info('Bound socket.io handler on port', port, 'to channel', channel);
 				});
 
 				io.on('connection', function(socket) {
@@ -849,10 +847,10 @@ module.exports = function() {
 			var requestId = request.requestId;
 
 			if (!_.isString(requestId)) {
-				throw new Error('Unable to process Socket.IO request. A "requestId" property is expected.');
+				throw new Error('Unable to process socket.io request. A "requestId" property is expected.');
 			}
 
-			logger.debug('Processing starting for Socket.IO event on', channel, '(' + sequence + ')');
+			logger.debug('Processing starting for socket.io event on', channel, '(' + sequence + ')');
 
 			return when.try(function() {
 				return command.process(request.request);
@@ -864,9 +862,9 @@ module.exports = function() {
 
 				socket.emit('response', envelope);
 
-				logger.debug('Processing completed for Socket.IO event on', channel, '(' + sequence + ')');
+				logger.debug('Processing completed for socket.io event on', channel, '(' + sequence + ')');
 			}).catch(function(error) {
-				logger.error('Processing failed for Socket.IO event on', channel, '(' + sequence + ')');
+				logger.error('Processing failed for socket.io event on', channel, '(' + sequence + ')');
 				logger.error(error);
 			});
 		};
