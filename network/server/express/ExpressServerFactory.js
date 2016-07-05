@@ -202,20 +202,24 @@ module.exports = function() {
 			this._socketMap[completePath] = command;
 		},
 
-		addEmitter: function(path, channel, command, event) {
+		addEmitter: function(path, channel, event, eventType, roomQualifier) {
 			assert.argumentIsRequired(path, 'path', String);
 			assert.argumentIsRequired(channel, 'channel', String);
-			assert.argumentIsRequired(command, 'command', CommandHandler, 'CommandHandler');
 			assert.argumentIsRequired(event, 'event', Event, 'Event');
+			assert.argumentIsRequired(eventType, 'eventType', Event, 'String');
+			assert.argumentIsRequired(roomQualifier, 'roomQualifier', Function);
 
 			if (this._started) {
 				throw new Error('Unable to add emitter for socket.io channel, the server has already been started.');
 			}
 
 			this._emitters.push({
-				room: path + channel,
-				command: command,
-				event: event
+				room: {
+					base: path + channel,
+					qualifier: roomQualifier
+				},
+				event: event,
+				eventType: eventType
 			});
 		},
 
@@ -362,10 +366,23 @@ module.exports = function() {
 				server = http.createServer(app);
 			}
 
-			if (_.some(that._socketMap)) {
+			if (_.some(that._socketMap) || _.some(that._emitters)) {
 				var io = socketIO.listen(server);
 
 				_.forEach(that._emitters, function(emitterData) {
+					startStack.push(
+						emitterData.event.register(function(data) {
+							var qualifier = emitterData.roomQualifier(data);
+							var room = emitterData.room.base;
+
+							if (qualifier) {
+								room = room +  qualifier;
+							}
+
+							io.to(room).emit(emitterData.eventType, data);
+						})
+					);
+
 					logger.info('Bound socket.io emitter on port', port, 'for room', emitterData.room);
 				});
 
@@ -633,7 +650,7 @@ module.exports = function() {
 			var server = serverContainer.getServer(container.getPort(), container.getIsSecure());
 
 			_.forEach(endpoints, function(endpoint) {
-				server.addEmitter(container.getPath(), endpoint.getChannel(), endpoint.getCommand(), endpoint.getEvent());
+				server.addEmitter(container.getPath(), endpoint.getChannel(), endpoint.getEvent(), endpoint.getEventType(), endpoint.getRoomQualifier());
 			});
 
 			return true;
