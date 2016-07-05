@@ -38,7 +38,7 @@ module.exports = function() {
 					}
 
 					resolve(rows);
-				})
+				});
 			}).finally(function() {
 				connection.end(function(endError) {
 					logger.error('MySql connection error (on close)', endError);
