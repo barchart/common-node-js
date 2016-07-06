@@ -372,7 +372,7 @@ module.exports = function() {
 				_.forEach(that._emitters, function(emitterData) {
 					startStack.push(
 						emitterData.event.register(function(data) {
-							var qualifier = emitterData.roomQualifier(data);
+							var qualifier = emitterData.room.qualifier(data);
 							var room = emitterData.room.base;
 
 							if (qualifier) {

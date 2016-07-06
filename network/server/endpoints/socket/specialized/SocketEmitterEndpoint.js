@@ -35,7 +35,7 @@ module.exports = function() {
 		},
 
 		getRoomQualifier: function() {
-			return this._getRoomQualifier;
+			return this._roomQualifier;
 		},
 
 		toString: function() {
