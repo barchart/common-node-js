@@ -13,7 +13,7 @@ module.exports = function() {
 
 			assert.argumentIsRequired(channel, 'channel', String);
 			assert.argumentIsRequired(event, 'event', Event, 'Event');
-			assert.argumentIsRequired(event, 'eventType', String);
+			assert.argumentIsRequired(eventType, 'eventType', String);
 			assert.argumentIsOptional(roomQualifier, 'roomQualifier', Function);
 
 			this._channel = channel;
