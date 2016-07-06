@@ -206,7 +206,7 @@ module.exports = function() {
 			assert.argumentIsRequired(path, 'path', String);
 			assert.argumentIsRequired(channel, 'channel', String);
 			assert.argumentIsRequired(event, 'event', Event, 'Event');
-			assert.argumentIsRequired(eventType, 'eventType', Event, 'String');
+			assert.argumentIsRequired(eventType, 'eventType', String);
 			assert.argumentIsRequired(roomQualifier, 'roomQualifier', Function);
 
 			if (this._started) {
