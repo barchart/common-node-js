@@ -28,6 +28,7 @@ var RestContainer = require('./../endpoints/rest/RestContainer');
 var ServerFactory = require('./../ServerFactory');
 var SocketRequestContainer = require('./../endpoints/socket/specialized/SocketRequestContainer');
 var SocketEmitterContainer = require('./../endpoints/socket/specialized/SocketEmitterContainer');
+var SocketSubscriptionContainer = require('./../endpoints/socket/specialized/SocketSubscriptionContainer');
 var Verb = require('./../../http/Verb');
 
 module.exports = function() {
@@ -88,9 +89,10 @@ module.exports = function() {
 			this._pageMap = {};
 			this._relayMap = {};
 			this._serviceMap = {};
-			this._socketMap = {};
+			this._socketRequestMap = {};
+			this._socketSubscriptionMap = { };
 
-			this._emitters = [ ];
+			this._socketEmitters = [ ];
 
 			this._started = false;
 		},
@@ -195,11 +197,11 @@ module.exports = function() {
 
 			var completePath = 'request' + path + channel;
 
-			if (_.has(this._socketMap, completePath)) {
+			if (_.has(this._socketRequestMap, completePath)) {
 				throw new Error('Unable to add handler for socket.io channel, another handler is already using this channel.');
 			}
 
-			this._socketMap[completePath] = command;
+			this._socketRequestMap[completePath] = command;
 		},
 
 		addEmitter: function(path, channel, event, eventType, roomQualifier) {
@@ -213,7 +215,7 @@ module.exports = function() {
 				throw new Error('Unable to add emitter for socket.io channel, the server has already been started.');
 			}
 
-			this._emitters.push({
+			this._socketEmitters.push({
 				room: {
 					base: path + channel,
 					qualifier: roomQualifier
@@ -221,6 +223,36 @@ module.exports = function() {
 				event: event,
 				eventType: eventType
 			});
+		},
+
+		addSubscription: function(path, channel, roomCommand, responseCommand, responseEventType) {
+			assert.argumentIsRequired(path, 'path', String);
+			assert.argumentIsRequired(channel, 'channel', String);
+			assert.argumentIsRequired(roomCommand, 'roomCommand', CommandHandler, 'CommandHandler');
+			assert.argumentIsRequired(responseCommand, 'responseCommand', CommandHandler, 'CommandHandler');
+			assert.argumentIsRequired(responseEventType, 'responseEventType', String);
+			
+			if (this._started) {
+				throw new Error('Unable to add subscription handler for socket.io channel, the server has already been started.');
+			}
+
+			var completePath = 'subscribe' + path + channel;
+
+			if (_.has(this._socketSubscriptionMap, completePath)) {
+				throw new Error('Unable to add subscription handler for socket.io channel, another handler is already using this channel.');
+			}
+			
+			var subscriptionInfo = {
+				room: {
+					command: roomCommand
+				},
+				response: {
+					command: responseCommand,
+					eventType: responseEventType
+				}
+			};
+
+			this._socketSubscriptionMap[completePath] = subscriptionInfo;
 		},
 
 		start: function() {
@@ -366,10 +398,10 @@ module.exports = function() {
 				server = http.createServer(app);
 			}
 
-			if (_.some(that._socketMap) || _.some(that._emitters)) {
+			if (_.some(that._socketRequestMap) || _.some(that._socketSubscriptionMap) || _.some(that._socketEmitters)) {
 				var io = socketIO.listen(server);
 
-				_.forEach(that._emitters, function(emitterData) {
+				_.forEach(that._socketEmitters, function(emitterData) {
 					startStack.push(
 						emitterData.event.register(function(data) {
 							var qualifier = emitterData.room.qualifier(data);
@@ -386,7 +418,7 @@ module.exports = function() {
 					logger.info('Bound socket.io emitter on port', port, 'for room', emitterData.room);
 				});
 
-				_.forEach(that._socketMap, function(command, channel) {
+				_.forEach(that._socketRequestMap, function(command, channel) {
 					logger.info('Bound socket.io handler on port', port, 'to channel', channel);
 				});
 
@@ -399,8 +431,12 @@ module.exports = function() {
 						logger.info('Socket.io now has', +_.size(socket.adapter.sids), 'connections');
 					});
 
-					_.forEach(that._socketMap, function(command, channel) {
-						socket.on(channel, buildChannelHandler(channel, command, socket));
+					_.forEach(that._socketRequestMap, function(command, channel) {
+						socket.on(channel, buildSocketRequestHandler(channel, command, socket));
+					});
+
+					_.forEach(that._socketSubscriptionMap, function(subscriptionInfo, channel) {
+						socket.on(channel, buildSocketSubscriptionHandler(channel, subscriptionInfo, socket));
 					});
 
 					logger.info('Socket.io client [', socket.id, '] at', socket.conn.remoteAddress, 'on port', port, 'is ready to accept messages');
@@ -657,6 +693,28 @@ module.exports = function() {
 		}
 	});
 
+	var SocketSubscriptionContainerBindingStrategy = ContainerBindingStrategy.extend({
+		init: function() {
+			this._super();
+		},
+
+		_canBind: function(container) {
+			return container instanceof SocketSubscriptionContainer;
+		},
+
+		_bind: function(container, serverContainer) {
+			var endpoints = container.getEndpoints();
+
+			var server = serverContainer.getServer(container.getPort(), container.getIsSecure());
+
+			_.forEach(endpoints, function(endpoint) {
+				server.addSubscriber(container.getPath(), endpoint.getChannel(), endpoint.getRoomCommand(), endpoint.getResponseCommand(), endpoint.getResponseEventType());
+			});
+
+			return true;
+		}
+	});
+
 	var HtmlContainerBindingStrategy = ContainerBindingStrategy.extend({
 		init: function() {
 			this._super();
@@ -706,6 +764,7 @@ module.exports = function() {
 			new RestContainerBindingStrategy(),
 			new SocketRequestContainerBindingStrategy(),
 			new SocketEmitterContainerBindingStrategy(),
+			new SocketSubscriptionContainerBindingStrategy(),
 			new HtmlContainerBindingStrategy(),
 			new RelayContainerBindingStrategy()
 		];
@@ -855,7 +914,7 @@ module.exports = function() {
 		};
 	}
 
-	function buildChannelHandler(channel, command, socket) {
+	function buildSocketRequestHandler(channel, command, socket) {
 		var sequencer = 0;
 
 		return function(request) {
@@ -887,6 +946,10 @@ module.exports = function() {
 		};
 	}
 
+	function buildSocketSubscriptionHandler(channel, subscriptionInfo, socket) {
+		
+	}
+	
 	function generateRestResponse(message) {
 		return {
 			message: message
