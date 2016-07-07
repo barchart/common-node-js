@@ -209,7 +209,7 @@ module.exports = function() {
 			assert.argumentIsRequired(channel, 'channel', String);
 			assert.argumentIsRequired(event, 'event', Event, 'Event');
 			assert.argumentIsRequired(eventType, 'eventType', String);
-			assert.argumentIsRequired(roomCommand, 'roomCommand', Function);
+			assert.argumentIsRequired(roomCommand, 'roomCommand', CommandHandler, 'CommandHandler');
 
 			if (this._started) {
 				throw new Error('Unable to add emitter for socket.io channel, the server has already been started.');
