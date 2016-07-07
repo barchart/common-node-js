@@ -15,12 +15,12 @@ module.exports = function() {
 			assert.argumentIsRequired(roomCommand, 'roomCommand', CommandHandler, 'CommandHandler');
 			assert.argumentIsOptional(responseCommand, 'responseCommand', CommandHandler, 'CommandHandler');
 			assert.argumentIsOptional(responseEventType, 'responseEventType', String);
-			
+
 			this._channel = channel;
 			this._roomCommand = roomCommand;
-			
+
 			this._responseCommand = responseCommand || emptyCommand;
-			this._responseEventType = responseEventType || null;
+			this._responseEventType = responseEventType || '';
 		},
 
 		getChannel: function() {
@@ -45,7 +45,7 @@ module.exports = function() {
 	});
 
 	var emptyCommand = CommandHandler.fromFunction(function() {
-		return;
+		return null;
 	});
 
 	return SocketSubscriptionEndpoint;

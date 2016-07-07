@@ -231,7 +231,7 @@ module.exports = function() {
 			assert.argumentIsRequired(roomCommand, 'roomCommand', CommandHandler, 'CommandHandler');
 			assert.argumentIsRequired(responseCommand, 'responseCommand', CommandHandler, 'CommandHandler');
 			assert.argumentIsRequired(responseEventType, 'responseEventType', String);
-			
+
 			if (this._started) {
 				throw new Error('Unable to add subscription handler for socket.io channel, the server has already been started.');
 			}
@@ -241,7 +241,7 @@ module.exports = function() {
 			if (_.has(this._socketSubscriptionMap, completePath)) {
 				throw new Error('Unable to add subscription handler for socket.io channel, another handler is already using this channel.');
 			}
-			
+
 			var subscriptionInfo = {
 				room: {
 					command: roomCommand
@@ -708,7 +708,7 @@ module.exports = function() {
 			var server = serverContainer.getServer(container.getPort(), container.getIsSecure());
 
 			_.forEach(endpoints, function(endpoint) {
-				server.addSubscriber(container.getPath(), endpoint.getChannel(), endpoint.getRoomCommand(), endpoint.getResponseCommand(), endpoint.getResponseEventType());
+				server.addSubscription(container.getPath(), endpoint.getChannel(), endpoint.getRoomCommand(), endpoint.getResponseCommand(), endpoint.getResponseEventType());
 			});
 
 			return true;
@@ -866,9 +866,9 @@ module.exports = function() {
 		});
 	}
 
-	function buildRestHandler(verb, basePath, routePath, command) {
-		var sequencer = 0;
+	var sequencer = 0;
 
+	function buildRestHandler(verb, basePath, routePath, command) {
 		var argumentExtractionStrategy = _.find(ExpressArgumentExtractionStrategy.getStrategies(), function(candidate) {
 			return candidate.canProcess(verb);
 		});
@@ -915,8 +915,6 @@ module.exports = function() {
 	}
 
 	function buildSocketRequestHandler(channel, command, socket) {
-		var sequencer = 0;
-
 		return function(request) {
 			var sequence = sequencer++;
 
@@ -926,7 +924,7 @@ module.exports = function() {
 				throw new Error('Unable to process socket.io request. A "requestId" property is expected.');
 			}
 
-			logger.debug('Processing starting for socket.io event on', channel, '(' + sequence + ')');
+			logger.debug('Processing starting for socket.io request from [', socket.id ,'] on', channel, '(', sequence, ')');
 
 			return when.try(function() {
 				return command.process(request.request);
@@ -938,18 +936,49 @@ module.exports = function() {
 
 				socket.emit('response', envelope);
 
-				logger.debug('Processing completed for socket.io event on', channel, '(' + sequence + ')');
+				logger.debug('Processing completed for socket.io request on', channel, '(', sequence, ')');
 			}).catch(function(error) {
-				logger.error('Processing failed for socket.io event on', channel, '(' + sequence + ')');
+				logger.error('Processing failed for socket.io request on', channel, '(', sequence, ')');
 				logger.error(error);
 			});
 		};
 	}
 
 	function buildSocketSubscriptionHandler(channel, subscriptionInfo, socket) {
-		
+		return function(request) {
+			var sequence = sequencer++;
+
+			logger.debug('Processing starting for socket.io subscription request from [', socket.id ,'] on', channel, '(', sequence, ')');
+
+			return when.try(function() {
+				return subscriptionInfo.room.command.process(request);
+			}).then(function(room) {
+				socket.join(room);
+
+				logger.debug('Socket.io client [', socket.id, '] joined', room);
+
+				var responsePromise = when(null);
+
+				if (subscriptionInfo.response.eventType) {
+					var response = subscriptionInfo.response.command.process(request);
+
+					if (response) {
+						socket.emit(subscriptionInfo.response.eventType, response);
+
+						logger.debug('Socket.io client [', socket.id, '] sent immediate response after joining', room);
+					}
+				}
+
+				return responsePromise;
+			}).then(function() {
+				logger.debug('Processing completed for socket.io subscription request on', channel, '(', sequence, ')');
+			}).catch(function(error) {
+				logger.error('Processing failed for socket.io subscription request on', channel, '(', sequence, ')');
+				logger.error(error);
+			});
+		};
 	}
-	
+
 	function generateRestResponse(message) {
 		return {
 			message: message
