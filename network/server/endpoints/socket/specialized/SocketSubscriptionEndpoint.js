@@ -8,16 +8,16 @@ module.exports = function() {
 	'use strict';
 
 	var SocketSubscriptionEndpoint = Endpoint.extend({
-		init: function(channel, roomCommand, responseCommand, responseEventType) {
+		init: function(channel, roomsCommand, responseCommand, responseEventType) {
 			this._super(emptyCommand);
 
 			assert.argumentIsRequired(channel, 'channel', String);
-			assert.argumentIsRequired(roomCommand, 'roomCommand', CommandHandler, 'CommandHandler');
+			assert.argumentIsRequired(roomsCommand, 'roomsCommand', CommandHandler, 'CommandHandler');
 			assert.argumentIsOptional(responseCommand, 'responseCommand', CommandHandler, 'CommandHandler');
 			assert.argumentIsOptional(responseEventType, 'responseEventType', String);
 
 			this._channel = channel;
-			this._roomCommand = roomCommand;
+			this._roomsCommand = roomsCommand;
 
 			this._responseCommand = responseCommand || emptyCommand;
 			this._responseEventType = responseEventType || '';
@@ -27,8 +27,8 @@ module.exports = function() {
 			return this._channel;
 		},
 
-		getRoomCommand: function() {
-			return this._roomCommand;
+		getRoomsCommand: function() {
+			return this._roomsCommand;
 		},
 
 		getResponseCommand: function() {

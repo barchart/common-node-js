@@ -225,10 +225,10 @@ module.exports = function() {
 			});
 		},
 
-		addSubscription: function(path, channel, roomCommand, responseCommand, responseEventType) {
+		addSubscription: function(path, channel, roomsCommand, responseCommand, responseEventType) {
 			assert.argumentIsRequired(path, 'path', String);
 			assert.argumentIsRequired(channel, 'channel', String);
-			assert.argumentIsRequired(roomCommand, 'roomCommand', CommandHandler, 'CommandHandler');
+			assert.argumentIsRequired(roomsCommand, 'roomsCommand', CommandHandler, 'CommandHandler');
 			assert.argumentIsRequired(responseCommand, 'responseCommand', CommandHandler, 'CommandHandler');
 			assert.argumentIsRequired(responseEventType, 'responseEventType', String);
 
@@ -243,8 +243,8 @@ module.exports = function() {
 			}
 
 			var subscriptionInfo = {
-				room: {
-					command: roomCommand
+				rooms: {
+					command: roomsCommand
 				},
 				response: {
 					command: responseCommand,
@@ -708,7 +708,7 @@ module.exports = function() {
 			var server = serverContainer.getServer(container.getPort(), container.getIsSecure());
 
 			_.forEach(endpoints, function(endpoint) {
-				server.addSubscription(container.getPath(), endpoint.getChannel(), endpoint.getRoomCommand(), endpoint.getResponseCommand(), endpoint.getResponseEventType());
+				server.addSubscription(container.getPath(), endpoint.getChannel(), endpoint.getRoomsCommand(), endpoint.getResponseCommand(), endpoint.getResponseEventType());
 			});
 
 			return true;
@@ -951,22 +951,35 @@ module.exports = function() {
 			logger.debug('Processing starting for socket.io subscription request from [', socket.id ,'] on', channel, '(', sequence, ')');
 
 			return when.try(function() {
-				return subscriptionInfo.room.command.process(request);
-			}).then(function(room) {
-				socket.join(room);
+				return subscriptionInfo.rooms.command.process(request);
+			}).then(function(rooms) {
+				var roomsToJoin;
 
-				logger.debug('Socket.io client [', socket.id, '] joined', room);
+				if (_.isArray(rooms)) {
+					roomsToJoin = rooms;
+				} else if (_.isString(rooms)) {
+					roomsToJoin = [ rooms ];
+				}
 
-				var responsePromise = when(null);
+				_.forEach(roomsToJoin, function(roomToJoin) {
+					socket.join(roomToJoin);
+				});
+
+				logger.debug('Socket.io client [', socket.id, '] joined [', roomsToJoin.join(','), ']');
+
+				var responsePromise;
 
 				if (subscriptionInfo.response.eventType) {
-					var response = subscriptionInfo.response.command.process(request);
+					responsePromise = subscriptionInfo.response.command.process(request)
+						.then(function(response) {
+							if (response) {
+								socket.emit(subscriptionInfo.response.eventType, response);
 
-					if (response) {
-						socket.emit(subscriptionInfo.response.eventType, response);
-
-						logger.debug('Socket.io client [', socket.id, '] sent immediate response after joining', room);
-					}
+								logger.debug('Socket.io client [', socket.id, '] sent immediate response after joining [', roomsToJoin.join(','), ']');
+							}
+						});
+				} else {
+					responsePromise = when(null);
 				}
 
 				return responsePromise;
