@@ -963,10 +963,12 @@ module.exports = function() {
 			}).then(function(qualifiers) {
 				var qualifiersToJoin;
 
-				if (_.isArray(rooms)) {
-					qualifiersToJoin = rooms;
-				} else if (_.isString(rooms)) {
-					qualifiersToJoin = [ rooms ];
+				if (_.isArray(qualifiers)) {
+					qualifiersToJoin = qualifiers;
+				} else if (_.isString(qualifiers)) {
+					qualifiersToJoin = [ qualifiers ];
+				} else {
+					qualifiersToJoin = [ ];
 				}
 
 				var roomsToJoin = _.map(qualifiersToJoin, function(qualifierToJoin) {
