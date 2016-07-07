@@ -423,7 +423,11 @@ module.exports = function() {
 				});
 
 				_.forEach(that._socketRequestMap, function(command, channel) {
-					logger.info('Bound socket.io handler on port', port, 'to channel', channel);
+					logger.info('Bound socket.io request handler on port', port, 'to channel', channel);
+				});
+
+				_.forEach(that._socketSubscriptionMap, function(subscriptionInfo, channel) {
+					logger.info('Bound socket.io subscription handler port', port, 'to channel', channel);
 				});
 
 				io.on('connection', function(socket) {
