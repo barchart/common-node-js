@@ -411,7 +411,7 @@ module.exports = function() {
 								var room = emitterData.room.base;
 
 								if (qualifier) {
-									room = room +  qualifier;
+									room = room + qualifier;
 								}
 
 								io.to(room).emit(emitterData.eventType, data);
