@@ -414,6 +414,8 @@ module.exports = function() {
 									room = room + qualifier;
 								}
 
+								logger.debug('Socket.io emitter on port', port, 'emitting to', room);
+
 								io.to(room).emit(emitterData.eventType, data);
 							});
 						})
