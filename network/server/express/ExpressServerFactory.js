@@ -419,7 +419,7 @@ module.exports = function() {
 						})
 					);
 
-					logger.info('Bound socket.io emitter on port', port, 'for room', emitterData.room);
+					logger.info('Bound socket.io emitter on port', port, 'for base room', emitterData.room.base);
 				});
 
 				_.forEach(that._socketRequestMap, function(command, channel) {
