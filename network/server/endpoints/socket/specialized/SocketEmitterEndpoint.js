@@ -8,18 +8,18 @@ module.exports = function() {
 	'use strict';
 
 	var SocketEmitterEndpoint = Endpoint.extend({
-		init: function(channel, event, eventType, roomQualifier) {
+		init: function(channel, event, eventType, roomCommand) {
 			this._super(emptyCommand);
 
 			assert.argumentIsRequired(channel, 'channel', String);
 			assert.argumentIsRequired(event, 'event', Event, 'Event');
 			assert.argumentIsRequired(eventType, 'eventType', String);
-			assert.argumentIsOptional(roomQualifier, 'roomQualifier', Function);
+			assert.argumentIsOptional(roomCommand, 'roomCommand', CommandHandler, 'CommandHandler');
 
 			this._channel = channel;
 			this._event = event;
 			this._eventType = eventType || null;
-			this._roomQualifier = roomQualifier || getBroadcastRoom;
+			this._roomCommand = roomCommand || getBroadcastCommand;
 		},
 
 		getChannel: function() {
@@ -34,8 +34,8 @@ module.exports = function() {
 			return this._eventType;
 		},
 
-		getRoomQualifier: function() {
-			return this._roomQualifier;
+		getRoomCommand: function() {
+			return this._roomCommand;
 		},
 
 		toString: function() {
@@ -47,9 +47,9 @@ module.exports = function() {
 		return;
 	});
 
-	var getBroadcastRoom = function(ignored) {
+	var broadcastCommand = CommandHandler.fromFunction(function() {
 		return null;
-	};
+	});
 
 	return SocketEmitterEndpoint;
 }();

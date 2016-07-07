@@ -204,12 +204,12 @@ module.exports = function() {
 			this._socketRequestMap[completePath] = command;
 		},
 
-		addEmitter: function(path, channel, event, eventType, roomQualifier) {
+		addEmitter: function(path, channel, event, eventType, roomCommand) {
 			assert.argumentIsRequired(path, 'path', String);
 			assert.argumentIsRequired(channel, 'channel', String);
 			assert.argumentIsRequired(event, 'event', Event, 'Event');
 			assert.argumentIsRequired(eventType, 'eventType', String);
-			assert.argumentIsRequired(roomQualifier, 'roomQualifier', Function);
+			assert.argumentIsRequired(roomCommand, 'roomCommand', Function);
 
 			if (this._started) {
 				throw new Error('Unable to add emitter for socket.io channel, the server has already been started.');
@@ -218,7 +218,7 @@ module.exports = function() {
 			this._socketEmitters.push({
 				room: {
 					base: path + channel,
-					qualifier: roomQualifier
+					command: roomCommand
 				},
 				event: event,
 				eventType: eventType
@@ -244,6 +244,7 @@ module.exports = function() {
 
 			var subscriptionInfo = {
 				rooms: {
+					base: path + channel,
 					command: roomsCommand
 				},
 				response: {
@@ -404,14 +405,17 @@ module.exports = function() {
 				_.forEach(that._socketEmitters, function(emitterData) {
 					startStack.push(
 						emitterData.event.register(function(data) {
-							var qualifier = emitterData.room.qualifier(data);
-							var room = emitterData.room.base;
+							when.try(function() {
+								return emitterData.room.command.process(data);
+							}).then(function(qualifier) {
+								var room = emitterData.room.base;
 
-							if (qualifier) {
-								room = room +  qualifier;
-							}
+								if (qualifier) {
+									room = room +  qualifier;
+								}
 
-							io.to(room).emit(emitterData.eventType, data);
+								io.to(room).emit(emitterData.eventType, data);
+							});
 						})
 					);
 
@@ -686,7 +690,7 @@ module.exports = function() {
 			var server = serverContainer.getServer(container.getPort(), container.getIsSecure());
 
 			_.forEach(endpoints, function(endpoint) {
-				server.addEmitter(container.getPath(), endpoint.getChannel(), endpoint.getEvent(), endpoint.getEventType(), endpoint.getRoomQualifier());
+				server.addEmitter(container.getPath(), endpoint.getChannel(), endpoint.getEvent(), endpoint.getEventType(), endpoint.getRoomCommand());
 			});
 
 			return true;
@@ -952,14 +956,18 @@ module.exports = function() {
 
 			return when.try(function() {
 				return subscriptionInfo.rooms.command.process(request);
-			}).then(function(rooms) {
-				var roomsToJoin;
+			}).then(function(qualifiers) {
+				var qualifiersToJoin;
 
 				if (_.isArray(rooms)) {
-					roomsToJoin = rooms;
+					qualifiersToJoin = rooms;
 				} else if (_.isString(rooms)) {
-					roomsToJoin = [ rooms ];
+					qualifiersToJoin = [ rooms ];
 				}
+
+				var roomsToJoin = _.map(qualifiersToJoin, function(qualifierToJoin) {
+					return subscriptionInfo.rooms.base + qualifierToJoin;
+				});
 
 				_.forEach(roomsToJoin, function(roomToJoin) {
 					socket.join(roomToJoin);
