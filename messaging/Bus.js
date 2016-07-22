@@ -107,7 +107,12 @@ module.exports = function() {
 				}
 
 				if (timeoutToUse > 0) {
-					requestPromise = requestPromise.timeout(timeoutToUse);
+					requestPromise = requestPromise.timeout(timeoutToUse)
+						.catch(function(e) {
+							logger.warn('Request [', messageType, '] timed out after', timeoutToUse, 'milliseconds');
+
+							throw e;
+						});
 				}
 			} else {
 				requestPromise = when.reject('Existing routers are unable to handle request.');
