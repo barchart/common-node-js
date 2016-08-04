@@ -51,7 +51,21 @@ module.exports = function() {
 					response.on('end', function() {
 						logger.debug('Completed HTTP query', queryId);
 
-						resolveCallback(that._parseResponse(responseText));
+						var parsedResponse = null;
+						var parseSuccess = false;
+
+						try {
+							parsedResponse = that._parseResponse(responseText);
+							parseSuccess = true;
+						} catch (e) {
+							logger.error('Unable to parse response', e);
+						}
+
+						if (parseSuccess) {
+							resolveCallback(parsedResponse);
+						} else {
+							rejectCallback('Unable to parse REST response');
+						}
 					});
 				};
 
