@@ -93,6 +93,8 @@ module.exports = function() {
 				throw new Error('The message bus has been disposed');
 			}
 
+			var start = new Date();
+
 			var requestPromise;
 
 			if (that._router.canRoute(messageType)) {
@@ -112,6 +114,10 @@ module.exports = function() {
 							logger.warn('Request [', messageType, '] timed out after', timeoutToUse, 'milliseconds');
 
 							throw e;
+						}).finally(function(e) {
+							var end = new Date();
+
+							logger.debug('Request [', messageType, '] completed after', (end.getDate() - start.getDate()), 'milliseconds');
 						});
 				}
 			} else {
