@@ -117,7 +117,7 @@ module.exports = function() {
 						}).finally(function(e) {
 							var end = new Date();
 
-							logger.debug('Request [', messageType, '] completed after', (end.getDate() - start.getDate()), 'milliseconds');
+							logger.debug('Request [', messageType, '] completed after', (end.getTime() - start.getTime()), 'milliseconds');
 						});
 				}
 			} else {
