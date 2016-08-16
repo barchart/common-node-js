@@ -48,7 +48,7 @@ module.exports = function() {
 
 						delete that._pendingRequests[message.id];
 
-						if (_.isBoolean(message.success && !message.success)) {
+						if (_.isBoolean(message.success) && !message.success) {
 							deferred.reject('Request failed');
 						} else if (_.isObject(message.payload)) {
 							deferred.resolve(message.payload);
