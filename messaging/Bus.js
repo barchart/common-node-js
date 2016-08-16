@@ -111,7 +111,9 @@ module.exports = function() {
 				if (timeoutToUse > 0) {
 					requestPromise = requestPromise.timeout(timeoutToUse)
 						.catch(function(e) {
-							logger.warn('Request [', messageType, '] timed out after', timeoutToUse, 'milliseconds');
+							if (e instanceof when.TimeoutError) {
+								logger.warn('Request [', messageType, '] timed out after', timeoutToUse, 'milliseconds');
+							}
 
 							throw e;
 						}).finally(function(e) {

@@ -54,7 +54,7 @@ module.exports = function() {
 							deferred.resolve(message.payload);
 						}
 					}
-				}, 500, 20000);
+				}, 100, 20000);
 
 				var responseQueueBinding = Disposable.fromAction(function() {
 					that._sqsProvider.deleteQueue(responseQueueName);
@@ -129,6 +129,10 @@ module.exports = function() {
 						logger.error('Request processing failed. Sending failure message.', e);
 
 						return respond(false);
+					});
+				} else {
+					handlerPromise = handlerPromise.catch(function(e) {
+						logger.error('Request processing failed.', e);
 					});
 				}
 
