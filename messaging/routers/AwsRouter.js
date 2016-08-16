@@ -48,7 +48,9 @@ module.exports = function() {
 
 						delete that._pendingRequests[message.id];
 
-						if (_.isObject(message.payload)) {
+						if (_.isBoolean(message.success && !message.success)) {
+							deferred.reject('Request failed');
+						} else if (_.isObject(message.payload)) {
 							deferred.resolve(message.payload);
 						}
 					}
@@ -109,21 +111,26 @@ module.exports = function() {
 				});
 
 				if (message.sender !== null) {
-					handlerPromise = handlerPromise.then(function(response) {
+					var respond = function(success, response) {
 						var responseQueueName = getResponseChannel(message.sender);
 
 						var envelope = {
 							id: message.id,
+							success: success,
 							payload: response || {}
 						};
 
 						return that._sqsProvider.send(responseQueueName, envelope);
+					};
+
+					handlerPromise = handlerPromise.then(function(response) {
+						return respond(true, response);
+					}).catch(function(e) {
+						logger.error('Request processing failed. Sending failure message.', e);
+
+						return respond(false);
 					});
 				}
-
-				handlerPromise = handlerPromise.catch(function(e) {
-					logger.error('Request processing failed. Unable to respond.', e);
-				});
 
 				return handlerPromise;
 			});
