@@ -619,14 +619,17 @@ module.exports = function() {
 		return messageType.replace(finalStarRegex, '_star')
 			.replace(finalHatRegex, '_hat')
 			.replace(finalDotRegex, '_dot')
+			.replace(finalDollarRegex, '_dollar')
 			.replace('*', '_star_')
 			.replace('^', '_hat_')
-			.replace('.', '_dot_');
+			.replace('.', '_dot_')
+			.replace('$', '_dollar_');
 	}
 
 	var finalStarRegex = new RegExp('(\\*)$');
 	var finalHatRegex = new RegExp('(\\^)$');
 	var finalDotRegex = new RegExp('(\\.)$');
+	var finalDollarRegex = new RegExp('(\\$)$');
 
 	return SqsProvider;
 }();
