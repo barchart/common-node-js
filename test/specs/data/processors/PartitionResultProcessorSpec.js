@@ -1,13 +1,13 @@
-var PartionResultProcessor = require('./../../../../data/processors/PartionResultProcessor');
+var PartitionResultProcessor = require('./../../../../data/processors/PartitionResultProcessor');
 
-describe('When a PartionResultProcessor is created with no configuration', function() {
+describe('When a PartitionResultProcessor is created with no configuration', function() {
 	'use strict';
 
 	var processor;
 	var configuration;
 
 	beforeEach(function() {
-		processor = new PartionResultProcessor(configuration = { });
+		processor = new PartitionResultProcessor(configuration = { });
 	});
 
 	describe('and a null value is processed', function() {
@@ -93,14 +93,14 @@ describe('When a PartionResultProcessor is created with no configuration', funct
 	});
 });
 
-describe('When a PartionResultProcessor is created for partitions with 15 items', function() {
+describe('When a PartitionResultProcessor is created for partitions with 15 items', function() {
 	'use strict';
 
 	var processor;
 	var configuration;
 
 	beforeEach(function() {
-		processor = new PartionResultProcessor(configuration = { size: 15 });
+		processor = new PartitionResultProcessor(configuration = { size: 15 });
 	});
 
 	describe('and an array with 21 items is passed', function() {
