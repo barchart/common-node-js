@@ -62,9 +62,7 @@ module.exports = function() {
 			_.forOwn(dynamicCriteria, function(defaultValue, key) {
 				var valueToUse;
 
-				if (defaultValue === 'this') {
-					valueToUse = criteria;
-				} else if (_.has(criteria, key)) {
+				if (_.has(criteria, key)) {
 					valueToUse = criteria[key];
 				}
 
