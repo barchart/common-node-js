@@ -1,13 +1,12 @@
-var PartioningResultProcessor = require('./../../../../data/processors/PartioningResultProcessor');
+var AggregateResultProcessor = require('./../../../../data/processors/AggregateResultProcessor');
 
-describe('When a PartioningResultProcessor is created with no configuration', function() {
+describe('When a AggregateResultProcessor is createdn', function() {
 	'use strict';
 
 	var processor;
-	var configuration;
 
 	beforeEach(function() {
-		processor = new PartioningResultProcessor(configuration = { });
+		processor = new AggregateResultProcessor();
 	});
 
 	it('and a null value is processed', function() {
@@ -42,16 +41,31 @@ describe('When a PartioningResultProcessor is created with no configuration', fu
 		});
 	});
 
-	it('and an array with 21 items is passed', function() {
+	it('and an array with three items is passed', function() {
 		var input;
+
+		var one;
+		var two;
+		var three;
+		var four;
+		var five;
+
 		var result;
 
 		beforeEach(function() {
-			input = [ ];
-
-			for (var i = 0; i < 21; i++) {
-				input.push(i);
-			}
+			input = [
+				[
+					one = 1,
+					two = 2
+				],
+				[
+					three = 3,
+					four = 4
+				],
+				[
+					five = 5
+				]
+			];
 
 			result = processor.process(input);
 		});
@@ -60,20 +74,28 @@ describe('When a PartioningResultProcessor is created with no configuration', fu
 			expect(result instanceof Array).toEqual(true);
 		});
 
-		it('the array should have three items (partitions)', function() {
-			expect(result.length).toEqual(3);
+		it('the array should five items', function() {
+			expect(result.length).toEqual(5);
 		});
 
-		it('the the first partition should have ten items', function() {
-			expect(result[0].length).toEqual(10);
+		it('the first item should be one', function() {
+			expect(result[0]).toEqual(one);
 		});
 
-		it('the the second partition should have ten items', function() {
-			expect(result[1].length).toEqual(10);
+		it('the second item should be one', function() {
+			expect(result[1]).toEqual(two);
 		});
 
-		it('the the third partition should have ten items', function() {
-			expect(result[1].length).toEqual(1);
+		it('the third item should be one', function() {
+			expect(result[2]).toEqual(three);
+		});
+
+		it('the fourth item should be one', function() {
+			expect(result[3]).toEqual(four);
+		});
+
+		it('the fifth item should be one', function() {
+			expect(result[4]).toEqual(five);
 		});
 	});
 });

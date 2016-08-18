@@ -8,9 +8,9 @@ var ResultProcessor = require('./../ResultProcessor');
 module.exports = function() {
 	'use strict';
 
-	var logger = log4js.getLogger('data/processors/PartioningResultProcessor');
+	var logger = log4js.getLogger('data/processors/PartionResultProcessor');
 
-	var PartioningResultProcessor = ResultProcessor.extend({
+	var PartionResultProcessor = ResultProcessor.extend({
 		init: function(configuration) {
 			this._super(configuration);
 		},
@@ -47,9 +47,9 @@ module.exports = function() {
 		},
 
 		toString: function() {
-			return '[PartioningResultProcessor]';
+			return '[PartionResultProcessor]';
 		}
 	});
 
-	return PartioningResultProcessor;
+	return PartionResultProcessor;
 }();
