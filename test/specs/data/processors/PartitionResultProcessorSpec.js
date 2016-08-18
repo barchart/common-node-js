@@ -10,11 +10,16 @@ describe('When a PartionResultProcessor is created with no configuration', funct
 		processor = new PartionResultProcessor(configuration = { });
 	});
 
-	it('and a null value is processed', function() {
+	describe('and a null value is processed', function() {
 		var result;
 
-		beforeEach(function() {
-			result = processor.process(null);
+		beforeEach(function(done) {
+			processor.process(null)
+				.then(function(r) {
+					result = r;
+
+					done();
+				});
 		});
 
 		it('an array should be returned', function() {
@@ -26,11 +31,16 @@ describe('When a PartionResultProcessor is created with no configuration', funct
 		});
 	});
 
-	it('and an undefined value is processed', function() {
+	describe('and an undefined value is processed', function() {
 		var result;
 
-		beforeEach(function() {
-			result = processor.process();
+		beforeEach(function(done) {
+			processor.process(null)
+				.then(function(r) {
+					result = r;
+
+					done();
+				});
 		});
 
 		it('an array should be returned', function() {
@@ -42,18 +52,23 @@ describe('When a PartionResultProcessor is created with no configuration', funct
 		});
 	});
 
-	it('and an array with 21 items is passed', function() {
+	describe('and an array with 21 items is passed', function() {
 		var input;
 		var result;
 
-		beforeEach(function() {
+		beforeEach(function(done) {
 			input = [ ];
 
 			for (var i = 0; i < 21; i++) {
 				input.push(i);
 			}
 
-			result = processor.process(input);
+			result = processor.process(input)
+				.then(function(r) {
+					result = r;
+
+					done();
+				});
 		});
 
 		it('an array should be returned', function() {
@@ -73,7 +88,7 @@ describe('When a PartionResultProcessor is created with no configuration', funct
 		});
 
 		it('the the third partition should have ten items', function() {
-			expect(result[1].length).toEqual(1);
+			expect(result[2].length).toEqual(1);
 		});
 	});
 });

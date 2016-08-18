@@ -10,11 +10,14 @@ describe('When a NullCoalescingResultProcessor is created', function() {
 		processor = new NullCoalescingResultProcessor(configuration = { propertyName: 'testProperty', replaceValue: 'testValue' });
 	});
 
-	it('and a target object with a null property is processed', function() {
+	describe('and a target object with a null property is processed', function() {
 		var target;
 
-		beforeEach(function() {
-			processor.process(target = { testProperty: null });
+		beforeEach(function(done) {
+			processor.process(target = { testProperty: null })
+				.then(function(r) {
+					done();
+				});
 		});
 
 		it('should assign the coalesced value to the target property', function() {
@@ -22,11 +25,14 @@ describe('When a NullCoalescingResultProcessor is created', function() {
 		});
 	});
 
-	it('and a target object with a non-null property is processed', function() {
+	describe('and a target object with a non-null property is processed', function() {
 		var target;
 
-		beforeEach(function() {
-			processor.process(target = { testProperty: 'bob' });
+		beforeEach(function(done) {
+			processor.process(target = { testProperty: 'bob' })
+				.then(function(r) {
+					done();
+				});
 		});
 
 		it('should assign the coalesced value to the target property', function() {
@@ -34,11 +40,14 @@ describe('When a NullCoalescingResultProcessor is created', function() {
 		});
 	});
 
-	it('and a target object without the property is processed', function() {
+	describe('and a target object without the property is processed', function() {
 		var target;
 
-		beforeEach(function() {
-			processor.process(target = { });
+		beforeEach(function(done) {
+			processor.process(target = { })
+				.then(function(r) {
+					done();
+				});
 		});
 
 		it('should assign the coalesced value to the target property', function() {

@@ -28,19 +28,19 @@ module.exports = function() {
 
 			var configuration = that._getConfiguration();
 
-			var partitionCount = configuration.count;
+			var partitionSize = configuration.size;
 
-			if (_.isString(partitionCount)) {
-				partitionCount = parseInt(partitionCount);
+			if (_.isString(partitionSize)) {
+				partitionSize = parseInt(partitionSize);
 			}
 
-			partitionCount = partitionCount || 10;
+			partitionSize = partitionSize || 10;
 
 			var original = results.slice(0);
 			var partitions = [ ];
 
 			while (original.length !== 0) {
-				partitions.push(original.splice(0, partitionCount));
+				partitions.push(original.splice(0, partitionSize));
 			}
 
 			return partitions;

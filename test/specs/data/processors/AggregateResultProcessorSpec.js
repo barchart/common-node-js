@@ -9,11 +9,16 @@ describe('When a AggregateResultProcessor is createdn', function() {
 		processor = new AggregateResultProcessor();
 	});
 
-	it('and a null value is processed', function() {
+	describe('and a null value is processed', function() {
 		var result;
 
-		beforeEach(function() {
-			result = processor.process(null);
+		beforeEach(function(done) {
+			result = processor.process(null)
+				.then(function(r) {
+					result = r;
+
+					done();
+				});
 		});
 
 		it('an array should be returned', function() {
@@ -25,11 +30,16 @@ describe('When a AggregateResultProcessor is createdn', function() {
 		});
 	});
 
-	it('and an undefined value is processed', function() {
+	describe('and an undefined value is processed', function() {
 		var result;
 
-		beforeEach(function() {
-			result = processor.process();
+		beforeEach(function(done) {
+			result = processor.process()
+				.then(function(r) {
+					result = r;
+
+					done();
+				});
 		});
 
 		it('an array should be returned', function() {
@@ -41,7 +51,7 @@ describe('When a AggregateResultProcessor is createdn', function() {
 		});
 	});
 
-	it('and an array with three items is passed', function() {
+	describe('and an array with three items is passed', function() {
 		var input;
 
 		var one;
@@ -52,7 +62,7 @@ describe('When a AggregateResultProcessor is createdn', function() {
 
 		var result;
 
-		beforeEach(function() {
+		beforeEach(function(done) {
 			input = [
 				[
 					one = 1,
@@ -67,7 +77,12 @@ describe('When a AggregateResultProcessor is createdn', function() {
 				]
 			];
 
-			result = processor.process(input);
+			result = processor.process(input)
+				.then(function(r) {
+					result = r;
+
+					done();
+				});
 		});
 
 		it('an array should be returned', function() {
