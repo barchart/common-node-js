@@ -92,3 +92,50 @@ describe('When a PartionResultProcessor is created with no configuration', funct
 		});
 	});
 });
+
+describe('When a PartionResultProcessor is created for partitions with 15 items', function() {
+	'use strict';
+
+	var processor;
+	var configuration;
+
+	beforeEach(function() {
+		processor = new PartionResultProcessor(configuration = { size: 15 });
+	});
+
+	describe('and an array with 21 items is passed', function() {
+		var input;
+		var result;
+
+		beforeEach(function(done) {
+			input = [ ];
+
+			for (var i = 0; i < 21; i++) {
+				input.push(i);
+			}
+
+			result = processor.process(input)
+				.then(function(r) {
+					result = r;
+
+					done();
+				});
+		});
+
+		it('an array should be returned', function() {
+			expect(result instanceof Array).toEqual(true);
+		});
+
+		it('the array should have two items (partitions)', function() {
+			expect(result.length).toEqual(2);
+		});
+
+		it('the the first partition should have ten items', function() {
+			expect(result[0].length).toEqual(15);
+		});
+
+		it('the the second partition should have ten items', function() {
+			expect(result[1].length).toEqual(6);
+		});
+	});
+});
