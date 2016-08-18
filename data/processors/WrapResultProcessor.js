@@ -18,13 +18,23 @@ module.exports = function() {
 		_process: function(results) {
 			var configuration = this._getConfiguration();
 
+			var propertyName = configuration.propertyName;
+
 			if (!_.isString(configuration.propertyName)) {
 				return;
 			}
 
-			var returnRef = { };
+			var wrapArray = _.isBoolean(configuration.wrapArray) && configuration.wrapArray;
 
-			attributes.write(returnRef, configuration.propertyName, results);
+			var returnRef;
+
+			if (_.isArray(results) && wrapArray) {
+				returnRef = _.map(results, function(item) {
+					return wrap(propertyName, item);
+				});
+			} else {
+				returnRef = wrap(propertyName, results);
+			}
 
 			return returnRef;
 		},
@@ -33,6 +43,14 @@ module.exports = function() {
 			return '[WrapResultProcessor]';
 		}
 	});
+
+	function wrap(propertyName, item) {
+		var returnRef = { };
+
+		attributes.write(returnRef, propertyName, item);
+
+		return returnRef;
+	}
 
 	return WrapResultProcessor;
 }();
