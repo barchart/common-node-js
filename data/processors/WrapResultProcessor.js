@@ -20,8 +20,8 @@ module.exports = function() {
 
 			var propertyName = configuration.propertyName;
 
-			if (!_.isString(configuration.propertyName)) {
-				return;
+			if (!_.isString(propertyName) || propertyName.length === 0) {
+				return results;
 			}
 
 			var wrapArray = _.isBoolean(configuration.wrapArray) && configuration.wrapArray;

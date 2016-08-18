@@ -18,6 +18,7 @@ var DeleteResultProcessor = require('./processors/DeleteResultProcessor');
 var DistinctResultProcessor = require('./processors/DistinctResultProcessor');
 var EmptyCoalescingResultProcessor = require('./processors/EmptyCoalescingResultProcessor');
 var EncodeUriResultProcessor = require('./processors/EncodeUriResultProcessor');
+var ExtractResultProcessor = require('./processors/ExtractResultProcessor');
 var FilterResultProcessor = require('./processors/FilterResultProcessor');
 var FirstResultProcessor = require('./processors/FirstResultProcessor');
 var FormatDateResultProcessor = require('./processors/FormatDateResultProcessor');
@@ -138,6 +139,7 @@ module.exports = function() {
 		DistinctResultProcessor: DistinctResultProcessor,
 		EmptyCoalescingResultProcessor: EmptyCoalescingResultProcessor,
 		EncodeUriResultProcessor: EncodeUriResultProcessor,
+		ExtractResultProcessor: ExtractResultProcessor,
 		FilterResultProcessor: FilterResultProcessor,
 		FirstResultProcessor: FirstResultProcessor,
 		FormatDateResultProcessor: FormatDateResultProcessor,

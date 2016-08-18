@@ -1,6 +1,6 @@
 var AggregateResultProcessor = require('./../../../../data/processors/AggregateResultProcessor');
 
-describe('When a AggregateResultProcessor is createdn', function() {
+describe('When a AggregateResultProcessor is created', function() {
 	'use strict';
 
 	var processor;
@@ -97,19 +97,19 @@ describe('When a AggregateResultProcessor is createdn', function() {
 			expect(result[0]).toEqual(one);
 		});
 
-		it('the second item should be one', function() {
+		it('the second item should be two', function() {
 			expect(result[1]).toEqual(two);
 		});
 
-		it('the third item should be one', function() {
+		it('the third item should be three', function() {
 			expect(result[2]).toEqual(three);
 		});
 
-		it('the fourth item should be one', function() {
+		it('the fourth item should be four', function() {
 			expect(result[3]).toEqual(four);
 		});
 
-		it('the fifth item should be one', function() {
+		it('the fifth item should be five', function() {
 			expect(result[4]).toEqual(five);
 		});
 	});
