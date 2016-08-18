@@ -8,6 +8,7 @@ var DataProviderFactory = require('./DataProviderFactory');
 var ResultProcessor = require('./ResultProcessor');
 
 var AddResultProcessor = require('./processors/AddResultProcessor');
+var AggregateResultProcessor = require('./processors/AggregateResultProcessor');
 var CompositeResultProcessor = require('./processors/CompositeResultProcessor');
 var ConvertResultProcessor = require('./processors/ConvertResultProcessor');
 var CopyResultProcessor = require('./processors/CopyResultProcessor');
@@ -28,6 +29,7 @@ var MapResultProcessor = require('./processors/MapResultProcessor');
 var MySqlBlobToArrayProcessor = require('./processors/MySqlBlobToArrayProcessor');
 var NullCoalescingResultProcessor = require('./processors/NullCoalescingResultProcessor');
 var OverwriteResultProcessor = require('./processors/OverwriteResultProcessor');
+var PartitionResultProcessor = require('./processors/PartitionResultProcessor');
 var ReplaceResultProcessor = require('./processors/ReplaceResultProcessor');
 var ScalarResultProcessor = require('./processors/ScalarResultProcessor');
 var SelectResultProcessor = require('./processors/SelectResultProcessor');
@@ -126,6 +128,7 @@ module.exports = function() {
 
 	var processorMap = {
 		AddResultProcessor: AddResultProcessor,
+		AggregateResultProcessor: AggregateResultProcessor,
 		ConvertResultProcessor: ConvertResultProcessor,
 		CopyResultProcessor: CopyResultProcessor,
 		CountResultProcessor: CountResultProcessor,
@@ -145,6 +148,7 @@ module.exports = function() {
 		MySqlBlobToArrayProcessor: MySqlBlobToArrayProcessor,
 		NullCoalescingResultProcessor: NullCoalescingResultProcessor,
 		OverwriteResultProcessor: OverwriteResultProcessor,
+		PartitionResultProcessor: PartitionResultProcessor,
 		ReplaceResultProcessor: ReplaceResultProcessor,
 		ScalarResultProcessor: ScalarResultProcessor,
 		SelectResultProcessor: SelectResultProcessor,
