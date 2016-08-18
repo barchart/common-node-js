@@ -96,7 +96,14 @@ module.exports = function() {
 		},
 
 		_parseResponse: function(responseText) {
-			var response = JSON.parse(responseText);
+			try {
+				var response = JSON.parse(responseText);
+			} catch (e) {
+				logger.error('Unable to parse JSON response', responseText);
+
+				throw e;
+			}
+
 			var responseCode = response.status.code;
 
 			var returnRef;
