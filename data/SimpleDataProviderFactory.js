@@ -39,6 +39,7 @@ var SortResultProcessor = require('./processors/SortResultProcessor');
 var SplitResultProcessor = require('./processors/SplitResultProcessor');
 var SubtractResultProcessor = require('./processors/SubtractResultProcessor');
 var UppercaseResultProcessor = require('./processors/UppercaseResultProcessor');
+var WrapResultProcessor = require('./processors/WrapResultProcessor');
 
 var ContextQueryProvider = require('./providers/ContextQueryProvider');
 var EnvironmentQueryProvider = require('./providers/EnvironmentQueryProvider');
@@ -158,6 +159,7 @@ module.exports = function() {
 		SplitResultProcessor: SplitResultProcessor,
 		SubtractResultProcessor: SubtractResultProcessor,
 		UppercaseResultProcessor: UppercaseResultProcessor,
+		WrapResultProcessor: WrapResultProcessor,
 		Default: ResultProcessor
 	};
 
