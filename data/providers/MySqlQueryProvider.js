@@ -41,7 +41,9 @@ module.exports = function() {
 				});
 			}).finally(function() {
 				connection.end(function(endError) {
-					logger.error('MySql connection error (on close)', endError);
+					if (!_.isUndefined(endError)) {
+						logger.error('MySql connection error (on close)', endError);
+					}
 				});
 			});
 		},
