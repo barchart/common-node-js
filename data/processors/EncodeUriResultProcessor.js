@@ -1,33 +1,33 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 
 var attributes = require('common/lang/attributes');
+var is = require('common/lang/is');
 
 var MutateResultProcessor = require('./MutateResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/processors/EncodeUriResultProcessor');
+	const logger = log4js.getLogger('data/processors/EncodeUriResultProcessor');
 
-	var EncodeUriResultProcessor = MutateResultProcessor.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class EncodeUriResultProcessor extends MutateResultProcessor {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_processItem: function(resultItemToProcess, configurationToUse) {
-			var propertyName = configurationToUse.propertyName;
-			var propertyValue = attributes.read(resultItemToProcess, propertyName);
+		_processItem(resultItemToProcess, configurationToUse) {
+			const propertyName = configurationToUse.propertyName;
+			const propertyValue = attributes.read(resultItemToProcess, propertyName);
 
-			if (_.isString(propertyValue)) {
+			if (is.string(propertyValue)) {
 				attributes.write(resultItemToProcess, propertyName, encodeURIComponent(propertyValue));
 			}
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[EncodeUriResultProcessor]';
 		}
-	});
+	}
 
 	return EncodeUriResultProcessor;
-}();
+})();

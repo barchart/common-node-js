@@ -1,22 +1,22 @@
 var Container = require('./../../Container');
 var SocketSubscriptionEndpoint = require('./SocketSubscriptionEndpoint');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var SocketSubscriptionContainer = Container.extend({
-		init: function(port, path, secure) {
-			this._super(port, path, secure);
-		},
+	class SocketSubscriptionContainer extends Container {
+		constructor(port, path, secure) {
+			super(port, path, secure);
+		}
 
-		_getEndpointType: function() {
+		_getEndpointType() {
 			return SocketSubscriptionEndpoint;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[SocketSubscriptionContainer]';
 		}
-	});
+	}
 
 	return SocketSubscriptionContainer;
-}();
+})();

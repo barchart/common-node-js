@@ -1,74 +1,72 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 
 var attributes = require('common/lang/attributes');
+var is = require('common/lang/is');
 
 var ResultProcessor = require('./../ResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/processors/MutateResultProcessor');
+	const logger = log4js.getLogger('data/processors/MutateResultProcessor');
 
-	var MutateResultProcessor = ResultProcessor.extend({
-		init: function(configuration) {
-			this._super(configuration);
+	class MutateResultProcessor extends ResultProcessor {
+		constructor(configuration) {
+			super(configuration);
 
-			var configurationArray;
+			let configurationArray;
 
-			if (_.isArray(configuration.items)) {
+			if (is.array(configuration.items)) {
 				configurationArray = configuration.items;
 			} else {
 				configurationArray = [configuration];
 			}
 
 			this._configurationArray = configurationArray;
-		},
+		}
 
-		_process: function(results) {
-			var that = this;
-
-			if (_.isUndefined(results) || _.isNull(results)) {
-				logger.warn('Skipping result processor (' + that.toString() + ') due to undefined or null results.');
+		_process(results) {
+			if (is.undefined(results) || is.null(results)) {
+				logger.warn('Skipping result processor (' + this.toString() + ') due to undefined or null results.');
 
 				return results;
 			}
 
-			var resultsToProcess;
+			let resultsToProcess;
 
-			if (_.isArray(results)) {
+			if (is.array(results)) {
 				resultsToProcess = results;
 			} else {
 				resultsToProcess = [results];
 			}
 
-			var processedResults = _.map(resultsToProcess, function(result) {
-				_.forEach(that._configurationArray, function(configurationItem) {
-					that._processItem(result, configurationItem);
+			const processedResults = resultsToProcess.map((result) => {
+				this._configurationArray.forEach((configurationItem) => {
+					this._processItem(result, configurationItem);
 				});
 
 				return result;
 			});
 
-			var returnRef;
+			let returnRef;
 
-			if (_.isArray(results)) {
+			if (is.array(results)) {
 				returnRef = processedResults;
 			} else {
 				returnRef = processedResults[0];
 			}
 
 			return returnRef;
-		},
+		}
 
-		_processItem: function(resultItemToProcess, configurationToUse) {
+		_processItem(resultItemToProcess, configurationToUse) {
 			return;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[MutateResultProcessor]';
 		}
-	});
+	}
 
 	return MutateResultProcessor;
-}();
+})();

@@ -4,12 +4,16 @@ var Event = require('common/messaging/Event');
 
 var Endpoint = require('./../../Endpoint');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var SocketSubscriptionEndpoint = Endpoint.extend({
-		init: function(channel, roomsCommand, responseCommand, responseEventType) {
-			this._super(emptyCommand);
+	const emptyCommand = CommandHandler.fromFunction(() => {
+		return null;
+	});
+
+	class SocketSubscriptionEndpoint extends Endpoint {
+		constructor(channel, roomsCommand, responseCommand, responseEventType) {
+			super(emptyCommand);
 
 			assert.argumentIsRequired(channel, 'channel', String);
 			assert.argumentIsRequired(roomsCommand, 'roomsCommand', CommandHandler, 'CommandHandler');
@@ -21,32 +25,28 @@ module.exports = function() {
 
 			this._responseCommand = responseCommand || emptyCommand;
 			this._responseEventType = responseEventType || '';
-		},
+		}
 
-		getChannel: function() {
+		getChannel() {
 			return this._channel;
-		},
+		}
 
-		getRoomsCommand: function() {
-			return this._roomsCommand;
-		},
+		getRoomsCommand() {
+			return this._roomCommand;
+		}
 
-		getResponseCommand: function() {
+		getResponseCommand() {
 			return this._responseCommand;
-		},
+		}
 
-		getResponseEventType: function() {
+		getResponseEventType() {
 			return this._responseEventType;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[SocketSubscriptionEndpoint]';
 		}
-	});
-
-	var emptyCommand = CommandHandler.fromFunction(function() {
-		return null;
-	});
+	}
 
 	return SocketSubscriptionEndpoint;
-}();
+})();

@@ -1,77 +1,76 @@
-var _ = require('lodash');
-var Class = require('class.extend');
 var log4js = require('log4js');
 
 var assert = require('common/lang/assert');
+var is = require('common/lang/is');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('common-node/network/server/endpoints/Container');
+	const logger = log4js.getLogger('common-node/network/server/endpoints/Container');
 
-	var Container = Class.extend({
-		init: function(port, path, secure) {
+	let sequencer = 0;
+
+	class Container {
+		constructor(port, path, secure) {
 			assert.argumentIsOptional(port, 'port', Number);
 			assert.argumentIsOptional(path, 'path', String);
 			assert.argumentIsOptional(secure, 'secure', Boolean);
 
-			var sequence = sequencer++;
+			const sequence = sequencer++;
 
 			this._port = getEffectivePort(port);
 			this._path = path || null;
 			this._secure = secure || false;
 
 			this._endpoints = [];
-		},
+		}
 
-		addEndpoint: function(endpoint) {
+		addEndpoint(endpoint) {
 			assert.argumentIsRequired(endpoint, 'endpoint', this.getEndpointType(), this._getEndpointType().toString());
 
 			this._endpoints.push(endpoint);
 
 			return this;
-		},
+		}
 
-		getEndpoints: function() {
+		getEndpoints() {
 			return this._endpoints;
-		},
+		}
 
-		getEndpointType: function() {
+		getEndpointType() {
 			return this._getEndpointType();
-		},
+		}
 
-		_getEndpointType: function() {
+		_getEndpointType() {
 			return null;
-		},
+		}
 
-		getPort: function() {
+		getPort() {
 			return this._port;
-		},
+		}
 
-		getPath: function() {
+		getPath() {
 			return this._path;
-		},
+		}
 
-		getIsSecure: function() {
+		getIsSecure() {
 			return this._secure;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[Container]';
 		}
-	});
-
-	var sequencer = 0;
+	}
 
 	function getEffectivePort(port) {
-		var returnVal;
+		let returnVal;
 
-		if (_.isNumber(port)) {
+		if (is.number(port)) {
 			returnVal = port;
 		} else {
 			returnVal = parseInt(process.env.PORT);
 
-			if (_.isNaN(returnVal)) {
+			if (!is.number(returnVal)) {
 				returnVal = 80;
 			}
 		}
@@ -80,4 +79,4 @@ module.exports = function() {
 	}
 
 	return Container;
-}();
+})();

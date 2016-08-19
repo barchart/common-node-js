@@ -1,5 +1,3 @@
-var _ = require('lodash');
-var Class = require('class.extend');
 var log4js = require('log4js');
 
 var assert = require('common/lang/assert');
@@ -7,35 +5,33 @@ var assert = require('common/lang/assert');
 var QueryProvider = require('./QueryProvider');
 var ResultProcessor = require('./ResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/DataProvider');
+	const logger = log4js.getLogger('data/DataProvider');
 
-	var DataProvider = Class.extend({
-		init: function(queryProvider, resultProcessor) {
+	class DataProvider {
+		constructor(queryProvider, resultProcessor) {
 			assert.argumentIsRequired(queryProvider, 'queryProvider', QueryProvider, 'QueryProvider');
 			assert.argumentIsRequired(resultProcessor, 'resultProcessor', ResultProcessor, 'ResultProcessor');
 
 			this._queryProvider = queryProvider;
 			this._resultProcessor = resultProcessor;
-		},
+		}
 
-		getData: function(criteria) {
-			var that = this;
-
-			return that._queryProvider.runQuery(criteria)
-				.then(function(data) {
-					return that._resultProcessor.process(data);
+		getData(criteria) {
+			return this._queryProvider.runQuery(criteria)
+				.then((data) => {
+					return this._resultProcessor.process(data);
 				});
-		},
+		}
 
-		getCriteriaIsValid: function(criteria) {
+		getCriteriaIsValid(criteria) {
 			return this._queryProvider.getCriteriaIsValid(criteria);
-		},
+		}
 
-		toString: function() {
-			var resultProcessorString;
+		toString() {
+			let resultProcessorString;
 
 			if (this._resultProcessor) {
 				resultProcessorString = this._resultProcessor.toString();
@@ -43,9 +39,9 @@ module.exports = function() {
 				resultProcessorString = '[none]';
 			}
 
-			return '[DataProvider (QueryProvider=' + this._queryProvider.toString() + ', ResultProcessor=' + resultProcessorString + ')]';
+			return `[DataProvider (QueryProvider=${this._queryProvider.toString()}, ResultProcessor=${resultProcessorString})]`;
 		}
-	});
+	}
 
 	return DataProvider;
-}();
+})();

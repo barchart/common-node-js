@@ -1,43 +1,46 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 
 var attributes = require('common/lang/attributes');
+var is = require('common/lang/is');
 
 var MutateResultProcessor = require('./MutateResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/processors/CountResultProcessor');
+	const logger = log4js.getLogger('data/processors/CountResultProcessor');
 
-	var CountResultProcessor = MutateResultProcessor.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class CountResultProcessor extends MutateResultProcessor {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_processItem: function(resultItemToProcess, configurationToUse) {
-			if (!(_.isString(configurationToUse.sourcePropertyName) && attributes.has(resultItemToProcess, configurationToUse.sourcePropertyName))) {
+		_processItem(resultItemToProcess, configurationToUse) {
+			if (!(is.string(configurationToUse.sourcePropertyName) && attributes.has(resultItemToProcess, configurationToUse.sourcePropertyName))) {
 				return;
 			}
 
-			var equalsPredicate;
+			let equalsPredicate;
 
-			if (_.isObject(configurationToUse.criteria) && _.isObject(configurationToUse.criteria.equals)) {
-				equalsPredicate = function(item) {
-					return _.every(configurationToUse.criteria.equals, function(expectedValue, propertyName) {
-						return attributes.has(item, propertyName) && attributes.read(item, propertyName) === expectedValue;
-					});
+			if (is.object(configurationToUse.criteria) && is.object(configurationToUse.criteria.equals)) {
+				equalsPredicate = (item) => {
+					return Object.keys(configurationToUse.criteria.equals)
+						.every((propertyName) => {
+							const expectedValue = configurationToUse.criteria.equals[propertyName];
+
+							return attributes.has(item, propertyName) && attributes.read(item, propertyName) === expectedValue;
+						});
 				};
 			} else {
-				equalsPredicate = function(item) {
+				equalsPredicate = (item) => {
 					return true;
 				};
 			}
 
-			var objectToCount = attributes.read(resultItemToProcess, configurationToUse.sourcePropertyName);
+			const objectToCount = attributes.read(resultItemToProcess, configurationToUse.sourcePropertyName);
 
-			var count = _.reduce(objectToCount, function(current, item) {
-				var returnVal;
+			const count = objectToCount.reduce((current, item) => {
+				let returnVal;
 
 				if (equalsPredicate(item)) {
 					returnVal = current + 1;
@@ -48,21 +51,21 @@ module.exports = function() {
 				return returnVal;
 			}, 0);
 
-			var targetPropertyName;
+			let targetPropertyName;
 
-			if (_.isString(configurationToUse.targetPropertyName)) {
+			if (is.string(configurationToUse.targetPropertyName)) {
 				targetPropertyName = configurationToUse.targetPropertyName;
 			} else {
 				targetPropertyName = configurationToUse.sourcePropertyName;
 			}
 
 			attributes.write(resultItemToProcess, targetPropertyName, count);
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[CountResultProcessor]';
 		}
-	});
+	}
 
 	return CountResultProcessor;
-}();
+})();

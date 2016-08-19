@@ -1,24 +1,22 @@
-var _ = require('lodash');
 var aws = require('aws-sdk');
-var when = require('when');
 var log4js = require('log4js');
 
 var assert = require('common/lang/assert');
 var Disposable = require('common/lang/Disposable');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('common-node/aws/SnsProvider');
+	const logger = log4js.getLogger('common-node/aws/SnsProvider');
 
-	var SnsProvider = Disposable.extend({
-		init: function(configuration) {
+	class SnsProvider extends Disposable {
+		constructor(configuration) {
+			super();
+
 			assert.argumentIsRequired(configuration, 'configuration');
 			assert.argumentIsRequired(configuration.region, 'configuration.region', String);
 			assert.argumentIsRequired(configuration.prefix, 'configuration.prefix', String);
 			assert.argumentIsOptional(configuration.apiVersion, 'configuration.apiVersion', String);
-
-			this._super();
 
 			this._sns = null;
 
@@ -29,82 +27,77 @@ module.exports = function() {
 
 			this._topicPromises = {};
 			this._subscriptionPromises = {};
-		},
+		}
 
-		start: function() {
-			var that = this;
-
-			if (that.getIsDisposed()) {
+		start() {
+			if (this.getIsDisposed()) {
 				throw new Error('The SNS Provider has been disposed.');
 			}
 
-			if (that._startPromise === null) {
-				that._startPromise = when.try(function() {
-					aws.config.update({region: that._configuration.region});
+			if (this._startPromise === null) {
+				this._startPromise = Promise.resolve()
+					.then(() => {
+						aws.config.update({region: this._configuration.region});
 
-					that._sns = new aws.SNS({apiVersion: that._configuration.apiVersion || '2010-03-31'});
-				}).then(function() {
-					logger.info('SNS provider started');
+						this._sns = new aws.SNS({apiVersion: this._configuration.apiVersion || '2010-03-31'});
+					}).then(() => {
+						logger.info('SNS provider started');
 
-					that._started = true;
+						this._started = true;
 
-					return that._started;
-				}).catch(function(e) {
-					logger.error('SNS provider failed to start', e);
+						return this._started;
+					}).catch((e) => {
+						logger.error('SNS provider failed to start', e);
 
-					throw e;
-				});
+						throw e;
+					});
 			}
 
-			return that._startPromise;
-		},
+			return this._startPromise;
+		}
 
-		getTopicArn: function(topicName) {
+		getTopicArn(topicName) {
 			assert.argumentIsRequired(topicName, 'topicName', String);
 
-			var that = this;
-
-			if (that.getIsDisposed()) {
+			if (this.getIsDisposed()) {
 				throw new Error('The SNS Provider has been disposed.');
 			}
 
-			if (!that._started) {
+			if (!this._started) {
 				throw new Error('The SNS Provider has not been started.');
 			}
 
-			var qualifiedTopicName = getQualifiedTopicName(that._configuration.prefix, topicName);
+			const qualifiedTopicName = getQualifiedTopicName(this._configuration.prefix, topicName);
 
-			if (!_.has(that._topicPromises, qualifiedTopicName)) {
+			if (!this._topicPromises.hasOwnProperty(qualifiedTopicName)) {
 				logger.debug('The SNS Provider has not cached the topic ARN. Issuing request to create topic.');
 
-				that._topicPromises[qualifiedTopicName] = that.createTopic(topicName);
+				this._topicPromises[qualifiedTopicName] = this.createTopic(topicName);
 			}
 
-			return that._topicPromises[qualifiedTopicName];
-		},
+			return this._topicPromises[qualifiedTopicName];
+		}
 
-		createTopic: function(topicName) {
+		createTopic(topicName) {
 			assert.argumentIsRequired(topicName, 'topicName', String);
 
-			var that = this;
-
-			if (that.getIsDisposed()) {
+			if (this.getIsDisposed()) {
 				throw new Error('The SNS Provider has been disposed.');
 			}
 
-			if (!that._started) {
+			if (!this._started) {
 				throw new Error('The SNS Provider has not been started.');
 			}
 
-			return when.promise(
-				function(resolveCallback, rejectCallback) {
-					var qualifiedTopicName = getQualifiedTopicName(that._configuration.prefix, topicName);
+			return new Promise(
+				(resolveCallback, rejectCallback) => {
+					const qualifiedTopicName = getQualifiedTopicName(this._configuration.prefix, topicName);
 
 					logger.debug('Creating SNS topic:', qualifiedTopicName);
 
-					that._sns.createTopic({
+					this._sns.createTopic({
 						Name: qualifiedTopicName
-					}, function(error, data) {
+					}, (error, data) => {
 						if (error === null) {
 							logger.info('SNS topic created:', qualifiedTopicName);
 
@@ -118,32 +111,30 @@ module.exports = function() {
 					});
 				}
 			);
-		},
+		}
 
-		deleteTopic: function(topicName) {
+		deleteTopic(topicName) {
 			assert.argumentIsRequired(topicName, 'topicName', String);
 
-			var that = this;
-
-			if (that.getIsDisposed()) {
+			if (this.getIsDisposed()) {
 				throw new Error('The SNS Provider has been disposed.');
 			}
 
-			if (!that._started) {
+			if (!this._started) {
 				throw new Error('The SNS Provider has not been started.');
 			}
 
-			return that.getTopicArn(topicName)
-				.then(function(topicArn) {
-					var qualifiedTopicName = getQualifiedTopicName(that._configuration.prefix, topicName);
+			return this.getTopicArn(topicName)
+				.then((topicArn) => {
+					const qualifiedTopicName = getQualifiedTopicName(this._configuration.prefix, topicName);
 
-					return when.promise(
-						function(resolveCallback, rejectCallback) {
+					return new Promise(
+						(resolveCallback, rejectCallback) => {
 							logger.debug('Deleting SNS topic:', qualifiedTopicName);
 
-							that._sns.deleteTopic({
+							this._sns.deleteTopic({
 								TopicArn: topicArn
-							}, function(error, data) {
+							}, (error, data) => {
 								if (error === null) {
 									logger.info('SNS topic deleted:', qualifiedTopicName);
 
@@ -158,35 +149,33 @@ module.exports = function() {
 						}
 					);
 				});
-		},
+		}
 
-		publish: function(topicName, payload) {
+		publish(topicName, payload) {
 			assert.argumentIsRequired(topicName, 'topicName', String);
 			assert.argumentIsRequired(payload, 'payload', Object);
 
-			var that = this;
-
-			if (that.getIsDisposed()) {
+			if (this.getIsDisposed()) {
 				throw new Error('The SNS Provider has been disposed.');
 			}
 
-			if (!that._started) {
+			if (!this._started) {
 				throw new Error('The SNS Provider has not been started.');
 			}
 
-			return that.getTopicArn(topicName)
-				.then(function(topicArn) {
-					var qualifiedTopicName = getQualifiedTopicName(that._configuration.prefix, topicName);
+			return this.getTopicArn(topicName)
+				.then((topicArn) => {
+					const qualifiedTopicName = getQualifiedTopicName(this._configuration.prefix, topicName);
 
-					return when.promise(
-						function(resolveCallback, rejectCallback) {
+					return new Promise(
+						(resolveCallback, rejectCallback) => {
 							logger.debug('Publishing to SNS topic:', qualifiedTopicName);
 							logger.trace(payload);
 
-							that._sns.publish({
+							this._sns.publish({
 								TopicArn: topicArn,
 								Message: JSON.stringify(payload)
-							}, function(error, data) {
+							}, (error, data) => {
 								if (error === null) {
 									logger.info('Published to SNS topic:', qualifiedTopicName);
 
@@ -200,51 +189,49 @@ module.exports = function() {
 						}
 					);
 				});
-		},
+		}
 
-		subscribe: function(topicName, queueArn) {
+		subscribe(topicName, queueArn) {
 			assert.argumentIsRequired(topicName, 'topicName', String);
 			assert.argumentIsRequired(queueArn, 'queueArn', String);
 
-			var that = this;
-
-			if (that.getIsDisposed()) {
+			if (this.getIsDisposed()) {
 				throw new Error('The SNS Provider has been disposed.');
 			}
 
-			if (!that._started) {
+			if (!this._started) {
 				throw new Error('The SNS Provider has not been started.');
 			}
 
-			var qualifiedTopicName = getQualifiedTopicName(that._configuration.prefix, topicName);
+			const qualifiedTopicName = getQualifiedTopicName(this._configuration.prefix, topicName);
 
-			if (!_.has(that._subscriptionPromises, qualifiedTopicName)) {
-				that._subscriptionPromises[qualifiedTopicName] = that.getTopicArn(topicName)
-					.then(function(topicArn) {
-						return when.promise(
-							function(resolveCallback, rejectCallback) {
+			if (!this._subscriptionPromises.hasOwnProperty(qualifiedTopicName)) {
+				this._subscriptionPromises[qualifiedTopicName] = this.getTopicArn(topicName)
+					.then((topicArn) => {
+						return new Promise(
+							(resolveCallback, rejectCallback) => {
 								logger.debug('Subscribing SQS queue to SNS topic:', qualifiedTopicName);
 
-								that._sns.subscribe({
+								this._sns.subscribe({
 									'TopicArn': topicArn,
 									'Endpoint': queueArn,
 									'Protocol': 'sqs'
-								}, function(error, data) {
+								}, (error, data) => {
 									if (error === null) {
 										logger.info('SNS subscription to SQS topic complete:', qualifiedTopicName);
 
-										resolveCallback(Disposable.fromAction(function() {
-											if (that.getIsDisposed()) {
+										resolveCallback(Disposable.fromAction(() => {
+											if (this.getIsDisposed()) {
 												return;
 											}
 
 											logger.debug('Unsubscribing SQS queue from SNS topic:', qualifiedTopicName);
 
-											delete that._subscriptionPromises[qualifiedTopicName];
+											delete this._subscriptionPromises[qualifiedTopicName];
 
-											that._sns.unsubscribe({
+											this._sns.unsubscribe({
 												SubscriptionArn: data.SubscriptionArn
-											}, function(error, data) {
+											}, (error, data) => {
 												if (error === null) {
 													logger.info('SQS unsubscribe from SNS topic complete:', qualifiedTopicName);
 												} else {
@@ -265,20 +252,20 @@ module.exports = function() {
 					});
 			}
 
-			return that._subscriptionPromises[qualifiedTopicName];
-		},
+			return this._subscriptionPromises[qualifiedTopicName];
+		}
 
-		_onDispose: function() {
+		_onDispose() {
 			this._topicPromises = null;
 			this._subscriptionPromises = null;
 
 			logger.debug('SNS provider disposed');
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[SnsProvider]';
 		}
-	});
+	}
 
 	function getQualifiedTopicName(prefix, topicName) {
 		return sanitizedName(prefix + '-' + topicName);
@@ -295,10 +282,10 @@ module.exports = function() {
 			.replace('$', '_dollar_');
 	}
 
-	var finalStarRegex = new RegExp('(\\*)$');
-	var finalHatRegex = new RegExp('(\\^)$');
-	var finalDotRegex = new RegExp('(\\.)$');
-	var finalDollarRegex = new RegExp('(\\$)$');
+	const finalStarRegex = new RegExp('(\\*)$');
+	const finalHatRegex = new RegExp('(\\^)$');
+	const finalDotRegex = new RegExp('(\\.)$');
+	const finalDollarRegex = new RegExp('(\\$)$');
 
 	return SnsProvider;
-}();
+})();

@@ -1,28 +1,26 @@
-var Class = require('class.extend');
-
 var assert = require('common/lang/assert');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var Verb = Class.extend({
-		init: function(code) {
+	class Verb {
+		constructor(code) {
 			assert.argumentIsRequired(code, 'code', String);
 
 			this._code = code;
-		},
+		}
 
-		getCode: function() {
+		getCode() {
 			return this._code;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[Verb (code=' + this._code + ')]';
 		}
-	});
+	}
 
 	function addVerb(verb) {
-		var code = verb.getCode();
+		const code = verb.getCode();
 
 		Verb[code] = verb;
 	}
@@ -34,4 +32,4 @@ module.exports = function() {
 	addVerb(new Verb('OPTIONS'));
 
 	return Verb;
-}();
+})();

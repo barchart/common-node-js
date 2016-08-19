@@ -1,30 +1,26 @@
-var Class = require('class.extend');
 var log4js = require('log4js');
 var pg = require('pg');
-var when = require('when');
 
 var Client = require('./Client');
 var ClientProvider = require('./ClientProvider');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('common-node/database/postgres/DirectClientProvider');
+	const logger = log4js.getLogger('common-node/database/postgres/DirectClientProvider');
 
-	var DirectClientProvider = ClientProvider.extend({
-		init: function(host, database, username, password, port, applicationName) {
-			this._super(host, database, username, password, port, applicationName);
-		},
+	class DirectClientProvider extends ClientProvider {
+		constructor(host, database, username, password, port, applicationName) {
+			super(host, database, username, password, port, applicationName);
+		}
 
-		_getClient: function() {
-			var that = this;
-
+		_getClient() {
 			logger.debug('Creating new connection.');
 
-			return when.promise(function(resolveCallback, rejectCallback) {
-				var pgClient = new pg.Client(that._getConfiguration());
+			return new Promise((resolveCallback, rejectCallback) => {
+				const pgClient = new pg.Client(this._getConfiguration());
 
-				pgClient.connect(function(err) {
+				pgClient.connect((err) => {
 					if (err) {
 						rejectCallback(err);
 					} else {
@@ -34,29 +30,33 @@ module.exports = function() {
 					}
 				});
 			});
-		},
+		}
 
-		_onDispose: function() {
+		_onDispose() {
 			pg.end();
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[DirectClientProvider]';
 		}
-	});
+	}
 
-	var DirectClient = Client.extend({
-		init: function(pgClient) {
-			this._super(pgClient, {});
-		},
+	class DirectClient extends Client {
+		constructor(pgClient) {
+			super(pgClient, {});
+		}
 
-		_onDispose: function() {
+		_onDispose() {
 			this._pgClient.end();
 			this._pgClient = null;
 
 			logger.debug('Connection disposed');
 		}
-	});
+
+		toString() {
+			return '[DirectClient]';
+		}
+	}
 
 	return DirectClientProvider;
-}();
+})();

@@ -1,35 +1,35 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 
 var attributes = require('common/lang/attributes');
+var is = require('common/lang/is');
 
 var ResultProcessor = require('./../ResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/processors/WrapResultProcessor');
+	const logger = log4js.getLogger('data/processors/WrapResultProcessor');
 
-	var WrapResultProcessor = ResultProcessor.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class WrapResultProcessor extends ResultProcessor {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_process: function(results) {
-			var configuration = this._getConfiguration();
+		_process(results) {
+			const configuration = this._getConfiguration();
 
-			var propertyName = configuration.propertyName;
+			const propertyName = configuration.propertyName;
 
-			if (!_.isString(propertyName) || propertyName.length === 0) {
+			if (!is.string(propertyName) || propertyName.length === 0) {
 				return results;
 			}
 
-			var wrapArray = _.isBoolean(configuration.wrapArray) && configuration.wrapArray;
+			const wrapArray = is.boolean(configuration.wrapArray) && configuration.wrapArray;
 
-			var returnRef;
+			let returnRef;
 
-			if (_.isArray(results) && wrapArray) {
-				returnRef = _.map(results, function(item) {
+			if (is.array(results) && wrapArray) {
+				returnRef = results.map((item) => {
 					return wrap(propertyName, item);
 				});
 			} else {
@@ -37,15 +37,15 @@ module.exports = function() {
 			}
 
 			return returnRef;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[WrapResultProcessor]';
 		}
-	});
+	}
 
 	function wrap(propertyName, item) {
-		var returnRef = { };
+		const returnRef = { };
 
 		attributes.write(returnRef, propertyName, item);
 
@@ -53,4 +53,4 @@ module.exports = function() {
 	}
 
 	return WrapResultProcessor;
-}();
+})();

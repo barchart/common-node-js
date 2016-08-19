@@ -1,29 +1,29 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 
 var attributes = require('common/lang/attributes');
+var is = require('common/lang/is');
 
 var MutateResultProcessor = require('./MutateResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/processors/SignResultProcessor');
+	const logger = log4js.getLogger('data/processors/SignResultProcessor');
 
-	var SignResultProcessor = MutateResultProcessor.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class SignResultProcessor extends MutateResultProcessor {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_processItem: function(resultItemToProcess, configurationToUse) {
-			var propertyValue = attributes.read(resultItemToProcess, configurationToUse.sourcePropertyName);
+		_processItem(resultItemToProcess, configurationToUse) {
+			let propertyValue = attributes.read(resultItemToProcess, configurationToUse.sourcePropertyName);
 
-			if (_.isString(propertyValue)) {
+			if (is.string(propertyValue)) {
 				propertyValue = parseFloat(propertyValue);
 			}
 
-			if (_.isNumber(propertyValue) && !_.isNaN(propertyValue)) {
-				var signValue;
+			if (is.number(propertyValue)) {
+				let signValue;
 
 				if (propertyValue === 0) {
 					signValue = configurationToUse.targetPropertyValue.zero;
@@ -35,12 +35,12 @@ module.exports = function() {
 
 				attributes.write(resultItemToProcess, configurationToUse.targetPropertyName, signValue);
 			}
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[SignResultProcessor]';
 		}
-	});
+	}
 
 	return SignResultProcessor;
-}();
+})();

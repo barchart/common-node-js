@@ -1,35 +1,35 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 
 var attributes = require('common/lang/attributes');
+var is = require('common/lang/is');
 
 var MutateResultProcessor = require('./MutateResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/processors/MapResultProcessor');
+	const logger = log4js.getLogger('data/processors/MapResultProcessor');
 
-	var MapResultProcessor = MutateResultProcessor.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class MapResultProcessor extends MutateResultProcessor {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_processItem: function(resultItemToProcess, configurationToUse) {
-			var propertyName = configurationToUse.propertyName;
-			var map = configurationToUse.map;
+		_processItem(resultItemToProcess, configurationToUse) {
+			const propertyName = configurationToUse.propertyName;
+			const map = configurationToUse.map;
 
-			var propertyValue = attributes.read(resultItemToProcess, propertyName);
+			const propertyValue = attributes.read(resultItemToProcess, propertyName);
 
-			if (_.has(map, propertyValue)) {
+			if (map.hasOwnProperty(propertyValue)) {
 				attributes.write(resultItemToProcess, propertyName, map[propertyValue]);
 			}
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[MapResultProcessor]';
 		}
-	});
+	}
 
 	return MapResultProcessor;
-}();
+})();

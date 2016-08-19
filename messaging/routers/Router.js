@@ -1,144 +1,131 @@
-var _ = require('lodash');
 var log4js = require('log4js');
-var when = require('when');
 
 var assert = require('common/lang/assert');
 var Event = require('common/messaging/Event');
 var Disposable = require('common/lang/Disposable');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('common-node/messaging/routers/Router');
+	const logger = log4js.getLogger('common-node/messaging/routers/Router');
 
-	var Router = Disposable.extend({
-		init: function(suppressExpressions) {
-			assert.argumentIsOptional(suppressExpressions, 'suppressExpressions', Array);
-
-			if (suppressExpressions) {
-				assert.argumentIsArray(suppressExpressions, 'suppressExpressions', RegExp, 'RegExp');
-			}
-
-			this._super();
+	class Router extends Disposable {
+		constructor(suppressExpressions) {
+			super();
 
 			this._suppressExpressions = suppressExpressions || [ ];
 
 			this._startPromise = null;
 			this._started = false;
-		},
+		}
 
-		start: function() {
-			var that = this;
-
-			if (that.getIsDisposed()) {
+		start() {
+			if (this.getIsDisposed()) {
 				throw new Error('The message publisher has been disposed');
 			}
 
-			if (that._startPromise === null) {
-				that._startPromise = when.try(function() {
-					return that._start();
-				}).then(function() {
-					that._started = true;
+			if (this._startPromise === null) {
+				this._startPromise = Promise.resolve()
+					.then(() => {
+						return this._start();
+					}).then(() => {
+						this._started = true;
 
-					return that._started;
-				});
+						return this._started;
+					});
 			}
 
-			return that._startPromise;
-		},
+			return this._startPromise;
+		}
 
-		_start: function() {
+		_start() {
 			return;
-		},
+		}
 
-		canRoute: function(messageType) {
+		canRoute(messageType) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
 
-			var that = this;
-
-			if (!that._started) {
+			if (!this._started) {
 				throw new Error('The router has not started.');
 			}
 
-			if (that.getIsDisposed()) {
+			if (this.getIsDisposed()) {
 				throw new Error('The message router has been disposed');
 			}
 
-			return !checkSuppression(messageType, this._suppressExpressions) && that._canRoute(messageType);
-		},
+			return !checkSuppression(messageType, this._suppressExpressions) && this._canRoute(messageType);
+		}
 
-		_canRoute: function(messageType) {
+		_canRoute(messageType) {
 			return false;
-		},
+		}
 
-		route: function(messageType, payload) {
+		route(messageType, payload) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
 			assert.argumentIsRequired(payload, 'payload', Object);
 
-			var that = this;
-
-			if (!that._started) {
+			if (!this._started) {
 				throw new Error('The router has not started.');
 			}
 
-			if (that.getIsDisposed()) {
+			if (this.getIsDisposed()) {
 				throw new Error('The message router has been disposed');
 			}
 
-			if (!that.canRoute(messageType)) {
+			if (!this.canRoute(messageType)) {
 				throw new Error('The message router does not support the message type.');
 			}
 
-			return when.try(function() {
-				return that._route(messageType, payload);
-			});
-		},
+			return Promise.resolve()
+				.then(() => {
+					return this._route(messageType, payload);
+				});
+		}
 
-		_route: function(messageType, payload) {
+		_route(messageType, payload) {
 			return;
-		},
+		}
 
-		register: function(messageType, handler) {
+		register(messageType, handler) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
 			assert.argumentIsRequired(handler, 'handler', Function);
 
-			var that = this;
-
-			if (!that._started) {
+			if (!this._started) {
 				throw new Error('The router has not started.');
 			}
 
-			if (that.getIsDisposed()) {
+			if (this.getIsDisposed()) {
 				throw new Error('The message router has been disposed');
 			}
 
-			var registerPromise;
+			let registerPromise;
 
 			if (checkSuppression(messageType, this._suppressExpressions)) {
 				logger.debug('Suppressing registration for to', messageType);
 
-				registerPromise = when(Disposable.getEmpty());
+				registerPromise = Promise.resolve(Disposable.getEmpty());
 			} else {
-				registerPromise = when.try(function() {
-					return that._register(messageType, handler);
-				});
+				registerPromise = Promise.resolve()
+					.then(() => {
+						return this._register(messageType, handler);
+					});
 			}
 
 			return registerPromise;
-		},
+		}
 
-		_register: function(messageType, handler) {
+		_register(messageType, handler) {
 			return Disposable.getEmpty();
-		},
+		}
 
-		_onDispose: function() {
+		_onDispose() {
 			return;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[Router]';
 		}
-	});
+	}
 
 	function checkSuppression(messageType, suppressExpressions) {
 		return suppressExpressions.length !== 0 && _.some(suppressExpressions, function(suppressExpression) {
@@ -147,4 +134,4 @@ module.exports = function() {
 	}
 
 	return Router;
-}();
+})();

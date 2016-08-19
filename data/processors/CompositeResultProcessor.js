@@ -1,35 +1,32 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 var pipeline = require('when/pipeline');
 
 var ResultProcessor = require('./../ResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/processors/CompositeResultProcessor');
+	const logger = log4js.getLogger('data/processors/CompositeResultProcessor');
 
-	var CompositeResultProcessor = ResultProcessor.extend({
-		init: function(resultProcessors) {
-			this._super(null);
+	class CompositeResultProcessor extends ResultProcessor {
+		constructor(resultProcessors) {
+			super(null);
 
 			this._resultProcessors = resultProcessors;
-		},
+		}
 
-		_process: function(results) {
-			var that = this;
-
-			var functions = _.map(that._resultProcessors, function(resultProcessor) {
+		_process(results) {
+			const functions = this._resultProcessors.map((resultProcessor) => {
 				return ResultProcessor.toFunction(resultProcessor);
 			});
 
 			return pipeline(functions, results);
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[CompositeResultProcessor]';
 		}
-	});
+	}
 
 	return CompositeResultProcessor;
-}();
+})();

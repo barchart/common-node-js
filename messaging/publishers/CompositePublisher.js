@@ -1,82 +1,74 @@
-var _ = require('lodash');
 var log4js = require('log4js');
-var when = require('when');
 
 var assert = require('common/lang/assert');
 var DisposableStack = require('common/collections/specialized/DisposableStack');
 
 var Publisher = require('./Publisher');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('common-node/messaging/publishers/CompositePublisher');
+	const logger = log4js.getLogger('common-node/messaging/publishers/CompositePublisher');
 
-	var CompositePublisher = Publisher.extend({
-		init: function(publishers, suppressExpressions) {
+	class CompositePublisher extends Publisher {
+		constructor(publishers, suppressExpressions) {
+			super(suppressExpressions);
+
 			assert.argumentIsArray(publishers, 'publishers', Publisher, 'Publisher');
 
-			this._super(suppressExpressions);
-
 			this._publishers = publishers;
-		},
+		}
 
-		_start: function() {
-			var that = this;
-
-			return when.map(that._publishers, function(publisher) {
+		_start() {
+			return Promise.all(this._publishers.map((publisher) => {
 				return publisher.start();
-			}).then(function() {
+			})).then(() => {
 				return true;
 			});
-		},
+		}
 
-		_publish: function(messageType, payload) {
-			var that = this;
-
-			var publishPromises = _.map(that._publishers, function(publisher) {
+		_publish(messageType, payload) {
+			const publishPromises = this._publishers.map((publisher) => {
 				return publisher.publish(messageType, payload);
 			});
 
-			return when.all(publishPromises)
-				.then(function(ignored) {
+			return Promise.all(publishPromises)
+				.then((ignored) => {
 					return;
 				});
-		},
+		}
 
-		_subscribe: function(messageType, handler) {
-			var that = this;
-
-			var subscribePromises = _.map(that._publishers, function(publisher) {
+		_subscribe(messageType, handler) {
+			const subscribePromises = this._publishers.map((publisher) => {
 				return publisher.subscribe(messageType, handler);
 			});
 
-			return when.all(subscribePromises)
-				.then(function(subscriptions) {
-					var disposableStack = new DisposableStack();
+			return Promise.all(subscribePromises)
+				.then((subscriptions) => {
+					const disposableStack = new DisposableStack();
 
-					for (var i = 0; i < subscriptions.length; i++) {
-						disposableStack.push(subscriptions[i]);
-					}
+					subscriptions.forEach((subscription) => {
+						disposableStack.push(subscription);
+					});
 
 					return disposableStack;
 				});
-		},
+		}
 
-		_onDispose: function() {
-			_.forEach(this._publishers, function(publisher) {
+		_onDispose() {
+			this._publishers.forEach((publisher) => {
 				publisher.dispose();
 			});
 
 			this._publishers = null;
 
 			logger.debug('Composite publisher disposed');
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[CompositePublisher]';
 		}
-	});
+	}
 
 	return CompositePublisher;
-}();
+})();

@@ -1,130 +1,125 @@
-var _ = require('lodash');
 var log4js = require('log4js');
-var when = require('when');
 
 var assert = require('common/lang/assert');
 var Event = require('common/messaging/Event');
 var Disposable = require('common/lang/Disposable');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('common-node/messaging/publishers/Publisher');
+	const logger = log4js.getLogger('common-node/messaging/publishers/Publisher');
 
-	var Publisher = Disposable.extend({
-		init: function(suppressExpressions) {
+	class Publisher extends Disposable {
+		constructor(suppressExpressions) {
+			super();
+
 			assert.argumentIsOptional(suppressExpressions, 'suppressExpressions', Array);
 
 			if (suppressExpressions) {
-				assert.argumentIsArray(suppressExpressions, 'suppressExpressions', RegExp, 'RegExp');	
+				assert.argumentIsArray(suppressExpressions, 'suppressExpressions', RegExp, 'RegExp');
 			}
-			
-			this._super();
 
 			this._suppressExpressions = suppressExpressions || [ ];
 			
 			this._startPromise = null;
 			this._started = false;
-		},
+		}
 
-		start: function() {
-			var that = this;
-
-			if (that.getIsDisposed()) {
+		start() {
+			if (this.getIsDisposed()) {
 				throw new Error('The message publisher has been disposed');
 			}
 
-			if (that._startPromise === null) {
-				that._startPromise = when.try(function() {
-					return that._start();
-				}).then(function() {
-					that._started = true;
+			if (this._startPromise === null) {
+				this._startPromise = Promise.resolve()
+					.then(() => {
+						return this._start();
+					}).then(() => {
+						this._started = true;
 
-					return that._started;
-				});
+						return this._started;
+					});
 			}
 
-			return that._startPromise;
-		},
+			return this._startPromise;
+		}
 
-		_start: function() {
+		_start() {
 			return;
-		},
+		}
 
-		publish: function(messageType, payload) {
+		publish(messageType, payload) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
 			assert.argumentIsRequired(payload, 'payload', Object);
 
-			var that = this;
-
-			if (!that._started) {
+			if (!this._started) {
 				throw new Error('The publisher has not started.');
 			}
 
-			if (that.getIsDisposed()) {
+			if (this.getIsDisposed()) {
 				throw new Error('The message publisher has been disposed');
 			}
 
-			var publishPromise;
+			let publishPromise;
 
 			if (checkSuppression(messageType, this._suppressExpressions)) {
 				logger.trace('Suppressing publish for', messageType);
 
-				publishPromise = when();
+				publishPromise = Promise.resolve(Disposable.getEmpty());
 			} else {
-				publishPromise = when.try(function() {
-					return that._publish(messageType, payload);
-				});
+				publishPromise = Promise.resolve()
+					.then(() => {
+						return this._publish(messageType, payload);
+					});
 			}
 
 			return publishPromise;
-		},
+		}
 
-		_publish: function(messageType, payload) {
+		_publish(messageType, payload) {
 			return;
-		},
+		}
 
-		subscribe: function(messageType, handler) {
+		subscribe(messageType, handler) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
 			assert.argumentIsRequired(handler, 'handler', Function);
 
-			var that = this;
-
-			if (!that._started) {
+			if (!this._started) {
 				throw new Error('The publisher has not started.');
 			}
 
-			if (that.getIsDisposed()) {
+			if (this.getIsDisposed()) {
 				throw new Error('The message publisher has been disposed');
 			}
 
-			var subscribePromise;
+			let subscribePromise;
 
 			if (checkSuppression(messageType, this._suppressExpressions)) {
 				logger.debug('Suppressing subscription to', messageType);
 
-				subscribePromise = when(Disposable.getEmpty());
+				subscribePromise = Promise.resolve(Disposable.getEmpty());
 			} else {
-				subscribePromise = when.try(function() {
-					return that._subscribe(messageType, handler);
-				});
+				subscribePromise = Promise.resolve()
+					.then(() => {
+						return this._subscribe(messageType, handler);
+					});
 			}
 
 			return subscribePromise;
-		},
+		}
 
-		_subscribe: function(messageType, handler) {
+		_subscribe(messageType, handler) {
 			return Disposable.getEmpty();
-		},
+		}
 
-		_onDispose: function() {
+		_onDispose() {
 			return;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[Publisher]';
 		}
-	});
+	}
 
 	function checkSuppression(messageType, suppressExpressions) {
 		return suppressExpressions.length !== 0 && _.some(suppressExpressions, function(suppressExpression) {
@@ -133,4 +128,4 @@ module.exports = function() {
 	}
 
 	return Publisher;
-}();
+})();

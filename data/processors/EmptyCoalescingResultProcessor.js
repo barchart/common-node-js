@@ -1,29 +1,29 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 
 var attributes = require('common/lang/attributes');
+var is = require('common/lang/is');
 
 var MutateResultProcessor = require('./MutateResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/processors/EmptyCoalescingResultProcessor');
+	const logger = log4js.getLogger('data/processors/EmptyCoalescingResultProcessor');
 
-	var EmptyCoalescingResultProcessor = MutateResultProcessor.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class EmptyCoalescingResultProcessor extends MutateResultProcessor {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_processItem: function(resultItemToProcess, configurationToUse) {
-			var propertyName = configurationToUse.propertyName;
+		_processItem(resultItemToProcess, configurationToUse) {
+			const propertyName = configurationToUse.propertyName;
 
-			var replace;
+			let replace;
 
 			if (attributes.has(resultItemToProcess, propertyName)) {
-				var propertyValue = attributes.read(resultItemToProcess, propertyName);
+				const propertyValue = attributes.read(resultItemToProcess, propertyName);
 
-				replace = _.isNull(propertyValue) || _.isUndefined(propertyValue) || propertyValue === '';
+				replace = is.null(propertyValue) || is.undefined(propertyValue) || propertyValue === '';
 			} else {
 				replace = true;
 			}
@@ -31,12 +31,12 @@ module.exports = function() {
 			if (replace) {
 				attributes.write(resultItemToProcess, propertyName, configurationToUse.replaceValue);
 			}
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[EmptyCoalescingResultProcessor]';
 		}
-	});
+	}
 
 	return EmptyCoalescingResultProcessor;
-}();
+})();

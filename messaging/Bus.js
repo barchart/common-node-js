@@ -1,20 +1,22 @@
-var _ = require('lodash');
 var log4js = require('log4js');
-var when = require('when');
 
 var assert = require('common/lang/assert');
 var Disposable = require('common/lang/Disposable');
+var is = require('common/lang/is');
+var promise = require('common/lang/promise');
 
 var Publisher = require('./publishers/Publisher');
 var Router = require('./routers/Router');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('common-node/messaging/Bus');
+	const logger = log4js.getLogger('common-node/messaging/Bus');
 
-	var Bus = Disposable.extend({
-		init: function(publisher, router) {
+	const DEFAULT_TIMEOUT_MILLISECONDS = 20000;
+
+	class Bus extends Disposable {
+		constructor(publisher, router) {
 			assert.argumentIsRequired(publisher, 'publisher', Publisher, 'Publisher');
 			assert.argumentIsRequired(router, 'router', Router, 'Router');
 
@@ -23,143 +25,131 @@ module.exports = function() {
 
 			this._startPromise = null;
 			this._started = false;
-		},
+		}
 
-		start: function() {
-			var that = this;
-
-			if (that.getIsDisposed()) {
+		start() {
+			if (this.getIsDisposed()) {
 				throw new Error('The message bus has been disposed');
 			}
 
-			if (that._startPromise === null) {
-				that._startPromise = when.join(that._publisher.start(), that._router.start())
-					.then(function(ignored) {
-						that._started = true;
+			if (this._startPromise === null) {
+				this._startPromise = Promise.all([ this._publisher.start(), this._router.start() ])
+					.then((ignored) => {
+						this._started = true;
 
-						return that._started;
+						return this._started;
 					});
 			}
 
-			return that._startPromise;
-		},
+			return this._startPromise;
+		}
 
-		publish: function(messageType, payload) {
+		publish(messageType, payload) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
 			assert.argumentIsRequired(payload, 'payload', Object);
 
-			var that = this;
-
-			if (!that._started) {
+			if (!this._started) {
 				throw new Error('The bus has not started.');
 			}
 
-			if (that.getIsDisposed()) {
+			if (this.getIsDisposed()) {
 				throw new Error('The message bus has been disposed');
 			}
 
-			return that._publisher.publish(messageType, payload);
-		},
+			return this._publisher.publish(messageType, payload);
+		}
 
-		subscribe: function(messageType, handler) {
+		subscribe(messageType, handler) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
 			assert.argumentIsRequired(handler, 'handler', Function);
 
-			var that = this;
-
-			if (!that._started) {
+			if (!this._started) {
 				throw new Error('The bus has not started.');
 			}
 
-			if (that.getIsDisposed()) {
+			if (this.getIsDisposed()) {
 				throw new Error('The message bus has been disposed');
 			}
 
-			return that._publisher.subscribe(messageType, handler);
-		},
+			return this._publisher.subscribe(messageType, handler);
+		}
 
-		request: function(messageType, payload, timeout) {
+		request(messageType, payload, timeout) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
 			assert.argumentIsRequired(payload, 'payload', Object);
 			assert.argumentIsOptional(timeout, 'timeout', Number);
 
-			var that = this;
-
-			if (!that._started) {
+			if (!this._started) {
 				throw new Error('The bus has not started.');
 			}
 
-			if (that.getIsDisposed()) {
+			if (this.getIsDisposed()) {
 				throw new Error('The message bus has been disposed');
 			}
 
-			var start = new Date();
+			const start = new Date();
 
-			var requestPromise;
+			let requestPromise;
 
-			if (that._router.canRoute(messageType)) {
-				requestPromise = that._router.route(messageType, payload);
+			if (this._router.canRoute(messageType)) {
+				requestPromise = this._router.route(messageType, payload);
 
-				var timeoutToUse;
+				let timeoutToUse;
 
-				if (_.isNumber(timeout)) {
+				if (is.number(timeout)) {
 					timeoutToUse = Math.max(0, timeout);
 				} else {
 					timeoutToUse = DEFAULT_TIMEOUT_MILLISECONDS;
 				}
 
 				if (timeoutToUse > 0) {
-					requestPromise = requestPromise.timeout(timeoutToUse)
-						.catch(function(e) {
-							if (e instanceof when.TimeoutError) {
-								logger.warn('Request [', messageType, '] timed out after', timeoutToUse, 'milliseconds');
-							}
-
-							throw e;
-						}).finally(function(e) {
-							var end = new Date();
+					requestPromise = promise.timeout(requestPromise, timeoutToUse)
+						.then((e) => {
+							const end = new Date();
 
 							logger.debug('Request [', messageType, '] completed after', (end.getTime() - start.getTime()), 'milliseconds');
+						}).catch((e) => {
+							const end = new Date();
+
+							logger.warn('Request [', messageType, '] failed after', (end.getTime() - start.getTime()), 'milliseconds');
+
+							throw e;
 						});
 				}
 			} else {
-				requestPromise = when.reject('Existing routers are unable to handle request.');
+				requestPromise = Promise.reject('Existing routers are unable to handle request.');
 			}
 
 			return requestPromise;
-		},
+		}
 
-		register: function(messageType, handler) {
+		register(messageType, handler) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
 			assert.argumentIsRequired(handler, 'handler', Function);
 
-			var that = this;
-
-			if (!that._started) {
+			if (!this._started) {
 				throw new Error('The bus has not started.');
 			}
 
-			if (that.getIsDisposed()) {
+			if (this.getIsDisposed()) {
 				throw new Error('The message bus has been disposed');
 			}
 
-			return that._router.register(messageType, handler);
-		},
+			return this._router.register(messageType, handler);
+		}
 
-		_onDispose: function() {
+		_onDispose() {
 			this._publisher.dispose();
 			this._router.dispose();
 
 			this._publisher = null;
 			this._router = null;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[Bus]';
 		}
-	});
-
-	var DEFAULT_TIMEOUT_MILLISECONDS = 20000;
+	}
 
 	return Bus;
-}();
+})();

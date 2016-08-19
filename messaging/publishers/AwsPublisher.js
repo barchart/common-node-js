@@ -1,29 +1,28 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 var uuid = require('uuid');
-var when = require('when');
 
 var assert = require('common/lang/assert');
 var Event = require('common/messaging/Event');
 var Disposable = require('common/lang/Disposable');
 var DisposableStack = require('common/collections/specialized/DisposableStack');
+var is = require('common/lang/is');
 
 var Publisher = require('./Publisher');
 var SnsProvider = require('./../../aws/SnsProvider');
 var SqsProvider = require('./../../aws/SqsProvider');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('common-node/messaging/publishers/AwsPublisher');
+	const logger = log4js.getLogger('common-node/messaging/publishers/AwsPublisher');
 
-	var AwsPublisher = Publisher.extend({
-		init: function(snsProvider, sqsProvider, suppressEcho, suppressExpressions) {
+	class AwsPublisher extends Publisher {
+		constructor(snsProvider, sqsProvider, suppressEcho, suppressExpressions) {
+			super(suppressExpressions);
+
 			assert.argumentIsRequired(snsProvider, 'snsProvider', SnsProvider, 'SnsProvider');
 			assert.argumentIsRequired(sqsProvider, 'sqsProvider', SqsProvider, 'SqsProvider');
 			assert.argumentIsOptional(suppressEcho, 'suppressEcho', Boolean);
-
-			this._super(suppressExpressions);
 
 			this._snsProvider = snsProvider;
 			this._sqsProvider = sqsProvider;
@@ -33,23 +32,19 @@ module.exports = function() {
 			this._publisherId = uuid.v4();
 
 			this._subscriptionPromises = {};
-		},
+		}
 
-		_start: function() {
-			var that = this;
-
+		_start() {
 			logger.debug('AWS publisher starting');
 
-			return when.join(that._snsProvider.start(), that._sqsProvider.start())
-				.then(function(ignored) {
+			return Promise.all([ this._snsProvider.start(), this._sqsProvider.start() ])
+				.then((ignored) => {
 					logger.debug('AWS publisher started');
 				});
-		},
+		}
 
-		_publish: function(messageType, payload) {
-			var that = this;
-
-			var envelope = {
+		_publish(messageType, payload) {
+			const envelope = {
 				publisher: this._publisherId,
 				payload: payload
 			};
@@ -57,69 +52,67 @@ module.exports = function() {
 			logger.debug('Publishing message to AWS:', messageType);
 			logger.trace(payload);
 
-			return that._snsProvider.publish(messageType, envelope);
-		},
+			return this._snsProvider.publish(messageType, envelope);
+		}
 
-		_subscribe: function(messageType, handler) {
-			var that = this;
-
+		_subscribe(messageType, handler) {
 			logger.debug('Subscribing to AWS messages:', messageType);
 
-			if (!_.has(that._subscriptionPromises, messageType)) {
-				var subscriptionStack = new DisposableStack();
+			if (!this._subscriptionPromises.hasOwnProperty(messageType)) {
+				const subscriptionStack = new DisposableStack();
 
-				var subscriptionEvent = new Event(that);
-				var subscriptionQueueName = getSubscriptionQueue.call(that, messageType);
+				const subscriptionEvent = new Event(this);
+				const subscriptionQueueName = getSubscriptionQueue.call(this, messageType);
 
 				subscriptionStack.push(subscriptionEvent);
 
-				that._subscriptionPromises[messageType] = when.join(
-					that._snsProvider.getTopicArn(messageType),
-					that._sqsProvider.getQueueArn(subscriptionQueueName))
-						.then(function(resultGroup) {
-							var topicArn = resultGroup[0];
-							var queueArn = resultGroup[1];
+				this._subscriptionPromises[messageType] = Promise.all([
+					this._snsProvider.getTopicArn(messageType),
+					this._sqsProvider.getQueueArn(subscriptionQueueName)])
+						.then((resultGroup) => {
+							const topicArn = resultGroup[0];
+							const queueArn = resultGroup[1];
 
-							subscriptionStack.push(Disposable.fromAction(function() {
-								that._sqsProvider.deleteQueue(subscriptionQueueName);
+							subscriptionStack.push(Disposable.fromAction(() => {
+								this._sqsProvider.deleteQueue(subscriptionQueueName);
 							}));
 
-							return that._sqsProvider.setQueuePolicy(subscriptionQueueName, SqsProvider.getPolicyForSnsDelivery(queueArn, topicArn))
-								.then(function() {
-									return that._snsProvider.subscribe(messageType, queueArn);
+							return this._sqsProvider.setQueuePolicy(subscriptionQueueName, SqsProvider.getPolicyForSnsDelivery(queueArn, topicArn))
+								.then(() => {
+									return this._snsProvider.subscribe(messageType, queueArn);
 								});
-						}).then(function(queueBinding) {
+						}).then((queueBinding) => {
 							subscriptionStack.push(queueBinding);
 
-							return that._sqsProvider.observe(subscriptionQueueName, function(envelope) {
-								if (!_.isObject(envelope) || !_.isString(envelope.Message)) {
+							return this._sqsProvider.observe(subscriptionQueueName, (envelope) => {
+								if (!is.object(envelope) || !is.string(envelope.Message)) {
 									return;
 								}
 
-								var message = JSON.parse(envelope.Message);
+								const message = JSON.parse(envelope.Message);
 
-								var content;
-								var echo;
+								let content;
+								let echo;
 
-								if (_.isString(message.publisher) && _.isObject(message.payload)) {
+								if (is.string(message.publisher) && is.object(message.payload)) {
 									content = message.payload;
-									echo = message.publisher === that._publisherId;
+									echo = message.publisher === this._publisherId;
 								} else {
 									content = message;
 									echo = false;
 								}
 
-								if (!echo || !that._suppressEcho) {
+								if (!echo || !this._suppressEcho) {
 									subscriptionEvent.fire(content);
 								} else {
 									logger.debug('AWS publisher dropped an "echo" message for', messageType);
 								}
 							}, 100, 20000, 10);
-						}).then(function(queueObserver) {
+						}).then((queueObserver) => {
 							subscriptionStack.push(queueObserver);
 
-							subscriptionStack.push(Disposable.fromAction(function() {
-								delete that._subscriptionPromises[messageType];
+							subscriptionStack.push(Disposable.fromAction(() => {
+								delete this._subscriptionPromises[messageType];
 							}));
 
 							return {
@@ -129,35 +122,38 @@ module.exports = function() {
 						});
 			}
 
-			return that._subscriptionPromises[messageType]
-				.then(function(subscriberData) {
-					return subscriberData.event.register(function(data, ignored) {
+			return this._subscriptionPromises[messageType]
+				.then((subscriberData) => {
+					return subscriberData.event.register((data, ignored) => {
 						handler(data);
 					});
 				});
-		},
+		}
 
-		_onDispose: function() {
-			var that = this;
+		_onDispose() {
+			const subscriptionPromises = Object.assign(this._subscriptionPromises);
+			this._subscriptionPromises = null;
 
-			var subscriptionPromises = _.clone(that._subscriptionPromises);
-			that._subscriptionPromises = null;
 
-			when.map(subscriptionPromises, function(subscriptionData) {
-				subscriptionData.binding.dispose();
+			Object.keys(subscriptionPromises).forEach((key) => {
+				const subscriptionPromise = subscriptionPromises[key];
+
+				return subscriptionPromise.then((subscriptionData) => {
+					subscriptionData.binding.dispose();
+				});
 			});
 
 			logger.debug('AWS publisher disposed');
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[AwsPublisher]';
 		}
-	});
+	}
 
 	function getSubscriptionQueue(messageType) {
 		return messageType + '-' + this._publisherId;
 	}
 
 	return AwsPublisher;
-}();
+})();

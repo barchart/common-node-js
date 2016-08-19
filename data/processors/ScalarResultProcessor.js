@@ -1,24 +1,24 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 
 var attributes = require('common/lang/attributes');
+var is = require('common/lang/is');
 
 var ResultProcessor = require('./../ResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/processors/ScalarResultProcessor');
+	const logger = log4js.getLogger('data/processors/ScalarResultProcessor');
 
-	var ScalarResultProcessor = ResultProcessor.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class ScalarResultProcessor extends ResultProcessor {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_process: function(results) {
-			var result;
+		_process(results) {
+			let result;
 
-			if (_.isArray(results)) {
+			if (is.array(results)) {
 				if (results.length === 0) {
 					result = undefined;
 				} else if (results.length === 1) {
@@ -31,12 +31,12 @@ module.exports = function() {
 			}
 
 			return result;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[ScalarResultProcessor]';
 		}
-	});
+	}
 
 	return ScalarResultProcessor;
-}();
+})();

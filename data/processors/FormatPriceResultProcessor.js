@@ -1,90 +1,90 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 
 var marketDataUtilities = require('marketdata-api-js/lib/util/index');
 var attributes = require('common/lang/attributes');
+var is = require('common/lang/is');
 
 var MutateResultProcessor = require('./MutateResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/processors/FormatPriceResultProcessor');
+	const logger = log4js.getLogger('data/processors/FormatPriceResultProcessor');
 
-	var FormatPriceResultProcessor = MutateResultProcessor.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class FormatPriceResultProcessor extends MutateResultProcessor {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_processItem: function(resultItemToProcess, configurationToUse) {
-			var propertyName = configurationToUse.propertyName;
-			var propertyValue = attributes.read(resultItemToProcess, propertyName);
+		_processItem(resultItemToProcess, configurationToUse) {
+			let propertyName = configurationToUse.propertyName;
+			let propertyValue = attributes.read(resultItemToProcess, propertyName);
 
-			if (_.isString(propertyValue)) {
+			if (is.string(propertyValue)) {
 				propertyValue = parseFloat(propertyValue);
 			}
 
-			if (_.isNumber(propertyValue) && !_.isNaN(propertyValue)) {
-				var unitCode;
-				var baseCode;
+			if (is.number(propertyValue)) {
+				let unitCode;
+				let baseCode;
 
-				if (_.isString(configurationToUse.unitCode)) {
+				if (is.string(configurationToUse.unitCode)) {
 					unitCode = configurationToUse.unitCode;
-				} else if (_.isString(configurationToUse.unitCodePropertyName)) {
+				} else if (is.string(configurationToUse.unitCodePropertyName)) {
 					unitCode = attributes.read(resultItemToProcess, configurationToUse.unitCodePropertyName);
-				} else if (_.isString(configurationToUse.baseCode)) {
+				} else if (is.string(configurationToUse.baseCode)) {
 					baseCode = configurationToUse.baseCode;
-				} else if (_.isString(configurationToUse.baseCodePropertyName)) {
+				} else if (is.string(configurationToUse.baseCodePropertyName)) {
 					baseCode = attributes.read(resultItemToProcess, configurationToUse.baseCodePropertyName);
 				}
 
-				if (!_.isString(unitCode)) {
-					if (_.isString(baseCode)) {
+				if (!is.string(unitCode)) {
+					if (is.string(baseCode)) {
 						baseCode = parseFloat(baseCode);
 					}
 
-					if (_.isNumber(baseCode)) {
+					if (is.number(baseCode)) {
 						unitCode = marketDataUtilities.convertBaseCodeToUnitCode(baseCode);
 					}
 				}
 
-				if (_.isString(unitCode)) {
-					var fractionSeparator;
+				if (is.string(unitCode)) {
+					let fractionSeparator;
 
-					if (_.isString(configurationToUse.fractionSeparator)) {
+					if (is.string(configurationToUse.fractionSeparator)) {
 						fractionSeparator = configurationToUse.fractionSeparator;
-					} else if (_.isString(configurationToUse.fractionSeparatorProperty)) {
+					} else if (is.string(configurationToUse.fractionSeparatorProperty)) {
 						fractionSeparator = attributes.read(resultItemToProcess, configurationToUse.fractionSeparatorProperty);
 					} else {
 						fractionSeparator = '.';
 					}
 
-					var specialFractions;
+					let specialFractions;
 
-					if (_.isString(configurationToUse.specialFractions)) {
+					if (is.string(configurationToUse.specialFractions)) {
 						specialFractions = configurationToUse.specialFractions;
-					} else if (_.isString(configurationToUse.specialFractionsProperty)) {
+					} else if (is.string(configurationToUse.specialFractionsProperty)) {
 						specialFractions = attributes.read(resultItemToProcess, configurationToUse.specialFractionsProperty);
 					} else {
 						specialFractions = false;
 					}
 
-					var zeroOverride;
+					let zeroOverride;
 
-					if (_.isString(configurationToUse.zeroOverride)) {
+					if (is.string(configurationToUse.zeroOverride)) {
 						zeroOverride = configurationToUse.zeroOverride;
 					} else {
 						zeroOverride = null;
 					}
 
-					var formattedPrice;
+					let formattedPrice;
 
-					if (propertyValue === 0 && _.isString(zeroOverride)) {
+					if (propertyValue === 0 && is.string(zeroOverride)) {
 						formattedPrice = zeroOverride;
 					} else {
 						formattedPrice = this._formatPrice(fractionSeparator, specialFractions, propertyValue, unitCode);
 
-						if (_.isBoolean(configurationToUse.usePlusPrefix) && configurationToUse.usePlusPrefix && !(propertyValue < 0) && zeroOverride !== null) {
+						if (is.boolean(configurationToUse.usePlusPrefix) && configurationToUse.usePlusPrefix && !(propertyValue < 0) && zeroOverride !== null) {
 							formattedPrice = '+' + formattedPrice;
 						}
 					}
@@ -92,18 +92,18 @@ module.exports = function() {
 					attributes.write(resultItemToProcess, propertyName, formattedPrice);
 				}
 			}
-		},
+		}
 
-		_formatPrice: function(fractionSeparator, specialFractions, valueToFormat, unitCode, zeroOverride) {
-			var priceFormatter = new marketDataUtilities.PriceFormatter(fractionSeparator, specialFractions, zeroOverride);
+		_formatPrice(fractionSeparator, specialFractions, valueToFormat, unitCode, zeroOverride) {
+			const priceFormatter = new marketDataUtilities.PriceFormatter(fractionSeparator, specialFractions, zeroOverride);
 
 			return priceFormatter.format(valueToFormat, unitCode);
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[FormatPriceResultProcessor]';
 		}
-	});
+	}
 
 	return FormatPriceResultProcessor;
-}();
+})();

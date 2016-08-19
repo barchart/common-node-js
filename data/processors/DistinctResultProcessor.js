@@ -1,43 +1,44 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 
+var array = require('common/lang/array');
 var attributes = require('common/lang/attributes');
+var is = require('common/lang/is');
 
 var ResultProcessor = require('./../ResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/processors/DistinctResultProcessor');
+	const logger = log4js.getLogger('data/processors/DistinctResultProcessor');
 
-	var DistinctResultProcessor = ResultProcessor.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class DistinctResultProcessor extends ResultProcessor {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_process: function(results) {
-			var configuration = this._getConfiguration();
+		_process(results) {
+			const configuration = this._getConfiguration();
 
-			var returnRef;
+			let returnRef;
 
-			if (_.isString(configuration.property)) {
-				var propertyName = configuration.property;
+			if (is.string(configuration.property)) {
+				const propertyName = configuration.property;
 
-				var wrap;
+				let wrap;
 
-				if (_.isBoolean(configuration.wrap)) {
+				if (is.boolean(configuration.wrap)) {
 					wrap = configuration.wrap;
 				} else {
 					wrap = true;
 				}
 
-				var items =
-					_.unique(
-						_.reduce(results, function(accumulator, result) {
-							var value = attributes.read(result, propertyName);
+				const items =
+					array.unique(
+						results.reduce((accumulator, result) => {
+							const value = attributes.read(result, propertyName);
 
-							if (_.isArray(value)) {
-								_.forEach(value, function(item) {
+							if (is.array(value)) {
+								value.forEach((item) => {
 									accumulator.push(item);
 								});
 							} else {
@@ -49,8 +50,8 @@ module.exports = function() {
 					);
 
 				if (wrap) {
-					returnRef = _.map(items, function(item) {
-						var wrapper = {};
+					returnRef = items.map((item) => {
+						const wrapper = {};
 
 						wrapper[propertyName] = item;
 
@@ -64,12 +65,12 @@ module.exports = function() {
 			}
 
 			return returnRef;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[DistinctResultProcessor]';
 		}
-	});
+	}
 
 	return DistinctResultProcessor;
-}();
+})();

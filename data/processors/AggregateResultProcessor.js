@@ -1,40 +1,38 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 
 var attributes = require('common/lang/attributes');
+var is = require('common/lang/is');
 
 var ResultProcessor = require('./../ResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/processors/AggregateResultProcessor');
+	const logger = log4js.getLogger('data/processors/AggregateResultProcessor');
 
-	var AggregateResultProcessor = ResultProcessor.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class AggregateResultProcessor extends ResultProcessor {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_process: function(results) {
-			var that = this;
-
-			if (_.isUndefined(results) || _.isNull(results)) {
+		_process(results) {
+			if (is.undefined(results) || is.null(results)) {
 				return [];
 			}
 
-			if (!_.isArray(results)) {
+			if (!is.array(results)) {
 				throw new Error('Unable to aggregate results, input must be an array.');
 			}
 
-			var aggregate = [ ];
+			let aggregate = [ ];
 
 			return aggregate.concat.apply(aggregate, results);
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[AggregateResultProcessor]';
 		}
-	});
+	}
 
 	return AggregateResultProcessor;
-}();
+})();

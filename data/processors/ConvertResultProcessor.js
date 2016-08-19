@@ -1,31 +1,31 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 
 var attributes = require('common/lang/attributes');
+var is = require('common/lang/is');
 
 var MutateResultProcessor = require('./MutateResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/processors/ConvertResultProcessor');
+	const logger = log4js.getLogger('data/processors/ConvertResultProcessor');
 
-	var ConvertResultProcessor = MutateResultProcessor.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class ConvertResultProcessor extends MutateResultProcessor {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_processItem: function(resultItemToProcess, configurationToUse) {
-			var propertyName = configurationToUse.propertyName;
+		_processItem(resultItemToProcess, configurationToUse) {
+			const propertyName = configurationToUse.propertyName;
 
 			if (attributes.has(resultItemToProcess, propertyName)) {
-				var propertyValue = attributes.read(resultItemToProcess, propertyName);
-				var propertyType = configurationToUse.propertyType;
+				let propertyValue = attributes.read(resultItemToProcess, propertyName);
+				let propertyType = configurationToUse.propertyType;
 
 				if (propertyType.toUpperCase() === 'STRING') {
-					if (_.isNull(propertyValue)) {
+					if (is.null(propertyValue)) {
 						propertyType = 'null';
-					} else if (_.isUndefined(propertyValue)) {
+					} else if (is.undefined(propertyValue)) {
 						propertyType = 'undefined';
 					} else {
 						propertyType = propertyValue.toString();
@@ -34,12 +34,12 @@ module.exports = function() {
 
 				attributes.write(resultItemToProcess, propertyName, propertyType);
 			}
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[ConvertResultProcessor]';
 		}
-	});
+	}
 
 	return ConvertResultProcessor;
-}();
+})();

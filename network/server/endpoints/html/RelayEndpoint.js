@@ -4,12 +4,16 @@ var CommandHandler = require('common/commands/CommandHandler');
 var Endpoint = require('./../Endpoint');
 var Verb = require('./../../../http/Verb');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var RelayEndpoint = Endpoint.extend({
-		init: function(verb, acceptPath, forwardHost, forwardPath, headerOverrides, parameterOverrides) {
-			this._super(emptyCommand);
+	const emptyCommand = CommandHandler.fromFunction((ignored) => {
+		return {};
+	});
+
+	class RelayEndpoint extends Endpoint {
+		constructor(verb, acceptPath, forwardHost, forwardPath, headerOverrides, parameterOverrides) {
+			super(emptyCommand);
 
 			assert.argumentIsRequired(verb, 'verb', Verb, 'Verb');
 			assert.argumentIsRequired(acceptPath, 'acceptPath', String);
@@ -27,40 +31,36 @@ module.exports = function() {
 
 			this._headerOverrides = headerOverrides || { };
 			this._parameterOverrides = parameterOverrides || { };
-		},
+		}
 
-		getVerb: function() {
+		getVerb() {
 			return this._verb;
-		},
+		}
 
-		getAcceptPath: function() {
+		getAcceptPath() {
 			return this._acceptPath;
-		},
+		}
 
-		getForwardHost: function() {
+		getForwardHost() {
 			return this._forwardHost;
-		},
+		}
 
-		getForwardPath: function() {
+		getForwardPath() {
 			return this._forwardPath;
-		},
+		}
 
-		getHeaderOverrides: function() {
+		getHeaderOverrides() {
 			return this._headerOverrides;
-		},
+		}
 
-		getParameterOverrides: function() {
+		getParameterOverrides() {
 			return this._parameterOverrides;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[RelayEndpoint]';
 		}
-	});
-
-	var emptyCommand = CommandHandler.fromFunction(function(ignored) {
-		return {};
-	});
+	}
 
 	return RelayEndpoint;
-}();
+})();

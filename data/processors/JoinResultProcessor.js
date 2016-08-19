@@ -1,32 +1,31 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 
+var array = require('common/lang/array');
 var attributes = require('common/lang/attributes');
+var is = require('common/lang/is');
 
 var ResultProcessor = require('./../ResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/processors/JoinResultProcessor');
+	const logger = log4js.getLogger('data/processors/JoinResultProcessor');
 
-	var JoinResultProcessor = ResultProcessor.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class JoinResultProcessor extends ResultProcessor {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_process: function(results) {
-			var that = this;
+		_process(results) {
+			const configuration = this._getConfiguration();
 
-			var configuration = that._getConfiguration();
+			const target = attributes.read(results, configuration.target);
+			const source = attributes.read(results, configuration.source);
 
-			var target = attributes.read(results, configuration.target);
-			var source = attributes.read(results, configuration.source);
+			let targetProperty;
+			let sourceProperty;
 
-			var targetProperty;
-			var sourceProperty;
-
-			if (_.isString(configuration.targetProperty) && _.isString(configuration.sourceProperty)) {
+			if (is.string(configuration.targetProperty) && is.string(configuration.sourceProperty)) {
 				targetProperty = configuration.targetProperty;
 				sourceProperty = configuration.sourceProperty;
 			} else {
@@ -34,27 +33,27 @@ module.exports = function() {
 				sourceProperty = configuration.join;
 			}
 
-			var aliasProperty = configuration.alias;
+			const aliasProperty = configuration.alias;
 
-			var sourceItemMap;
+			let sourceItemMap;
 
-			if (_.isBoolean(configuration.multiple) && _.isBoolean(configuration.multiple)) {
-				sourceItemMap = _.groupBy(source, sourceProperty);
+			if (is.boolean(configuration.multiple) && is.boolean(configuration.multiple)) {
+				sourceItemMap = array.groupBy(source, sourceProperty);
 			} else {
-				sourceItemMap = _.indexBy(source, sourceProperty);
+				sourceItemMap = array.indexBy(source, sourceProperty);
 			}
 
-			_.forEach(target, function(targetItem) {
-				var targetValue;
+			target.forEach((targetItem) => {
+				let targetValue;
 
-				if (_.isArray(targetItem[targetProperty])) {
-					var joinValues = targetItem[targetProperty];
+				if (is.array(targetItem[targetProperty])) {
+					const joinValues = targetItem[targetProperty];
 
-					targetValue = _.map(joinValues, function(joinValue) {
+					targetValue = joinValues.map((joinValue) => {
 						return sourceItemMap[joinValue];
 					});
 				} else {
-					var joinValue = targetItem[targetProperty];
+					const joinValue = targetItem[targetProperty];
 
 					targetValue = sourceItemMap[joinValue];
 				}
@@ -63,12 +62,12 @@ module.exports = function() {
 			});
 
 			return target;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[JoinResultProcessor]';
 		}
-	});
+	}
 
 	return JoinResultProcessor;
-}();
+})();

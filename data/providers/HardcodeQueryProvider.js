@@ -1,26 +1,25 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 
 var QueryProvider = require('./../QueryProvider');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/providers/HardcodeQueryProvider');
+	const logger = log4js.getLogger('data/providers/HardcodeQueryProvider');
 
-	var HardcodeQueryProvider = QueryProvider.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class HardcodeQueryProvider extends QueryProvider {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_runQuery: function(criteria) {
-			return _.clone(this._getConfiguration().results, true);
-		},
+		_runQuery(criteria) {
+			return Object.assign({ }, this._getConfiguration().results);
+		}
 
-		toString: function() {
+		toString() {
 			return '[HardcodeQueryProvider]';
 		}
-	});
+	}
 
 	return HardcodeQueryProvider;
-}();
+})();

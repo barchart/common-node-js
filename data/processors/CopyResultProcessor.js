@@ -1,38 +1,38 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 
 var attributes = require('common/lang/attributes');
+var is = require('common/lang/is');
 
 var MutateResultProcessor = require('./MutateResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/processors/CopyResultProcessor');
+	const logger = log4js.getLogger('data/processors/CopyResultProcessor');
 
-	var CopyResultProcessor = MutateResultProcessor.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class CopyResultProcessor extends MutateResultProcessor {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_processItem: function(resultItemToProcess, configurationToUse) {
-			var targetPropertyNames;
+		_processItem(resultItemToProcess, configurationToUse) {
+			let targetPropertyNames;
 
-			if (_.isString(configurationToUse.targetPropertyName)) {
+			if (is.string(configurationToUse.targetPropertyName)) {
 				targetPropertyNames = [configurationToUse.targetPropertyName];
-			} else if (_.isArray(configurationToUse.targetPropertyNames)) {
+			} else if (is.array(configurationToUse.targetPropertyNames)) {
 				targetPropertyNames = configurationToUse.targetPropertyNames;
 			} else {
 				targetPropertyNames = [];
 			}
 
-			var sourcePropertyValue = attributes.read(resultItemToProcess, configurationToUse.sourcePropertyName);
+			let sourcePropertyValue = attributes.read(resultItemToProcess, configurationToUse.sourcePropertyName);
 
-			if (_.isString(sourcePropertyValue) && configurationToUse.regex) {
-				var matches = sourcePropertyValue.match(new RegExp(configurationToUse.regex));
-				var matchedValue;
+			if (is.string(sourcePropertyValue) && configurationToUse.regex) {
+				let matches = sourcePropertyValue.match(new RegExp(configurationToUse.regex));
+				let matchedValue;
 
-				if (_.isArray(matches) && matches.length !== 0) {
+				if (is.array(matches) && matches.length !== 0) {
 					matchedValue = matches[0];
 				} else {
 					matchedValue = '';
@@ -41,15 +41,15 @@ module.exports = function() {
 				sourcePropertyValue = matchedValue;
 			}
 
-			_.forEach(targetPropertyNames, function(targetPropertyName) {
+			targetPropertyNames.forEach((targetPropertyName) => {
 				attributes.write(resultItemToProcess, targetPropertyName, sourcePropertyValue);
 			});
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[CopyResultProcessor]';
 		}
-	});
+	}
 
 	return CopyResultProcessor;
-}();
+})();

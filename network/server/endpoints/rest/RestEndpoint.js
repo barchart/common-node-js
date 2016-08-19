@@ -3,32 +3,32 @@ var assert = require('common/lang/assert');
 var Endpoint = require('./../Endpoint');
 var RestAction = require('./RestAction');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var RestEndpoint = Endpoint.extend({
-		init: function(action, path, command) {
-			this._super(command);
+	class RestEndpoint extends Endpoint {
+		constructor(action, path, command) {
+			super(command);
 
 			assert.argumentIsRequired(action, 'action', RestAction, 'RestAction');
 			assert.argumentIsRequired(path, 'path', String);
 
 			this._action = action;
 			this._path = path;
-		},
+		}
 
-		getRestAction: function() {
+		getRestAction() {
 			return this._action;
-		},
+		}
 
-		getPath: function() {
+		getPath() {
 			return this._path;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[RestEndpoint]';
 		}
-	});
+	}
 
 	return RestEndpoint;
-}();
+})();

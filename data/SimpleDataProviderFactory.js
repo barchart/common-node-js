@@ -1,6 +1,3 @@
-var _ = require('lodash');
-var when = require('when');
-
 var assert = require('common/lang/assert');
 
 var DataProvider = require('./DataProvider');
@@ -50,75 +47,10 @@ var OnDemandQueryProvider = require('./providers/OnDemandQueryProvider');
 var SimpleRestQueryProvider = require('./providers/SimpleRestQueryProvider');
 var TimestampQueryProvider = require('./providers/TimestampQueryProvider');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var SimpleDataProviderFactory = DataProviderFactory.extend({
-		init: function(customProcessors, customProviders) {
-			this._super();
-
-			this._customProcessors = customProcessors || {};
-			this._customProviders = customProviders || {};
-		},
-
-		_build: function(configuration) {
-			assert.argumentIsRequired(configuration, 'configuration', Object);
-			assert.argumentIsRequired(configuration.provider, 'configuration.provider', Object);
-			assert.argumentIsRequired(configuration.provider.type, 'configuration.provider.type', String);
-
-			var that = this;
-
-			var providerConfiguration = configuration.provider;
-			var providerTypeName = providerConfiguration.type;
-
-			if (!_.has(providerMap, providerTypeName) && !_.has(this._customProviders, providerTypeName)) {
-				throw new Error('Unable to construct query provider (' + providerTypeName + ').');
-			}
-
-			var Constructor = providerMap[providerTypeName] || this._customProviders[providerTypeName];
-			var queryProvider = new Constructor(providerConfiguration);
-
-			var processor;
-
-			if (_.isArray(configuration.processors) && _.isArray(configuration.processors)) {
-				processor = new CompositeResultProcessor(_.map(configuration.processors, function(configuration) {
-					return buildResultProcessor.call(that, configuration);
-				}));
-			} else if (_.isObject(configuration.processor)) {
-				processor = buildResultProcessor.call(that, configuration.processor);
-			} else {
-				processor = buildResultProcessor.call(that);
-			}
-
-			return new DataProvider(queryProvider, processor);
-		},
-
-		toString: function() {
-			return '[SimpleDataProviderFactory]';
-		}
-	});
-
-	function buildResultProcessor(processorConfiguration) {
-		var processorTypeName;
-
-		if (processorConfiguration) {
-			processorTypeName = processorConfiguration.type;
-		}
-
-		if (!processorTypeName) {
-			processorTypeName = 'Default';
-		}
-
-		if (!_.has(processorMap, processorTypeName) && !_.has(this._customProcessors, processorTypeName)) {
-			throw new Error('Unable to construct result processor (' + processorTypeName + ').');
-		}
-
-		var Constructor = processorMap[processorTypeName] || this._customProcessors[processorTypeName];
-
-		return new Constructor(processorConfiguration);
-	}
-
-	var providerMap = {
+	const providerMap = {
 		ContextQueryProvider: ContextQueryProvider,
 		EnvironmentQueryProvider: EnvironmentQueryProvider,
 		HardcodeQueryProvider: HardcodeQueryProvider,
@@ -128,7 +60,7 @@ module.exports = function() {
 		TimestampQueryProvider: TimestampQueryProvider,
 	};
 
-	var processorMap = {
+	const processorMap = {
 		AddResultProcessor: AddResultProcessor,
 		AggregateResultProcessor: AggregateResultProcessor,
 		ConvertResultProcessor: ConvertResultProcessor,
@@ -164,6 +96,69 @@ module.exports = function() {
 		WrapResultProcessor: WrapResultProcessor,
 		Default: ResultProcessor
 	};
+	
+	class SimpleDataProviderFactory extends DataProviderFactory {
+		constructor(customProcessors, customProviders) {
+			super();
+
+			this._customProcessors = customProcessors || {};
+			this._customProviders = customProviders || {};
+		}
+
+		_build(configuration) {
+			assert.argumentIsRequired(configuration, 'configuration', Object);
+			assert.argumentIsRequired(configuration.provider, 'configuration.provider', Object);
+			assert.argumentIsRequired(configuration.provider.type, 'configuration.provider.type', String);
+
+			const providerConfiguration = configuration.provider;
+			const providerTypeName = providerConfiguration.type;
+
+			if (!providerMap.hasOwnProperty(providerTypeName) && !this._customProviders.hasOwnProperty(providerTypeName)) {
+				throw new Error(`Unable to construct query provider (${providerTypeName})`);
+			}
+
+			const Constructor = providerMap[providerTypeName] || this._customProviders[providerTypeName];
+			const queryProvider = new Constructor(providerConfiguration);
+
+			let processor;
+
+			if (is.array(configuration.processors) && is.array(configuration.processors)) {
+				processor = new CompositeResultProcessor(configuration.processors.map((configuration) => {
+					return buildResultProcessor.call(this, configuration);
+				}));
+			} else if (is.object(configuration.processor)) {
+				processor = buildResultProcessor.call(this, configuration.processor);
+			} else {
+				processor = buildResultProcessor.call(this);
+			}
+
+			return new DataProvider(queryProvider, processor);
+		}
+
+		toString() {
+			return '[SimpleDataProviderFactory]';
+		}
+	}
+
+	function buildResultProcessor(processorConfiguration) {
+		let processorTypeName;
+
+		if (processorConfiguration) {
+			processorTypeName = processorConfiguration.type;
+		}
+
+		if (!processorTypeName) {
+			processorTypeName = 'Default';
+		}
+
+		if (!processorMap.hasOwnProperty(processorTypeName) && !this._customProcessors.hasOwnProperty(processorTypeName)) {
+			throw new Error(`Unable to construct result processor (${processorTypeName})`);
+		}
+
+		const Constructor = processorMap[processorTypeName] || this._customProcessors[processorTypeName];
+
+		return new Constructor(processorConfiguration);
+	}
 
 	return SimpleDataProviderFactory;
-}();
+})();

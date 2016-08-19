@@ -1,29 +1,28 @@
-var Class = require('class.extend');
 var log4js = require('log4js');
 
 var assert = require('common/lang/assert');
 var CommandHandler = require('common/commands/CommandHandler');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('common-node/network/server/endpoints/Endpoint');
+	const logger = log4js.getLogger('common-node/network/server/endpoints/Endpoint');
 
-	var Endpoint = Class.extend({
-		init: function(command) {
+	class Endpoint {
+		constructor(command) {
 			assert.argumentIsRequired(command, 'command', CommandHandler, 'CommandHandler');
 
 			this._command = command;
-		},
+		}
 
-		getCommand: function() {
+		getCommand() {
 			return this._command;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[Endpoint]';
 		}
-	});
+	}
 
 	return Endpoint;
-}();
+})();

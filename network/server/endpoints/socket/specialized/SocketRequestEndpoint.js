@@ -2,26 +2,26 @@ var assert = require('common/lang/assert');
 
 var Endpoint = require('./../../Endpoint');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var SocketRequestEndpoint = Endpoint.extend({
-		init: function(channel, command) {
-			this._super(command);
+	class SocketRequestEndpoint extends Endpoint {
+		constructor(channel, command) {
+			super(command);
 
 			assert.argumentIsRequired(channel, 'channel', String);
 
 			this._channel = channel;
-		},
+		}
 
-		getChannel: function() {
+		getChannel() {
 			return this._channel;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[SocketRequestEndpoint]';
 		}
-	});
+	}
 
 	return SocketRequestEndpoint;
-}();
+})();

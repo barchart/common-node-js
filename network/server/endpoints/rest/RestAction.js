@@ -1,36 +1,34 @@
-var Class = require('class.extend');
-
 var assert = require('common/lang/assert');
 
 var Verb = require('./../../../http/Verb');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var RestAction = Class.extend({
-		init: function(description, verb) {
+	class RestAction {
+		constructor(description, verb) {
 			assert.argumentIsRequired(description, 'description', String);
 			assert.argumentIsRequired(verb, 'verb', Verb, 'Verb');
 
 			this._description = description;
 			this._verb = verb;
-		},
-
-		getDescription: function() {
-			return this._description;
-		},
-
-		getVerb: function() {
-			return this._verb;
-		},
-
-		toString: function() {
-			return '[RestAction (verb=' + this._verb + ')]';
 		}
-	});
+
+		getDescription() {
+			return this._description;
+		}
+
+		getVerb() {
+			return this._verb;
+		}
+
+		toString() {
+			return `[RestAction (verb=${this._verb})]`;
+		}
+	}
 
 	function addRestAction(action) {
-		var description = action.getDescription();
+		const description = action.getDescription();
 
 		RestAction[description] = action;
 	}
@@ -42,4 +40,4 @@ module.exports = function() {
 	addRestAction(new RestAction('Query', Verb.GET));
 
 	return RestAction;
-}();
+})();

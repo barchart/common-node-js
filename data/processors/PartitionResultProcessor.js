@@ -1,55 +1,53 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 
 var attributes = require('common/lang/attributes');
+var is = require('common/lang/is');
 
 var ResultProcessor = require('./../ResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/processors/PartitionResultProcessor');
+	const logger = log4js.getLogger('data/processors/PartitionResultProcessor');
 
-	var PartitionResultProcessor = ResultProcessor.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class PartitionResultProcessor extends ResultProcessor {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_process: function(results) {
-			var that = this;
-
-			if (_.isUndefined(results) || _.isNull(results)) {
+		_process(results) {
+			if (is.undefined(results) || is.null(results)) {
 				return [];
 			}
 
-			if (!_.isArray(results)) {
+			if (!is.array(results)) {
 				throw new Error('Unable to partition results, input must be an array.');
 			}
 
-			var configuration = that._getConfiguration();
+			const configuration = this._getConfiguration();
 
-			var partitionSize = configuration.size;
+			let partitionSize = configuration.size;
 
-			if (_.isString(partitionSize)) {
+			if (is.string(partitionSize)) {
 				partitionSize = parseInt(partitionSize);
 			}
 
 			partitionSize = partitionSize || 10;
 
-			var original = results.slice(0);
-			var partitions = [ ];
+			const original = results.slice(0);
+			const partitions = [ ];
 
 			while (original.length !== 0) {
 				partitions.push(original.splice(0, partitionSize));
 			}
 
 			return partitions;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[PartitionResultProcessor]';
 		}
-	});
+	}
 
 	return PartitionResultProcessor;
-}();
+})();

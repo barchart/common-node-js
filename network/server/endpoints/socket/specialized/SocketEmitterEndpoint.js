@@ -4,12 +4,20 @@ var Event = require('common/messaging/Event');
 
 var Endpoint = require('./../../Endpoint');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var SocketEmitterEndpoint = Endpoint.extend({
-		init: function(channel, event, eventType, roomCommand) {
-			this._super(emptyCommand);
+	const emptyCommand = CommandHandler.fromFunction(() => {
+		return;
+	});
+
+	const broadcastCommand = CommandHandler.fromFunction(() => {
+		return null;
+	});
+
+	class SocketEmitterEndpoint extends Endpoint {
+		constructor(channel, event, eventType, roomCommand) {
+			super(emptyCommand);
 
 			assert.argumentIsRequired(channel, 'channel', String);
 			assert.argumentIsRequired(event, 'event', Event, 'Event');
@@ -20,36 +28,28 @@ module.exports = function() {
 			this._event = event;
 			this._eventType = eventType || null;
 			this._roomCommand = roomCommand || broadcastCommand;
-		},
+		}
 
-		getChannel: function() {
+		getChannel() {
 			return this._channel;
-		},
+		}
 
-		getEvent: function() {
+		getEvent() {
 			return this._event;
-		},
+		}
 
-		getEventType: function() {
+		getEventType() {
 			return this._eventType;
-		},
+		}
 
-		getRoomCommand: function() {
+		getRoomCommand() {
 			return this._roomCommand;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[SocketEmitterEndpoint]';
 		}
-	});
-
-	var emptyCommand = CommandHandler.fromFunction(function() {
-		return;
-	});
-
-	var broadcastCommand = CommandHandler.fromFunction(function() {
-		return null;
-	});
+	}
 
 	return SocketEmitterEndpoint;
-}();
+})();

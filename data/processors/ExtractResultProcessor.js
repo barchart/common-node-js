@@ -1,47 +1,45 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 
 var attributes = require('common/lang/attributes');
+var is = require('common/lang/is');
 
 var ResultProcessor = require('./../ResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/processors/ExtractResultProcessor');
+	const logger = log4js.getLogger('data/processors/ExtractResultProcessor');
 
-	var ExtractResultProcessor = ResultProcessor.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class ExtractResultProcessor extends ResultProcessor {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_process: function(results) {
-			var that = this;
-
-			if (_.isUndefined(results) || _.isNull(results)) {
+		_process(results) {
+			if (is.undefined(results) || is.null(results)) {
 				return [];
 			}
 
-			if (!_.isArray(results)) {
+			if (!is.array(results)) {
 				throw new Error('Unable to extract results, input must be an array.');
 			}
 
-			var configuration = that._getConfiguration();
-			var propertyName = configuration.propertyName;
+			const configuration = this._getConfiguration();
+			const propertyName = configuration.propertyName;
 
-			if (!_.isString(propertyName) || propertyName.length === 0) {
+			if (!is.string(propertyName) || propertyName.length === 0) {
 				return results;
 			}
 
-			return _.map(results, function(item) {
+			return results.map((item) => {
 				return attributes.read(item, propertyName);
 			});
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[ExtractResultProcessor]';
 		}
-	});
+	}
 
 	return ExtractResultProcessor;
-}();
+})();

@@ -1,12 +1,10 @@
-var Class = require('class.extend');
-
 var assert = require('common/lang/assert');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var Protocol = Class.extend({
-		init: function(code, standard, secure) {
+	class Protocol {
+		constructor(code, standard, secure) {
 			assert.argumentIsRequired(description, 'description', String);
 			assert.argumentIsRequired(standard, 'standard', String);
 			assert.argumentIsRequired(secure, 'secure', String);
@@ -15,22 +13,22 @@ module.exports = function() {
 
 			this._standard = standard;
 			this._secure = secure;
-		},
+		}
 
-		getDescription: function() {
+		getDescription() {
 			return this._description;
-		},
+		}
 
-		getStandard: function() {
+		getStandard() {
 			return this._standard;
-		},
+		}
 
-		getSecure: function() {
+		getSecure() {
 			return this._secure;
-		},
+		}
 
-		getUrlPrefix: function(secure) {
-			var prefix;
+		getUrlPrefix(secure) {
+			let prefix;
 
 			if (secure) {
 				prefix = this._secure;
@@ -39,15 +37,15 @@ module.exports = function() {
 			}
 
 			return prefix + '://';
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[Protocol (description=' + this._description + ')]';
 		}
-	});
+	}
 
 	function addProtocol(verb) {
-		var code = verb.getCode();
+		const code = verb.getCode();
 
 		Protocol[code] = verb;
 	}
@@ -55,4 +53,4 @@ module.exports = function() {
 	addProtocol(new Protocol('HyperText', 'http', 'https'));
 
 	return Protocol;
-}();
+})();

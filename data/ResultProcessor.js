@@ -1,47 +1,44 @@
-var Class = require('class.extend');
 var log4js = require('log4js');
-var when = require('when');
 
 var assert = require('common/lang/assert');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/ResultProcessor');
+	const logger = log4js.getLogger('data/ResultProcessor');
 
-	var ResultProcessor = Class.extend({
-		init: function(configuration) {
+	class ResultProcessor {
+		constructor(configuration) {
 			this._configuration = configuration || {};
-		},
+		}
 
-		_getConfiguration: function() {
+		_getConfiguration() {
 			return this._configuration;
-		},
+		}
 
-		process: function(results) {
-			var that = this;
+		process(results) {
+			return Promise.resolve()
+				.then(() => {
+					return this._process(results);
+				});
+		}
 
-			return when.try(function() {
-				return that._process(results);
-			});
-		},
-
-		_process: function(results) {
+		_process(results) {
 			return results;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[ResultProcessor]';
 		}
-	});
 
-	ResultProcessor.toFunction = function(resultProcessor) {
-		assert.argumentIsRequired(resultProcessor, 'resultProcessor', ResultProcessor, 'ResultProcessor');
+		static toFunction(resultProcessor) {
+			assert.argumentIsRequired(resultProcessor, 'resultProcessor', ResultProcessor, 'ResultProcessor');
 
-		return function(results) {
-			return resultProcessor.process(results);
-		};
-	};
+			return (results) => {
+				return resultProcessor.process(results);
+			};
+		}
+	}
 
 	return ResultProcessor;
-}();
+})();
