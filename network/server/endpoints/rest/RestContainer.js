@@ -1,22 +1,22 @@
 var Container = require('./../Container');
 var RestEndpoint = require('./RestEndpoint');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var RestContainer = Container.extend({
-		init: function(port, path, secure) {
-			this._super(port, path, secure);
-		},
+	class RestContainer extends Container {
+		constructor(port, path, secure) {
+			super(port, path, secure);
+		}
 
-		_getEndpointType: function() {
+		_getEndpointType() {
 			return RestEndpoint;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[RestContainer]';
 		}
-	});
+	}
 
 	return RestContainer;
-}();
+})();

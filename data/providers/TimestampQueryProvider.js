@@ -1,25 +1,26 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 var moment = require('moment');
 
+var is = require('common/lang/is');
+
 var QueryProvider = require('./../QueryProvider');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/providers/TimestampQueryProvider');
+	const logger = log4js.getLogger('data/providers/TimestampQueryProvider');
 
-	var TimestampQueryProvider = QueryProvider.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class TimestampQueryProvider extends QueryProvider {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_runQuery: function(criteria) {
-			var m = moment();
+		_runQuery(criteria) {
+			let m = moment();
 
-			var configuration = this._getConfiguration();
+			const configuration = this._getConfiguration();
 
-			if (_.isObject(configuration.add) && _.isNumber(configuration.add.seconds)) {
+			if (is.object(configuration.add) && _is.number(configuration.add.seconds)) {
 				m = m.add(configuration.add.seconds, 's');
 			}
 
@@ -43,12 +44,12 @@ module.exports = function() {
 				dateDisplay: m.format('MMMM D, YYYY'),
 				unix: m.format('x')
 			};
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[TimestampQueryProvider]';
 		}
-	});
+	}
 
 	return TimestampQueryProvider;
-}();
+})();

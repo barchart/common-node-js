@@ -1,128 +1,121 @@
-var _ = require('lodash');
 var log4js = require('log4js');
-var when = require('when');
 
 var assert = require('common/lang/assert');
 var Event = require('common/messaging/Event');
 var Disposable = require('common/lang/Disposable');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('common-node/messaging/routers/Router');
+	const logger = log4js.getLogger('common-node/messaging/routers/Router');
 
-	var Router = Disposable.extend({
-		init: function() {
-			this._super();
+	class Router extends Disposable {
+		constructor() {
+			super();
 
 			this._startPromise = null;
 			this._started = false;
-		},
+		}
 
-		start: function() {
-			var that = this;
-
-			if (that.getIsDisposed()) {
+		start() {
+			if (this.getIsDisposed()) {
 				throw new Error('The message publisher has been disposed');
 			}
 
-			if (that._startPromise === null) {
-				that._startPromise = when.try(function() {
-					return that._start();
-				}).then(function() {
-					that._started = true;
+			if (this._startPromise === null) {
+				this._startPromise = Promise.resolve()
+					.then(() => {
+						return this._start();
+					}).then(() => {
+						this._started = true;
 
-					return that._started;
-				});
+						return this._started;
+					});
 			}
 
-			return that._startPromise;
-		},
+			return this._startPromise;
+		}
 
-		_start: function() {
+		_start() {
 			return;
-		},
+		}
 
-		canRoute: function(messageType) {
+		canRoute(messageType) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
 
-			var that = this;
-
-			if (!that._started) {
+			if (!this._started) {
 				throw new Error('The router has not started.');
 			}
 
-			if (that.getIsDisposed()) {
+			if (this.getIsDisposed()) {
 				throw new Error('The message router has been disposed');
 			}
 
-			return that._canRoute(messageType);
-		},
+			return this._canRoute(messageType);
+		}
 
-		_canRoute: function(messageType) {
+		_canRoute(messageType) {
 			return false;
-		},
+		}
 
-		route: function(messageType, payload) {
+		route(messageType, payload) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
 			assert.argumentIsRequired(payload, 'payload', Object);
 
-			var that = this;
-
-			if (!that._started) {
+			if (!this._started) {
 				throw new Error('The router has not started.');
 			}
 
-			if (that.getIsDisposed()) {
+			if (this.getIsDisposed()) {
 				throw new Error('The message router has been disposed');
 			}
 
-			if (!that.canRoute(messageType)) {
+			if (!this.canRoute(messageType)) {
 				throw new Error('The message router does not support the message type.');
 			}
 
-			return when.try(function() {
-				return that._route(messageType, payload);
-			});
-		},
+			return Promise.resolve()
+				.then(() => {
+					return this._route(messageType, payload);
+				});
+		}
 
-		_route: function(messageType, payload) {
+		_route(messageType, payload) {
 			return;
-		},
+		}
 
-		register: function(messageType, handler) {
+		register(messageType, handler) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
 			assert.argumentIsRequired(handler, 'handler', Function);
 
-			var that = this;
-
-			if (!that._started) {
+			if (!this._started) {
 				throw new Error('The router has not started.');
 			}
 
-			if (that.getIsDisposed()) {
+			if (this.getIsDisposed()) {
 				throw new Error('The message router has been disposed');
 			}
 
-			return when.try(function() {
-				return that._register(messageType, handler);
-			});
-		},
+			return Promise.resolve()
+				.then(() => {
+					return this._register(messageType, handler);
+				});
+		}
 
-		_register: function(messageType, handler) {
-			return Disposable.fromAction(function() {
+		_register(messageType, handler) {
+			return Disposable.fromAction(() => {
 				return;
 			});
-		},
+		}
 
-		_onDispose: function() {
+		_onDispose() {
 			return;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[Router]';
 		}
-	});
+	}
 
 	return Router;
-}();
+})();

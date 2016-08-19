@@ -1,7 +1,7 @@
 var SocketRequestContainer = require('./specialized/SocketRequestContainer');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
 	return SocketRequestContainer;
-}();
+})();

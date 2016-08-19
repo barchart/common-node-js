@@ -1,30 +1,30 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 
 var attributes = require('common/lang/attributes');
+var is = require('common/lang/is');
 
 var ResultProcessor = require('./../ResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/processors/SliceArrayProcessor');
+	const logger = log4js.getLogger('data/processors/SliceArrayProcessor');
 
-	var SliceArrayProcessor = ResultProcessor.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class SliceArrayProcessor extends ResultProcessor {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_process: function(results) {
-			var configuration = this._getConfiguration();
+		_process(results) {
+			const configuration = this._getConfiguration();
 
-			var result;
+			let result;
 
-			var start = configuration.start;
-			var end = configuration.end;
+			let start = configuration.start;
+			let end = configuration.end;
 
-			if (_.isNumber(start) && _.isArray(results)) {
-				if (_.isNumber(end)) {
+			if (is.number(start) && is.array(results)) {
+				if (is.number(end)) {
 					end = configuration.end;
 				} else {
 					end = undefined;
@@ -36,12 +36,12 @@ module.exports = function() {
 			}
 
 			return result;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[SliceArrayProcessor]';
 		}
-	});
+	}
 
 	return SliceArrayProcessor;
-}();
+})();

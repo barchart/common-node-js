@@ -1,32 +1,31 @@
-var _ = require('lodash');
 var aws = require('aws-sdk');
-var when = require('when');
 var log4js = require('log4js');
 
 var assert = require('common/lang/assert');
 var Disposable = require('common/lang/Disposable');
+var is = require('common/lang/is');
 var RateLimiter = require('common/timing/RateLimiter');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('common-node/messaging/SesProvider');
+	const logger = log4js.getLogger('common-node/messaging/SesProvider');
 
-	var SesProvider = Disposable.extend({
-		init: function(configuration) {
+	class SesProvider extends Disposable {
+		constructor(configuration) {
+			super();
+
 			assert.argumentIsRequired(configuration, 'configuration');
 			assert.argumentIsRequired(configuration.region, 'configuration.region', String);
 			assert.argumentIsOptional(configuration.apiVersion, 'configuration.apiVersion', String);
 
-			if (_.isArray(configuration.recipientOverride)) {
+			if (is.array(configuration.recipientOverride)) {
 				assert.argumentIsArray(configuration.recipientOverride, 'configuration.recipientOverride', String);
 			} else {
 				assert.argumentIsOptional(configuration.recipientOverride, 'configuration.recipientOverride', String);
 			}
 
 			assert.argumentIsOptional(configuration.rateLimitPerSecond, 'configuration.rateLimitPerSecond', Number);
-
-			this._super();
 
 			this._ses = null;
 
@@ -36,40 +35,39 @@ module.exports = function() {
 			this._started = false;
 
 			this._rateLimiter = new RateLimiter(configuration.rateLimitPerSecond || 10, 1000);
-		},
+		}
 
-		start: function() {
-			var that = this;
-
-			if (that.getIsDisposed()) {
+		start() {
+			if (this.getIsDisposed()) {
 				throw new Error('The SES Provider has been disposed.');
 			}
 
-			if (that._startPromise === null) {
-				that._startPromise = when.try(function() {
-					aws.config.update({region: that._configuration.region});
+			if (this._startPromise === null) {
+				this._startPromise = Promise.resolve()
+					.then(() => {
+						aws.config.update({region: this._configuration.region});
 
-					that._ses = new aws.SES({apiVersion: that._configuration.apiVersion || '2010-12-01'});
-				}).then(function() {
-					logger.info('SES provider started');
+						this._ses = new aws.SES({apiVersion: this._configuration.apiVersion || '2010-12-01'});
+					}).then(() => {
+						logger.info('SES provider started');
 
-					that._started = true;
+						this._started = true;
 
-					return that._started;
-				}).catch(function(e) {
-					logger.error('SES provider failed to start', e);
+						return this._started;
+					}).catch((e) => {
+						logger.error('SES provider failed to start', e);
 
-					throw e;
-				});
+						throw e;
+					});
 			}
 
-			return that._startPromise;
-		},
+			return this._startPromise;
+		}
 
-		sendEmail: function(senderAddress, recipientAddress, subject, htmlBody, textBody) {
+		sendEmail(senderAddress, recipientAddress, subject, htmlBody, textBody) {
 			assert.argumentIsRequired(senderAddress, 'senderAddress', String);
 
-			if (_.isArray(recipientAddress)) {
+			if (is.array(recipientAddress)) {
 				assert.argumentIsArray(recipientAddress, 'recipientAddress', String);
 			} else {
 				assert.argumentIsRequired(recipientAddress, 'recipientAddress', String);
@@ -79,13 +77,11 @@ module.exports = function() {
 			assert.argumentIsOptional(htmlBody, 'htmlBody', String);
 			assert.argumentIsOptional(textBody, 'textBody', String);
 
-			var that = this;
-
-			if (that.getIsDisposed()) {
+			if (this.getIsDisposed()) {
 				throw new Error('The SES Provider has been disposed.');
 			}
 
-			if (!that._started) {
+			if (!this._started) {
 				throw new Error('The SES Provider has not been started.');
 			}
 
@@ -95,15 +91,15 @@ module.exports = function() {
 				recipientAddress = this._configuration.recipientOverride;
 			}
 
-			var recipientAddressesToUse;
+			let recipientAddressesToUse;
 
-			if (_.isArray(recipientAddress)) {
+			if (is.array(recipientAddress)) {
 				recipientAddressesToUse = recipientAddress;
 			} else {
 				recipientAddressesToUse = [recipientAddress];
 			}
 
-			var params = {
+			const params = {
 				Destination: {
 					ToAddresses: recipientAddressesToUse
 				},
@@ -113,29 +109,29 @@ module.exports = function() {
 				Source: senderAddress
 			};
 
-			if (_.isString(subject) && subject.length > 0) {
+			if (is.string(subject) && subject.length > 0) {
 				params.Message.Subject = {
 					Data: subject
 				};
 			}
 
-			if (_.isString(htmlBody) && htmlBody.length > 0) {
+			if (is.string(htmlBody) && htmlBody.length > 0) {
 				params.Message.Body.Html = {
 					Data: htmlBody
 				};
 			}
 
-			if (_.isString(textBody) && textBody.length > 0) {
+			if (is.string(textBody) && textBody.length > 0) {
 				params.Message.Body.Text = {
 					Data: textBody
 				};
 			}
 
-			return this._rateLimiter.enqueue(function() {
-				return when.promise(function(resolveCallback, rejectCallback) {
+			return this._rateLimiter.enqueue(() => {
+				return new Promise((resolveCallback, rejectCallback) => {
 					logger.debug('Sending email to', recipientAddress);
 
-					that._ses.sendEmail(params, function(error, data) {
+					this._ses.sendEmail(params, (error, data) => {
 						if (error) {
 							logger.error('SES Email Provider failed to send email message', params);
 							logger.error(error);
@@ -149,18 +145,18 @@ module.exports = function() {
 					});
 				});
 			});
-		},
+		}
 
-		_onDispose: function() {
+		_onDispose() {
 			this._rateLimiter.dispose();
 
 			logger.debug('SES provider disposed');
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[SesProvider]';
 		}
-	});
+	}
 
 	return SesProvider;
-}();
+})();

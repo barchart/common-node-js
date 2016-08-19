@@ -1,58 +1,54 @@
-var Class = require('class.extend');
 var log4js = require('log4js');
 var pg = require('pg');
-var when = require('when');
 
 var Client = require('./Client');
 var ClientProvider = require('./ClientProvider');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('common-node/database/postgres/PooledClientProvider');
+	const logger = log4js.getLogger('common-node/database/postgres/PooledClientProvider');
 
-	var PooledClientProvider = ClientProvider.extend({
-		init: function(host, database, username, password, port, applicationName) {
-			this._super(host, database, username, password, port, applicationName);
+	class PooledClientProvider extends ClientProvider {
+		constructor(host, database, username, password, port, applicationName) {
+			super(host, database, username, password, port, applicationName);
 
 			this._preparedStatementMap = {};
-		},
+		}
 
-		_getClient: function() {
-			var that = this;
-
+		_getClient() {
 			logger.debug('Retrieving client from connection pool.');
 
-			return when.promise(function(resolveCallback, rejectCallback) {
-				pg.connect(that._getConfiguration(), function(err, pgClient, releaseCallback) {
+			return new Promise((resolveCallback, rejectCallback) => {
+				pg.connect(this._getConfiguration(), (err, pgClient, releaseCallback) => {
 					if (err) {
 						rejectCallback(err);
 					} else {
 						logger.debug('Retrieved client from connection pool.');
 
-						resolveCallback(new PooledClient(pgClient, that._preparedStatementMap, releaseCallback));
+						resolveCallback(new PooledClient(pgClient, this._preparedStatementMap, releaseCallback));
 					}
 				});
 			});
-		},
+		}
 
-		_onDispose: function() {
+		_onDispose() {
 			pg.end();
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[PooledClientProvider]';
 		}
-	});
+	}
 
-	var PooledClient = Client.extend({
-		init: function(pgClient, preparedStatementMap, releaseCallback) {
-			this._super(pgClient, preparedStatementMap);
+	class PooledClient extends Client {
+		constructor(pgClient, preparedStatementMap, releaseCallback) {
+			super(pgClient, preparedStatementMap);
 
 			this._releaseCallback = releaseCallback;
-		},
+		}
 
-		_onDispose: function() {
+		_onDispose() {
 			this._releaseCallback();
 
 			this._pgClient = null;
@@ -60,7 +56,11 @@ module.exports = function() {
 
 			logger.debug('Returned client to connection pool.');
 		}
-	});
+
+		toString() {
+			return '[PooledClient]';
+		}
+	}
 
 	return PooledClientProvider;
-}();
+})();

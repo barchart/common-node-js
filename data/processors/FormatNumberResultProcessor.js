@@ -1,38 +1,38 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 var numeral = require('numeral');
 
 var attributes = require('common/lang/attributes');
+var is = require('common/lang/is');
 
 var MutateResultProcessor = require('./MutateResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/processors/FormatNumberResultProcessor');
+	const logger = log4js.getLogger('data/processors/FormatNumberResultProcessor');
 
-	var FormatNumberResultProcessor = MutateResultProcessor.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class FormatNumberResultProcessor extends MutateResultProcessor {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_processItem: function(resultItemToProcess, configurationToUse) {
-			var propertyName = configurationToUse.propertyName;
-			var propertyValue = attributes.read(resultItemToProcess, propertyName);
+		_processItem(resultItemToProcess, configurationToUse) {
+			let propertyName = configurationToUse.propertyName;
+			let propertyValue = attributes.read(resultItemToProcess, propertyName);
 
-			if (_.isString(propertyValue)) {
+			if (is.string(propertyValue)) {
 				propertyValue = parseFloat(propertyValue);
 			}
 
-			if (_.isNumber(propertyValue) && !_.isNaN(propertyValue)) {
+			if (is.number(propertyValue)) {
 				attributes.write(resultItemToProcess, propertyName, numeral(propertyValue).format(configurationToUse.format));
 			}
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[FormatNumberResultProcessor]';
 		}
-	});
+	}
 
 	return FormatNumberResultProcessor;
-}();
+})();

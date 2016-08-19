@@ -1,49 +1,46 @@
-var Class = require('class.extend');
 var log4js = require('log4js');
-var when = require('when');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/QueryProvider');
+	const logger = log4js.getLogger('data/QueryProvider');
 
-	var QueryProvider = Class.extend({
-		init: function(configuration) {
+	 class QueryProvider {
+		constructor(configuration) {
 			this._configuration = configuration || {};
-		},
+		}
 
-		_getConfiguration: function() {
+		_getConfiguration() {
 			return this._configuration;
-		},
+		}
 
-		runQuery: function(criteria) {
+		runQuery(criteria) {
 			if (!this.getCriteriaIsValid(criteria)) {
 				throw new Error('Unable to run query, the query parameters are invalid.');
 			}
 
-			var that = this;
+			return Promise.resolve()
+				.then(() => {
+					return this._runQuery(criteria);
+				});
+		}
 
-			return when.try(function() {
-				return that._runQuery(criteria);
-			});
-		},
-
-		_runQuery: function(criteria) {
+		_runQuery(criteria) {
 			return null;
-		},
+		}
 
-		getCriteriaIsValid: function(criteria) {
+		getCriteriaIsValid(criteria) {
 			return this._getCriteriaIsValid(criteria);
-		},
+		}
 
-		_getCriteriaIsValid: function(criteria) {
+		_getCriteriaIsValid(criteria) {
 			return true;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[QueryProvider]';
 		}
-	});
+	}
 
 	return QueryProvider;
-}();
+})();

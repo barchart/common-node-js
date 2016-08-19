@@ -1,19 +1,19 @@
 var assert = require('common/lang/assert');
 var Disposable = require('common/lang/Disposable');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var ClientProvider = Disposable.extend({
-		init: function(host, database, username, password, port, applicationName) {
+	class ClientProvider extends Disposable {
+		constructor(host, database, username, password, port, applicationName) {
+			super();
+
 			assert.argumentIsRequired(host, 'host', String);
 			assert.argumentIsRequired(database, 'database', String);
 			assert.argumentIsRequired(username, 'username', String);
 			assert.argumentIsRequired(password, 'password', String);
 			assert.argumentIsOptional(port, 'port', Number);
 			assert.argumentIsOptional(applicationName, 'applicationName', String);
-
-			this._super();
 
 			this._configuration = {
 				host: host,
@@ -23,24 +23,24 @@ module.exports = function() {
 				password: password,
 				application_name: applicationName || 'pg-javascript-client'
 			};
-		},
+		}
 
-		getClient: function() {
+		getClient() {
 			return this._getClient();
-		},
+		}
 
-		_getClient: function() {
+		_getClient() {
 			return null;
-		},
+		}
 
-		_getConfiguration: function() {
+		_getConfiguration() {
 			return this._configuration;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[ClientProvider]';
 		}
-	});
+	}
 
 	return ClientProvider;
-}();
+})();

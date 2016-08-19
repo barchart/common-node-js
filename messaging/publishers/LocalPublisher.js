@@ -1,4 +1,3 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 
 var Event = require('common/messaging/Event');
@@ -6,54 +5,52 @@ var Disposable = require('common/lang/Disposable');
 
 var Publisher = require('./Publisher');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('common-node/messaging/publishers/LocalPublisher');
+	const logger = log4js.getLogger('common-node/messaging/publishers/LocalPublisher');
 
-	var LocalPublisher = Publisher.extend({
-		init: function() {
-			this._super();
+	class LocalPublisher extends Publisher {
+		constructor() {
+			super();
 
 			this._subscriptions = {};
-		},
+		}
 
-		_publish: function(messageType, payload) {
-			var that = this;
-
-			if (_.has(this._subscriptions, messageType)) {
+		_publish(messageType, payload) {
+			if (this._subscriptions.hasOwnProperty(messageType)) {
 				this._subscriptions[messageType].fire(payload);
 			}
-		},
+		}
 
-		_subscribe: function(messageType, handler) {
-			if (!_.has(this._subscriptions, messageType)) {
+		_subscribe(messageType, handler) {
+			if (!this._subscriptions.hasOwnProperty(messageType)) {
 				this._subscriptions[messageType] = new Event(this);
 			}
 
 			return this._subscriptions[messageType].register(getEventHandlerForSubscription(handler));
-		},
+		}
 
-		_onDispose: function() {
-			_.forEach(this._subscriptions, function(event) {
+		_onDispose() {
+			this._subscriptions.forEach((event) => {
 				event.dispose();
 			});
 
 			this._subscriptions = null;
 
 			logger.debug('Local publisher disposed');
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[LocalPublisher]';
 		}
-	});
+	}
 
 	function getEventHandlerForSubscription(handler) {
-		return function(data, ignored) {
+		return (data, ignored) => {
 			handler(data);
 		};
 	}
 
 	return LocalPublisher;
-}();
+})();

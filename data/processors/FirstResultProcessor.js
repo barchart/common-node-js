@@ -1,22 +1,23 @@
-var _ = require('lodash');
 var log4js = require('log4js');
+
+var is = require('common/lang/is');
 
 var ResultProcessor = require('./../ResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/processors/FirstResultProcessor');
+	const logger = log4js.getLogger('data/processors/FirstResultProcessor');
 
-	var FirstResultProcessor = ResultProcessor.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class FirstResultProcessor extends ResultProcessor {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_process: function(results) {
-			var result;
+		_process(results) {
+			let result;
 
-			if (_.isArray(results)) {
+			if (is.array(results)) {
 				if (results.length !== 0) {
 					result = results[0];
 				} else {
@@ -27,12 +28,12 @@ module.exports = function() {
 			}
 
 			return result;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[FirstResultProcessor]';
 		}
-	});
+	}
 
 	return FirstResultProcessor;
-}();
+})();

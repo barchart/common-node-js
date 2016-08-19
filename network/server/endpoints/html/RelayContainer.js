@@ -1,27 +1,24 @@
-var _ = require('lodash');
-var when = require('when');
-
 var assert = require('common/lang/assert');
 
 var Container = require('./../Container');
 var RelayEndpoint = require('./RelayEndpoint');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var RelayContainer = Container.extend({
-		init: function(port, path, secure) {
-			this._super(port, path, secure);
-		},
+	class RelayContainer extends Container {
+		constructor(port, path, secure) {
+			super(port, path, secure);
+		}
 
-		_getEndpointType: function() {
+		_getEndpointType() {
 			return RelayEndpoint;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[RelayContainer]';
 		}
-	});
+	}
 
 	return RelayContainer;
-}();
+})();

@@ -1,74 +1,71 @@
-var _ = require('lodash');
-var Class = require('class.extend');
-
 var assert = require('common/lang/assert');
 
 var Container = require('./endpoints/Container');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var ServerDefinition = Class.extend({
-		init: function() {
+	class ServerDefinition {
+		constructor() {
 			this._containers = [];
 
 			this._staticPaths = null;
 			this._templatePath = null;
-		},
+		}
 
-		withContainer: function(container) {
+		withContainer(container) {
 			assert.argumentIsRequired(container, 'container', Container, 'Container');
 
 			this._containers.push(container);
 
 			return this;
-		},
+		}
 
-		withStaticPath: function(staticFilePath, staticServerPath) {
+		withStaticPath(staticFilePath, staticServerPath) {
 			assert.argumentIsRequired(staticFilePath, 'staticFilePath', String);
 			assert.argumentIsRequired(staticServerPath, 'staticServerPath', String);
 
 			this._staticPaths = this._staticPaths || {};
 
-			if (_.has(this._staticPaths, staticServerPath)) {
+			if (this._staticPaths.hasOwnProperty(staticServerPath)) {
 				throw new Error('The path for serving static files has already been defined.');
 			}
 
 			this._staticPaths[staticServerPath] = staticFilePath;
 
 			return this;
-		},
+		}
 
-		withTemplatePath: function(templatePath) {
+		withTemplatePath(templatePath) {
 			assert.argumentIsRequired(templatePath, 'templatePath', String);
 
 			this._templatePath = templatePath;
 
 			return this;
-		},
+		}
 
-		getContainers: function() {
+		getContainers() {
 			return this._containers;
-		},
+		}
 
-		getStaticPaths: function() {
+		getStaticPaths() {
 			return this._staticPaths;
-		},
+		}
 
-		getTemplatePath: function() {
+		getTemplatePath() {
 			return this._templatePath;
-		},
+		}
 
-		toString: function() {
+		static withContainer(container) {
+			const serverDefinition = new ServerDefinition();
+
+			return serverDefinition.withContainer(container);
+		}
+
+		toString() {
 			return '[ServerDefinition]';
 		}
-	});
-
-	ServerDefinition.withContainer = function(container) {
-		var serverDefinition = new ServerDefinition();
-
-		return serverDefinition.withContainer(container);
-	};
+	}
 
 	return ServerDefinition;
-}();
+})();

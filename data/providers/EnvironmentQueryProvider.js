@@ -1,45 +1,45 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 
 var attributes = require('common/lang/attributes');
+var is = require('common/lang/is');
 
 var Environment = require('./../../environment/Environment');
 var QueryProvider = require('./../QueryProvider');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/providers/EnvironmentQueryProvider');
+	const logger = log4js.getLogger('data/providers/EnvironmentQueryProvider');
 
-	var EnvironmentQueryProvider = QueryProvider.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class EnvironmentQueryProvider extends QueryProvider {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_runQuery: function(criteria) {
-			var configuration = this._getConfiguration();
+		_runQuery(criteria) {
+			const configuration = this._getConfiguration();
 
-			var returnRef;
+			let returnRef;
 
-			if (_.isArray(configuration.properties)) {
-				returnRef = _.reduce(configuration.properties, function(map, property) {
+			if (is.array(configuration.properties)) {
+				returnRef = configuration.properties.reduce((map, property) => {
 					map[property] = attributes.read(Environment.getInstance().getConfiguration(), property);
 
 					return map;
 				}, {});
-			} else if (_.isString(configuration.property)) {
+			} else if (is.string(configuration.property)) {
 				returnRef = attributes.read(Environment.getInstance().getConfiguration(), configuration.property);
 			} else {
 				returnRef = undefined;
 			}
 
 			return returnRef;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[EnvironmentQueryProvider]';
 		}
-	});
+	}
 
 	return EnvironmentQueryProvider;
-}();
+})();

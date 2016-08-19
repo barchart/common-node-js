@@ -1,54 +1,49 @@
-var Class = require('class.extend');
-var when = require('when');
-
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var DataProviderFactory = Class.extend({
-		init: function() {
+	class DataProviderFactory {
+		constructor() {
 			this._started = false;
-		},
+		}
 
-		start: function() {
+		start() {
 			if (this._started) {
 				throw new Error(this.toString() + ' has already been started.');
 			}
 
-			var that = this;
+			this._started = true;
 
-			that._started = true;
+			return Promise.resolve()
+				.then(() => {
+					this._start();
+				}).then(() => {
+					return this;
+				});
+		}
 
-			return when.try(function() {
-				that._start();
-			}).then(function() {
-				return that;
-			});
-		},
-
-		_start: function() {
+		_start() {
 			return true;
-		},
+		}
 
-		build: function(configuration) {
+		build(configuration) {
 			if (!this._started) {
 				throw new Error('Unable to build data provider, the data provider factory has not been started.');
 			}
 
-			var that = this;
+			return Promise.resolve()
+				.then(() => {
+					return this._build(configuration);
+				});
+		}
 
-			return when.try(function() {
-				return that._build(configuration);
-			});
-		},
-
-		_build: function(configuration) {
+		_build(configuration) {
 			return null;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[DataProviderFactory]';
 		}
-	});
+	}
 
 	return DataProviderFactory;
-}();
+})();

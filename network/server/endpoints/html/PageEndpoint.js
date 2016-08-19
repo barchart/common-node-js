@@ -4,12 +4,16 @@ var CommandHandler = require('common/commands/CommandHandler');
 var Endpoint = require('./../Endpoint');
 var Verb = require('./../../../http/Verb');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var PageEndpoint = Endpoint.extend({
-		init: function(verb, path, template, command, cache, acceptFile, secureRedirect) {
-			this._super(command || emptyCommand);
+	const emptyCommand = CommandHandler.fromFunction((ignored) => {
+		return {};
+	});
+
+	class PageEndpoint extends Endpoint {
+		constructor(verb, path, template, command, cache, acceptFile, secureRedirect) {
+			super(command || emptyCommand);
 
 			assert.argumentIsRequired(verb, 'verb', Verb, 'Verb');
 			assert.argumentIsRequired(path, 'path', String);
@@ -24,40 +28,36 @@ module.exports = function() {
 			this._cache = cache || false;
 			this._acceptFile = acceptFile || false;
 			this._secureRedirect = secureRedirect || false;
-		},
+		}
 
-		getVerb: function() {
+		getVerb() {
 			return this._verb;
-		},
+		}
 
-		getPath: function() {
+		getPath() {
 			return this._path;
-		},
+		}
 
-		getTemplate: function() {
+		getTemplate() {
 			return this._template;
-		},
+		}
 
-		getCache: function() {
+		getCache() {
 			return this._cache;
-		},
+		}
 
-		getAcceptFile: function() {
+		getAcceptFile() {
 			return this._acceptFile;
-		},
+		}
 
-		getSecureRedirect: function() {
+		getSecureRedirect() {
 			return this._secureRedirect;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[PageEndpoint]';
 		}
-	});
-
-	var emptyCommand = CommandHandler.fromFunction(function(ignored) {
-		return {};
-	});
+	}
 
 	return PageEndpoint;
-}();
+})();

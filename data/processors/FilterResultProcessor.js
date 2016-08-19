@@ -1,92 +1,100 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 var moment = require('moment');
 
 var attributes = require('common/lang/attributes');
+var is = require('common/lang/is');
 
 var ResultProcessor = require('./../ResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/processors/FilterResultProcessor');
+	const logger = log4js.getLogger('data/processors/FilterResultProcessor');
 
-	var FilterResultProcessor = ResultProcessor.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class FilterResultProcessor extends ResultProcessor {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_process: function(results) {
-			var configuration = this._getConfiguration();
+		_process(results) {
+			const configuration = this._getConfiguration();
 
-			if (_.isObject(configuration.equals)) {
-				results = _.filter(results, function(result) {
-					return _.every(configuration.equals, function(expectedValue, propertyName) {
-						return attributes.has(result, propertyName) && attributes.read(result, propertyName) === expectedValue;
-					});
+			if (is.object(configuration.equals)) {
+				results = results.filter((result) => {
+					return Object.keys(configuration.equals)
+						.every((propertyName) => {
+							const expectedValue = configuration.equals[propertyName];
+
+							return attributes.has(result, propertyName) && attributes.read(result, propertyName) === expectedValue;
+						});
 				});
 			}
 
-			if (_.isObject(configuration.regex)) {
-				results = _.filter(results, function(result) {
-					return _.every(configuration.regex, function(expression, propertyName) {
-						var regex = new RegExp(expression);
+			if (is.object(configuration.regex)) {
+				results = results.filter((result) => {
+					return Object.keys(configuration.regex)
+						.every((propertyName) => {
+							const regex = new RegExp(configuration.regex[propertyName]);
 
-						return attributes.has(result, propertyName) && regex.test(attributes.read(result, propertyName));
-					});
+							return attributes.has(result, propertyName) && regex.test(attributes.read(result, propertyName));
+						});
 				});
 			}
 
-			if (_.isArray(configuration.empty)) {
-				results = _.filter(results, function(result) {
-					return _.every(configuration.empty, function(propertyName) {
-						var returnVal;
+			if (is.array(configuration.empty)) {
+				results = results.filter((result) => {
+					return configuration.empty
+						.every((propertyName) => {
+							let returnVal;
 
-						if (attributes.has(result, propertyName)) {
-							var value = attributes.read(result, propertyName);
+							if (attributes.has(result, propertyName)) {
+								const value = attributes.read(result, propertyName);
 
-							returnVal = _.isNull(value) || _.isUndefined(value) || value === '';
-						} else {
-							returnVal = true;
-						}
-
-						return returnVal;
-					});
-				});
-			}
-
-			if (_.isObject(configuration.special)) {
-				var now = moment();
-
-				results = _.filter(results, function(result) {
-					return _.every(configuration.special, function(specialOperation, propertyName) {
-						var returnVal = attributes.has(result, propertyName);
-
-						if (returnVal) {
-							var propertyValue = attributes.read(result, propertyName);
-
-							if (specialOperation === 'today') {
-								var m = moment(propertyValue);
-
-								returnVal = m.isValid() &&
-									m.year() === now.year() &&
-									m.month() === now.month() &&
-									m.date() === now.date();
+								returnVal = is.null(value) || is.undefined(value) || value === '';
+							} else {
+								returnVal = true;
 							}
-						}
 
-						return returnVal;
-					});
+							return returnVal;
+						});
+				});
+			}
+
+			if (is.object(configuration.special)) {
+				const now = moment();
+
+				results = results.filter((result) => {
+					return Object.keys(configuration.special)
+						.every((propertyName) => {
+							const specialOperation = configuration.special[propertyName];
+
+							let returnVal = attributes.has(result, propertyName);
+
+							if (returnVal) {
+								const propertyValue = attributes.read(result, propertyName);
+
+								if (specialOperation === 'today') {
+									const m = moment(propertyValue);
+
+									returnVal = m.isValid() &&
+										m.year() === now.year() &&
+										m.month() === now.month() &&
+										m.date() === now.date();
+								}
+							}
+
+							return returnVal;
+						});
 				});
 			}
 
 			return results;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[FilterResultProcessor]';
 		}
-	});
+	}
 
 	return FilterResultProcessor;
-}();
+})();

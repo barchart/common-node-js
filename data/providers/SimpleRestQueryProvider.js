@@ -1,29 +1,28 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 var querystring = require('querystring');
 
 var RestQueryProvider = require('./RestQueryProvider');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/providers/SimpleRestQueryProvider');
+	const logger = log4js.getLogger('data/providers/SimpleRestQueryProvider');
 
-	var SimpleRestQueryProvider = RestQueryProvider.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class SimpleRestQueryProvider extends RestQueryProvider {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_getRequestOptions: function(criteria) {
-			var configuration = this._getConfiguration();
+		_getRequestOptions(criteria) {
+			const configuration = this._getConfiguration();
 
-			var hostname = configuration.hostname;
-			var path = configuration.path || '';
-			var query = configuration.query || {};
-			var port = configuration.port || 80;
+			const hostname = configuration.hostname;
+			const path = configuration.path || '';
+			const query = configuration.query || {};
+			const port = configuration.port || 80;
 
-			if (!_.isString(hostname) || hostname.length === 0) {
-				throw new Error('Request options for ' + this.toString() + ' require a hostname');
+			if (!is.string(hostname) || hostname.length === 0) {
+				throw new Error(`Request options for ${this.toString()} require a hostname`);
 			}
 
 			return {
@@ -32,16 +31,16 @@ module.exports = function() {
 				path: '/' + path + '?' + querystring.stringify(query),
 				port: port
 			};
-		},
+		}
 
-		_parseResponse: function(responseText) {
+		_parseResponse(responseText) {
 			return JSON.parse(responseText);
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[SimpleRestQueryProvider]';
 		}
-	});
+	}
 
 	return SimpleRestQueryProvider;
-}();
+})();

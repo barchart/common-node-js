@@ -1,7 +1,7 @@
 var SocketRequestEndpoint = require('./specialized/SocketRequestEndpoint');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
 	return SocketRequestEndpoint;
-}();
+})();

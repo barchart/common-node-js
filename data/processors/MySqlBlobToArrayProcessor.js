@@ -1,4 +1,3 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 
 var attributes = require('common/lang/attributes');
@@ -8,16 +7,16 @@ var MutateResultProcessor = require('./MutateResultProcessor');
 module.exports = function() {
 	'use strict';
 
-	var logger = log4js.getLogger('data/processors/MySqlBlobToArrayProcessor');
+	const logger = log4js.getLogger('data/processors/MySqlBlobToArrayProcessor');
 
-	var MySqlBlobToArrayProcessor = MutateResultProcessor.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class MySqlBlobToArrayProcessor extends MutateResultProcessor {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_processItem: function(resultItemToProcess, configurationToUse) {
-			var propertyName = configurationToUse.propertyName;
-			var propertyValue = attributes.read(resultItemToProcess, propertyName);
+		_processItem(resultItemToProcess, configurationToUse) {
+			let propertyName = configurationToUse.propertyName;
+			let propertyValue = attributes.read(resultItemToProcess, propertyName);
 
 			if (logger.isTraceEnabled()) {
 				logger.trace('binary object:', propertyValue);
@@ -30,12 +29,12 @@ module.exports = function() {
 			}
 
 			attributes.write(resultItemToProcess, propertyName, propertyValue);
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[MySqlBlobToArrayProcessor]';
 		}
-	});
+	}
 
 	return MySqlBlobToArrayProcessor;
 }();

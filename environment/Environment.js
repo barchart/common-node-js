@@ -1,15 +1,16 @@
-var _ = require('lodash');
-var Class = require('class.extend');
 var configurator = require('node-yaml-config');
 var path = require('path');
 
 var assert = require('common/lang/assert');
+var is = require('common/lang/is');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var Environment = Class.extend({
-		init: function(environmentName, configuration, version) {
+	let instance = null;
+
+	class Environment {
+		constructor(environmentName, configuration, version) {
 			assert.argumentIsRequired(environmentName, 'environmentName', String);
 			assert.argumentIsRequired(configuration, 'configuration', Object);
 			assert.argumentIsRequired(version, 'version', String);
@@ -17,56 +18,54 @@ module.exports = function() {
 			this._name = environmentName;
 			this._configuration = configuration;
 			this._version = version;
-		},
+		}
 
-		getName: function() {
+		getName() {
 			return this._name;
-		},
+		}
 
-		getConfiguration: function() {
+		getConfiguration() {
 			return this._configuration;
-		},
+		}
 
-		getVersion: function() {
+		getVersion() {
 			return this._version;
-		},
+		}
 
-		getIsProduction: function() {
+		getIsProduction() {
 			return this._name === 'production';
 		}
-	});
 
-	var instance = null;
+		static initialize(configurationPath, version) {
+			assert.argumentIsRequired(configurationPath, 'configurationPath', String);
+			assert.argumentIsRequired(version, 'version', String);
 
-	Environment.initialize = function(configurationPath, version) {
-		assert.argumentIsRequired(configurationPath, 'configurationPath', String);
-		assert.argumentIsRequired(version, 'version', String);
+			let name;
 
-		var name;
+			if (is.object(process) && is.object(process.env) && is.string(process.env.NODE_ENV)) {
+				name = process.env.NODE_ENV;
+			} else {
+				name = 'development';
+			}
 
-		if (_.isObject(process) && _.isObject(process.env) && _.isString(process.env.NODE_ENV)) {
-			name = process.env.NODE_ENV;
-		} else {
-			name = 'development';
+			const configuration = configurator.load(path.resolve(configurationPath + '/config/config.yml'), name);
+
+			configuration.server = configuration.server || {};
+			configuration.server.path = configuration.server.path || configurationPath;
+
+			instance = new Environment(name, configuration, version);
+
+			return instance;
 		}
 
-		var configuration = configurator.load(path.resolve(configurationPath + '/config/config.yml'), name);
+		static getInstance() {
+			if (instance === null) {
+				throw new Error('The environment has not been initialized.');
+			}
 
-		configuration.server = configuration.server || {};
-		configuration.server.path = configuration.server.path || configurationPath;
-
-		instance = new Environment(name, configuration, version);
-
-		return instance;
-	};
-
-	Environment.getInstance = function() {
-		if (instance === null) {
-			throw new Error('The environment has not been initialized.');
+			return instance;
 		}
-
-		return instance;
-	};
+	}
 
 	return Environment;
-}();
+})();

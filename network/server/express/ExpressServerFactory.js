@@ -1,6 +1,4 @@
-var _ = require('lodash');
 var bodyParser = require('body-parser');
-var Class = require('class.extend');
 var clientSessions = require('client-sessions');
 var express = require('express');
 var expressHandlebars = require('express-handlebars');
@@ -13,13 +11,13 @@ var proxy = require('express-http-proxy');
 var querystring = require('querystring');
 var socketIO = require('socket.io');
 var url = require('url');
-var when = require('when');
 
 var assert = require('common/lang/assert');
+var CommandHandler = require('common/commands/CommandHandler');
 var Disposable = require('common/lang/Disposable');
 var DisposableStack = require('common/collections/specialized/DisposableStack');
-var CommandHandler = require('common/commands/CommandHandler');
 var Event = require('common/messaging/Event');
+var is = require('common/lang/is');
 
 var Container = require('./../endpoints/Container');
 var PageContainer = require('./../endpoints/html/PageContainer');
@@ -31,48 +29,48 @@ var SocketEmitterContainer = require('./../endpoints/socket/specialized/SocketEm
 var SocketSubscriptionContainer = require('./../endpoints/socket/specialized/SocketSubscriptionContainer');
 var Verb = require('./../../http/Verb');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('common-node/network/server/express/ExpressServerFactory');
+	const logger = log4js.getLogger('common-node/network/server/express/ExpressServerFactory');
 
-	var ExpressServerFactory = ServerFactory.extend({
-		init: function() {
-			this._super();
-		},
+	class ExpressServerFactory extends ServerFactory {
+		constructor() {
+			super();
+		}
 
-		_build: function(containers, staticPaths, templatePath) {
-			var serverContainer = new ExpressServerContainer(staticPaths, templatePath);
-			var containerBindingStrategies = ContainerBindingStrategy.getStrategies();
+		_build(containers, staticPaths, templatePath) {
+			const serverContainer = new ExpressServerContainer(staticPaths, templatePath);
+			const containerBindingStrategies = ContainerBindingStrategy.getStrategies();
 
-			return when.map(containers, function(container) {
-				var containerBindingStrategy = _.find(containerBindingStrategies, function(candidate) {
+			return Promise.all(containers.map((container) => {
+				const containerBindingStrategy = containerBindingStrategies.find((candidate) => {
 					return candidate.canBind(container);
 				});
 
-				var bindingPromise;
+				let bindingPromise;
 
 				if (containerBindingStrategy) {
 					bindingPromise = containerBindingStrategy.bind(container, serverContainer);
 				} else {
 					logger.warn('Unable to find appropriate binding strategy for container');
 
-					bindingPromise = when(null);
+					bindingPromise = Promise.resolve(null);
 				}
 
 				return bindingPromise;
-			}).then(function(ignored) {
+			})).then((ignored) => {
 				return serverContainer.start();
 			});
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[ExpressServerFactory]';
 		}
-	});
+	}
 
-	var ExpressServer = Class.extend({
-		init: function(port, secure, staticPaths, templatePath) {
+	class ExpressServer {
+		constructor(port, secure, staticPaths, templatePath) {
 			assert.argumentIsRequired(port, 'port', Number);
 			assert.argumentIsRequired(secure, 'secure', Boolean);
 			assert.argumentIsOptional(staticPaths, 'staticPaths', Object);
@@ -90,22 +88,22 @@ module.exports = function() {
 			this._relayMap = {};
 			this._serviceMap = {};
 			this._socketRequestMap = {};
-			this._socketSubscriptionMap = { };
+			this._socketSubscriptionMap = {};
 
 			this._socketEmitters = [ ];
 
 			this._started = false;
-		},
+		}
 
-		getPort: function() {
+		getPort() {
 			return this._port;
-		},
+		}
 
-		getIsSecure: function() {
+		getIsSecure() {
 			return this._secure;
-		},
+		}
 
-		addPage: function(basePath, pagePath, template, verb, command, cache, useSession, acceptFile, secureRedirect) {
+		addPage(basePath, pagePath, template, verb, command, cache, useSession, acceptFile, secureRedirect) {
 			assert.argumentIsRequired(basePath, 'basePath', String);
 			assert.argumentIsRequired(pagePath, 'pagePath', String);
 			assert.argumentIsRequired(template, 'template', String);
@@ -118,14 +116,14 @@ module.exports = function() {
 
 			this._useSessions = this._useSessions || useSession;
 
-			if (!_.has(this._pageMap, basePath)) {
+			if (!this._pageMap.hasOwnProperty(basePath)) {
 				this._pageMap[basePath] = {
 					path: basePath,
 					handlers: []
 				};
 			}
 
-			var handlerData = {
+			const handlerData = {
 				verb: verb,
 				path: pagePath,
 				template: template,
@@ -133,9 +131,9 @@ module.exports = function() {
 			};
 
 			this._pageMap[basePath].handlers.push(handlerData);
-		},
+		}
 
-		addRelay: function(basePath, acceptPath, forwardHost, forwardPath, verb, headerOverrides, parameterOverrides) {
+		addRelay(basePath, acceptPath, forwardHost, forwardPath, verb, headerOverrides, parameterOverrides) {
 			assert.argumentIsRequired(basePath, 'basePath', String);
 			assert.argumentIsRequired(acceptPath, 'acceptPath', String);
 			assert.argumentIsRequired(forwardHost, 'forwardHost', String);
@@ -144,7 +142,7 @@ module.exports = function() {
 			assert.argumentIsRequired(headerOverrides, 'headerOverrides', Object);
 			assert.argumentIsRequired(parameterOverrides, 'parameterOverrides', Object);
 
-			if (!_.has(this._relayMap, basePath)) {
+			if (!this._relayMap.hasOwnProperty(basePath)) {
 				this._relayMap[basePath] = {
 					path: basePath,
 					relays: [ ]
@@ -158,9 +156,9 @@ module.exports = function() {
 				forwardPath: forwardPath,
 				handler: buildRelayHandler(basePath, acceptPath, forwardHost, forwardPath, verb, headerOverrides, parameterOverrides)
 			});
-		},
+		}
 
-		addService: function(basePath, routePath, verb, command) {
+		addService(basePath, routePath, verb, command) {
 			assert.argumentIsRequired(basePath, 'basePath', String);
 			assert.argumentIsRequired(routePath, 'routePath', String);
 			assert.argumentIsRequired(verb, 'verb', Verb, 'Verb');
@@ -170,23 +168,23 @@ module.exports = function() {
 				throw new Error('Unable to add route, the server has already been started.');
 			}
 
-			if (!_.has(this._serviceMap, basePath)) {
+			if (!this._serviceMap.hasOwnProperty(basePath)) {
 				this._serviceMap[basePath] = {
 					path: basePath,
 					handlers: []
 				};
 			}
 
-			var handlerData = {
+			const handlerData = {
 				verb: verb,
 				path: routePath,
 				handler: buildRestHandler(verb, basePath, routePath, command)
 			};
 
 			this._serviceMap[basePath].handlers.push(handlerData);
-		},
+		}
 
-		addChannel: function(path, channel, command) {
+		addChannel(path, channel, command) {
 			assert.argumentIsRequired(path, 'path', String);
 			assert.argumentIsRequired(channel, 'channel', String);
 			assert.argumentIsRequired(command, 'command', CommandHandler, 'CommandHandler');
@@ -195,16 +193,16 @@ module.exports = function() {
 				throw new Error('Unable to add request handler for socket.io channel, the server has already been started.');
 			}
 
-			var completePath = 'request' + path + channel;
+			const completePath = 'request' + path + channel;
 
-			if (_.has(this._socketRequestMap, completePath)) {
+			if (this._socketRequestMap.hasOwnProperty(completePath)) {
 				throw new Error('Unable to add handler for socket.io channel, another handler is already using this channel.');
 			}
 
 			this._socketRequestMap[completePath] = command;
-		},
+		}
 
-		addEmitter: function(path, channel, event, eventType, roomQualifier) {
+		addEmitter(path, channel, event, eventType, roomQualifier) {
 			assert.argumentIsRequired(path, 'path', String);
 			assert.argumentIsRequired(channel, 'channel', String);
 			assert.argumentIsRequired(event, 'event', Event, 'Event');
@@ -223,9 +221,9 @@ module.exports = function() {
 				event: event,
 				eventType: eventType
 			});
-		},
+		}
 
-		addSubscription: function(path, channel, roomCommand, responseCommand, responseEventType) {
+		addSubscription(path, channel, roomCommand, responseCommand, responseEventType) {
 			assert.argumentIsRequired(path, 'path', String);
 			assert.argumentIsRequired(channel, 'channel', String);
 			assert.argumentIsRequired(roomCommand, 'roomCommand', CommandHandler, 'CommandHandler');
@@ -238,11 +236,11 @@ module.exports = function() {
 
 			var completePath = 'subscribe' + path + channel;
 
-			if (_.has(this._socketSubscriptionMap, completePath)) {
+			if (this._socketSubscriptionMap.hasOwnProperty(completePath)) {
 				throw new Error('Unable to add subscription handler for socket.io channel, another handler is already using this channel.');
 			}
 
-			var subscriptionInfo = {
+			const subscriptionInfo = {
 				room: {
 					command: roomCommand
 				},
@@ -253,28 +251,26 @@ module.exports = function() {
 			};
 
 			this._socketSubscriptionMap[completePath] = subscriptionInfo;
-		},
+		}
 
-		start: function() {
+		start() {
 			if (this._started) {
 				throw new Error('Unable to start server, the has already been started.');
 			}
 
-			var that = this;
+			this._started = true;
 
-			that._started = true;
+			const startStack = new DisposableStack();
 
-			var startStack = new DisposableStack();
+			const secure = this.getIsSecure();
+			const port = this.getPort();
 
-			var secure = that.getIsSecure();
-			var port = that.getPort();
-
-			var app = new express();
+			const app = new express();
 
 			app.use(bodyParser.urlencoded({extended: true, limit: '1mb'}));
 			app.use(bodyParser.json({limit: '1mb'}));
 
-			app.use(function(req, res, next) {
+			app.use((req, res, next) => {
 				logger.debug('Applying HTTP headers for ' + req.originalUrl);
 
 				res.header('Access-Control-Allow-Origin', '*');
@@ -284,7 +280,7 @@ module.exports = function() {
 				next();
 			});
 
-			if (that._useSessions) {
+			if (this._useSessions) {
 				app.use(clientSessions({
 					cookieName: 'session',
 					secret: 'barchart-session-secret-1234567890',
@@ -292,32 +288,36 @@ module.exports = function() {
 				}));
 			}
 
-			if (_.some(that._staticPaths)) {
-				_.forEach(that._staticPaths, function(filePath, serverPath) {
-					logger.info('Bound static', (secure ? 'HTTPS' : 'HTTP'), 'path on port', port, filePath, 'to', serverPath);
+			Object.keys(this._staticPaths).forEach((serverPath) => {
+				const filePath = this._staticPaths[serverPath];
 
-					app.use(serverPath, express.static(filePath));
-				});
-			}
+				logger.info('Bound static', (secure ? 'HTTPS' : 'HTTP'), 'path on port', port, filePath, 'to', serverPath);
 
-			var routeBindingStrategies = ExpressRouteBindingStrategy.getStrategies();
+				app.use(serverPath, express.static(filePath));
+			});
 
-			if (_.isString(that._templatePath) && _.some(that._pageMap)) {
-				app.set('views', that._templatePath);
+			const routeBindingStrategies = ExpressRouteBindingStrategy.getStrategies();
+
+			const pageKeys = Object.keys(this._pageMap);
+
+			if (is.string(this._templatePath) && pageKeys.some(() => true)) {
+				app.set('views', this._templatePath);
 				app.engine('.hbs', expressHandlebars({extname: '.hbs'}));
 				app.set('view engine', '.hbs');
 
-				_.forEach(that._pageMap, function(pageData) {
-					var basePath = pageData.path;
-					var router = express.Router();
+				pageKeys.forEach((key) => {
+					const pageData = this._pageMap[key];
 
-					_.forEach(pageData.handlers, function(handlerData) {
-						var verb = handlerData.verb;
-						var handlers = handlerData.handlers;
-						var pagePath = handlerData.path;
-						var template = handlerData.template;
+					const basePath = pageData.path;
+					const router = express.Router();
 
-						var routeBindingStrategy = _.find(routeBindingStrategies, function(candidate) {
+					pageData.handlers.forEach((handlerData) => {
+						const verb = handlerData.verb;
+						const handlers = handlerData.handlers;
+						const pagePath = handlerData.path;
+						const template = handlerData.template;
+
+						const routeBindingStrategy = routeBindingStrategies.find((candidate) => {
 							return candidate.canBind(verb);
 						});
 
@@ -334,63 +334,67 @@ module.exports = function() {
 				});
 			}
 
-			if (_.some(that._relayMap)) {
-				_.forEach(that._relayMap, function(rootData) {
-					var basePath = rootData.path;
-					var router = express.Router();
+			const relayKeys = Object.keys(this._relayMap);
 
-					_.forEach(rootData.relays, function(relayData) {
-						var verb = relayData.verb;
-						var handler = relayData.handler;
-						var acceptPath = relayData.acceptPath;
-						var forwardHost = relayData.forwardHost;
-						var forwardPath = relayData.forwardPath;
+			relayKeys.forEach((key) => {
+				const rootData = this._relayMap[key];
 
-						var routeBindingStrategy = _.find(routeBindingStrategies, function(candidate) {
-							return candidate.canBind(verb);
-						});
+				const basePath = rootData.path;
+				const router = express.Router();
 
-						if (routeBindingStrategy) {
-							routeBindingStrategy.bind(router, verb, acceptPath, [ handler ]);
+				rootData.relays.forEach((relayData) => {
+					const verb = relayData.verb;
+					const handler = relayData.handler;
+					const acceptPath = relayData.acceptPath;
+					const forwardHost = relayData.forwardHost;
+					const forwardPath = relayData.forwardPath;
 
-							logger.info('Bound relay for', (secure ? 'HTTPS' : 'HTTP'), verb.getCode(), 'on port', port, 'at', path.join(basePath, acceptPath), 'to', path.join(forwardHost, forwardPath));
-						} else {
-							logger.warn('Unable to find appropriate binding strategy for endpoint using HTTP verb (' + verb.getCode() + ')');
-						}
+					const routeBindingStrategy = routeBindingStrategies.find((candidate) => {
+						return candidate.canBind(verb);
 					});
 
-					app.use(basePath, router);
+					if (routeBindingStrategy) {
+						routeBindingStrategy.bind(router, verb, acceptPath, [ handler ]);
+
+						logger.info('Bound relay for', (secure ? 'HTTPS' : 'HTTP'), verb.getCode(), 'on port', port, 'at', path.join(basePath, acceptPath), 'to', path.join(forwardHost, forwardPath));
+					} else {
+						logger.warn('Unable to find appropriate binding strategy for endpoint using HTTP verb (' + verb.getCode() + ')');
+					}
 				});
-			}
 
-			if (_.some(that._serviceMap)) {
-				_.forEach(that._serviceMap, function(routeData) {
-					var basePath = routeData.path;
-					var router = express.Router();
+				app.use(basePath, router);
+			});
 
-					_.forEach(routeData.handlers, function(handlerData) {
-						var verb = handlerData.verb;
-						var handler = handlerData.handler;
-						var routePath = handlerData.path;
+			const serviceKeys = Object.keys(this._serviceMap);
 
-						var routeBindingStrategy = _.find(routeBindingStrategies, function(candidate) {
-							return candidate.canBind(verb);
-						});
+			serviceKeys.forEach((key) => {
+				const routeData = this._serviceMap[key];
 
-						if (routeBindingStrategy) {
-							routeBindingStrategy.bind(router, verb, routePath, [ handler ]);
+				const basePath = routeData.path;
+				const router = express.Router();
 
-							logger.info('Bound REST handler for', (secure ? 'HTTPS' : 'HTTP'), verb.getCode(), 'on port', port, 'at', path.join(basePath, routePath));
-						} else {
-							logger.warn('Unable to find appropriate binding strategy for endpoint using HTTP verb (' + verb.getCode() + ')');
-						}
+				routeData.handlers.forEach((handlerData) => {
+					const verb = handlerData.verb;
+					const handler = handlerData.handler;
+					const routePath = handlerData.path;
+
+					const routeBindingStrategy = routeBindingStrategies.find((candidate) => {
+						return candidate.canBind(verb);
 					});
 
-					app.use(basePath, router);
-				});
-			}
+					if (routeBindingStrategy) {
+						routeBindingStrategy.bind(router, verb, routePath, [ handler ]);
 
-			var server;
+						logger.info('Bound REST handler for', (secure ? 'HTTPS' : 'HTTP'), verb.getCode(), 'on port', port, 'at', path.join(basePath, routePath));
+					} else {
+						logger.warn('Unable to find appropriate binding strategy for endpoint using HTTP verb (' + verb.getCode() + ')');
+					}
+				});
+
+				app.use(basePath, router);
+			});
+
+			let server;
 
 			if (secure) {
 				server = https.createServer(app);
@@ -398,14 +402,17 @@ module.exports = function() {
 				server = http.createServer(app);
 			}
 
-			if (_.some(that._socketRequestMap) || _.some(that._socketSubscriptionMap) || _.some(that._socketEmitters)) {
-				var io = socketIO.listen(server);
+			const socketRequestKeys = Object.keys(this._socketRequestMap);
+			const socketSubscriptionKeys = Object.keys(this._socketSubscriptionMap);
 
-				_.forEach(that._socketEmitters, function(emitterData) {
+			if (socketRequestKeys.some(() => true) || socketSubscriptionKeys.some(() => true) || this._socketEmitters.some(() => true)) {
+				const io = socketIO.listen(server);
+
+				this._socketEmitters.forEach((emitterData) => {
 					startStack.push(
 						emitterData.event.register(function(data) {
-							var qualifier = emitterData.room.qualifier(data);
-							var room = emitterData.room.base;
+							let qualifier = emitterData.room.qualifier(data);
+							let room = emitterData.room.base;
 
 							if (qualifier) {
 								room = room +  qualifier;
@@ -418,24 +425,32 @@ module.exports = function() {
 					logger.info('Bound socket.io emitter on port', port, 'for room', emitterData.room);
 				});
 
-				_.forEach(that._socketRequestMap, function(command, channel) {
+				socketRequestKeys.forEach((channel) => {
 					logger.info('Bound socket.io handler on port', port, 'to channel', channel);
 				});
 
 				io.on('connection', function(socket) {
-					logger.info('Socket.io client [', socket.id, '] at', socket.conn.remoteAddress, 'connected on port', port);
-					logger.info('Socket.io now has', _.size(socket.adapter.sids), 'connections');
+					if (logger.isInfoEnabled()) {
+						logger.info('Socket.io client [', socket.id, '] at', socket.conn.remoteAddress, 'connected on port', port);
+						logger.info('Socket.io now has', Object.keys(socket.adapter.sids).length, 'connections');
+					}
 
 					socket.on('disconnect', function() {
-						logger.info('Socket.io client [', socket.id, '] at', socket.conn.remoteAddress, 'on port', port, 'disconnected');
-						logger.info('Socket.io now has', +_.size(socket.adapter.sids), 'connections');
+						if (logger.isInfoEnabled()) {
+							logger.info('Socket.io client [', socket.id, '] at', socket.conn.remoteAddress, 'on port', port, 'disconnected');
+							logger.info('Socket.io now has', Object.keys(socket.adapter.sids).length, 'connections');
+						}
 					});
 
-					_.forEach(that._socketRequestMap, function(command, channel) {
+					socketRequestKeys.forEach((channel) => {
+						const command = this._socketRequestMap[channel];
+
 						socket.on(channel, buildSocketRequestHandler(channel, command, socket));
 					});
 
-					_.forEach(that._socketSubscriptionMap, function(subscriptionInfo, channel) {
+					socketSubscriptionKeys.forEach((channel) => {
+						const command = this._socketSubscriptionMap[channel];
+
 						socket.on(channel, buildSocketSubscriptionHandler(channel, subscriptionInfo, socket));
 					});
 
@@ -445,77 +460,81 @@ module.exports = function() {
 
 			server.listen(port);
 
-			startStack.push(new Disposable.fromAction(function() {
+			startStack.push(new Disposable.fromAction(() => {
 				server.close();
 			}));
 
 			return startStack;
 		}
-	});
+	}
 
-	var ExpressServerContainer = Class.extend({
-		init: function(staticPaths, templatePath) {
+	class ExpressServerContainer {
+		constructor(staticPaths, templatePath) {
 			this._serverMap = {};
 
 			this._staticPaths = staticPaths || null;
 			this._templatePath = templatePath || null;
 
 			this._started = false;
-		},
+		}
 
-		getServer: function(port, secure) {
+		getServer(port, secure) {
 			if (this._started) {
 				throw new Error('Unable to manipulate servers, the server container has already started.');
 			}
 
-			if (!_.has(this._serverMap, port)) {
+			if (!this._serverMap.hasOwnProperty(port)) {
 				this._serverMap[port] = new ExpressServer(port, secure, this._staticPaths, this._templatePath);
 			}
 
-			var returnRef = this._serverMap[port];
+			const returnRef = this._serverMap[port];
 
 			if (returnRef.getIsSecure() !== secure) {
 				throw new Error('Unable to bind HTTP and HTTPS protocol to the same port (' + port + ').');
 			}
 
 			return returnRef;
-		},
+		}
 
-		start: function() {
+		start() {
 			if (this._started) {
 				throw new Error('Unable to start servers, the server container has already started.');
 			}
 
 			this._started = true;
 
-			return when.map(_.values(this._serverMap), function(server) {
-				logger.info('Starting new ' + (server.getIsSecure() ? 'secure ' : '') + 'server on port ' + server.getPort());
+			Promise.all(
+				Object.keys(this._serverMap).map((port) => {
+					const server = this._serverMap[port];
 
-				return server.start();
-			}).then(function(disposables) {
-				return _.reduce(disposables, function(stack, disposable) {
+					logger.info('Starting new ' + (server.getIsSecure() ? 'secure ' : '') + 'server on port ' + server.getPort());
+
+					return server.start();
+				})
+			).then(function(disposables) {
+				return disposables.reduce((stack, disposable) => {
 					stack.push(disposable);
 
 					return stack;
 				}, new DisposableStack());
 			});
 		}
-	});
+	}
 
-	var ExpressRouteBindingStrategy = Class.extend({
-		init: function(verb, action) {
+	class ExpressRouteBindingStrategy {
+		constructor(verb, action) {
 			assert.argumentIsRequired(verb, 'verb', Verb, 'Verb');
 			assert.argumentIsRequired(action, 'action', Function);
 
 			this._verb = verb;
 			this._action = action;
-		},
+		}
 
-		canBind: function(verb) {
+		canBind(verb) {
 			return this._verb === verb;
-		},
+		}
 
-		bind: function(router, verb, path, handlers) {
+		bind(router, verb, path, handlers) {
 			assert.argumentIsRequired(router, router);
 			assert.argumentIsRequired(verb, 'verb', Verb, 'Verb');
 			assert.argumentIsRequired(path, 'path', String);
@@ -528,9 +547,9 @@ module.exports = function() {
 
 			return this._action(router, path, handlers);
 		}
-	});
+	}
 
-	ExpressRouteBindingStrategy.getStrategies = function() {
+	ExpressRouteBindingStrategy.getStrategies = () => {
 		return [
 			new ExpressRouteBindingStrategy(Verb.GET, function(router, path, handlers) {
 				router.get.apply(router, [path].concat(handlers));
@@ -547,27 +566,27 @@ module.exports = function() {
 		];
 	};
 
-	var ExpressArgumentExtractionStrategy = Class.extend({
-		init: function(verb, action) {
+	class ExpressArgumentExtractionStrategy {
+		constructor(verb, action) {
 			assert.argumentIsRequired(verb, 'verb', Verb, 'Verb');
 			assert.argumentIsRequired(action, 'action', Function);
 
 			this._verb = verb;
 			this._action = action;
-		},
+		}
 
-		canProcess: function(verb) {
+		canProcess(verb) {
 			return this._verb === verb;
-		},
+		}
 
-		getCommandArguments: function(verb, request, useSession, acceptFile) {
+		getCommandArguments(verb, request, useSession, acceptFile) {
 			assert.argumentIsRequired(request, 'request');
 
 			if (!this.canProcess(verb)) {
 				logger.warn('Unable to extract arguments from HTTP request.');
 			}
 
-			var returnRef = this._action(request);
+			const returnRef = this._action(request);
 
 			if (useSession) {
 				returnRef.session = request.session || { };
@@ -579,39 +598,39 @@ module.exports = function() {
 
 			return returnRef;
 		}
-	});
+	}
 
-	ExpressArgumentExtractionStrategy.getStrategies = function() {
+	ExpressArgumentExtractionStrategy.getStrategies = () => {
 		return [
 			new ExpressArgumentExtractionStrategy(Verb.GET, function(req) {
-				return _.merge(req.query || {}, req.params || {});
+				return Object.assign({}, req.query || {}, req.params || {});
 			}),
 			new ExpressArgumentExtractionStrategy(Verb.POST, function(req) {
-				return _.merge(req.params || {}, req.body || {});
+				return Object.assign({}, req.params || {}, req.body || {});
 			}),
 			new ExpressArgumentExtractionStrategy(Verb.PUT, function(req) {
-				return _.merge(req.params || {}, req.body || {});
+				return Object.assign({}, req.params || {}, req.body || {});
 			}),
 			new ExpressArgumentExtractionStrategy(Verb.DELETE, function(req) {
-				return _.merge(req.query || {}, req.params || {});
+				return Object.assign({}, req.query || {}, req.params || {});
 			})
 		];
 	};
 
-	var ContainerBindingStrategy = Class.extend({
-		init: function() {
+	class ContainerBindingStrategy {
+		constructor() {
 
-		},
+		}
 
-		canBind: function(container) {
+		canBind(container) {
 			return this._canBind(container);
-		},
+		}
 
-		_canBind: function(container) {
+		_canBind(container) {
 			return false;
-		},
+		}
 
-		bind: function(container, serverContainer) {
+		bind(container, serverContainer) {
 			assert.argumentIsRequired(container, 'container', Container, 'Container');
 			assert.argumentIsRequired(serverContainer, 'serverContainer', ExpressServerContainer, 'ExpressServerContainer');
 
@@ -619,147 +638,147 @@ module.exports = function() {
 				throw new Error('Unable to bind container, the strategy does not support the container.');
 			}
 
-			return when(this._bind(container, serverContainer));
-		},
+			return Promise.resolve(this._bind(container, serverContainer));
+		}
 
-		_bind: function(container, serverContainer) {
+		_bind(container, serverContainer) {
 			return false;
 		}
-	});
+	}
 
-	var RestContainerBindingStrategy = ContainerBindingStrategy.extend({
-		init: function() {
-			this._super();
-		},
+	class RestContainerBindingStrategy extends ContainerBindingStrategy {
+		constructor() {
+			super();
+		}
 
-		_canBind: function(container) {
+		_canBind(container) {
 			return container instanceof RestContainer;
-		},
+		}
 
-		_bind: function(container, serverContainer) {
-			var endpoints = container.getEndpoints();
+		_bind(container, serverContainer) {
+			const endpoints = container.getEndpoints();
 
-			var server = serverContainer.getServer(container.getPort(), container.getIsSecure(), false);
+			const server = serverContainer.getServer(container.getPort(), container.getIsSecure(), false);
 
-			_.forEach(endpoints, function(endpoint) {
+			endpoints.forEach((endpoint) => {
 				server.addService(container.getPath(), endpoint.getPath(), endpoint.getRestAction().getVerb(), endpoint.getCommand());
 			});
 
 			return true;
 		}
-	});
+	}
 
-	var SocketRequestContainerBindingStrategy = ContainerBindingStrategy.extend({
-		init: function() {
-			this._super();
-		},
+	class SocketRequestContainerBindingStrategy extends ContainerBindingStrategy {
+		constructor() {
+			super();
+		}
 
-		_canBind: function(container) {
+		_canBind(container) {
 			return container instanceof SocketRequestContainer;
-		},
+		}
 
-		_bind: function(container, serverContainer) {
-			var endpoints = container.getEndpoints();
+		_bind(container, serverContainer) {
+			const endpoints = container.getEndpoints();
 
-			var server = serverContainer.getServer(container.getPort(), container.getIsSecure());
+			const server = serverContainer.getServer(container.getPort(), container.getIsSecure());
 
-			_.forEach(endpoints, function(endpoint) {
+			endpoints.forEach((endpoint) => {
 				server.addChannel(container.getPath(), endpoint.getChannel(), endpoint.getCommand());
 			});
 
 			return true;
 		}
-	});
+	}
 
-	var SocketEmitterContainerBindingStrategy = ContainerBindingStrategy.extend({
-		init: function() {
-			this._super();
-		},
+	class SocketEmitterContainerBindingStrategy extends ContainerBindingStrategy {
+		constructor() {
+			super();
+		}
 
-		_canBind: function(container) {
+		_canBind(container) {
 			return container instanceof SocketEmitterContainer;
-		},
+		}
 
-		_bind: function(container, serverContainer) {
-			var endpoints = container.getEndpoints();
+		_bind(container, serverContainer) {
+			const endpoints = container.getEndpoints();
 
-			var server = serverContainer.getServer(container.getPort(), container.getIsSecure());
+			const server = serverContainer.getServer(container.getPort(), container.getIsSecure());
 
-			_.forEach(endpoints, function(endpoint) {
+			endpoints.forEach((endpoint) => {
 				server.addEmitter(container.getPath(), endpoint.getChannel(), endpoint.getEvent(), endpoint.getEventType(), endpoint.getRoomQualifier());
 			});
 
 			return true;
 		}
-	});
+	}
 
-	var SocketSubscriptionContainerBindingStrategy = ContainerBindingStrategy.extend({
-		init: function() {
-			this._super();
-		},
+	class SocketSubscriptionContainerBindingStrategy extends ContainerBindingStrategy {
+		constructor() {
+			super();
+		}
 
-		_canBind: function(container) {
+		_canBind(container) {
 			return container instanceof SocketSubscriptionContainer;
-		},
+		}
 
-		_bind: function(container, serverContainer) {
-			var endpoints = container.getEndpoints();
+		_bind(container, serverContainer) {
+			const endpoints = container.getEndpoints();
 
-			var server = serverContainer.getServer(container.getPort(), container.getIsSecure());
+			const server = serverContainer.getServer(container.getPort(), container.getIsSecure());
 
-			_.forEach(endpoints, function(endpoint) {
+			endpoints.forEach((endpoint) => {
 				server.addSubscription(container.getPath(), endpoint.getChannel(), endpoint.getRoomCommand(), endpoint.getResponseCommand(), endpoint.getResponseEventType());
 			});
 
 			return true;
 		}
-	});
+	}
 
-	var HtmlContainerBindingStrategy = ContainerBindingStrategy.extend({
-		init: function() {
-			this._super();
-		},
+	class HtmlContainerBindingStrategy extends ContainerBindingStrategy {
+		constructor() {
+			super();
+		}
 
-		_canBind: function(container) {
+		_canBind(container) {
 			return container instanceof PageContainer;
-		},
+		}
 
-		_bind: function(container, serverContainer) {
-			var endpoints = container.getEndpoints();
+		_bind(container, serverContainer) {
+			const endpoints = container.getEndpoints();
 
-			var server = serverContainer.getServer(container.getPort(), container.getIsSecure());
+			const server = serverContainer.getServer(container.getPort(), container.getIsSecure());
 
-			_.forEach(endpoints, function(endpoint) {
+			endpoints.forEach((endpoint) => {
 				server.addPage(container.getPath(), endpoint.getPath(), endpoint.getTemplate(), endpoint.getVerb(), endpoint.getCommand(), endpoint.getCache(), container.getUsesSession(), endpoint.getAcceptFile(), container.getSecureRedirect() || endpoint.getSecureRedirect());
 			});
 
 			return true;
 		}
-	});
+	}
 
-	var RelayContainerBindingStrategy = ContainerBindingStrategy.extend({
-		init: function() {
-			this._super();
-		},
+	class RelayContainerBindingStrategy extends ContainerBindingStrategy {
+		constructor() {
+			super();
+		}
 
-		_canBind: function(container) {
+		_canBind(container) {
 			return container instanceof RelayContainer;
-		},
+		}
 
-		_bind: function(container, serverContainer) {
-			var endpoints = container.getEndpoints();
+		_bind(container, serverContainer) {
+			const endpoints = container.getEndpoints();
 
-			var server = serverContainer.getServer(container.getPort(), container.getIsSecure());
+			const server = serverContainer.getServer(container.getPort(), container.getIsSecure());
 
-			_.forEach(endpoints, function(endpoint) {
+			endpoints.forEach((endpoint) => {
 				server.addRelay(container.getPath(), endpoint.getAcceptPath(), endpoint.getForwardHost(), endpoint.getForwardPath(), endpoint.getVerb(), endpoint.getHeaderOverrides(), endpoint.getParameterOverrides());
 			});
 
 			return true;
 		}
-	});
+	}
 
-	ContainerBindingStrategy.getStrategies = function() {
+	ContainerBindingStrategy.getStrategies = () => {
 		return [
 			new RestContainerBindingStrategy(),
 			new SocketRequestContainerBindingStrategy(),
@@ -771,7 +790,7 @@ module.exports = function() {
 	};
 
 	function buildPageHandlers(verb, basePath, routePath, template, command, cache, useSession, acceptFile, secureRedirect) {
-		var handlers = [ ];
+		const handlers = [ ];
 
 		if (acceptFile) {
 			var uploader = multer({ storage: multer.memoryStorage(), limits: { files: 1, fileSize: 10485760 } });
@@ -781,7 +800,7 @@ module.exports = function() {
 
 		var sequencer = 0;
 
-		var argumentExtractionStrategy = _.find(ExpressArgumentExtractionStrategy.getStrategies(), function(candidate) {
+		let argumentExtractionStrategy = ExpressArgumentExtractionStrategy.getStrategies().find((candidate) => {
 			return candidate.canProcess(verb);
 		});
 
@@ -793,15 +812,15 @@ module.exports = function() {
 			};
 		}
 
-		handlers.push(function(request, response) {
-			var sequence = sequencer++;
+		handlers.push((request, response) => {
+			const sequence = sequencer++;
 
 			logger.debug('Processing starting for', verb.getCode(), 'at', path.join(basePath, routePath), '(' + sequence + ')');
 
-			var handlerPromise;
+			let handlerPromise;
 
 			if (secureRedirect && request.headers['x-forwarded-proto'] === 'http') {
-				handlerPromise = when.promise(function(resolveCallback, rejectCallback) {
+				handlerPromise = new Promise((resolveCallback, rejectCallback) => {
 					if (verb === Verb.GET) {
 						logger.warn('Redirecting HTTP ', verb.getCode(), 'at', path.join(basePath, routePath), ' to HTTPS (' + sequence + ')');
 
@@ -815,19 +834,20 @@ module.exports = function() {
 					}
 				});
 			} else {
-				handlerPromise = when.try(function() {
-					var commandArguments = argumentExtractionStrategy.getCommandArguments(verb, request, useSession, acceptFile);
+				handlerPromise = Promise.resolve()
+					.then(() => {
+						const commandArguments = argumentExtractionStrategy.getCommandArguments(verb, request, useSession, acceptFile);
 
-					return command.process(commandArguments);
-				}).then(function(result) {
-					if (!cache) {
-						response.setHeader('Cache-Control', 'private, max-age=0, no-cache');
-					}
+						return command.process(commandArguments);
+					}).then((result) => {
+						if (!cache) {
+							response.setHeader('Cache-Control', 'private, max-age=0, no-cache');
+						}
 
-					response.render(template, result);
+						response.render(template, result);
 
-					logger.debug('Processing completed for', verb.getCode(), 'at', path.join(basePath + routePath), '(' + sequence + ')');
-				});
+						logger.debug('Processing completed for', verb.getCode(), 'at', path.join(basePath + routePath), '(' + sequence + ')');
+					});
 			}
 
 			return handlerPromise;
@@ -838,16 +858,16 @@ module.exports = function() {
 
 	function buildRelayHandler(basePath, acceptPath, forwardHost, forwardPath, verb, headerOverrides, parameterOverrides) {
 		return proxy(forwardHost, {
-			filter: function(request, response) {
+			filter: (request, response) => {
 				return request.method == verb.getCode();
 			},
-			forwardPath: function(request, response) {
-				var returnRef = forwardPath;
+			forwardPath: (request, response) => {
+				let returnRef = forwardPath;
 
 				if (Verb.GET === verb) {
-					_.merge(request.query || { }, parameterOverrides);
+					Object.assign(request.query || { }, parameterOverrides);
 
-					if (_.some(request.query)) {
+					if (Object.keys(request.query).some(() => true)) {
 						returnRef = returnRef + '?' + querystring.stringify(request.query);
 					}
 				}
@@ -855,10 +875,10 @@ module.exports = function() {
 				return returnRef;
 			},
 			decorateRequest: function(request) {
-				_.merge(request.headers, headerOverrides);
+				Object.assign(request.headers, headerOverrides);
 
 				if (Verb.GET !== verb) {
-					_.merge(request.body || { }, parameterOverrides);
+					Object.assign(request.body || { }, parameterOverrides);
 				}
 
 				return request;
@@ -866,10 +886,10 @@ module.exports = function() {
 		});
 	}
 
-	var sequencer = 0;
+	let sequencer = 0;
 
 	function buildRestHandler(verb, basePath, routePath, command) {
-		var argumentExtractionStrategy = _.find(ExpressArgumentExtractionStrategy.getStrategies(), function(candidate) {
+		let argumentExtractionStrategy = ExpressArgumentExtractionStrategy.getStrategies().find((candidate) => {
 			return candidate.canProcess(verb);
 		});
 
@@ -881,101 +901,123 @@ module.exports = function() {
 			};
 		}
 
-		return function(request, response) {
-			var sequence = sequencer++;
+		return (request, response) => {
+			const sequence = sequencer++;
 
 			logger.debug('Processing starting for', verb.getCode(), 'at', path.join(basePath, routePath), '(' + sequence + ')');
 
-			return when.try(function() {
-				var commandArguments = argumentExtractionStrategy.getCommandArguments(verb, request);
+			return Promise.resolve()
+				.then(() => {
+					const commandArguments = argumentExtractionStrategy.getCommandArguments(verb, request);
 
-				logger.trace('Processing command (' + sequence + ') with the following arguments:', commandArguments);
+					logger.trace('Processing command (' + sequence + ') with the following arguments:', commandArguments);
 
-				return command.process(commandArguments);
-			}).then(function(result) {
-				if (_.isObject(result) || _.isArray(result)) {
-					response.json(result);
-				} else if (verb === Verb.GET && (_.isNull(result) || _.isUndefined(result))) {
-					response.status(404);
-					response.json(generateRestResponse('no data'));
-				} else {
-					response.status(200);
-					response.json(generateRestResponse('success'));
-				}
+					return command.process(commandArguments);
+				}).then((result) => {
+					if (is.object(result) || is.array(result)) {
+						response.json(result);
+					} else if (verb === Verb.GET && (is.null(result) || is.undefined(result))) {
+						response.status(404);
+						response.json(generateRestResponse('no data'));
+					} else {
+						response.status(200);
+						response.json(generateRestResponse('success'));
+					}
 
-				logger.debug('Processing completed for', verb.getCode(), 'at', path.join(basePath, routePath), '(' + sequence + ')');
-			}).catch(function(error) {
-				logger.error('Processing failed for', verb.getCode(), 'at', path.join(basePath, routePath), '(' + sequence + ')');
-				logger.error(error);
+					logger.debug('Processing completed for', verb.getCode(), 'at', path.join(basePath, routePath), '(' + sequence + ')');
+				}).catch((error) => {
+					logger.error('Processing failed for', verb.getCode(), 'at', path.join(basePath, routePath), '(' + sequence + ')');
+					logger.error(error);
 
-				response.status(500);
-				response.json(generateRestResponse(error.message || error.toString() || 'internal server error'));
-			});
+					response.status(500);
+					response.json(generateRestResponse(error.message || error.toString() || 'internal server error'));
+				});
 		};
 	}
 
 	function buildSocketRequestHandler(channel, command, socket) {
-		return function(request) {
-			var sequence = sequencer++;
+		return (request) => {
+			const sequence = sequencer++;
 
-			var requestId = request.requestId;
+			const requestId = request.requestId;
 
-			if (!_.isString(requestId)) {
+			if (!is.string(requestId)) {
 				throw new Error('Unable to process socket.io request. A "requestId" property is expected.');
 			}
 
 			logger.debug('Processing starting for socket.io request from [', socket.id ,'] on', channel, '(', sequence, ')');
 
-			return when.try(function() {
-				return command.process(request.request);
-			}).then(function(result) {
-				var envelope = {
-					requestId: request.requestId,
-					response: result || {}
-				};
+			return Promise.resolve()
+				.then(() => {
+					return command.process(request.request);
+				}).then(function(result) {
+					const envelope = {
+						requestId: request.requestId,
+						response: result || {}
+					};
 
-				socket.emit('response', envelope);
+					socket.emit('response', envelope);
 
-				logger.debug('Processing completed for socket.io request on', channel, '(', sequence, ')');
-			}).catch(function(error) {
-				logger.error('Processing failed for socket.io request on', channel, '(', sequence, ')');
-				logger.error(error);
-			});
+					logger.debug('Processing completed for socket.io request on', channel, '(', sequence, ')');
+				}).catch(function(error) {
+					logger.error('Processing failed for socket.io request on', channel, '(', sequence, ')');
+					logger.error(error);
+				});
 		};
 	}
 
 	function buildSocketSubscriptionHandler(channel, subscriptionInfo, socket) {
-		return function(request) {
-			var sequence = sequencer++;
+		return (request) => {
+			const sequence = sequencer++;
 
 			logger.debug('Processing starting for socket.io subscription request from [', socket.id ,'] on', channel, '(', sequence, ')');
 
-			return when.try(function() {
-				return subscriptionInfo.room.command.process(request);
-			}).then(function(room) {
-				socket.join(room);
+			return Promise.resolve()
+				.then(() => {
+					return subscriptionInfo.rooms.command.process(request);
+				}).then(function(qualifiers) {
+					let qualifiersToJoin;
 
-				logger.debug('Socket.io client [', socket.id, '] joined', room);
-
-				var responsePromise = when(null);
-
-				if (subscriptionInfo.response.eventType) {
-					var response = subscriptionInfo.response.command.process(request);
-
-					if (response) {
-						socket.emit(subscriptionInfo.response.eventType, response);
-
-						logger.debug('Socket.io client [', socket.id, '] sent immediate response after joining', room);
+					if (is.array(qualifiers)) {
+						qualifiersToJoin = qualifiers;
+					} else if (is.string(qualifiers)) {
+						qualifiersToJoin = [ qualifiers ];
+					} else {
+						qualifiersToJoin = [ ];
 					}
-				}
 
-				return responsePromise;
-			}).then(function() {
-				logger.debug('Processing completed for socket.io subscription request on', channel, '(', sequence, ')');
-			}).catch(function(error) {
-				logger.error('Processing failed for socket.io subscription request on', channel, '(', sequence, ')');
-				logger.error(error);
-			});
+					const roomsToJoin = qualifiersToJoin.map((qualifierToJoin) => {
+						return subscriptionInfo.rooms.base + qualifierToJoin;
+					});
+
+					roomsToJoin.forEach((roomToJoin) => {
+						socket.join(roomToJoin);
+					});
+
+					logger.debug('Socket.io client [', socket.id, '] joined [', roomsToJoin.join(','), ']');
+
+					let responsePromise;
+
+					if (subscriptionInfo.response.eventType) {
+						responsePromise = subscriptionInfo.response.command.process(request)
+							.then((response) => {
+								if (response) {
+									socket.emit(subscriptionInfo.response.eventType, response);
+
+									logger.debug('Socket.io client [', socket.id, '] sent immediate response after joining [', roomsToJoin.join(','), ']');
+								}
+							});
+					} else {
+						responsePromise = Promise.resolve();
+					}
+
+					return responsePromise;
+				}).then(() => {
+					logger.debug('Processing completed for socket.io subscription request on', channel, '(', sequence, ')');
+				}).catch((error) => {
+					logger.error('Processing failed for socket.io subscription request on', channel, '(', sequence, ')');
+					logger.error(error);
+				});
 		};
 	}
 
@@ -986,4 +1028,4 @@ module.exports = function() {
 	}
 
 	return ExpressServerFactory;
-}();
+})();

@@ -1,33 +1,32 @@
-var _ = require('lodash');
-var when = require('when');
 var log4js = require('log4js');
 var twilio = require('twilio');
 
 var assert = require('common/lang/assert');
+var is = require('common/lang/is');
 var Disposable = require('common/lang/Disposable');
 var RateLimiter = require('common/timing/RateLimiter');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('common-node/sms/TwilioProvider');
+	const logger = log4js.getLogger('common-node/sms/TwilioProvider');
 
-	var TwilioProvider = Disposable.extend({
-		init: function(configuration) {
+	class TwilioProvider extends Disposable {
+		constructor(configuration) {
+			super();
+
 			assert.argumentIsRequired(configuration, 'configuration');
 			assert.argumentIsRequired(configuration.accountSid, 'configuration.accountSid', String);
 			assert.argumentIsRequired(configuration.authToken, 'configuration.authToken', String);
 			assert.argumentIsRequired(configuration.sourceNumber, 'configuration.sourceNumber', String);
 
-			if (_.isArray(configuration.recipientOverride)) {
+			if (is.array(configuration.recipientOverride)) {
 				assert.argumentIsArray(configuration.recipientOverride, 'configuration.recipientOverride', String);
 			} else {
 				assert.argumentIsOptional(configuration.recipientOverride, 'configuration.recipientOverride', String);
 			}
 
 			assert.argumentIsOptional(configuration.rateLimitPerSecond, 'configuration.rateLimitPerSecond', Number);
-
-			this._super();
 
 			this._publisher = null;
 
@@ -37,36 +36,35 @@ module.exports = function() {
 			this._started = false;
 
 			this._rateLimiter = new RateLimiter(configuration.rateLimitPerSecond || 10, 1000);
-		},
+		}
 
-		start: function() {
-			var that = this;
-
-			if (that.getIsDisposed()) {
+		start() {
+			if (this.getIsDisposed()) {
 				throw new Error('The Twilio provider has been disposed.');
 			}
 
-			if (that._startPromise === null) {
-				that._startPromise = when.try(function() {
-					that._publisher = twilio(that._configuration.accountSid, that._configuration.authToken);
-				}).then(function() {
-					logger.info('Twilio provider started');
+			if (this._startPromise === null) {
+				this._startPromise = Promise.resolve()
+					.then(() => {
+						this._publisher = twilio(this._configuration.accountSid, this._configuration.authToken);
+					}).then(function() {
+						logger.info('Twilio provider started');
 
-					that._started = true;
+						this._started = true;
 
-					return that._started;
-				}).catch(function(e) {
-					logger.error('Twilio provider failed to start', e);
+						return this._started;
+					}).catch(function(e) {
+						logger.error('Twilio provider failed to start', e);
 
-					throw e;
-				});
+						throw e;
+					});
 			}
 
-			return that._startPromise;
-		},
+			return this._startPromise;
+		}
 
-		sendSms: function(recipientNumber, content, sourceNumber) {
-			if (_.isArray(recipientNumber)) {
+		sendSms(recipientNumber, content, sourceNumber) {
+			if (is.array(recipientNumber)) {
 				assert.argumentIsArray(recipientNumber, 'recipientNumber', String);
 			} else {
 				assert.argumentIsRequired(recipientNumber, 'recipientNumber', String);
@@ -75,13 +73,11 @@ module.exports = function() {
 			assert.argumentIsRequired(content, 'content', String);
 			assert.argumentIsOptional(sourceNumber, 'sourceNumber', String);
 
-			var that = this;
-
-			if (that.getIsDisposed()) {
+			if (this.getIsDisposed()) {
 				throw new Error('The Twilio provider has been disposed.');
 			}
 
-			if (!that._started) {
+			if (!this._started) {
 				throw new Error('The Twilio provider has not been started.');
 			}
 
@@ -91,39 +87,39 @@ module.exports = function() {
 				recipientNumber = this._configuration.recipientOverride;
 			}
 
-			var recipientNumbersToUse;
+			let recipientNumbersToUse;
 
-			if (_.isArray(recipientNumber)) {
+			if (is.array(recipientNumber)) {
 				recipientNumbersToUse = recipientNumber;
 			} else {
 				recipientNumbersToUse = [recipientNumber];
 			}
 
-			var sourceNumberToUse = sourceNumber || that._configuration.sourceNumber;
+			const sourceNumberToUse = sourceNumber || this._configuration.sourceNumber;
 
-			return this._rateLimiter.enqueue(function() {
-				return when.promise(function(resolveCallback, rejectCallback) {
-					recipientNumbersToUse.forEach(function(targetNumber) {
+			return this._rateLimiter.enqueue(() => {
+				return new Promise((resolveCallback, rejectCallback) => {
+					recipientNumbersToUse.forEach((targetNumber) => {
 						logger.debug('Sending sms via twilio to', targetNumber);
 
-						return that._publisher.sendMessage({ from: sourceNumberToUse, to: targetNumber, body: content }, function() {
+						return this._publisher.sendMessage({ from: sourceNumberToUse, to: targetNumber, body: content }, () => {
 							resolveCallback();
 						});
 					});
 				});
 			});
-		},
+		}
 
-		_onDispose: function() {
+		_onDispose() {
 			this._rateLimiter.dispose();
 
 			logger.debug('Twilio provider disposed');
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[TwilioProvider]';
 		}
-	});
+	}
 
 	return TwilioProvider;
-}();
+})();

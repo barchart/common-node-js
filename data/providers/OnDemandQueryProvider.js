@@ -1,89 +1,95 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 var querystring = require('querystring');
 
+var is = require('common/lang/is');
+
 var RestQueryProvider = require('./RestQueryProvider');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/providers/OnDemandQueryProvider');
+	const logger = log4js.getLogger('data/providers/OnDemandQueryProvider');
 
-	var OnDemandQueryProvider = RestQueryProvider.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class OnDemandQueryProvider extends RestQueryProvider {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_getCriteriaIsValid: function(criteria) {
-			var that = this;
+		_getCriteriaIsValid(criteria) {
+			const dynamicCriteria = this._getDynamicCriteria();
 
-			var dynamicCriteria = that._getDynamicCriteria();
+			return Object.keys(dynamicCriteria)
+				.every((key) => {
+					const defaultValue = dynamicCriteria[key];
 
-			return _.every(dynamicCriteria, function(defaultValue, key) {
-				var valueToUse;
+					let valueToUse;
 
-				if (_.has(criteria, key)) {
-					valueToUse = criteria[key];
-				}
+					if (criteria.hasOwnProperty(key)) {
+						valueToUse = criteria[key];
+					}
 
-				if (_.isUndefined(valueToUse)) {
-					valueToUse = defaultValue;
-				}
+					if (is.undefined(valueToUse)) {
+						valueToUse = defaultValue;
+					}
 
-				if (_.isNumber(valueToUse)) {
-					valueToUse = valueToUse.toString();
-				}
+					if (is.number(valueToUse)) {
+						valueToUse = valueToUse.toString();
+					}
 
-				if (_.isArray(valueToUse) && valueToUse.length !== 0) {
-					valueToUse = valueToUse.join();
-				}
+					if (is.array(valueToUse) && valueToUse.length !== 0) {
+						valueToUse = valueToUse.join();
+					}
 
-				return _.isString(valueToUse) && valueToUse.length !== 0;
-			});
-		},
+					return is.string(valueToUse) && valueToUse.length !== 0;
+				});
+		}
 
-		_getRequestOptions: function(criteria) {
-			var that = this;
+		_getRequestOptions(criteria) {
+			const module = this._getModule();
 
-			var module = that._getModule();
-
-			if (!_.isString(module) || module.length === 0) {
-				throw new Error('Request options for ' + that.toString() + ' require a module');
+			if (!is.string(module) || module.length === 0) {
+				throw new Error(`Request options for ${this.toString()} require a module`);
 			}
 
-			var dynamicCriteria = that._getDynamicCriteria();
-
-			var query = _.assign({
+			const query = Object.assign({
 				module: module,
 				apikey: 'ondemand',
 				output: 'json'
-			}, that._getStaticCriteria());
+			}, this._getStaticCriteria());
 
-			_.forOwn(dynamicCriteria, function(defaultValue, key) {
-				var valueToUse;
+			const dynamicCriteria = this._getDynamicCriteria();
 
-				if (_.has(criteria, key)) {
-					valueToUse = criteria[key];
-				}
+			Object.keys(dynamicCriteria)
+				.forEach((key) => {
+					const defaultValue = dynamicCriteria[key];
 
-				if (_.isUndefined(valueToUse)) {
-					valueToUse = defaultValue;
-				}
+					let valueToUse;
 
-				query[key] = valueToUse;
-			});
+					if (criteria.hasOwnProperty(key)) {
+						valueToUse = criteria[key];
+					}
 
-			_.forOwn(query, function(value, key) {
-				var stringValue;
+					if (is.undefined(valueToUse)) {
+						valueToUse = defaultValue;
+					}
 
-				if (_.isArray(value)) {
-					stringValue = value.join();
-				} else {
-					stringValue = value.toString();
-				}
+					query[key] = valueToUse;
+				});
 
-				query[key] = stringValue;
-			});
+			Object.keys(query)
+				.forEach((key) => {
+					const value = query[key];
+
+					let stringValue;
+
+					if (is.array(value)) {
+						stringValue = value.join();
+					} else {
+						stringValue = value.toString();
+					}
+
+					query[key] = stringValue;
+				});
 
 			return {
 				method: 'GET',
@@ -91,13 +97,13 @@ module.exports = function() {
 				path: '/?' + querystring.stringify(query),
 				port: 80
 			};
-		},
+		}
 
-		_parseResponse: function(responseText) {
-			var response = JSON.parse(responseText);
-			var responseCode = response.status.code;
+		_parseResponse(responseText) {
+			const response = JSON.parse(responseText);
+			const responseCode = response.status.code;
 
-			var returnRef;
+			let returnRef;
 
 			if (responseCode === 200) {
 				returnRef = response.results;
@@ -108,54 +114,54 @@ module.exports = function() {
 			}
 
 			return returnRef;
-		},
+		}
 
-		_getModule: function() {
-			var configuration = this._getConfiguration();
+		_getModule() {
+			const configuration = this._getConfiguration();
 
-			var returnRef;
+			let returnRef;
 
-			if (_.isString(configuration.module)) {
+			if (is.string(configuration.module)) {
 				returnRef = configuration.module;
 			} else {
 				returnRef = null;
 			}
 
 			return returnRef;
-		},
+		}
 
-		_getStaticCriteria: function() {
-			var configuration = this._getConfiguration();
+		_getStaticCriteria() {
+			const configuration = this._getConfiguration();
 
-			var returnRef;
+			let returnRef;
 
-			if (_.isObject(configuration.staticCriteria)) {
+			if (is.object(configuration.staticCriteria)) {
 				returnRef = configuration.staticCriteria;
 			} else {
 				returnRef = {};
 			}
 
 			return returnRef;
-		},
+		}
 
-		_getDynamicCriteria: function() {
+		_getDynamicCriteria() {
 			var configuration = this._getConfiguration();
 
 			var returnRef;
 
-			if (_.isObject(configuration.dynamicCriteria)) {
+			if (is.object(configuration.dynamicCriteria)) {
 				returnRef = configuration.dynamicCriteria;
 			} else {
 				returnRef = {};
 			}
 
 			return returnRef;
-		},
-
-		toString: function() {
-			return '[OnDemandQueryProvider (Module=' + (this._getModule() || 'unknown') + ')]';
 		}
-	});
+
+		toString() {
+			return `[OnDemandQueryProvider (Module=${(this._getModule() || 'unknown')})]`;
+		}
+	}
 
 	return OnDemandQueryProvider;
-}();
+})();

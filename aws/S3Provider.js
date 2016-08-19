@@ -1,23 +1,21 @@
-var _ = require('lodash');
 var aws = require('aws-sdk');
-var when = require('when');
 var log4js = require('log4js');
 
 var assert = require('common/lang/assert');
 var Disposable = require('common/lang/Disposable');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('common-node/messaging/S3Provider');
+	const logger = log4js.getLogger('common-node/messaging/S3Provider');
 
-	var S3Provider = Disposable.extend({
-		init: function(configuration) {
+	class S3Provider extends Disposable {
+		constructor(configuration) {
+			super();
+
 			assert.argumentIsRequired(configuration, 'configuration');
 			assert.argumentIsRequired(configuration.region, 'configuration.region', String);
 			assert.argumentIsOptional(configuration.apiVersion, 'configuration.apiVersion', String);
-
-			this._super();
 
 			this._s3 = null;
 
@@ -25,49 +23,46 @@ module.exports = function() {
 
 			this._startPromise = null;
 			this._started = false;
-		},
+		}
 
-		start: function() {
-			var that = this;
-
-			if (that.getIsDisposed()) {
+		start() {
+			if (this.getIsDisposed()) {
 				throw new Error('The S3 Provider has been disposed.');
 			}
 
-			if (that._startPromise === null) {
-				that._startPromise = when.try(function() {
-					aws.config.update({region: that._configuration.region});
+			if (this._startPromise === null) {
+				this._startPromise = Promise.resolve()
+					.then(() => {
+						aws.config.update({region: this._configuration.region});
 
-					that._s3 = new aws.S3({apiVersion: that._configuration.apiVersion || '2010-12-01'});
-				}).then(function() {
-					logger.info('S3 provider started');
+						this._s3 = new aws.S3({apiVersion: this._configuration.apiVersion || '2010-12-01'});
+					}).then(() => {
+						logger.info('S3 provider started');
 
-					that._started = true;
+						this._started = true;
 
-					return that._started;
-				}).catch(function(e) {
-					logger.error('S3 provider failed to start', e);
+						return this._started;
+					}).catch((e) => {
+						logger.error('S3 provider failed to start', e);
 
-					throw e;
-				});
+						throw e;
+					});
 			}
 
-			return that._startPromise;
-		},
+			return this._startPromise;
+		}
 
-		getBucketContents: function(bucket) {
-			var that = this;
-
-			if (that.getIsDisposed()) {
+		getBucketContents(bucket) {
+			if (this.getIsDisposed()) {
 				throw new Error('The S3 Provider has been disposed.');
 			}
 
-			if (!that._started) {
+			if (!this._started) {
 				throw new Error('The SES Provider has not been started.');
 			}
 
-			return when.promise(function(resolveCallback, rejectCallback) {
-				that._s3.listObjects({Bucket: bucket}, function(err, data) {
+			return new Promise((resolveCallback, rejectCallback) => {
+				this._s3.listObjects({Bucket: bucket}, (err, data) => {
 					if (err) {
 						logger.error('S3 failed to retrieve contents: ', err);
 						rejectCallback(err);
@@ -78,21 +73,19 @@ module.exports = function() {
 					}
 				});
 			});
-		},
+		}
 
-		uploadObject: function(bucket, fileName, buffer, mimeType) {
-			var that = this;
-
-			if (that.getIsDisposed()) {
+		uploadObject(bucket, fileName, buffer, mimeType) {
+			if (this.getIsDisposed()) {
 				throw new Error('The S3 Provider has been disposed.');
 			}
 
-			if (!that._started) {
+			if (!this._started) {
 				throw new Error('The SES Provider has not been started.');
 			}
 
-			return when.promise(function(resolveCallback, rejectCallback) {
-				var params = {
+			return new Promise((resolveCallback, rejectCallback) => {
+				const params = {
 					Bucket: bucket,
 					Key: fileName,
 					ACL: 'public-read',
@@ -100,12 +93,12 @@ module.exports = function() {
 					ContentType: mimeType
 				};
 
-				var options = {
+				const options = {
 					partSize: 10 * 1024 * 1024,
 					queueSize: 1
 				};
 
-				that._s3.upload(params, options, function(err, data) {
+				this._s3.upload(params, options, (err, data) => {
 					if (err) {
 						logger.error('S3 failed to upload object: ', err);
 						rejectCallback(err);
@@ -114,26 +107,24 @@ module.exports = function() {
 					}
 				});
 			});
-		},
+		}
 
-		deleteObject: function(bucket, key) {
-			var that = this;
-
-			if (that.getIsDisposed()) {
+		deleteObject(bucket, key) {
+			if (this.getIsDisposed()) {
 				throw new Error('The S3 Provider has been disposed.');
 			}
 
-			if (!that._started) {
+			if (!this._started) {
 				throw new Error('The SES Provider has not been started.');
 			}
 
-			return when.promise(function(resolveCallback, rejectCallback) {
-				var params = {
+			return new Promise((resolveCallback, rejectCallback) => {
+				const params = {
 					Bucket: bucket,
 					Key: key
 				};
 
-				that._s3.deleteObject(params, function(err, data) {
+				this._s3.deleteObject(params, (err, data) => {
 					if (err) {
 						logger.error('S3 failed to delete object: ', err);
 						rejectCallback(err);
@@ -142,17 +133,16 @@ module.exports = function() {
 					}
 				});
 			});
-		},
+		}
 
-		_onDispose: function() {
+		_onDispose() {
 			logger.debug('S3 provider disposed');
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[S3Provider]';
 		}
-	});
-
+	}
 
 	return S3Provider;
-}();
+})();

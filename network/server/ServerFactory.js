@@ -1,37 +1,33 @@
-var Class = require('class.extend');
-var when = require('when');
-
 var assert = require('common/lang/assert');
 var Disposable = require('common/lang/Disposable');
 
 var ServerDefinition = require('./ServerDefinition');
 
-module.exports = function() {
-	var ServerFactory = Class.extend({
-		init: function() {
+module.exports = (() => {
+	class ServerFactory {
+		constructor() {
 
-		},
+		}
 
-		build: function(serverDefinition) {
+		build(serverDefinition) {
 			assert.argumentIsRequired(serverDefinition, 'serverDefinition', ServerDefinition, 'ServerDefinition');
 
-			var that = this;
+			return Promise.resolve()
+				.then(() => {
+					return this._build(serverDefinition.getContainers(), serverDefinition.getStaticPaths(), serverDefinition.getTemplatePath());
+				});
+		}
 
-			return when.try(function() {
-				return that._build(serverDefinition.getContainers(), serverDefinition.getStaticPaths(), serverDefinition.getTemplatePath());
-			});
-		},
-
-		_build: function(containers, staticPath, templatePath) {
-			return Disposable.fromAction(function() {
+		_build(containers, staticPath, templatePath) {
+			return Disposable.fromAction(() => {
 				return;
 			});
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[ServerFactory]';
 		}
-	});
+	}
 
 	return ServerFactory;
-}();
+})();

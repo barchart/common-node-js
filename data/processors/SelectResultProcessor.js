@@ -1,43 +1,46 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 
 var attributes = require('common/lang/attributes');
+var is = require('common/lang/is');
 
 var ResultProcessor = require('./../ResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/processors/SelectResultProcessor');
+	const logger = log4js.getLogger('data/processors/SelectResultProcessor');
 
-	var SelectResultProcessor = ResultProcessor.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class SelectResultProcessor extends ResultProcessor {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_process: function(results) {
-			var configuration = this._getConfiguration();
+		_process(results) {
+			const configuration = this._getConfiguration();
 
 			if (configuration.properties) {
-				var resultsToProcess;
+				let resultsToProcess;
 
-				if (_.isArray(results)) {
+				if (is.array(results)) {
 					resultsToProcess = results;
 				} else {
 					resultsToProcess = [ results ];
 				}
 
-				resultsToProcess = _.map(resultsToProcess, function(result) {
+				resultsToProcess = resultsToProcess.map((result) => {
 					var transform = {};
 
-					_.forEach(configuration.properties, function(outputPropertyName, inputPropertyName) {
-						attributes.write(transform, outputPropertyName, attributes.read(result, inputPropertyName));
-					});
+					Object.keys(configuration.properties)
+						.forEach((inputPropertyName) => {
+							const outputPropertyName = configuration.properties[inputPropertyName];
+
+							attributes.write(transform, outputPropertyName, attributes.read(result, inputPropertyName));
+						});
 
 					return transform;
 				});
 
-				if (_.isArray(results)) {
+				if (is.array(results)) {
 					results = resultsToProcess;
 				} else {
 					results = resultsToProcess[0];
@@ -45,12 +48,12 @@ module.exports = function() {
 			}
 
 			return results;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[SelectResultProcessor]';
 		}
-	});
+	}
 
 	return SelectResultProcessor;
-}();
+})();

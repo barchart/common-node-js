@@ -1,85 +1,77 @@
-var _ = require('lodash');
 var log4js = require('log4js');
-var when = require('when');
 
 var assert = require('common/lang/assert');
 var DisposableStack = require('common/collections/specialized/DisposableStack');
 
 var Router = require('./Router');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('common-node/messaging/routers/CompositeRouter');
+	const logger = log4js.getLogger('common-node/messaging/routers/CompositeRouter');
 
-	var CompositeRouter = Router.extend({
-		init: function(routers) {
+	class CompositeRouter extends Router {
+		constructor(routers) {
+			super();
+
 			assert.argumentIsArray(routers, 'routers', Router, 'Router');
 
-			this._super();
-
 			this._routers = routers;
-		},
+		}
 
-		_start: function() {
-			var that = this;
-
-			return when.map(that._routers, function(routers) {
+		_start() {
+			return Promise.all(this._routers.map((routers) => {
 				return routers.start();
-			}).then(function() {
+			})).then(() => {
 				return true;
 			});
-		},
+		}
 
-		_canRoute: function(messageType) {
-			return _.some(this._routers, function(router) {
+		_canRoute(messageType) {
+			return this._routers.some((router) => {
 				return router.canRoute(messageType);
 			});
-		},
+		}
 
-		_route: function(messageType, payload) {
-			var that = this;
-
-			var router = _.find(that._routers, function(router) {
+		_route(messageType, payload) {
+			const router = this._routers.find((router) => {
 				return router.canRoute(messageType);
 			});
 
 			return router.route(messageType, payload);
-		},
+		}
 
-		_register: function(messageType, handler) {
-			var that = this;
-
-			var registerPromises = _.map(that._routers, function(router) {
+		_register(messageType, handler) {
+			const registerPromises = this._routers.map((router) => {
 				return router.register(messageType, handler);
 			});
 
-			return when.all(registerPromises)
-				.then(function(registrations) {
-					var disposableStack = new DisposableStack();
+			return Promise.all(registerPromises)
+				.then((registrations) => {
+					const disposableStack = new DisposableStack();
 
-					for (var i = 0; i < registrations.length; i++) {
-						disposableStack.push(registrations[i]);
-					}
+					registrations.forEach((registration) => {
+						disposableStack.push(registration);
+					});
 
 					return disposableStack;
 				});
-		},
+		}
 
-		_onDispose: function() {
-			_.forEach(this._routers, function(router) {
+		_onDispose() {
+			this._routers.forEach((router) => {
 				router.dispose();
 			});
 
 			this._routers = null;
 
 			logger.debug('Composite router disposed');
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[CompositeRouter]';
 		}
-	});
+	}
 
 	return CompositeRouter;
-}();
+})();

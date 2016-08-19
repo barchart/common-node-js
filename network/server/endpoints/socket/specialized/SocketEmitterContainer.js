@@ -1,22 +1,22 @@
 var Container = require('./../../Container');
 var SocketEmitterEndpoint = require('./SocketEmitterEndpoint');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var SocketEmitterContainer = Container.extend({
-		init: function(port, path, secure) {
-			this._super(port, path, secure);
-		},
+	class SocketEmitterContainer extends Container {
+		constructor(port, path, secure) {
+			super(port, path, secure);
+		}
 
-		_getEndpointType: function() {
+		_getEndpointType() {
 			return SocketEmitterEndpoint;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[SocketEmitterContainer]';
 		}
-	});
+	}
 
 	return SocketEmitterContainer;
-}();
+})();

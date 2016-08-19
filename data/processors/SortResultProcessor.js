@@ -1,6 +1,6 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 var attributes = require('common/lang/attributes');
+var is = require('common/lang/is');
 
 var assert = require('common/lang/assert');
 var ComparatorBuilder = require('common/collections/sorting/ComparatorBuilder');
@@ -9,33 +9,31 @@ var converters = require('common/lang/converters');
 
 var ResultProcessor = require('./../ResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/processors/SortResultProcessor');
+	const logger = log4js.getLogger('data/processors/SortResultProcessor');
 
-	var SortResultProcessor = ResultProcessor.extend({
-		init: function(configuration) {
-			this._super(configuration);
+	class SortResultProcessor extends ResultProcessor {
+		constructor(configuration) {
+			super(configuration);
 
-			var properties;
+			let properties;
 
 			if (configuration.property) {
 				properties = [configuration.property];
-			} else if (_.isArray(configuration.properties)) {
+			} else if (is.array(configuration.properties)) {
 				properties = configuration.properties;
 			} else {
 				properties = [];
 			}
 
 			if (properties.length !== 0) {
-				var comparatorBuilder;
+				let comparatorBuilder;
 
-				for (var i = 0; i < properties.length; i++) {
-					var property = properties[i];
-
-					var comparator = getComparator(property.type, property.name);
-					var invert = property.invert === true;
+				properties.forEach((property, i) => {
+					const comparator = getComparator(property.type, property.name);
+					const invert = property.invert === true;
 
 					if (comparator) {
 						if (i === 0) {
@@ -44,35 +42,35 @@ module.exports = function() {
 							comparatorBuilder = comparatorBuilder.thenBy(comparator, invert);
 						}
 					}
-				}
+				});
 
 				this._comparator = comparatorBuilder.toComparator();
 			} else {
 				this._comparator = null;
 			}
-		},
+		}
 
-		_process: function(results) {
-			if (_.isFunction(this._comparator)) {
+		_process(results) {
+			if (is.fn(this._comparator)) {
 				results.sort(this._comparator);
 			}
 
 			return results;
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[SortResultProcessor]';
 		}
-	});
+	}
 
 	function getComparator(propertyTypeName, propertyName) {
 		assert.argumentIsRequired(propertyTypeName, 'propertyTypeName', String);
 		assert.argumentIsRequired(propertyName, 'propertyName', String);
 
-		var upperCase = propertyTypeName.toUpperCase();
+		const upperCase = propertyTypeName.toUpperCase();
 
-		var comparator;
-		var converter;
+		let comparator;
+		let converter;
 
 		if (upperCase === 'STRING') {
 			comparator = comparators.compareStrings;
@@ -90,7 +88,7 @@ module.exports = function() {
 			converter = converters.empty;
 		}
 
-		return function(itemA, itemB) {
+		return (itemA, itemB) => {
 			var valueA = converter(attributes.read(itemA, propertyName));
 			var valueB = converter(attributes.read(itemB, propertyName));
 
@@ -99,4 +97,4 @@ module.exports = function() {
 	}
 
 	return SortResultProcessor;
-}();
+})();

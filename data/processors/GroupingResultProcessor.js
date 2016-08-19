@@ -1,54 +1,55 @@
-var _ = require('lodash');
 var log4js = require('log4js');
 
+var array = require('common/lang/array');
 var attributes = require('common/lang/attributes');
+var is = require('common/lang/is');
 
 var MutateResultProcessor = require('./MutateResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
-	var logger = log4js.getLogger('data/processors/GroupingResultProcessor');
+	const logger = log4js.getLogger('data/processors/GroupingResultProcessor');
 
-	var GroupingResultProcessor = MutateResultProcessor.extend({
-		init: function(configuration) {
-			this._super(configuration);
-		},
+	class GroupingResultProcessor extends MutateResultProcessor {
+		constructor(configuration) {
+			super(configuration);
+		}
 
-		_processItem: function(resultItemToProcess, configurationToUse) {
-			if (!(_.isString(configurationToUse.sourcePropertyName) && attributes.has(resultItemToProcess, configurationToUse.sourcePropertyName) && _.isString(configurationToUse.groupPropertyName))) {
+		_processItem(resultItemToProcess, configurationToUse) {
+			if (!(is.string(configurationToUse.sourcePropertyName) && attributes.has(resultItemToProcess, configurationToUse.sourcePropertyName) && is.string(configurationToUse.groupPropertyName))) {
 				return;
 			}
 
-			var sourcePropertyName = configurationToUse.sourcePropertyName;
-			var groupPropertyName = configurationToUse.groupPropertyName;
+			const sourcePropertyName = configurationToUse.sourcePropertyName;
+			const groupPropertyName = configurationToUse.groupPropertyName;
 
-			var source = attributes.read(resultItemToProcess, sourcePropertyName);
-			var groups;
+			let source = attributes.read(resultItemToProcess, sourcePropertyName);
+			let groups;
 
-			if (_.isArray(source)) {
-				groups = _.groupBy(source, function(sourceItem) {
+			if (is.array(source)) {
+				groups = array.groupBy(source, (sourceItem) => {
 					return attributes.read(sourceItem, groupPropertyName);
 				});
 			} else {
 				groups = null;
 			}
 
-			var targetPropertyName;
+			let targetPropertyName;
 
-			if (_.isString(configurationToUse.targetPropertyName)) {
+			if (is.string(configurationToUse.targetPropertyName)) {
 				targetPropertyName = configurationToUse.targetPropertyName;
 			} else {
 				targetPropertyName = sourcePropertyName;
 			}
 
 			attributes.write(resultItemToProcess, targetPropertyName, groups);
-		},
+		}
 
-		toString: function() {
+		toString() {
 			return '[GroupingResultProcessor]';
 		}
-	});
+	}
 
 	return GroupingResultProcessor;
-}();
+})();
