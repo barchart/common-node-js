@@ -462,7 +462,7 @@ module.exports = (() => {
 
 			server.listen(port);
 
-			startStack.push(new Disposable.fromAction(() => {
+			startStack.push(Disposable.fromAction(() => {
 				server.close();
 			}));
 
