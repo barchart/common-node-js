@@ -289,13 +289,15 @@ module.exports = (() => {
 				}));
 			}
 
-			Object.keys(this._staticPaths).forEach((serverPath) => {
-				const filePath = this._staticPaths[serverPath];
+			if (this._staticPaths !== null) {
+				Object.keys(this._staticPaths).forEach((serverPath) => {
+					const filePath = this._staticPaths[serverPath];
 
-				logger.info('Bound static', (secure ? 'HTTPS' : 'HTTP'), 'path on port', port, filePath, 'to', serverPath);
+					logger.info('Bound static', (secure ? 'HTTPS' : 'HTTP'), 'path on port', port, filePath, 'to', serverPath);
 
-				app.use(serverPath, express.static(filePath));
-			});
+					app.use(serverPath, express.static(filePath));
+				});
+			}
 
 			const routeBindingStrategies = ExpressRouteBindingStrategy.getStrategies();
 
