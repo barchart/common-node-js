@@ -4,6 +4,8 @@ var Disposable = require('common/lang/Disposable');
 var ServerDefinition = require('./ServerDefinition');
 
 module.exports = (() => {
+	'use strict';
+
 	class ServerFactory {
 		constructor() {
 
