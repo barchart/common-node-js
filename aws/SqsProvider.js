@@ -483,7 +483,7 @@ module.exports = (() => {
 								let messages;
 
 								try {
-									messages = (_data.Messages || []).map((message) => {
+									messages = (data.Messages || []).map((message) => {
 										return JSON.parse(message.Body);
 									});
 								} catch (parseError) {
