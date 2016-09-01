@@ -412,7 +412,7 @@ module.exports = (() => {
 
 				this._socketEmitters.forEach((emitterData) => {
 					startStack.push(
-						emitterData.event.register(function(data) {
+						emitterData.event.register((data) => {
 							let qualifier = emitterData.room.qualifier(data);
 							let room = emitterData.room.base;
 
@@ -431,13 +431,13 @@ module.exports = (() => {
 					logger.info('Bound socket.io handler on port', port, 'to channel', channel);
 				});
 
-				io.on('connection', function(socket) {
+				io.on('connection', (socket) => {
 					if (logger.isInfoEnabled()) {
 						logger.info('Socket.io client [', socket.id, '] at', socket.conn.remoteAddress, 'connected on port', port);
 						logger.info('Socket.io now has', Object.keys(socket.adapter.sids).length, 'connections');
 					}
 
-					socket.on('disconnect', function() {
+					socket.on('disconnect', () => {
 						if (logger.isInfoEnabled()) {
 							logger.info('Socket.io client [', socket.id, '] at', socket.conn.remoteAddress, 'on port', port, 'disconnected');
 							logger.info('Socket.io now has', Object.keys(socket.adapter.sids).length, 'connections');
@@ -513,7 +513,7 @@ module.exports = (() => {
 
 					return server.start();
 				})
-			).then(function(disposables) {
+			).then((disposables) => {
 				return disposables.reduce((stack, disposable) => {
 					stack.push(disposable);
 
@@ -553,16 +553,16 @@ module.exports = (() => {
 
 	ExpressRouteBindingStrategy.getStrategies = () => {
 		return [
-			new ExpressRouteBindingStrategy(Verb.GET, function(router, path, handlers) {
+			new ExpressRouteBindingStrategy(Verb.GET, (router, path, handlers) => {
 				router.get.apply(router, [path].concat(handlers));
 			}),
-			new ExpressRouteBindingStrategy(Verb.POST, function(router, path, handlers) {
+			new ExpressRouteBindingStrategy(Verb.POST, (router, path, handlers) => {
 				router.post.apply(router, [path].concat(handlers));
 			}),
-			new ExpressRouteBindingStrategy(Verb.PUT, function(router, path, handlers) {
+			new ExpressRouteBindingStrategy(Verb.PUT, (router, path, handlers) => {
 				router.put.apply(router, [path].concat(handlers));
 			}),
-			new ExpressRouteBindingStrategy(Verb.DELETE, function(router, path, handlers) {
+			new ExpressRouteBindingStrategy(Verb.DELETE, (router, path, handlers) => {
 				router.delete.apply(router, [path].concat(handlers));
 			})
 		];
@@ -604,16 +604,16 @@ module.exports = (() => {
 
 	ExpressArgumentExtractionStrategy.getStrategies = () => {
 		return [
-			new ExpressArgumentExtractionStrategy(Verb.GET, function(req) {
+			new ExpressArgumentExtractionStrategy(Verb.GET, (req) => {
 				return Object.assign({}, req.query || {}, req.params || {});
 			}),
-			new ExpressArgumentExtractionStrategy(Verb.POST, function(req) {
+			new ExpressArgumentExtractionStrategy(Verb.POST, (req) => {
 				return Object.assign({}, req.params || {}, req.body || {});
 			}),
-			new ExpressArgumentExtractionStrategy(Verb.PUT, function(req) {
+			new ExpressArgumentExtractionStrategy(Verb.PUT, (req) => {
 				return Object.assign({}, req.params || {}, req.body || {});
 			}),
-			new ExpressArgumentExtractionStrategy(Verb.DELETE, function(req) {
+			new ExpressArgumentExtractionStrategy(Verb.DELETE, (req) => {
 				return Object.assign({}, req.query || {}, req.params || {});
 			})
 		];
@@ -809,7 +809,7 @@ module.exports = (() => {
 		if (!argumentExtractionStrategy) {
 			logger.warn('Unable to find appropriate argument extraction strategy for HTTP ' + verb.getCode() + ' requests');
 
-			argumentExtractionStrategy = function() {
+			argumentExtractionStrategy = () => {
 				return {};
 			};
 		}
@@ -876,7 +876,7 @@ module.exports = (() => {
 
 				return returnRef;
 			},
-			decorateRequest: function(request) {
+			decorateRequest: (request) => {
 				Object.assign(request.headers, headerOverrides);
 
 				if (Verb.GET !== verb) {
@@ -898,7 +898,7 @@ module.exports = (() => {
 		if (!argumentExtractionStrategy) {
 			logger.warn('Unable to find appropriate argument extraction strategy for HTTP ' + verb.getCode() + ' requests');
 
-			argumentExtractionStrategy = function() {
+			argumentExtractionStrategy = () => {
 				return {};
 			};
 		}
@@ -952,7 +952,7 @@ module.exports = (() => {
 			return Promise.resolve()
 				.then(() => {
 					return command.process(request.request);
-				}).then(function(result) {
+				}).then((result) => {
 					const envelope = {
 						requestId: request.requestId,
 						response: result || {}
@@ -961,7 +961,7 @@ module.exports = (() => {
 					socket.emit('response', envelope);
 
 					logger.debug('Processing completed for socket.io request on', channel, '(', sequence, ')');
-				}).catch(function(error) {
+				}).catch((error) => {
 					logger.error('Processing failed for socket.io request on', channel, '(', sequence, ')');
 					logger.error(error);
 				});
@@ -977,7 +977,7 @@ module.exports = (() => {
 			return Promise.resolve()
 				.then(() => {
 					return subscriptionInfo.rooms.command.process(request);
-				}).then(function(qualifiers) {
+				}).then((qualifiers) => {
 					let qualifiersToJoin;
 
 					if (is.array(qualifiers)) {
