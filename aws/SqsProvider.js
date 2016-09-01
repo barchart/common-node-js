@@ -598,6 +598,10 @@ module.exports = (() => {
 		);
 	}
 
+	const finalStarRegex = new RegExp('(\\*)$');
+	const finalHatRegex = new RegExp('(\\^)$');
+	const finalDotRegex = new RegExp('(\\.)$');
+
 	function getQualifiedQueueName(prefix, queueName) {
 		return sanitizedName(prefix + '-' + queueName);
 	}
