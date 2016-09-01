@@ -7,7 +7,7 @@ var is = require('common/lang/is');
 
 var QueryProvider = require('./../QueryProvider');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
 	const logger = log4js.getLogger('data/providers/RestQueryProvider');
@@ -113,4 +113,4 @@ module.exports = function() {
 	}
 
 	return RestQueryProvider;
-}();
+})();

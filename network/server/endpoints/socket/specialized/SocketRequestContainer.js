@@ -1,7 +1,7 @@
 var Container = require('./../../Container');
 var SocketRequestEndpoint = require('./SocketRequestEndpoint');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
 	class SocketRequestContainer extends Container {
@@ -19,4 +19,4 @@ module.exports = function() {
 	}
 
 	return SocketRequestContainer;
-}();
+})();

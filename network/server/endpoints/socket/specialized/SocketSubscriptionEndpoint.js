@@ -4,7 +4,7 @@ var Event = require('common/messaging/Event');
 
 var Endpoint = require('./../../Endpoint');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
 	const emptyCommand = CommandHandler.fromFunction(() => {
@@ -49,4 +49,4 @@ module.exports = function() {
 	}
 
 	return SocketSubscriptionEndpoint;
-}();
+})();

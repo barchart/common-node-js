@@ -38,7 +38,7 @@ module.exports = (() => {
 			logger.debug('AWS publisher starting');
 
 			return Promise.all([ this._snsProvider.start(), this._sqsProvider.start() ])
-				.then(function(ignored) {
+				.then((ignored) => {
 					logger.debug('AWS publisher started');
 				});
 		}

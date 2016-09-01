@@ -47,13 +47,13 @@ module.exports = (() => {
 				this._startPromise = Promise.resolve()
 					.then(() => {
 						this._publisher = twilio(this._configuration.accountSid, this._configuration.authToken);
-					}).then(function() {
+					}).then(() => {
 						logger.info('Twilio provider started');
 
 						this._started = true;
 
 						return this._started;
-					}).catch(function(e) {
+					}).catch((e) => {
 						logger.error('Twilio provider failed to start', e);
 
 						throw e;

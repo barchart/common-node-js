@@ -379,7 +379,7 @@ module.exports = (() => {
 							Attributes: {
 								Policy: JSON.stringify(policy)
 							}
-						}, function(error, data) {
+						}, (error, data) => {
 							if (error === null) {
 								logger.info('SQS queue policy updated for:', qualifiedQueueName);
 

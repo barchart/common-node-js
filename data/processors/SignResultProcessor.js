@@ -5,7 +5,7 @@ var is = require('common/lang/is');
 
 var MutateResultProcessor = require('./MutateResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
 	const logger = log4js.getLogger('data/processors/SignResultProcessor');
@@ -43,4 +43,4 @@ module.exports = function() {
 	}
 
 	return SignResultProcessor;
-}();
+})();

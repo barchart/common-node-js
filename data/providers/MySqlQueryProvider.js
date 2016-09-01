@@ -23,12 +23,12 @@ module.exports = (() => {
 				database: this._configuration.database
 			});
 
-			connection.on('error', function(e) {
+			connection.on('error', (e) => {
 				logger.error('MySql connection error (fatal)', e);
 			});
 
 			return new Promise((resolve, reject) => {
-				connection.query(this._configuration.query, function(e, rows) {
+				connection.query(this._configuration.query, (e, rows) => {
 					if (e) {
 						logger.error('MySql query error', e);
 
@@ -37,7 +37,7 @@ module.exports = (() => {
 
 					resolve(rows);
 
-					connection.end(function(endError) {
+					connection.end((endError) => {
 						if (!is.undefined(endError)) {
 							logger.error('MySql connection error (on close)', endError);
 						}

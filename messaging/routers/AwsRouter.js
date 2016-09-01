@@ -52,7 +52,7 @@ module.exports = (() => {
 						}
 					}, 500, 20000);
 
-					const responseQueueBinding = Disposable.fromAction(function() {
+					const responseQueueBinding = Disposable.fromAction(() => {
 						this._sqsProvider.deleteQueue(responseQueueName);
 					});
 

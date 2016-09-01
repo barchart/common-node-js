@@ -81,7 +81,7 @@ module.exports = (() => {
 		}
 
 		_subscribe(messageType, handler) {
-			return Disposable.fromAction(function() {
+			return Disposable.fromAction(() => {
 				return;
 			});
 		}

@@ -32,7 +32,7 @@ module.exports = (() => {
 						});
 				};
 			} else {
-				equalsPredicate = function(item) {
+				equalsPredicate = (item) => {
 					return true;
 				};
 			}

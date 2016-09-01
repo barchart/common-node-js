@@ -4,7 +4,7 @@ var attributes = require('common/lang/attributes');
 
 var MutateResultProcessor = require('./MutateResultProcessor');
 
-module.exports = function() {
+module.exports = (() => {
 	'use strict';
 
 	const logger = log4js.getLogger('data/processors/MySqlBlobToArrayProcessor');
@@ -37,4 +37,4 @@ module.exports = function() {
 	}
 
 	return MySqlBlobToArrayProcessor;
-}();
+})();
