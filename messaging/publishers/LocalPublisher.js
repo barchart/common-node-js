@@ -32,7 +32,9 @@ module.exports = (() => {
 		}
 
 		_onDispose() {
-			this._subscriptions.forEach((event) => {
+			Object.keys(this._subscriptions).forEach((key) => {
+				const event = this._subscriptions[key];
+
 				event.dispose();
 			});
 
