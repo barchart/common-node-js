@@ -333,10 +333,10 @@ module.exports = (() => {
 								delay = 0;
 							}
 						});
-					}).catch(function(error) {
+					}).catch((error) => {
 						logger.error('An error occurred while receiving message(s) from SQS queue:', qualifiedQueueName);
 						logger.error(error);
-					}).finally(function() {
+					}).then(() => {
 						if (disposed) {
 							return;
 						}
