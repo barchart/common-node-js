@@ -16,6 +16,8 @@ module.exports = (() => {
 
 	class Bus extends Disposable {
 		constructor(publisher, router) {
+			super();
+
 			assert.argumentIsRequired(publisher, 'publisher', Publisher, 'Publisher');
 			assert.argumentIsRequired(router, 'router', Router, 'Router');
 
