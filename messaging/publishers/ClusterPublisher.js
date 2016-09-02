@@ -27,8 +27,6 @@ module.exports = (() => {
 
 			this._sender = Sender.getInstance();
 			this._reciver = Receiver.getInstance();
-
-			this._disposeStack = new DisposableStack();
 		}
 
 		_start() {
