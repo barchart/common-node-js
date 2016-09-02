@@ -38,7 +38,7 @@ module.exports = (() => {
 		}
 
 		_start() {
-			return this._startPromise = Promise.all(this._sender.start(), this._reciver.start())
+			return Promise.all(this._sender.start(), this._reciver.start())
 				.then(() => {
 					this._disposeStack.push(this._reciver.addHandler(REGISTER, (source, type, payload) => {
 						const messageType = payload.t;
