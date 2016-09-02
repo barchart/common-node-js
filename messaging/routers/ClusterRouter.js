@@ -32,88 +32,104 @@ module.exports = (() => {
 			this._pendingCallbacks = { };
 
 			this._sender = Sender.getInstance();
-			this._reciver = Receiver.getInstance();
+			this._receiver = Receiver.getInstance();
 
 			this._disposeStack = new DisposableStack();
 		}
 
 		_start() {
-			return Promise.all(this._sender.start(), this._reciver.start())
+			return Promise.all([this._sender.start(), this._receiver.start()])
 				.then(() => {
-					this._disposeStack.push(this._reciver.addHandler(REGISTER, (source, type, payload) => {
-						const messageType = payload.t;
-
-						if (!this._requestRegistrations.hasOwnProperty(messageType)) {
-							this._requestRegistrations[messageType] = [ ];
-						}
-
-						const registrations = this._requestRegistrations[messageType];
-
-						if (!registrations.includes(source)) {
-							registrations.push(source);
-						} else {
-							logger.warn('A registration for', messageType, 'aleady exists for worker', source);
-						}
-					}));
-
-					this._disposeStack.push(this._reciver.addHandler(UNREGISTER, (source, type, payload) => {
-						const messageType = payload.t;
-
-						if (this._requestRegistrations.hasOwnProperty(messageType)) {
-							this._requestRegistrations[messageType] = this._requestRegistrations[messageType].filter((item) => {
-								return item !== source;
+					this._disposeStack.push(
+						this._sender.registerConnectionObserver((source) => {
+							Object.keys(this._requestHandlers).forEach((messageType) => {
+								this._sender.send(REGISTER, getRegistrationEnvelope(messageType), source);
 							});
+						})
+					);
+				}).then(() => {
+					this._disposeStack.push(
+						this._receiver.addHandler(REGISTER, (source, type, payload) => {
+							const messageType = payload.t;
 
-							if (this._requestRegistrations[messageType].length === 0) {
-								delete this._requestRegistrations[messageType];
+							if (!this._requestRegistrations.hasOwnProperty(messageType)) {
+								this._requestRegistrations[messageType] = [ ];
 							}
-						}
-					}));
 
-					this._disposeStack.push(this._reciver.addHandler(REQUEST, (source, type, payload) => {
-						const requestType = payload.t;
-						const requestPayload = payload.p;
+							const registrations = this._requestRegistrations[messageType];
 
-						const handler = this._requestHandlers[requestType];
+							if (!registrations.includes(source)) {
+								registrations.push(source);
+							} else {
+								logger.warn('A registration for', messageType, 'aleady exists for worker', source);
+							}
+						})
+					);
 
-						Promise.resolve()
-							.then(() => {
-								let response;
+					this._disposeStack.push(
+						this._receiver.addHandler(UNREGISTER, (source, type, payload) => {
+							const messageType = payload.t;
 
-								if (is.fn(handler)) {
-									response = handler(requestPayload);
+							if (this._requestRegistrations.hasOwnProperty(messageType)) {
+								this._requestRegistrations[messageType] = this._requestRegistrations[messageType].filter((item) => {
+									return item !== source;
+								});
+
+								if (this._requestRegistrations[messageType].length === 0) {
+									delete this._requestRegistrations[messageType];
+								}
+							}
+						})
+					);
+
+					this._disposeStack.push(
+						this._receiver.addHandler(REQUEST, (source, type, payload) => {
+							const requestType = payload.t;
+							const requestPayload = payload.p;
+
+							const handler = this._requestHandlers[requestType];
+
+							Promise.resolve()
+								.then(() => {
+									let response;
+
+									if (is.fn(handler)) {
+										response = handler(requestPayload);
+									} else {
+										logger.warn('Unable to handle', requestType, 'request. No request handler exists. Sending reject.');
+
+										response = null;
+									}
+
+									return response;
+								}).catch((e) => {
+								logger.error('Request handler for', requestType, 'failed', e);
+
+								return null;
+							}).then((response) => {
+								this._sender.send(RESPONSE, getResponseEnvelope(payload, response), source);
+							});
+						})
+					);
+
+					this._disposeStack.push(
+						this._receiver.addHandler(RESPONSE, (source, type, payload) => {
+							const requestId = payload.id;
+							const callbacks = this._pendingCallbacks[requestId];
+
+							if (callbacks) {
+								const responsePayload = payload.p;
+
+								if (responsePayload !== null) {
+									callbacks.resolve(responsePayload);
 								} else {
-									logger.warn('Unable to handle', requestType, 'request. No request handler exists. Sending reject.');
-
-									response = null;
+									callbacks.reject();
 								}
 
-								return response;
-							}).catch((e) => {
-							logger.error('Request handler for', requestType, 'failed', e);
-
-							return null;
-						}).then((response) => {
-							this._sender.send(RESPONSE, getResponseEnvelope(payload, response), source);
-						});
-					}));
-
-					this._disposeStack.push(this._reciver.addHandler(RESPONSE, (source, type, payload) => {
-						const requestId = payload.id;
-						const callbacks = this._pendingCallbacks[requestId];
-
-						if (callbacks) {
-							const responsePayload = payload.p;
-
-							if (responsePayload !== null) {
-								callbacks.resolve(responsePayload);
-							} else {
-								callbacks.reject();
+								delete this._pendingCallbacks[requestId];
 							}
-
-							delete this._pendingCallbacks[requestId];
-						}
-					}));
+						})
+					);
 				});
 
 		}
@@ -148,10 +164,10 @@ module.exports = (() => {
 		_register(messageType, handler) {
 			this._requestHandlers[messageType] = handler;
 
-			this.sender.broadcast(REGISTER, { t: messageType });
+			this.sender.broadcast(REGISTER, getRegistrationEnvelope(messageType));
 
 			return Disposable.fromAction(() => {
-				this.sender.broadcast(UNREGISTER, { t: messageType });
+				this.sender.broadcast(UNREGISTER, getRegistrationEnvelope(messageType));
 
 				delete this._requestHandlers[messageType];
 			});
@@ -171,6 +187,12 @@ module.exports = (() => {
 		toString() {
 			return '[ClusterRouter]';
 		}
+	}
+
+	function getRegistrationEnvelope(type) {
+		return {
+			t: type
+		};
 	}
 
 	function getRequestEnvelope(type, payload) {

@@ -1,6 +1,7 @@
 var log4js = require('log4js');
 
 var Disposable = require('common/lang/Disposable');
+var DisposableStack = require('common/collections/specialized/DisposableStack');
 var Event = require('common/messaging/Event');
 
 var Publisher = require('./Publisher');
@@ -21,52 +22,66 @@ module.exports = (() => {
 			super();
 
 			this._subscribers = {};
-			this._subscriberBingings = {};
-			
 			this._subscriptions = {};
 
 			this._sender = Sender.getInstance();
-			this._reciver = Receiver.getInstance();
+			this._receiver = Receiver.getInstance();
+
+			this._disposeStack = new DisposableStack();
 		}
 
 		_start() {
-			return Promise.all(this._sender.start(), this._reciver.start())
+			return Promise.all([this._sender.start(), this._receiver.start()])
 				.then(() => {
-					this._disposeStack.push(this._reciver.addHandler(SUBSCRIBE, (source, type, payload) => {
-						const subscriptionId = payload.id;
-						const messageType = payload.t;
+					this._disposeStack.push(
+						this._sender.registerConnectionObserver((source) => {
+							Object.keys(this._subscribers).forEach((messageType) => {
+								this._subscribers[messageType].refresh(this._sender, source);
+							});
+						})
+					);
+				}).then(() => {
+					this._disposeStack.push(
+						this._receiver.addHandler(SUBSCRIBE, (source, type, payload) => {
+							const subscriptionId = payload.id;
+							const messageType = payload.t;
 
-						if (!this._subscriptions.hasOwnProperty(messageType)) {
-							this._subscriptions[messageType] = new SubscriptionData(messageType);
-						}
+							if (!this._subscriptions.hasOwnProperty(messageType)) {
+								this._subscriptions[messageType] = new SubscriptionData(messageType);
+							}
 
-						const subscriptionData = this._subscriptions[messageType];
-
-						subscriptionData.addSubscriber(subscriptionId, source);
-					}));
-
-					this._disposeStack.push(this._reciver.addHandler(UNSUBSCRIBE, (source, type, payload) => {
-						const subscriptiontypeId = payload.id;
-						const messageType = payload.t;
-
-						if (this._subscriptions.hasOwnProperty(messageType)) {
 							const subscriptionData = this._subscriptions[messageType];
 
-							subscriptionData.removeSubscriber(subscriptionId);
+							subscriptionData.addSubscriber(subscriptionId, source);
+						})
+					);
 
-							if (subscriptionData.getSources().length === 0) {
-								delete this._subscriptions[messageType];
+					this._disposeStack.push(
+						this._receiver.addHandler(UNSUBSCRIBE, (source, type, payload) => {
+							const subscriptiontypeId = payload.id;
+							const messageType = payload.t;
+
+							if (this._subscriptions.hasOwnProperty(messageType)) {
+								const subscriptionData = this._subscriptions[messageType];
+
+								subscriptionData.removeSubscriber(subscriptionId);
+
+								if (subscriptionData.getSources().length === 0) {
+									delete this._subscriptions[messageType];
+								}
 							}
-						}
-					}));
+						})
+					);
 
-					this._disposeStack.push(this._reciver.addHandler(PUBLISH, (source, type, payload) => {
-						const messageType = payload.t;
+					this._disposeStack.push(
+						this._receiver.addHandler(PUBLISH, (source, type, payload) => {
+							const messageType = payload.t;
 
-						if (this._subscribers.hasOwnProperty(messageType)) {
-							this._subscribers[messageType].fire(payload.p);
-						}
-					}));
+							if (this._subscribers.hasOwnProperty(messageType)) {
+								this._subscribers[messageType].publish(payload.p);
+							}
+						})
+					);
 				});
 		}
 
@@ -82,30 +97,17 @@ module.exports = (() => {
 		}
 
 		_subscribe(messageType, handler) {
-			const id = uuid.v4();
-
 			if (!this._subscribers.hasOwnProperty(messageType)) {
-				this._subscribers[messageType] = new Event(this);
+				this._subscribers[messageType] = new SubscriberData(messageType);
 			}
 
-			const registration = this._subscribers[messageType].register(getEventHandlerForSubscription(handler));
-
-			const subscriberBinding = Disposable.fromAction(() => {
-				this._sender.broadcast(UNSUBSCRIBE, getSubscriptionEnvelope(id, messageType));
-
-				registration.dispose();
-
-				delete this._subscriberBingings[id];
-			});
-
-			this._subscriberBingings[id] = subscriberBinding;
-
-			this._sender.broadcast(SUBSCRIBE, getSubscriptionEnvelope(id, messageType));
-
-			return subscriberBinding;
+			return this._subscribers[messageType].addHandler(handler, this._sender);
 		}
 
 		_onDispose() {
+			this._disposeStack.dispose();
+			this._disposeStack = null;
+
 			Object.keys(this._subscriberBingings).forEach((key) => {
 				const subscriberBinding = this._subscriberBingings[key];
 
@@ -121,6 +123,57 @@ module.exports = (() => {
 
 		toString() {
 			return '[ClusterPublisher]';
+		}
+	}
+
+	class SubscriberData extends Disposable {
+		constructor(messageType) {
+			super();
+
+			this._messageType = messageType;
+
+			this._handlers = { };
+
+			this._publish = new Event(this);
+		}
+
+		getMessageType() {
+			return this._messageType;
+		}
+
+		addHandler(handler, sender) {
+			const handlerId = uuid.v4();
+
+			this._handlers[handlerId] = this._publish.register(handler);
+
+			sender.broadcast(SUBSCRIBE, getSubscriptionEnvelope(handlerId, this._messageType));
+
+			return Disposable.fromAction(() => {
+				if (this._handlers.hasOwnProperty(handlerId)) {
+					sender.broadcast(UNSUBSCRIBE, getSubscriptionEnvelope(handlerId, this._messageType));
+
+					this._handlers[handlerId].dispose();
+
+					delete this._handlers[handlerId];
+				}
+			});
+		}
+
+		refresh(sender, source) {
+			Object.keys(this._handlers).forEach((handlerId) => {
+				sender.send(SUBSCRIBE, getSubscriptionEnvelope(handlerId, this._messageType), source);
+			});
+		}
+
+		publish(payload) {
+			this._publish.fire(payload);
+		}
+
+		_onDispose() {
+			this._publish.dispose();
+
+			this._publish = null;
+			this._handlers = null;
 		}
 	}
 

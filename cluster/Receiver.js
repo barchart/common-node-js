@@ -2,6 +2,7 @@ var log4js = require('log4js');
 var cluster = require('cluster');
 var process = require('process');
 
+var assert = require('common/lang/assert');
 var Disposable = require('common/lang/Disposable');
 
 module.exports = (() => {
@@ -9,7 +10,7 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('common-node/cluster/Receiver');
 
-	let instance;
+	let instance = null;
 
 	class Receiver {
 		constructor() {
@@ -73,10 +74,12 @@ module.exports = (() => {
 		}
 
 		_start(handlers) {
-			Object.keys(cluster.workers, (id) => {
-				const worker = cluster.workers[id];
+			const connectToWorker = (worker) => {
+				logger.info('Master listening on IPC channel to messages from worker', worker.id);
 
-				worker.on('messasge', (message) => {
+				worker.on('message', (message) => {
+					logger.trace('Master received message from worker process', worker.id, message);
+
 					const envelope = JSON.parse(message);
 					const handler = this._handlers[envelope.t];
 
@@ -84,27 +87,33 @@ module.exports = (() => {
 						handler(envelope.s, envelope.t, envelope.p);
 					}
 				});
+			};
+
+			cluster.on('online', (worker) => {
+				connectToWorker(worker);
+			});
+
+			Object.keys(cluster.workers).forEach((id) => {
+				connectToWorker(cluster.workers[id]);
 			});
 		}
 	}
 
-	class WorkerReciever extends Receiver {
+	class WorkerReceiver extends Receiver {
 		constructor() {
 			super();
 		}
 
 		_start(handlers) {
-			Object.keys(cluster.workers, (id) => {
-				const worker = cluster.workers[id];
+			process.on('message', (message) => {
+				logger.trace('Worker process', cluster.worker.id, 'received message from master process', message);
 
-				process.on('messasge', (message) => {
-					const envelope = JSON.parse(message);
-					const handler = this._handlers[envelope.t];
+				const envelope = JSON.parse(message);
+				const handler = this._handlers[envelope.t];
 
-					if (handler) {
-						handler(envelope.s, envelope.t, envelope.p);
-					}
-				});
+				if (handler) {
+					handler(envelope.s, envelope.t, envelope.p);
+				}
 			});
 		}
 	}

@@ -20,8 +20,8 @@ module.exports = (() => {
 		}
 
 		_start() {
-			return Promise.all(this._routers.map((routers) => {
-				return routers.start();
+			return Promise.all(this._routers.map((router) => {
+				return router.start();
 			})).then(() => {
 				return true;
 			});

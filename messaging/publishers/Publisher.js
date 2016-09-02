@@ -50,7 +50,6 @@ module.exports = (() => {
 
 		publish(messageType, payload) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
-			assert.argumentIsRequired(payload, 'payload', Object);
 
 			if (!this._started) {
 				throw new Error('The publisher has not started.');

@@ -2,6 +2,8 @@ var log4js = require('log4js');
 var cluster = require('cluster');
 var process = require('process');
 
+var Event = require('common/messaging/Event');
+
 module.exports = (() => {
 	'use strict';
 
@@ -11,7 +13,9 @@ module.exports = (() => {
 
 	class Sender {
 		constructor(id) {
-			this._id = id || null;
+			this._id = id;
+
+			this._connectionEvent = new Event(this);
 
 			this._startPromise = null;
 		}
@@ -22,6 +26,10 @@ module.exports = (() => {
 					.then(() => {
 						return this._start();
 					}).then(() => {
+						setInterval(() => {
+							this.broadcast('ping', { time: (new Date()).getTime() });
+						}, 2000);
+
 						return this;
 					});
 			}
@@ -41,12 +49,8 @@ module.exports = (() => {
 			return;
 		}
 
-		getMessage(type, payload) {
-			return JSON.stringify({
-				s: this._id,
-				t: type,
-				p: payload || { }
-			});
+		registerConnectionObserver(handler) {
+			return this._connectionEvent.register(handler);
 		}
 
 		toString() {
@@ -66,19 +70,37 @@ module.exports = (() => {
 		}
 	}
 
+	function getMessage(id, type, payload) {
+		return JSON.stringify({
+			s: id,
+			t: type,
+			p: payload || { }
+		});
+	}
+
 	class MasterSender extends Sender {
 		constructor() {
 			super(0);
 		}
 
+		_start() {
+			cluster.on('online', (worker) => {
+				this._connectionEvent.fire(worker.id);
+			});
+
+			Object.keys(cluster.workers).forEach((id) => {
+				this._connectionEvent.fire(worker.id);
+			});
+		}
+
 		send(type, payload, target) {
-			cluster.workers[target].send(this.getMessage(type, payload));
+			cluster.workers[target].send(getMessage(this._id, type, payload));
 		}
 
 		broadcast(type, payload) {
-			const message = Sender.getMessage(type, payload);
+			const message = getMessage(this._id, type, payload);
 
-			Object.keys(cluster.workers, (id) => {
+			Object.keys(cluster.workers).forEach((id) => {
 				cluster.workers[id].send(message);
 			});
 		}
@@ -93,16 +115,20 @@ module.exports = (() => {
 			super(cluster.worker.id);
 		}
 
+		_start() {
+			this._connectionEvent.fire(0);
+		}
+
 		send(type, payload, target) {
 			if (this._id === null) {
 				throw new Error('Unable to send message without worker identifier.');
 			}
 
-			process.send(this.getMessage(type, payload));
+			process.send(getMessage(this._id, type, payload));
 		}
 
 		broadcast(type, payload) {
-			send(type, payload);
+			this.send(type, payload, 0);
 		}
 
 		toString() {

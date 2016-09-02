@@ -48,7 +48,6 @@ module.exports = (() => {
 
 		publish(messageType, payload) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
-			assert.argumentIsRequired(payload, 'payload', Object);
 
 			if (!this._started) {
 				throw new Error('The bus has not started.');
@@ -78,7 +77,6 @@ module.exports = (() => {
 
 		request(messageType, payload, timeout) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
-			assert.argumentIsRequired(payload, 'payload', Object);
 			assert.argumentIsOptional(timeout, 'timeout', Number);
 
 			if (!this._started) {
@@ -119,7 +117,7 @@ module.exports = (() => {
 						});
 				}
 			} else {
-				requestPromise = Promise.reject('Existing routers are unable to handle request.');
+				requestPromise = Promise.reject(`Existing routers are unable to handle request (${messageType}).`);
 			}
 
 			return requestPromise;
