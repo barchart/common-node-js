@@ -1,12 +1,13 @@
 var log4js = require('log4js');
+var uuid = require('uuid');
 
+var assert = require('common/lang/assert');
 var Disposable = require('common/lang/Disposable');
 var DisposableStack = require('common/collections/specialized/DisposableStack');
 var Event = require('common/messaging/Event');
 
+var MessageProvider = require('./../../cluster/MessageProvider');
 var Publisher = require('./Publisher');
-var Receiver = require('./../../cluster/Receiver');
-var Sender = require('./../../cluster/Sender');
 
 module.exports = (() => {
 	'use strict';
@@ -18,31 +19,38 @@ module.exports = (() => {
 	const PUBLISH = 'p.p';
 
 	class ClusterPublisher extends Publisher {
-		constructor() {
+		constructor(messageProvider) {
 			super();
+
+			assert.argumentIsRequired(messageProvider, 'messageProvider', MessageProvider);
 
 			this._subscribers = {};
 			this._subscriptions = {};
 
-			this._sender = Sender.getInstance();
-			this._receiver = Receiver.getInstance();
+			this._messageProvider = messageProvider;
 
 			this._disposeStack = new DisposableStack();
 		}
 
 		_start() {
-			return Promise.all([this._sender.start(), this._receiver.start()])
+			return this._messageProvider.start()
 				.then(() => {
 					this._disposeStack.push(
-						this._sender.registerConnectionObserver((source) => {
-							Object.keys(this._subscribers).forEach((messageType) => {
-								this._subscribers[messageType].refresh(this._sender, source);
-							});
+						this._messageProvider.registerPeerConnectedObserver((source) => {
+							const messageTypes = Object.keys(this._subscribers);
+
+							if (messageTypes.length !== 0) {
+								logger.debug('Sending subscriptions to newly connected IPC peer', source);
+
+								messageTypes.forEach((messageType) => {
+									this._subscribers[messageType].refresh(this._messageProvider, source);
+								});
+							}
 						})
 					);
 				}).then(() => {
 					this._disposeStack.push(
-						this._receiver.addHandler(SUBSCRIBE, (source, type, payload) => {
+						this._messageProvider.handle(SUBSCRIBE, (source, type, payload) => {
 							const subscriptionId = payload.id;
 							const messageType = payload.t;
 
@@ -57,8 +65,8 @@ module.exports = (() => {
 					);
 
 					this._disposeStack.push(
-						this._receiver.addHandler(UNSUBSCRIBE, (source, type, payload) => {
-							const subscriptiontypeId = payload.id;
+						this._messageProvider.handle(UNSUBSCRIBE, (source, type, payload) => {
+							const subscriptionId = payload.id;
 							const messageType = payload.t;
 
 							if (this._subscriptions.hasOwnProperty(messageType)) {
@@ -74,7 +82,7 @@ module.exports = (() => {
 					);
 
 					this._disposeStack.push(
-						this._receiver.addHandler(PUBLISH, (source, type, payload) => {
+						this._messageProvider.handle(PUBLISH, (source, type, payload) => {
 							const messageType = payload.t;
 
 							if (this._subscribers.hasOwnProperty(messageType)) {
@@ -90,8 +98,8 @@ module.exports = (() => {
 				const envelope = getPublishEnvelope(messageType, payload);
 				const sources = this._subscriptions[messageType].getSources();
 
-				subscriptionData.getSources().forEach((source) => {
-					this._sender.send(PUBLISH, envelope, source);
+				sources.forEach((source) => {
+					this._messageProvider.send(PUBLISH, envelope, source);
 				});
 			}
 		}
@@ -101,7 +109,7 @@ module.exports = (() => {
 				this._subscribers[messageType] = new SubscriberData(messageType);
 			}
 
-			return this._subscribers[messageType].addHandler(handler, this._sender);
+			return this._subscribers[messageType].handle(handler, this._messageProvider);
 		}
 
 		_onDispose() {
@@ -141,10 +149,10 @@ module.exports = (() => {
 			return this._messageType;
 		}
 
-		addHandler(handler, sender) {
+		handle(handler, sender) {
 			const handlerId = uuid.v4();
 
-			this._handlers[handlerId] = this._publish.register(handler);
+			this._handlers[handlerId] = this._publish.register(getEventHandlerForSubscription(handler));
 
 			sender.broadcast(SUBSCRIBE, getSubscriptionEnvelope(handlerId, this._messageType));
 
@@ -192,7 +200,7 @@ module.exports = (() => {
 		addSubscriber(id, source) {
 			this._subscribers[id] = source;
 
-			if (!this._sources.includes(source)) {
+			if (!this._sources.some((candidate) => candidate === source)) {
 				this._sources.push(source);
 			}
 		}

@@ -3,15 +3,15 @@ var cluster = require('cluster');
 var process = require('process');
 var uuid = require('uuid');
 
+var assert = require('common/lang/assert');
 var Event = require('common/messaging/Event');
 var Disposable = require('common/lang/Disposable');
 var DisposableStack = require('common/collections/specialized/DisposableStack');
 var is = require('common/lang/is');
 var random = require('common/lang/random');
 
-var Receiver = require('./../../cluster/Receiver');
+var MessageProvider = require('./../../cluster/MessageProvider');
 var Router = require('./Router');
-var Sender = require('./../../cluster/Sender');
 
 module.exports = (() => {
 	'use strict';
@@ -24,33 +24,42 @@ module.exports = (() => {
 	const RESPONSE = 'r.s';
 
 	class ClusterRouter extends Router {
-		constructor() {
+		constructor(messageProvider) {
 			super();
+
+			assert.argumentIsRequired(messageProvider, 'messageProvider', MessageProvider);
 
 			this._requestHandlers = { };
 			this._requestRegistrations = { };
 			this._pendingCallbacks = { };
 
-			this._sender = Sender.getInstance();
-			this._receiver = Receiver.getInstance();
+			this._messageProvider = messageProvider;
 
 			this._disposeStack = new DisposableStack();
 		}
 
 		_start() {
-			return Promise.all([this._sender.start(), this._receiver.start()])
+			return this._messageProvider.start()
 				.then(() => {
 					this._disposeStack.push(
-						this._sender.registerConnectionObserver((source) => {
-							Object.keys(this._requestHandlers).forEach((messageType) => {
-								this._sender.send(REGISTER, getRegistrationEnvelope(messageType), source);
-							});
+						this._messageProvider.registerPeerConnectedObserver((source) => {
+							var messageTypes = Object.keys(this._requestHandlers);
+
+							if (messageTypes.length !== 0) {
+								logger.debug('Sending registrations to newly connected IPC peer', source);
+
+								messageTypes.forEach((messageTypes) => {
+									this._messageProvider.send(REGISTER, getRegistrationEnvelope(messageTypes), source);
+								});
+							}
 						})
 					);
 				}).then(() => {
 					this._disposeStack.push(
-						this._receiver.addHandler(REGISTER, (source, type, payload) => {
+						this._messageProvider.handle(REGISTER, (source, type, payload) => {
 							const messageType = payload.t;
+
+							logger.debug('Processing registration to', messageType, 'from IPC peer', source);
 
 							if (!this._requestRegistrations.hasOwnProperty(messageType)) {
 								this._requestRegistrations[messageType] = [ ];
@@ -58,17 +67,19 @@ module.exports = (() => {
 
 							const registrations = this._requestRegistrations[messageType];
 
-							if (!registrations.includes(source)) {
+							if (!registrations.some((registration) => registration === source)) {
 								registrations.push(source);
 							} else {
-								logger.warn('A registration for', messageType, 'aleady exists for worker', source);
+								logger.warn('A registration for', messageType, 'already exists for worker', source);
 							}
 						})
 					);
 
 					this._disposeStack.push(
-						this._receiver.addHandler(UNREGISTER, (source, type, payload) => {
+						this._messageProvider.handle(UNREGISTER, (source, type, payload) => {
 							const messageType = payload.t;
+
+							logger.debug('Processing registration cancel to', messageType, 'from IPC peer', source);
 
 							if (this._requestRegistrations.hasOwnProperty(messageType)) {
 								this._requestRegistrations[messageType] = this._requestRegistrations[messageType].filter((item) => {
@@ -83,44 +94,38 @@ module.exports = (() => {
 					);
 
 					this._disposeStack.push(
-						this._receiver.addHandler(REQUEST, (source, type, payload) => {
-							const requestType = payload.t;
-							const requestPayload = payload.p;
-
-							const handler = this._requestHandlers[requestType];
+						this._messageProvider.handle(REQUEST, (source, type, payload) => {
+							const messageId = payload.id;
+							const messageType = payload.t;
+							const messagePayload = payload.p;
 
 							Promise.resolve()
 								.then(() => {
-									let response;
+									const handler = this._requestHandlers[messageType];
 
-									if (is.fn(handler)) {
-										response = handler(requestPayload);
-									} else {
-										logger.warn('Unable to handle', requestType, 'request. No request handler exists. Sending reject.');
-
-										response = null;
-									}
-
-									return response;
+									return handler(messagePayload);
+								}).then((result) => {
+									return getResponseEnvelope(payload, true, result);
 								}).catch((e) => {
-								logger.error('Request handler for', requestType, 'failed', e);
+									logger.error('Request', messageId, 'failed. Sending reject message.', e);
 
-								return null;
-							}).then((response) => {
-								this._sender.send(RESPONSE, getResponseEnvelope(payload, response), source);
-							});
+									return getResponseEnvelope(payload, false, null);
+								}).then((envelope) => {
+									this._messageProvider.send(RESPONSE, envelope, source);
+								});
 						})
 					);
 
 					this._disposeStack.push(
-						this._receiver.addHandler(RESPONSE, (source, type, payload) => {
+						this._messageProvider.handle(RESPONSE, (source, type, payload) => {
 							const requestId = payload.id;
 							const callbacks = this._pendingCallbacks[requestId];
 
 							if (callbacks) {
+								const responseSuccess = payload.s;
 								const responsePayload = payload.p;
 
-								if (responsePayload !== null) {
+								if (responseSuccess) {
 									callbacks.resolve(responsePayload);
 								} else {
 									callbacks.reject();
@@ -141,8 +146,9 @@ module.exports = (() => {
 		_route(messageType, payload) {
 			return new Promise((resolveCallback, rejectCallback) => {
 				const envelope = getRequestEnvelope(messageType, payload);
+				const messageId = envelope.id;
 
-				this._pendingCallbacks[envelope.id] = {
+				this._pendingCallbacks[messageId] = {
 					resolve: resolveCallback,
 					reject: rejectCallback
 				};
@@ -157,17 +163,19 @@ module.exports = (() => {
 					index = random.range(0, registrations.length);
 				}
 
-				this._sender.send(REQUEST, getRequestEnvelope(messageType, payload), registrations[index]);
+				this._messageProvider.send(REQUEST, envelope, registrations[index]);
 			});
 		}
 
 		_register(messageType, handler) {
+			logger.debug('Registering', messageType,'request handler over cluster IPC');
+
 			this._requestHandlers[messageType] = handler;
 
-			this.sender.broadcast(REGISTER, getRegistrationEnvelope(messageType));
+			this._messageProvider.broadcast(REGISTER, getRegistrationEnvelope(messageType));
 
 			return Disposable.fromAction(() => {
-				this.sender.broadcast(UNREGISTER, getRegistrationEnvelope(messageType));
+				this._messageProvider.broadcast(UNREGISTER, getRegistrationEnvelope(messageType));
 
 				delete this._requestHandlers[messageType];
 			});
@@ -203,9 +211,10 @@ module.exports = (() => {
 		};
 	}
 
-	function getResponseEnvelope(request, response) {
+	function getResponseEnvelope(request, success, response) {
 		return {
 			id: request.id,
+			s: success,
 			p: response || null
 		};
 	}
