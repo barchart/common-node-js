@@ -114,7 +114,7 @@ module.exports = function() {
 								} else {
 									logger.debug('AWS publisher dropped an "echo" message for', messageType);
 								}
-							});
+							}, 100, 20000);
 						}).then(function(queueObserver) {
 							subscriptionStack.push(queueObserver);
 
