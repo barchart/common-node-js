@@ -19,7 +19,7 @@ module.exports = function() {
 			this._channel = channel;
 			this._event = event;
 			this._eventType = eventType || null;
-			this._roomCommand = roomCommand || getBroadcastCommand;
+			this._roomCommand = roomCommand || broadcastCommand;
 		},
 
 		getChannel: function() {
