@@ -601,6 +601,7 @@ module.exports = (() => {
 	const finalStarRegex = new RegExp('(\\*)$');
 	const finalHatRegex = new RegExp('(\\^)$');
 	const finalDotRegex = new RegExp('(\\.)$');
+	const finalDollarRegex = new RegExp('(\\$)$');
 
 	function getQualifiedQueueName(prefix, queueName) {
 		return sanitizedName(prefix + '-' + queueName);
@@ -616,11 +617,6 @@ module.exports = (() => {
 			.replace('.', '_dot_')
 			.replace('$', '_dollar_');
 	}
-
-	const finalStarRegex = new RegExp('(\\*)$');
-	const finalHatRegex = new RegExp('(\\^)$');
-	const finalDotRegex = new RegExp('(\\.)$');
-	const finalDollarRegex = new RegExp('(\\$)$');
 
 	return SqsProvider;
 })();

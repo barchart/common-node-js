@@ -271,6 +271,11 @@ module.exports = (() => {
 		return sanitizedName(prefix + '-' + topicName);
 	}
 
+	const finalStarRegex = new RegExp('(\\*)$');
+	const finalHatRegex = new RegExp('(\\^)$');
+	const finalDotRegex = new RegExp('(\\.)$');
+	const finalDollarRegex = new RegExp('(\\$)$');
+
 	function sanitizedName(messageType) {
 		return messageType.replace(finalStarRegex, '_star')
 			.replace(finalHatRegex, '_hat')
@@ -281,11 +286,6 @@ module.exports = (() => {
 			.replace('.', '_dot_')
 			.replace('$', '_dollar_');
 	}
-
-	const finalStarRegex = new RegExp('(\\*)$');
-	const finalHatRegex = new RegExp('(\\^)$');
-	const finalDotRegex = new RegExp('(\\.)$');
-	const finalDollarRegex = new RegExp('(\\$)$');
 
 	return SnsProvider;
 })();
