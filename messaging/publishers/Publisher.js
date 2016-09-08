@@ -68,7 +68,7 @@ module.exports = function() {
 			var publishPromise;
 
 			if (checkSuppression(messageType, this._suppressExpressions)) {
-				logger.debug('Suppressing publish for', messageType);
+				logger.trace('Suppressing publish for', messageType);
 
 				publishPromise = when();
 			} else {
