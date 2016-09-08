@@ -475,6 +475,8 @@ module.exports = function() {
 								if (messagesExist) {
 									logger.info('Received', data.Messages.length, 'message(s) from SQS queue:', qualifiedQueueName);
 									logger.trace(data.Messages);
+								} else {
+									logger.debug('Received 0 message(s) from SQS queue:', qualifiedQueueName);
 								}
 
 								var messages;
