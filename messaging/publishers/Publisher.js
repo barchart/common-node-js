@@ -13,7 +13,7 @@ module.exports = function() {
 
 	var Publisher = Disposable.extend({
 		init: function(suppressExpressions) {
-			assert.argumentIsOptional(suppressExpressions, 'suppressExpressions', 'Array');
+			assert.argumentIsOptional(suppressExpressions, 'suppressExpressions', Array);
 
 			if (suppressExpressions) {
 				assert.argumentIsArray(suppressExpressions, 'suppressExpressions', RegExp, 'RegExp');	
