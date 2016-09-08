@@ -12,8 +12,8 @@ module.exports = function() {
 	var logger = log4js.getLogger('common-node/messaging/publishers/LocalPublisher');
 
 	var LocalPublisher = Publisher.extend({
-		init: function() {
-			this._super();
+		init: function(suppressExpressions) {
+			this._super(suppressExpressions);
 
 			this._subscriptions = {};
 		},

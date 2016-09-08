@@ -13,10 +13,10 @@ module.exports = function() {
 	var logger = log4js.getLogger('common-node/messaging/publishers/CompositePublisher');
 
 	var CompositePublisher = Publisher.extend({
-		init: function(publishers) {
+		init: function(publishers, suppressExpressions) {
 			assert.argumentIsArray(publishers, 'publishers', Publisher, 'Publisher');
 
-			this._super();
+			this._super(suppressExpressions);
 
 			this._publishers = publishers;
 		},
