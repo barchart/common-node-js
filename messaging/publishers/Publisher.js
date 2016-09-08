@@ -103,7 +103,7 @@ module.exports = function() {
 			if (checkSuppression(messageType, this._suppressExpressions)) {
 				logger.debug('Suppressing subscription to', messageType);
 
-				subscribePromise = Disposable.getEmpty();
+				subscribePromise = when(Disposable.getEmpty());
 			} else {
 				subscribePromise = when.try(function() {
 					return that._subscribe(messageType, handler);

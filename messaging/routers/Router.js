@@ -110,15 +110,21 @@ module.exports = function() {
 				throw new Error('The message router has been disposed');
 			}
 
-			return when.try(function() {
-				return that._register(messageType, handler);
-			});
+			var registerPromise;
+
+			if (checkSuppression(messageType, this._suppressExpressions)) {
+				registerPromise = when(Disposable.getEmpty());
+			} else {
+				registerPromise = when.try(function() {
+					return that._register(messageType, handler);
+				});
+			}
+
+			return registerPromise;
 		},
 
 		_register: function(messageType, handler) {
-			return Disposable.fromAction(function() {
-				return;
-			});
+			return Disposable.getEmpty();
 		},
 
 		_onDispose: function() {
