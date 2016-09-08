@@ -24,7 +24,7 @@ module.exports = (() => {
 	const RESPONSE = 'r.s';
 
 	class ClusterRouter extends Router {
-		constructor(messageProvider) {
+		constructor(messageProvider, suppressExpressions) {
 			super();
 
 			assert.argumentIsRequired(messageProvider, 'messageProvider', MessageProvider);

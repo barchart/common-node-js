@@ -19,7 +19,7 @@ module.exports = (() => {
 	const PUBLISH = 'p.p';
 
 	class ClusterPublisher extends Publisher {
-		constructor(messageProvider) {
+		constructor(messageProvider, suppressExpressions) {
 			super();
 
 			assert.argumentIsRequired(messageProvider, 'messageProvider', MessageProvider);
