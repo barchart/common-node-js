@@ -12,9 +12,17 @@ module.exports = function() {
 	var logger = log4js.getLogger('common-node/messaging/publishers/Publisher');
 
 	var Publisher = Disposable.extend({
-		init: function() {
+		init: function(suppressExpressions) {
+			assert.argumentIsOptional(suppressExpressions, 'suppressExpressions', 'Array');
+
+			if (suppressExpressions) {
+				assert.argumentIsArray(suppressExpressions, 'suppressExpressions', RegExp, 'RegExp');	
+			}
+			
 			this._super();
 
+			this._suppressExpressions = suppressExpressions || [ ];
+			
 			this._startPromise = null;
 			this._started = false;
 		},
@@ -57,9 +65,19 @@ module.exports = function() {
 				throw new Error('The message publisher has been disposed');
 			}
 
-			return when.try(function() {
-				return that._publish(messageType, payload);
-			});
+			var publishPromise;
+
+			if (checkSuppression(messageType, this._suppressExpressions)) {
+				logger.debug('Suppressing publish for', messageType);
+
+				publishPromise = when();
+			} else {
+				publishPromise = when.try(function() {
+					return that._publish(messageType, payload);
+				});
+			}
+
+			return publishPromise;
 		},
 
 		_publish: function(messageType, payload) {
@@ -80,15 +98,23 @@ module.exports = function() {
 				throw new Error('The message publisher has been disposed');
 			}
 
-			return when.try(function() {
-				return that._subscribe(messageType, handler);
-			});
+			var subscribePromise;
+
+			if (checkSuppression(messageType, this._suppressExpressions)) {
+				logger.debug('Suppressing subscription to', messageType);
+
+				subscribePromise = Disposable.getEmpty();
+			} else {
+				subscribePromise = when.try(function() {
+					return that._subscribe(messageType, handler);
+				});
+			}
+
+			return subscribePromise;
 		},
 
 		_subscribe: function(messageType, handler) {
-			return Disposable.fromAction(function() {
-				return;
-			});
+			return Disposable.getEmpty();
 		},
 
 		_onDispose: function() {
@@ -99,6 +125,13 @@ module.exports = function() {
 			return '[Publisher]';
 		}
 	});
+
+
+	function checkSuppression(messageType, suppressExpressions) {
+		return suppressExpressions.length !== 0 && _.some(suppressExpressions, function(suppressExpression) {
+			return suppressExpression.test(messageType);
+		});
+	}
 
 	return Publisher;
 }();
