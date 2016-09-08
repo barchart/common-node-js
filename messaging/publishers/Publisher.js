@@ -126,7 +126,6 @@ module.exports = function() {
 		}
 	});
 
-
 	function checkSuppression(messageType, suppressExpressions) {
 		return suppressExpressions.length !== 0 && _.some(suppressExpressions, function(suppressExpression) {
 			return suppressExpression.test(messageType);

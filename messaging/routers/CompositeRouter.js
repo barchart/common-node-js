@@ -13,10 +13,10 @@ module.exports = function() {
 	var logger = log4js.getLogger('common-node/messaging/routers/CompositeRouter');
 
 	var CompositeRouter = Router.extend({
-		init: function(routers) {
+		init: function(routers, suppressExpressions) {
 			assert.argumentIsArray(routers, 'routers', Router, 'Router');
 
-			this._super();
+			this._super(suppressExpressions);
 
 			this._routers = routers;
 		},

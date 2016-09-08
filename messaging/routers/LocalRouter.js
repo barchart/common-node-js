@@ -12,8 +12,8 @@ module.exports = function() {
 	var logger = log4js.getLogger('common-node/messaging/routers/LocalRouter');
 
 	var LocalRouter = Router.extend({
-		init: function() {
-			this._super();
+		init: function(suppressExpressions) {
+			this._super(suppressExpressions);
 
 			this._requestHandlers = {};
 		},

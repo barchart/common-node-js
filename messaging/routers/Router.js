@@ -12,7 +12,13 @@ module.exports = function() {
 	var logger = log4js.getLogger('common-node/messaging/routers/Router');
 
 	var Router = Disposable.extend({
-		init: function() {
+		init: function(suppressExpressions) {
+			assert.argumentIsOptional(suppressExpressions, 'suppressExpressions', Array);
+
+			if (suppressExpressions) {
+				assert.argumentIsArray(suppressExpressions, 'suppressExpressions', RegExp, 'RegExp');
+			}
+
 			this._super();
 
 			this._startPromise = null;
@@ -56,7 +62,7 @@ module.exports = function() {
 				throw new Error('The message router has been disposed');
 			}
 
-			return that._canRoute(messageType);
+			return !checkSuppression(messageType, this._suppressExpressions) && that._canRoute(messageType);
 		},
 
 		_canRoute: function(messageType) {
@@ -123,6 +129,12 @@ module.exports = function() {
 			return '[Router]';
 		}
 	});
+
+	function checkSuppression(messageType, suppressExpressions) {
+		return suppressExpressions.length !== 0 && _.some(suppressExpressions, function(suppressExpression) {
+			return suppressExpression.test(messageType);
+		});
+	}
 
 	return Router;
 }();

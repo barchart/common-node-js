@@ -17,10 +17,10 @@ module.exports = function() {
 	var logger = log4js.getLogger('common-node/messaging/routers/AwsRouter');
 
 	var AwsRouter = Router.extend({
-		init: function(sqsProvider) {
+		init: function(sqsProvider, suppressExpressions) {
 			assert.argumentIsRequired(sqsProvider, 'sqsProvider', SqsProvider, 'SqsProvider');
 
-			this._super();
+			this._super(suppressExpressions);
 
 			this._sqsProvider = sqsProvider;
 
