@@ -21,6 +21,8 @@ module.exports = function() {
 
 			this._super();
 
+			this._suppressExpressions = suppressExpressions || [ ];
+
 			this._startPromise = null;
 			this._started = false;
 		},
@@ -113,6 +115,8 @@ module.exports = function() {
 			var registerPromise;
 
 			if (checkSuppression(messageType, this._suppressExpressions)) {
+				logger.debug('Suppressing registration for to', messageType);
+
 				registerPromise = when(Disposable.getEmpty());
 			} else {
 				registerPromise = when.try(function() {
