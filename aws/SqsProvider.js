@@ -464,7 +464,7 @@ module.exports = (() => {
 
 		let maximumMessagesToUse;
 
-		if (_.isNumber(maximumMessages)) {
+		if (is.number(maximumMessages)) {
 			maximumMessagesToUse = Math.max(Math.min(10, maximumMessages), 1);
 		} else {
 			maximumMessagesToUse = 1;
