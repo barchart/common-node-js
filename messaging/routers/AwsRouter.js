@@ -54,7 +54,7 @@ module.exports = function() {
 							deferred.resolve(message.payload);
 						}
 					}
-				}, 100, 20000);
+				}, 100, 20000, 10);
 
 				var responseQueueBinding = Disposable.fromAction(function() {
 					that._sqsProvider.deleteQueue(responseQueueName);
@@ -137,7 +137,7 @@ module.exports = function() {
 				}
 
 				return handlerPromise;
-			}, 100, 20000);
+			}, 100, 20000, 4);
 
 			that._requestHandlers[messageType] = registerObserver;
 

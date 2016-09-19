@@ -267,9 +267,10 @@ module.exports = function() {
 				});
 		},
 
-		receive: function(queueName, waitDuration) {
+		receive: function(queueName, waitDuration, maximumMessages) {
 			assert.argumentIsRequired(queueName, 'queueName', String);
 			assert.argumentIsOptional(waitDuration, 'waitDuration', Number);
+			assert.argumentIsOptional(maximumMessages, 'maximumMessages', Number);
 
 			var that = this;
 
@@ -287,14 +288,15 @@ module.exports = function() {
 				throw new Error('The SQS queue is being observed.');
 			}
 
-			return receiveMessages.call(that, queueName, waitDuration);
+			return receiveMessages.call(that, queueName, waitDuration, maximumMessages);
 		},
 
-		observe: function(queueName, callback, pollInterval, pollDuration) {
+		observe: function(queueName, callback, pollInterval, pollDuration, batchSize) {
 			assert.argumentIsRequired(queueName, 'queueName', String);
 			assert.argumentIsRequired(callback, 'callback', Function);
 			assert.argumentIsOptional(pollInterval, 'pollInterval', Number);
 			assert.argumentIsOptional(pollDuration, 'pollDuration', Number);
+			assert.argumentIsOptional(batchSize, 'batchSize', Number);
 
 			var that = this;
 
@@ -331,7 +333,7 @@ module.exports = function() {
 
 				var delay;
 
-				receiveMessages.call(that, queueName, pollDuration)
+				receiveMessages.call(that, queueName, pollDuration, batchSize)
 					.then(function(messages) {
 						return when.map(messages, function(message) {
 							if (disposed) {
@@ -434,7 +436,7 @@ module.exports = function() {
 		}
 	});
 
-	function receiveMessages(queueName, waitTime) {
+	function receiveMessages(queueName, waitTime, maximumMessages) {
 		var that = this;
 
 		if (that.getIsDisposed()) {
@@ -457,6 +459,14 @@ module.exports = function() {
 			waitTimeToUse = 10;
 		}
 
+		var maximumMessagesToUse;
+
+		if (_.isNumber(maximumMessages)) {
+			maximumMessagesToUse = Math.max(Math.min(10, maximumMessages), 1);
+		} else {
+			maximumMessagesToUse = 1;
+		}
+
 		return that.getQueueUrl(queueName)
 			.then(function(queueUrl) {
 				return when.promise(
@@ -467,6 +477,7 @@ module.exports = function() {
 
 						that._sqs.receiveMessage({
 							QueueUrl: queueUrl,
+							MaxNumberOfMessages: maximumMessagesToUse,
 							WaitTimeSeconds: waitTimeToUse
 						}, function(error, data) {
 							if (error === null) {
