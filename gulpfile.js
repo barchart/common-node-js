@@ -2,7 +2,7 @@ var gulp = require('gulp');
 
 var bump = require('gulp-bump');
 var git = require('gulp-git');
-var gitModified = require('gulp-gitmodified');
+var gitStatus = require('git-get-status');
 var jasmine = require('gulp-jasmine');
 var jshint = require('gulp-jshint');
 var runSequence = require('run-sequence');
@@ -19,13 +19,11 @@ function getVersionForComponent() {
 }
 
 gulp.task('ensure-clean-working-directory', function() {
-    return gulp.src('./**/*')
-        .pipe(gitModified('M', 'A', 'D', 'R', 'C', 'U', '??'))
-        .on('data', function (file) {
-            if (file) {
-                throw new Error('Unable to proceed, your working directory is not clean.');
-            }
-        });
+    gitStatus(function(err, status) {
+        if (err, !status.clean) {
+            throw new Error('Unable to proceed, your working directory is not clean.');
+        }
+    });
 });
 
 gulp.task('bump-version', function () {
