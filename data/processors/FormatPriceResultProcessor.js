@@ -95,13 +95,17 @@ module.exports = (() => {
 		}
 
 		_formatPrice(fractionSeparator, specialFractions, valueToFormat, unitCode, zeroOverride) {
-			const priceFormatter = new marketDataUtilities.PriceFormatter(fractionSeparator, specialFractions, zeroOverride);
-
-			return priceFormatter.format(valueToFormat, unitCode);
+			return FormatPriceResultProcessor.format(fractionSeparator, specialFractions, valueToFormat, unitCode, zeroOverride);
 		}
 
 		toString() {
 			return '[FormatPriceResultProcessor]';
+		}
+
+		static format(fractionSeparator, specialFractions, valueToFormat, unitCode, zeroOverride) {
+			const priceFormatter = new marketDataUtilities.PriceFormatter(fractionSeparator, specialFractions, zeroOverride);
+
+			return priceFormatter.format(valueToFormat, unitCode);
 		}
 	}
 
