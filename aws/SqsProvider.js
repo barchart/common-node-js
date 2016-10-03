@@ -54,13 +54,13 @@ module.exports = (() => {
 
 						this._sqs = new aws.SQS({apiVersion: this._configuration.apiVersion || '2012-11-05'});
 					}).then(() => {
-						logger.info('SQS provider started');
+						logger.info('SQS Provider started');
 
 						this._started = true;
 
 						return this._started;
 					}).catch((e) => {
-						logger.error('SQS provider failed to start', e);
+						logger.error('SQS Provider failed to start', e);
 
 						throw e;
 					});
@@ -410,7 +410,7 @@ module.exports = (() => {
 
 			this._queueObservers = null;
 
-			logger.info('SQS provider disposed');
+			logger.info('SQS Provider disposed');
 		}
 
 		static getPolicyForSnsDelivery(queueArn, topicArn) {

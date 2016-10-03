@@ -49,13 +49,13 @@ module.exports = (() => {
 
 						this._ses = new aws.SES({apiVersion: this._configuration.apiVersion || '2010-12-01'});
 					}).then(() => {
-						logger.info('SES provider started');
+						logger.info('SES Provider started');
 
 						this._started = true;
 
 						return this._started;
 					}).catch((e) => {
-						logger.error('SES provider failed to start', e);
+						logger.error('SES Provider failed to start', e);
 
 						throw e;
 					});
@@ -150,7 +150,7 @@ module.exports = (() => {
 		_onDispose() {
 			this._rateLimiter.dispose();
 
-			logger.debug('SES provider disposed');
+			logger.debug('SES Provider disposed');
 		}
 
 		toString() {

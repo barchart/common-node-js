@@ -41,13 +41,13 @@ module.exports = (() => {
 
 						this._sns = new aws.SNS({apiVersion: this._configuration.apiVersion || '2010-03-31'});
 					}).then(() => {
-						logger.info('SNS provider started');
+						logger.info('SNS Provider started');
 
 						this._started = true;
 
 						return this._started;
 					}).catch((e) => {
-						logger.error('SNS provider failed to start', e);
+						logger.error('SNS Provider failed to start', e);
 
 						throw e;
 					});
@@ -259,7 +259,7 @@ module.exports = (() => {
 			this._topicPromises = null;
 			this._subscriptionPromises = null;
 
-			logger.debug('SNS provider disposed');
+			logger.debug('SNS Provider disposed');
 		}
 
 		toString() {
