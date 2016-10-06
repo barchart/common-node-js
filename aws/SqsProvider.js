@@ -398,8 +398,8 @@ module.exports = (() => {
 		}
 
 		_onDispose() {
-			this._queueObservers.forEach((observer) => {
-				observer.dispose();
+			Object.keys(this._queueObservers).forEach((key) => {
+				this._queueObservers[key].dispose();
 			});
 
 			this._scheduler.dispose();
