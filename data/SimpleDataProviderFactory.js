@@ -1,4 +1,5 @@
 var assert = require('common/lang/assert');
+var is = require('common/lang/is');
 
 var DataProvider = require('./DataProvider');
 var DataProviderFactory = require('./DataProviderFactory');
