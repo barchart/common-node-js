@@ -60,6 +60,16 @@ module.exports = (() => {
 				});
 			}
 
+			if (is.object(configuration.unique)) {
+				results = results.filter((result, resultIndex) => {
+					return results.some((other, otherIndex) => {
+						return !(otherIndex < resultIndex && configuration.unique.every((propertyName) => {
+							return attributes.has(result, propertyName) && attributes.has(other, propertyName) && attributes.read(result, propertyName) === attributes.read(other, propertyName);
+						}));
+					});
+				});
+			}
+
 			if (is.object(configuration.special)) {
 				const now = moment();
 
