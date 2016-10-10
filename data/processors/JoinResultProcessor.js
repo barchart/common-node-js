@@ -37,10 +37,14 @@ module.exports = (() => {
 
 			let sourceItemMap;
 
+			const keySelector = (item) => {
+				return attributes.read(item, sourceProperty);
+			};
+
 			if (is.boolean(configuration.multiple) && is.boolean(configuration.multiple)) {
-				sourceItemMap = array.groupBy(source, sourceProperty);
+				sourceItemMap = array.groupBy(source, keySelector);
 			} else {
-				sourceItemMap = array.indexBy(source, sourceProperty);
+				sourceItemMap = array.indexBy(source, keySelector);
 			}
 
 			target.forEach((targetItem) => {
