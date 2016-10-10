@@ -60,16 +60,6 @@ module.exports = (() => {
 				});
 			}
 
-			if (is.object(configuration.unique)) {
-				results = results.filter((result, resultIndex) => {
-					return results.some((other, otherIndex) => {
-						return !(otherIndex < resultIndex && configuration.unique.every((propertyName) => {
-							return attributes.has(result, propertyName) && attributes.has(other, propertyName) && attributes.read(result, propertyName) === attributes.read(other, propertyName);
-						}));
-					});
-				});
-			}
-
 			if (is.object(configuration.special)) {
 				const now = moment();
 
@@ -95,6 +85,19 @@ module.exports = (() => {
 
 							return returnVal;
 						});
+				});
+			}
+
+			if (is.string(configuration.unique)) {
+				const set = new Set();
+
+				results = results.filter((result) => {
+					const value = attributes.read(result, configuration.unique);
+					const keep = !set.has(value);
+
+					set.add(value);
+
+					return keep;
 				});
 			}
 
