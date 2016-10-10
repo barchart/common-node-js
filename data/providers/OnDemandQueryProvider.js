@@ -100,8 +100,10 @@ module.exports = (() => {
 		}
 
 		_parseResponse(responseText) {
+			let response;
+
 			try {
-				const response = JSON.parse(responseText);
+				response = JSON.parse(responseText);
 			} catch(e) {
 				logger.error('Unable to parse response as JSON', responseText);
 
