@@ -10,7 +10,7 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('data/processors/UppercaseResultProcessor');
 
-	class UppercaseResultProcessor extends MutateResultProcessor.extend{
+	class UppercaseResultProcessor extends MutateResultProcessor {
 		constructor(configuration) {
 			super(configuration);
 		}
