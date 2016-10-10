@@ -37,6 +37,7 @@ var SliceResultProcessor = require('./processors/SliceResultProcessor');
 var SortResultProcessor = require('./processors/SortResultProcessor');
 var SplitResultProcessor = require('./processors/SplitResultProcessor');
 var SubtractResultProcessor = require('./processors/SubtractResultProcessor');
+var TrimResultProcessor = require('./processors/TrimResultProcessor');
 var UppercaseResultProcessor = require('./processors/UppercaseResultProcessor');
 var WrapResultProcessor = require('./processors/WrapResultProcessor');
 
@@ -93,6 +94,7 @@ module.exports = (() => {
 		SortResultProcessor: SortResultProcessor,
 		SplitResultProcessor: SplitResultProcessor,
 		SubtractResultProcessor: SubtractResultProcessor,
+		TrimResultProcessor: TrimResultProcessor,
 		UppercaseResultProcessor: UppercaseResultProcessor,
 		WrapResultProcessor: WrapResultProcessor,
 		Default: ResultProcessor
