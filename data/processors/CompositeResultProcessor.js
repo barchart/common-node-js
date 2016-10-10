@@ -1,5 +1,6 @@
 var log4js = require('log4js');
-var pipeline = require('when/pipeline');
+
+var promise = require('common/lang/promise');
 
 var ResultProcessor = require('./../ResultProcessor');
 
@@ -20,7 +21,7 @@ module.exports = (() => {
 				return ResultProcessor.toFunction(resultProcessor);
 			});
 
-			return pipeline(functions, results);
+			return promise.pipeline(functions, results);
 		}
 
 		toString() {
