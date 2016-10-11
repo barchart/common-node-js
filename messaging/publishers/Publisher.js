@@ -121,7 +121,7 @@ module.exports = (() => {
 	}
 
 	function checkSuppression(messageType, suppressExpressions) {
-		return suppressExpressions.length !== 0 && _.some(suppressExpressions, function(suppressExpression) {
+		return suppressExpressions.length !== 0 && suppressExpressions.some((suppressExpression) => {
 			return suppressExpression.test(messageType);
 		});
 	}
