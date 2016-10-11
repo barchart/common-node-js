@@ -1,6 +1,8 @@
 var log4js = require('log4js');
 var querystring = require('querystring');
 
+var is = require('common/lang/is');
+
 var RestQueryProvider = require('./RestQueryProvider');
 
 module.exports = (() => {
