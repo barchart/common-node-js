@@ -276,15 +276,20 @@ module.exports = (() => {
 	const finalDotRegex = new RegExp('(\\.)$');
 	const finalDollarRegex = new RegExp('(\\$)$');
 
+	const starRegex = new RegExp('\\*', 'g');
+	const hatRegex = new RegExp('\\^', 'g');
+	const dotRegex = new RegExp('\\*', 'g');
+	const dollarRegex = new RegExp('\\*', 'g');
+
 	function sanitizedName(messageType) {
 		return messageType.replace(finalStarRegex, '_star')
 			.replace(finalHatRegex, '_hat')
 			.replace(finalDotRegex, '_dot')
 			.replace(finalDollarRegex, '_dollar')
-			.replace('*', '_star_')
-			.replace('^', '_hat_')
-			.replace('.', '_dot_')
-			.replace('$', '_dollar_');
+			.replace(starRegex, '_star_')
+			.replace(hatRegex, '_hat_')
+			.replace(dotRegex, '_dot_')
+			.replace(dollarRegex, '_dollar_');
 	}
 
 	return SnsProvider;
