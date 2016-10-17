@@ -118,6 +118,12 @@ module.exports = (() => {
 		}
 
 		_parseResponse(responseText) {
+			const configuration = this._getConfiguration();
+
+			if (configuration.returnJSON) {
+				return JSON.parse(responseText);
+			}
+
 			return responseText;
 		}
 
