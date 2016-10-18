@@ -16,7 +16,7 @@ module.exports = (() => {
 		}
 
 		_getCriteriaIsValid(criteria) {
-			return super._getStaticCriteria() && this._getModule() !== null;
+			return super._getCriteriaIsValid(criteria) && this._getModule() !== null;
 		}
 
 		_getHostname() {
@@ -58,7 +58,7 @@ module.exports = (() => {
 
 			let returnRef;
 
-			if (is.string(configuration.module) && configuration.module.length === 0) {
+			if (is.string(configuration.module) && configuration.module.length !== 0) {
 				returnRef = configuration.module;
 			} else {
 				returnRef = null;
