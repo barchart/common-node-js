@@ -95,8 +95,129 @@ module.exports = (() => {
 			});
 		}
 
+		_getCriteriaIsValid(criteria) {
+			const dynamicCriteria = this._getDynamicCriteria();
+
+			return Object.keys(dynamicCriteria)
+				.every((key) => {
+					const defaultValue = dynamicCriteria[key];
+
+					let valueToUse;
+
+					if (criteria.hasOwnProperty(key)) {
+						valueToUse = criteria[key];
+					}
+
+					if (is.undefined(valueToUse)) {
+						valueToUse = defaultValue;
+					}
+
+					if (is.number(valueToUse)) {
+						valueToUse = valueToUse.toString();
+					}
+
+					if (is.array(valueToUse) && valueToUse.length !== 0) {
+						valueToUse = valueToUse.join();
+					}
+
+					return is.string(valueToUse) && valueToUse.length !== 0;
+				});
+		}
+
+		_getStaticCriteria() {
+			const configuration = this._getConfiguration();
+
+			let returnRef;
+
+			if (is.object(configuration.staticCriteria) || is.object(configuration.criteria)) {
+				returnRef = Object.assign({ }, configuration.staticCriteria || configuration.criteria);
+			} else {
+				returnRef = {};
+			}
+
+			return returnRef;
+		}
+
+		_getDynamicCriteria() {
+			const configuration = this._getConfiguration();
+
+			let returnRef;
+
+			if (is.object(configuration.dynamicCriteria)) {
+				returnRef = Object.assign({ }, configuration.dynamicCriteria);
+			} else {
+				returnRef = {};
+			}
+
+			return returnRef;
+		}
+
+		_getHostname() {
+			const configuration = this._getConfiguration();
+
+			return configuration.hostname;
+		}
+
+		_getPort() {
+			const configuration = this._getConfiguration();
+
+			return configuration.port || 80;
+		}
+
 		_getRequestOptions(criteria) {
-			return {};
+			const configuration = this._getConfiguration();
+
+			const hostname = this._getHostname();
+			const path = this._getPort();
+			const port = configuration.port || 80;
+
+			if (!is.string(hostname) || hostname.length === 0) {
+				throw new Error(`Request options for ${this.toString()} require a hostname`);
+			}
+
+			const staticCriteria = this._getDynamicCriteria();
+			const dynamicCriteria = this._getDynamicCriteria();
+
+			const query = Object.assign({ }, staticCriteria);
+
+			Object.keys(dynamicCriteria)
+				.forEach((key) => {
+					const defaultValue = dynamicCriteria[key];
+
+					let valueToUse;
+
+					if (criteria.hasOwnProperty(key)) {
+						valueToUse = criteria[key];
+					}
+
+					if (is.undefined(valueToUse)) {
+						valueToUse = defaultValue;
+					}
+
+					query[key] = valueToUse;
+				});
+
+			Object.keys(query)
+				.forEach((key) => {
+					const value = query[key];
+
+					let stringValue;
+
+					if (is.array(value)) {
+						stringValue = value.join();
+					} else {
+						stringValue = value.toString();
+					}
+
+					query[key] = stringValue;
+				});
+
+			return {
+				method: 'GET',
+				host: hostname,
+				path: '/' + path + '?' + querystring.stringify(query),
+				port: port
+			};
 		}
 
 		_getAuthenticationOptions(criteria) {
@@ -118,13 +239,15 @@ module.exports = (() => {
 		}
 
 		_parseResponse(responseText) {
-			const configuration = this._getConfiguration();
+			let response;
 
-			if (configuration.returnJSON) {
-				return JSON.parse(responseText);
+			try {
+				response = JSON.parse(responseText);
+			} catch (e) {
+				logger.error('Unable to parse response as JSON', responseText);
+
+				throw e;
 			}
-
-			return responseText;
 		}
 
 		toString() {

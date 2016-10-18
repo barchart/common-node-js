@@ -42,12 +42,11 @@ var UppercaseResultProcessor = require('./processors/UppercaseResultProcessor');
 var WrapResultProcessor = require('./processors/WrapResultProcessor');
 
 var ContextQueryProvider = require('./providers/ContextQueryProvider');
-var DynamicRestQueryProvider = require('./providers/DynamicRestQueryProvider');
 var EnvironmentQueryProvider = require('./providers/EnvironmentQueryProvider');
 var HardcodeQueryProvider = require('./providers/HardcodeQueryProvider');
 var MySqlQueryProvider = require('./providers/MySqlQueryProvider');
 var OnDemandQueryProvider = require('./providers/OnDemandQueryProvider');
-var SimpleRestQueryProvider = require('./providers/SimpleRestQueryProvider');
+var RestQueryProvider = require('./providers/RestQueryProvider');
 var TimestampQueryProvider = require('./providers/TimestampQueryProvider');
 
 module.exports = (() => {
@@ -55,12 +54,11 @@ module.exports = (() => {
 
 	const providerMap = {
 		ContextQueryProvider: ContextQueryProvider,
-		DynamicRestQueryProvider: DynamicRestQueryProvider,
 		EnvironmentQueryProvider: EnvironmentQueryProvider,
 		HardcodeQueryProvider: HardcodeQueryProvider,
 		MySqlQueryProvider: MySqlQueryProvider,
 		OnDemandQueryProvider: OnDemandQueryProvider,
-		SimpleRestQueryProvider: SimpleRestQueryProvider,
+		RestQueryProvider: RestQueryProvider,
 		TimestampQueryProvider: TimestampQueryProvider,
 	};
 
