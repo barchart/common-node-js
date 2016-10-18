@@ -176,7 +176,7 @@ module.exports = (() => {
 				throw new Error(`Request options for ${this.toString()} require a hostname`);
 			}
 
-			const staticCriteria = this._getDynamicCriteria();
+			const staticCriteria = this._getStaticCriteria();
 			const dynamicCriteria = this._getDynamicCriteria();
 
 			const query = Object.assign({ }, staticCriteria);
