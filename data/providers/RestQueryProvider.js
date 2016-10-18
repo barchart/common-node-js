@@ -249,6 +249,8 @@ module.exports = (() => {
 
 				throw e;
 			}
+
+			return response;
 		}
 
 		toString() {
