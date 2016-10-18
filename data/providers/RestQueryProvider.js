@@ -2,6 +2,7 @@ var digest = require('http-digest-client');
 var http = require('http');
 var https = require('https');
 var log4js = require('log4js');
+var querystring = require('querystring');
 
 var is = require('common/lang/is');
 
