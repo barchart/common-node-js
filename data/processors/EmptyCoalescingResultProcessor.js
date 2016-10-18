@@ -29,7 +29,15 @@ module.exports = (() => {
 			}
 
 			if (replace) {
-				attributes.write(resultItemToProcess, propertyName, configurationToUse.replaceValue);
+				let replaceValue;
+
+				if (is.string(configurationToUse.replaceValueRef)) {
+					replaceValue = attributes.read(resultItemToProcess, configurationToUse.replaceValueRef);
+				} else {
+					replaceValue = configurationToUse.replaceValue;
+				}
+
+				attributes.write(resultItemToProcess, propertyName, replaceValue);
 			}
 		}
 
