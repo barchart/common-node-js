@@ -169,8 +169,8 @@ module.exports = (() => {
 			const configuration = this._getConfiguration();
 
 			const hostname = this._getHostname();
-			const path = this._getPort();
-			const port = configuration.port || 80;
+			const path = configuration.path || '';
+			const port = this._getPort() || 80;
 
 			if (!is.string(hostname) || hostname.length === 0) {
 				throw new Error(`Request options for ${this.toString()} require a hostname`);
