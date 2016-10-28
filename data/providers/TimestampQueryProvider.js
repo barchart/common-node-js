@@ -20,8 +20,12 @@ module.exports = (() => {
 
 			const configuration = this._getConfiguration();
 
-			if (is.object(configuration.add) && is.number(configuration.add.seconds)) {
-				m = m.add(configuration.add.seconds, 's');
+			if (is.object(configuration.add)) {
+				m = m.add(configuration.add);
+			}
+
+			if (is.object(configuration.subtract)) {
+				m = m.subtract(configuration.subtract);
 			}
 
 			return {
