@@ -1,5 +1,6 @@
-var mysql = require('mysql');
+var attributes = require('common/lang/attributes');
 var log4js = require('log4js');
+var mysql = require('mysql');
 
 var is = require('common/lang/is');
 
@@ -23,12 +24,24 @@ module.exports = (() => {
 				database: this._configuration.database
 			});
 
+			const configurationParameters = this._configuration.parameters;
+
+			let parameters = [];
+
+			if (is.array(configurationParameters)) {
+				parameters = configurationParameters.map((param) => {
+					return attributes.read(criteria, param);
+				});
+			} else if (is.string(configurationParameters)) {
+				parameters = attributes.read(criteria, configurationParameters);
+			}
+
 			connection.on('error', (e) => {
 				logger.error('MySql connection error (fatal)', e);
 			});
 
 			return new Promise((resolve, reject) => {
-				connection.query(this._configuration.query, (e, rows) => {
+				connection.query(this._configuration.query, parameters, (e, rows) => {
 					try {
 						if (e) {
 							logger.error('MySql query error', e);
