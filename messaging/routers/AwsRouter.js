@@ -137,7 +137,7 @@ module.exports = function() {
 				}
 
 				return handlerPromise;
-			}, 100, 20000, 4);
+			}, 100, 20000, 10);
 
 			that._requestHandlers[messageType] = registerObserver;
 
