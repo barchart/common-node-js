@@ -57,7 +57,7 @@ module.exports = (() => {
 							parsedResponse = this._parseResponse(responseText);
 							parseSuccess = true;
 						} catch (e) {
-							logger.error('Unable to parse response', e);
+							logger.error('Unable to parse response', criteria, e);
 						}
 
 						if (parseSuccess) {
