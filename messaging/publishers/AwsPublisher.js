@@ -156,9 +156,9 @@ module.exports = function() {
 					var binding;
 
 					if (qualifier) {
-						binding = subscriberData.event.register(h);
-					} else {
 						binding = subscriberData.events.register(qualifier, h);
+					} else {
+						binding = subscriberData.event.register(h);
 					}
 
 					return binding;
