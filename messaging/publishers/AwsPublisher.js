@@ -5,6 +5,7 @@ var when = require('when');
 
 var assert = require('common/lang/assert');
 var Event = require('common/messaging/Event');
+var EventMap = require('common/messaging/EventMap');
 var Disposable = require('common/lang/Disposable');
 var DisposableStack = require('common/collections/specialized/DisposableStack');
 
@@ -53,28 +54,40 @@ module.exports = function() {
 				publisher: this._publisherId,
 				payload: payload
 			};
+			
+			var qualifier = getQualifier(messageType);
+			
+			if (qualifier !== null) {
+				envelope.qualifier = qualifier;
+			}
 
 			logger.debug('Publishing message to AWS:', messageType);
 			logger.trace(payload);
 
-			return that._snsProvider.publish(messageType, envelope);
+			return that._snsProvider.publish(getTopic(messageType), envelope);
 		},
 
 		_subscribe: function(messageType, handler) {
 			var that = this;
 
 			logger.debug('Subscribing to AWS messages:', messageType);
+			
+			var topic = getTopic(messageType);
+			var qualifier = getQualifier(messageType);
 
-			if (!_.has(that._subscriptionPromises, messageType)) {
+			if (!_.has(that._subscriptionPromises, topic)) {
 				var subscriptionStack = new DisposableStack();
 
 				var subscriptionEvent = new Event(that);
-				var subscriptionQueueName = getSubscriptionQueue.call(that, messageType);
+				var subscriptionEvents = new EventMap(that);
+
+				var subscriptionQueueName = getSubscriptionQueue.call(that, topic);
 
 				subscriptionStack.push(subscriptionEvent);
+				subscriptionStack.push(subscriptionEvents);
 
-				that._subscriptionPromises[messageType] = when.join(
-					that._snsProvider.getTopicArn(messageType),
+				that._subscriptionPromises[topic] = when.join(
+					that._snsProvider.getTopicArn(topic),
 					that._sqsProvider.getQueueArn(subscriptionQueueName))
 						.then(function(resultGroup) {
 							var topicArn = resultGroup[0];
@@ -86,7 +99,7 @@ module.exports = function() {
 
 							return that._sqsProvider.setQueuePolicy(subscriptionQueueName, SqsProvider.getPolicyForSnsDelivery(queueArn, topicArn))
 								.then(function() {
-									return that._snsProvider.subscribe(messageType, queueArn);
+									return that._snsProvider.subscribe(topic, queueArn);
 								});
 						}).then(function(queueBinding) {
 							subscriptionStack.push(queueBinding);
@@ -111,6 +124,10 @@ module.exports = function() {
 
 								if (!echo || !that._suppressEcho) {
 									subscriptionEvent.fire(content);
+
+									if (_.isString(message.qualifier)) {
+										subscriptionEvents.fire(message.qualifier, content);
+									}
 								} else {
 									logger.debug('AWS publisher dropped an "echo" message for', messageType);
 								}
@@ -124,16 +141,27 @@ module.exports = function() {
 
 							return {
 								binding: subscriptionStack,
-								event: subscriptionEvent
+								event: subscriptionEvent,
+								events: subscriptionEvents
 							};
 						});
 			}
 
 			return that._subscriptionPromises[messageType]
 				.then(function(subscriberData) {
-					return subscriberData.event.register(function(data, ignored) {
+					var h = function(data, ignored) {
 						handler(data);
-					});
+					};
+
+					var binding;
+
+					if (qualifier) {
+						binding = subscriberData.event.register(h);
+					} else {
+						binding = subscriberData.events.register(qualifier, h);
+					}
+
+					return binding;
 				});
 		},
 
@@ -155,9 +183,31 @@ module.exports = function() {
 		}
 	});
 
-	function getSubscriptionQueue(messageType) {
-		return messageType + '-' + this._publisherId;
+	var messageTypeRegex = new RegExp('(.*)#(.*)$');
+
+	function getSubscriptionQueue(topic) {
+		return topic + '-' + this._publisherId;
 	}
 
+	function getTopic(messageType) {
+		var matches = messageType.match(messageTypeRegex);
+		
+		if (matches !== null) {
+			return matches[1];
+		} else {
+			return messageType;
+		}
+	}
+
+	function getQualifier(messageType) {
+		var matches = messageType.match(messageTypeRegex);
+
+		if (matches !== null) {
+			return matches[2];
+		} else {
+			return null;
+		}
+	}
+	
 	return AwsPublisher;
 }();
