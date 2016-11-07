@@ -54,26 +54,27 @@ module.exports = function() {
 				publisher: this._publisherId,
 				payload: payload
 			};
-			
+
+			var topic = getTopic(messageType);
 			var qualifier = getQualifier(messageType);
 			
 			if (qualifier !== null) {
 				envelope.qualifier = qualifier;
 			}
 
-			logger.debug('Publishing message to AWS:', messageType);
+			logger.debug('Publishing message to AWS:', topic);
 			logger.trace(payload);
 
-			return that._snsProvider.publish(getTopic(messageType), envelope);
+			return that._snsProvider.publish(topic, envelope);
 		},
 
 		_subscribe: function(messageType, handler) {
 			var that = this;
 
-			logger.debug('Subscribing to AWS messages:', messageType);
-			
 			var topic = getTopic(messageType);
 			var qualifier = getQualifier(messageType);
+
+			logger.debug('Subscribing to AWS messages:', topic);
 
 			if (!_.has(that._subscriptionPromises, topic)) {
 				var subscriptionStack = new DisposableStack();
@@ -129,14 +130,14 @@ module.exports = function() {
 										subscriptionEvents.fire(message.qualifier, content);
 									}
 								} else {
-									logger.debug('AWS publisher dropped an "echo" message for', messageType);
+									logger.debug('AWS publisher dropped an "echo" message for', topic);
 								}
 							}, 100, 20000, 10);
 						}).then(function(queueObserver) {
 							subscriptionStack.push(queueObserver);
 
 							subscriptionStack.push(Disposable.fromAction(function() {
-								delete that._subscriptionPromises[messageType];
+								delete that._subscriptionPromises[topic];
 							}));
 
 							return {
@@ -147,7 +148,7 @@ module.exports = function() {
 						});
 			}
 
-			return that._subscriptionPromises[messageType]
+			return that._subscriptionPromises[topic]
 				.then(function(subscriberData) {
 					var h = function(data, ignored) {
 						handler(data);
