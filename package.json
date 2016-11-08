@@ -46,7 +46,8 @@
     "numeral": "^1.5.3",
     "socket.io": "1.3.5",
     "twilio": "^2.6.0",
-    "uuid": "^2.0.1"
+    "uuid": "^2.0.1",
+    "xml2js": "^0.4.17"
   },
   "devDependencies": {
     "git-get-status": "^1.0.5",

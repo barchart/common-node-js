@@ -3,6 +3,7 @@ var http = require('http');
 var https = require('https');
 var log4js = require('log4js');
 var querystring = require('querystring');
+var xmlParser = require('xml2js').parseString;
 
 var is = require('common/lang/is');
 
@@ -171,6 +172,7 @@ module.exports = (() => {
 			const hostname = this._getHostname();
 			const path = configuration.path || '';
 			const port = this._getPort() || 80;
+			const method = configuration.method || 'GET';
 
 			if (!is.string(hostname) || hostname.length === 0) {
 				throw new Error(`Request options for ${this.toString()} require a hostname`);
@@ -206,6 +208,8 @@ module.exports = (() => {
 
 					if (is.array(value)) {
 						stringValue = value.join();
+					} else if (is.object(value)) {
+						stringValue = JSON.stringify(value);
 					} else {
 						stringValue = value.toString();
 					}
@@ -214,7 +218,7 @@ module.exports = (() => {
 				});
 
 			return {
-				method: 'GET',
+				method: method,
 				host: hostname,
 				path: '/' + path + '?' + querystring.stringify(query),
 				port: port
@@ -240,6 +244,12 @@ module.exports = (() => {
 		}
 
 		_parseResponse(responseText) {
+			const configuration = this._getConfiguration();
+
+			if (configuration.responseParser === 'xml') {
+				return this._parseXMLResponse(responseText).then((result) => result);
+			}
+
 			let response;
 
 			try {
@@ -251,6 +261,20 @@ module.exports = (() => {
 			}
 
 			return response;
+		}
+
+		_parseXMLResponse(responseText) {
+			return new Promise((resolve, reject) => {
+				xmlParser(responseText, (err, result) => {
+					if (err) {
+						logger.error('Unable to parse response as XML');
+
+						reject(e);
+					} else {
+						resolve(result);
+					}
+				});
+			});
 		}
 
 		toString() {
