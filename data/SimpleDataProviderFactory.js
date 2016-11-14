@@ -25,6 +25,7 @@ var FormatPriceResultProcessor = require('./processors/FormatPriceResultProcesso
 var GroupingResultProcessor = require('./processors/GroupingResultProcessor');
 var JoinResultProcessor = require('./processors/JoinResultProcessor');
 var MapResultProcessor = require('./processors/MapResultProcessor');
+var MatchResultProcessor = require('./processors/MatchResultProcessor');
 var MySqlBlobToArrayProcessor = require('./processors/MySqlBlobToArrayProcessor');
 var NullCoalescingResultProcessor = require('./processors/NullCoalescingResultProcessor');
 var OverwriteResultProcessor = require('./processors/OverwriteResultProcessor');
@@ -82,6 +83,7 @@ module.exports = (() => {
 		GroupingResultProcessor: GroupingResultProcessor,
 		JoinResultProcessor: JoinResultProcessor,
 		MapResultProcessor: MapResultProcessor,
+		MatchResultProcessor: MatchResultProcessor,
 		MySqlBlobToArrayProcessor: MySqlBlobToArrayProcessor,
 		NullCoalescingResultProcessor: NullCoalescingResultProcessor,
 		OverwriteResultProcessor: OverwriteResultProcessor,

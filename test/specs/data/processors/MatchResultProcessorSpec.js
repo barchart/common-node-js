@@ -1,0 +1,158 @@
+var MatchResultProcessor = require('./../../../../data/processors/MatchResultProcessor');
+
+describe('When a MatchResultProcessor is created with an expression to test for letters', function() {
+	'use strict';
+
+	var processor;
+	var configuration;
+
+	beforeEach(function() {
+		processor = new MatchResultProcessor(configuration = { propertyName: 'testProperty', matchPropertyName: 'passed', expression: '[a-z]' });
+	});
+
+	describe('and the property value is null', function() {
+		var target;
+
+		beforeEach(function(done) {
+			processor.process(target = { testProperty: null })
+				.then(function(r) {
+					done();
+				});
+		});
+
+		it('should assign a true value to the matched property', function() {
+			expect(target.passed).toEqual(false);
+		});
+	});
+
+	describe('and the property value is undefined', function() {
+		var target;
+
+		beforeEach(function(done) {
+			processor.process(target = { testProperty: undefined })
+				.then(function(r) {
+					done();
+				});
+		});
+
+		it('should assign a true value to the matched property', function() {
+			expect(target.passed).toEqual(false);
+		});
+	});
+
+	describe('and the property value contains letters', function() {
+		var target;
+
+		beforeEach(function(done) {
+			processor.process(target = { testProperty: '1x2y1z' })
+				.then(function(r) {
+					done();
+				});
+		});
+
+		it('should assign a true value to the matched property', function() {
+			expect(target.passed).toEqual(true);
+		});
+	});
+
+	describe('and the property value does not contain letters', function() {
+		var target;
+
+		beforeEach(function(done) {
+			processor.process(target = { testProperty: '121' })
+				.then(function(r) {
+					done();
+				});
+		});
+
+		it('should assign a true value to the matched property', function() {
+			expect(target.passed).toEqual(false);
+		});
+	});
+});
+
+describe('When a MatchResultProcessor is created with two expressions (starting with a letter and ending with a letter)', function() {
+	'use strict';
+
+	var processor;
+	var configuration;
+
+	beforeEach(function() {
+		processor = new MatchResultProcessor(configuration = { propertyName: 'testProperty', matchPropertyName: 'passed', expressions: ['^[a-z]', '[a-z]$'] });
+	});
+
+	describe('and the property value is null', function() {
+		var target;
+
+		beforeEach(function(done) {
+			processor.process(target = { testProperty: null })
+				.then(function(r) {
+					done();
+				});
+		});
+
+		it('should assign a true value to the matched property', function() {
+			expect(target.passed).toEqual(false);
+		});
+	});
+
+	describe('and the property value is undefined', function() {
+		var target;
+
+		beforeEach(function(done) {
+			processor.process(target = { testProperty: undefined })
+				.then(function(r) {
+					done();
+				});
+		});
+
+		it('should assign a true value to the matched property', function() {
+			expect(target.passed).toEqual(false);
+		});
+	});
+
+	describe('and the property value starts with a letter', function() {
+		var target;
+
+		beforeEach(function(done) {
+			processor.process(target = { testProperty: 'a123' })
+				.then(function(r) {
+					done();
+				});
+		});
+
+		it('should assign a true value to the matched property', function() {
+			expect(target.passed).toEqual(true);
+		});
+	});
+
+	describe('and the property value ends with a letter', function() {
+		var target;
+
+		beforeEach(function(done) {
+			processor.process(target = { testProperty: '987z' })
+				.then(function(r) {
+					done();
+				});
+		});
+
+		it('should assign a true value to the matched property', function() {
+			expect(target.passed).toEqual(true);
+		});
+	});
+
+	describe('and the property value does not start or end with a letter', function() {
+		var target;
+
+		beforeEach(function(done) {
+			processor.process(target = { testProperty: '121' })
+				.then(function(r) {
+					done();
+				});
+		});
+
+		it('should assign a true value to the matched property', function() {
+			expect(target.passed).toEqual(false);
+		});
+	});
+});
