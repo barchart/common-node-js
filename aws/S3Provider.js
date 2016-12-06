@@ -58,7 +58,7 @@ module.exports = (() => {
 			}
 
 			if (!this._started) {
-				throw new Error('The SES Provider has not been started.');
+				throw new Error('The S3 Provider has not been started.');
 			}
 
 			return new Promise((resolveCallback, rejectCallback) => {
@@ -81,7 +81,7 @@ module.exports = (() => {
 			}
 
 			if (!this._started) {
-				throw new Error('The SES Provider has not been started.');
+				throw new Error('The S3 Provider has not been started.');
 			}
 
 			return new Promise((resolveCallback, rejectCallback) => {
@@ -115,7 +115,7 @@ module.exports = (() => {
 			}
 
 			if (!this._started) {
-				throw new Error('The SES Provider has not been started.');
+				throw new Error('The S3 Provider has not been started.');
 			}
 
 			return new Promise((resolveCallback, rejectCallback) => {
