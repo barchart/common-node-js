@@ -4,6 +4,7 @@ var https = require('https');
 var log4js = require('log4js');
 var querystring = require('querystring');
 var xmlParser = require('xml2js').parseString;
+var attributes = require('common/lang/attributes');
 
 var is = require('common/lang/is');
 
@@ -170,7 +171,7 @@ module.exports = (() => {
 			const configuration = this._getConfiguration();
 
 			const hostname = this._getHostname();
-			const path = configuration.path || '';
+			const path = configuration.path.replace(/:([^\/]*)/g, (fullString, match) => attributes.read(criteria, match));
 			const port = this._getPort() || 80;
 			const method = configuration.method || 'GET';
 
@@ -240,7 +241,9 @@ module.exports = (() => {
 		}
 
 		_getRequestBody(criteria) {
-			return null;
+			const configuration = this._getConfiguration();
+
+			return configuration.body ? querystring.stringify(configuration.body) : null;
 		}
 
 		_parseResponse(responseText) {
