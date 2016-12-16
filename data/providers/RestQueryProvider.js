@@ -243,7 +243,7 @@ module.exports = (() => {
 		_getRequestBody(criteria) {
 			const configuration = this._getConfiguration();
 
-			return configuration.body ? querystring.stringify(configuration.body) : null;
+			return configuration.body ? JSON.stringify(configuration.body) : null;
 		}
 
 		_parseResponse(responseText) {
