@@ -174,6 +174,8 @@ module.exports = (() => {
 			const path = configuration.path.replace(/:([^\/]*)/g, (fullString, match) => attributes.read(criteria, match));
 			const port = this._getPort() || 80;
 			const method = configuration.method || 'GET';
+			const headers = configuration.headers;
+			let returnRef;
 
 			if (!is.string(hostname) || hostname.length === 0) {
 				throw new Error(`Request options for ${this.toString()} require a hostname`);
@@ -218,12 +220,18 @@ module.exports = (() => {
 					query[key] = stringValue;
 				});
 
-			return {
+			returnRef = {
 				method: method,
 				host: hostname,
 				path: '/' + path + '?' + querystring.stringify(query),
 				port: port
-			};
+			}
+
+			if (is.object(headers)) {
+				returnRef.headers = headers;
+			}
+
+			return returnRef;
 		}
 
 		_getAuthenticationOptions(criteria) {
@@ -272,7 +280,7 @@ module.exports = (() => {
 					if (err) {
 						logger.error('Unable to parse response as XML');
 
-						reject(e);
+						reject(err);
 					} else {
 						resolve(result);
 					}
