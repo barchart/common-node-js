@@ -171,10 +171,11 @@ module.exports = (() => {
 			const configuration = this._getConfiguration();
 
 			const hostname = this._getHostname();
-			const path = configuration.path.replace(/:([^\/]*)/g, (fullString, match) => attributes.read(criteria, match));
+			const path = (configuration.path || '').replace(/:([^\/]*)/g, (fullString, match) => attributes.read(criteria, match));
 			const port = this._getPort() || 80;
 			const method = configuration.method || 'GET';
 			const headers = configuration.headers;
+
 			let returnRef;
 
 			if (!is.string(hostname) || hostname.length === 0) {
