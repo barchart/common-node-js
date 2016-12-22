@@ -39,10 +39,10 @@ module.exports = (() => {
 
 					let responseText = '';
 
-					response.on('error', (error) => {
-						logger.error('Failed HTTP query', queryId);
+					response.on('error', (e) => {
+						logger.error('Failed HTTP query', queryId, e);
 
-						rejectCallback(error);
+						rejectCallback(e);
 					});
 
 					response.on('data', (chunk) => {
@@ -88,9 +88,9 @@ module.exports = (() => {
 					const request = connector.request(requestOptions, handleResponse);
 
 					request.on('error', (e) => {
-						logger.error('An error occurred while processing  HTTP query', queryId, e);
-						
-						throw e;
+						logger.error('An error occurred while processing HTTP query', queryId, e);
+
+						rejectCallback(e);
 					});
 
 					const requestBody = this._getRequestBody(criteria);
