@@ -2,6 +2,7 @@ var log4js = require('log4js');
 var querystring = require('querystring');
 
 var is = require('common/lang/is');
+var attributes = require('common/lang/attributes');
 
 var RestQueryProvider = require('./RestQueryProvider');
 
@@ -16,15 +17,15 @@ module.exports = (() => {
 		}
 
 		_getCriteriaIsValid(criteria) {
-			return super._getCriteriaIsValid(criteria) && this._getModule() !== null;
+			return super._getCriteriaIsValid(criteria) && is.string(criteria.module) && is.string(criteria.apiKey);
 		}
 
 		_getHostname() {
-			return 'ondemand.websol.barchart.com';
+			return getConfigurationProperty(this._getConfiguration(), 'host', 'ondemand.websol.barchart.com');
 		}
 
 		_getPort() {
-			return 80;
+			return getConfigurationProperty(this._getConfiguration(), 'port', 80);
 		}
 
 		_parseResponse(responseText) {
@@ -54,26 +55,22 @@ module.exports = (() => {
 		}
 
 		_getModule() {
-			const configuration = this._getConfiguration();
+			return getConfigurationProperty(this._getConfiguration(), 'module', null);
+		}
 
-			let returnRef;
-
-			if (is.string(configuration.module) && configuration.module.length !== 0) {
-				returnRef = configuration.module;
-			} else {
-				returnRef = null;
-			}
-
-			return returnRef;
+		_getApiKey() {
+			return getConfigurationProperty(this._getConfiguration(), 'apiKey', null);
 		}
 
 		_getStaticCriteria() {
 			const existing = super._getStaticCriteria();
+
 			const module = this._getModule();
+			const apiKey = this._getApiKey();
 
 			return Object.assign({
 				module: module,
-				apikey: 'ondemand',
+				apikey: apiKey,
 				output: 'json'
 			}, existing);
 		}
@@ -81,6 +78,18 @@ module.exports = (() => {
 		toString() {
 			return `[OnDemandQueryProvider (Module=${(this._getModule() || 'unknown')})]`;
 		}
+	}
+
+	function getConfigurationProperty(configuration, propertyName, defaultValue) {
+		let returnRef = defaultValue;
+
+		if (attributes.has(configuration, propertyName)) {
+			returnRef = attributes.read(configuration, propertyName);
+		} else {
+			returnRef = defaultValue;
+		}
+
+		return returnRef;
 	}
 
 	return OnDemandQueryProvider;

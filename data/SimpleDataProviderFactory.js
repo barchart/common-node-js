@@ -1,5 +1,6 @@
 var assert = require('common/lang/assert');
 var is = require('common/lang/is');
+var is = require('common/lang/object');
 
 var DataProvider = require('./DataProvider');
 var DataProviderFactory = require('./DataProviderFactory');
@@ -103,11 +104,14 @@ module.exports = (() => {
 	};
 	
 	class SimpleDataProviderFactory extends DataProviderFactory {
-		constructor(customProcessors, customProviders) {
+		constructor(customProcessors, customProviders, processorDefaults, providerDefaults) {
 			super();
 
 			this._customProcessors = customProcessors || {};
 			this._customProviders = customProviders || {};
+
+			this._processorDefaults = processorDefaults || {};
+			this._providerDefaults = providerDefaults || {};
 		}
 
 		_build(configuration) {
@@ -123,11 +127,11 @@ module.exports = (() => {
 			}
 
 			const Constructor = providerMap[providerTypeName] || this._customProviders[providerTypeName];
-			const queryProvider = new Constructor(providerConfiguration);
+			const queryProvider = new Constructor(mergeConfigurations(this._providerDefaults[providerTypeName] || { }, providerConfiguration));
 
 			let processor;
 
-			if (is.array(configuration.processors) && is.array(configuration.processors)) {
+			if (is.array(configuration.processors)) {
 				processor = new CompositeResultProcessor(configuration.processors.map((configuration) => {
 					return buildResultProcessor.call(this, configuration);
 				}));
@@ -162,7 +166,11 @@ module.exports = (() => {
 
 		const Constructor = processorMap[processorTypeName] || this._customProcessors[processorTypeName];
 
-		return new Constructor(processorConfiguration);
+		return new Constructor(mergeConfigurations(this._processorDefaults[processorTypeName] || { }, processorConfiguration));
+	}
+
+	function mergeConfigurations(defaultConfiguration, providerConfiguration) {
+		return object.merge(defaultConfiguration, providerConfiguration);
 	}
 
 	return SimpleDataProviderFactory;
