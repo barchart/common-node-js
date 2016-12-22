@@ -87,6 +87,12 @@ module.exports = (() => {
 
 					const request = connector.request(requestOptions, handleResponse);
 
+					request.on('error', (e) => {
+						logger.error('An error occurred while processing  HTTP query', queryId, e);
+						
+						throw e;
+					});
+
 					const requestBody = this._getRequestBody(criteria);
 
 					if (requestBody !== null) {
@@ -259,7 +265,7 @@ module.exports = (() => {
 			const configuration = this._getConfiguration();
 
 			if (configuration.responseParser === 'xml') {
-				return this._parseXMLResponse(responseText).then((result) => result);
+				return this._parseXmlResponse(responseText);
 			}
 
 			let response;
@@ -275,7 +281,7 @@ module.exports = (() => {
 			return response;
 		}
 
-		_parseXMLResponse(responseText) {
+		_parseXmlResponse(responseText) {
 			return new Promise((resolve, reject) => {
 				xmlParser(responseText, (err, result) => {
 					if (err) {
