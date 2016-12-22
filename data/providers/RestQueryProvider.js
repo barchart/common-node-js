@@ -232,7 +232,7 @@ module.exports = (() => {
 				host: hostname,
 				path: '/' + path + '?' + querystring.stringify(query),
 				port: port
-			}
+			};
 
 			if (is.object(headers)) {
 				returnRef.headers = headers;

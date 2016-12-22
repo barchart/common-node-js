@@ -15,7 +15,7 @@ module.exports = (() => {
 		}
 
 		_runQuery(criteria) {
-			return clone(this._getConfiguration().results)
+			return clone(this._getConfiguration().results);
 		}
 
 		toString() {

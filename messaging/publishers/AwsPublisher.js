@@ -134,7 +134,6 @@ module.exports = (() => {
 			const subscriptionPromises = Object.assign(this._subscriptionPromises);
 			this._subscriptionPromises = null;
 
-
 			Object.keys(subscriptionPromises).forEach((key) => {
 				const subscriptionPromise = subscriptionPromises[key];
 
