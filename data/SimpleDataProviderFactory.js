@@ -1,6 +1,6 @@
 var assert = require('common/lang/assert');
 var is = require('common/lang/is');
-var is = require('common/lang/object');
+var object = require('common/lang/object');
 
 var DataProvider = require('./DataProvider');
 var DataProviderFactory = require('./DataProviderFactory');
