@@ -1,5 +1,4 @@
 var log4js = require('log4js');
-var querystring = require('querystring');
 
 var is = require('common/lang/is');
 var attributes = require('common/lang/attributes');
@@ -17,7 +16,9 @@ module.exports = (() => {
 		}
 
 		_getCriteriaIsValid(criteria) {
-			return super._getCriteriaIsValid(criteria) && is.string(criteria.module) && is.string(criteria.apiKey);
+			return super._getCriteriaIsValid(criteria) &&
+				is.string(this._getModule()) &&
+				is.string(this._getApiKey());
 		}
 
 		_getHostname() {
