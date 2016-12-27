@@ -9,6 +9,8 @@ module.exports = function() {
 
 	var logger = log4js.getLogger('data/providers/OnDemandQueryProvider');
 
+	var DEFAULT_API_KEY = 'ondemand';
+
 	var OnDemandQueryProvider = RestQueryProvider.extend({
 		init: function(configuration) {
 			this._super(configuration);
@@ -46,6 +48,7 @@ module.exports = function() {
 			var that = this;
 
 			var module = that._getModule();
+			var apiKey = that._getApiKey();
 
 			if (!_.isString(module) || module.length === 0) {
 				throw new Error('Request options for ' + that.toString() + ' require a module');
@@ -55,7 +58,7 @@ module.exports = function() {
 
 			var query = _.assign({
 				module: module,
-				apikey: 'ondemand',
+				apikey: apiKey,
 				output: 'json'
 			}, that._getStaticCriteria());
 
@@ -126,6 +129,22 @@ module.exports = function() {
 				returnRef = configuration.module;
 			} else {
 				returnRef = null;
+			}
+
+			return returnRef;
+		},
+
+		_getApiKey: function() {
+			var configuration = this._getConfiguration();
+
+			var returnRef;
+
+			if (_.isString(configuration.apiKey)) {
+				returnRef = configuration.apiKey;
+			} else {
+				logger.warn('Using default OnDemand API key. Please use application-specific API key.');
+
+				returnRef = DEFAULT_API_KEY;
 			}
 
 			return returnRef;
