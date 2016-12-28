@@ -36,8 +36,12 @@ module.exports = (() => {
 			return this._name === 'production';
 		}
 
-		static initialize(configurationPath, version) {
-			assert.argumentIsRequired(configurationPath, 'configurationPath', String);
+		readConfigurationFile(filePath) {
+			return readConfigurationFile(this._configuration.server.path, filePath, this._name);
+		}
+
+		static initialize(applicationPath, version) {
+			assert.argumentIsRequired(applicationPath, 'applicationPath', String);
 			assert.argumentIsRequired(version, 'version', String);
 
 			let name;
@@ -48,10 +52,10 @@ module.exports = (() => {
 				name = 'development';
 			}
 
-			const configuration = configurator.load(path.resolve(configurationPath + '/config/config.yml'), name);
+			const configuration = readConfigurationFile(applicationPath, 'config/config.yml', name);
 
 			configuration.server = configuration.server || {};
-			configuration.server.path = configuration.server.path || configurationPath;
+			configuration.server.path = configuration.server.path || applicationPath;
 
 			instance = new Environment(name, configuration, version);
 
@@ -65,6 +69,10 @@ module.exports = (() => {
 
 			return instance;
 		}
+	}
+
+	function readConfigurationFile(applicationPath, filePath, name) {
+		return configurator.load(path.resolve(applicationPath, filePath), name);
 	}
 
 	return Environment;
