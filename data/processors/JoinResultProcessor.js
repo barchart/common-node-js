@@ -25,15 +25,16 @@ module.exports = (() => {
 			let targetProperty;
 			let sourceProperty;
 
-			if (is.string(configuration.targetProperty) && is.string(configuration.sourceProperty)) {
+			if (is.string(configuration.join)) {
+				targetProperty = configuration.join;
+				sourceProperty = configuration.join;
+			} else if (is.string(configuration.targetProperty) && is.string(configuration.sourceProperty)) {
 				targetProperty = configuration.targetProperty;
 				sourceProperty = configuration.sourceProperty;
 			} else {
-				targetProperty = configuration.join;
-				sourceProperty = configuration.join;
+				targetProperty = null;
+				sourceProperty = null;
 			}
-
-			const aliasProperty = configuration.alias;
 
 			let sourceItemMap;
 
@@ -41,11 +42,15 @@ module.exports = (() => {
 				return attributes.read(item, sourceProperty);
 			};
 
-			if (is.boolean(configuration.multiple) && is.boolean(configuration.multiple)) {
+			if (!is.array(source)) {
+				sourceItemMap = source;
+			} else if (is.boolean(configuration.multiple) && configuration.multiple) {
 				sourceItemMap = array.groupBy(source, keySelector);
 			} else {
 				sourceItemMap = array.indexBy(source, keySelector);
 			}
+
+			const aliasProperty = configuration.alias;
 
 			target.forEach((targetItem) => {
 				let targetValue;

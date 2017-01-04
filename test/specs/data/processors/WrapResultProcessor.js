@@ -15,7 +15,7 @@ describe('When a WrapResultProcessor is created', function() {
 		var result;
 
 		beforeEach(function(done) {
-			result = processor.process(input = { wrap: 'me' })
+			processor.process(input = { wrap: 'me' })
 				.then(function(r) {
 					result = r;
 

@@ -22,12 +22,16 @@ module.exports = (() => {
 
 			if (is.array(configuration.properties)) {
 				returnRef = configuration.properties.reduce((map, property) => {
-					map[property] = attributes.read(criteria, property);
+					if (attributes.has(criteria, property)) {
+						map[property] = attributes.read(criteria, property);
+					}
 
 					return map;
 				}, { });
 			} else if (is.string(configuration.property)) {
 				returnRef = attributes.read(criteria, configuration.property);
+			} else if (is.boolean(configuration.current) && configuration.current) {
+				returnRef = criteria;
 			} else {
 				returnRef = undefined;
 			}

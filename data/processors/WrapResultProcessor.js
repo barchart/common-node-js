@@ -19,16 +19,13 @@ module.exports = (() => {
 			const configuration = this._getConfiguration();
 
 			const propertyName = configuration.propertyName;
-
-			if (!is.string(propertyName) || propertyName.length === 0) {
-				return results;
-			}
-
 			const wrapArray = is.boolean(configuration.wrapArray) && configuration.wrapArray;
 
 			let returnRef;
 
-			if (is.array(results) && wrapArray) {
+			if (!is.string(propertyName) || propertyName.length === 0) {
+				returnRef = results;
+			} else if (is.array(results) && wrapArray) {
 				returnRef = results.map((item) => {
 					return wrap(propertyName, item);
 				});

@@ -264,18 +264,18 @@ module.exports = (() => {
 		_parseResponse(responseText) {
 			const configuration = this._getConfiguration();
 
-			if (configuration.responseParser === 'xml') {
-				return this._parseXmlResponse(responseText);
-			}
-
 			let response;
 
-			try {
-				response = JSON.parse(responseText);
-			} catch (e) {
-				logger.error('Unable to parse response as JSON', responseText);
+			if (configuration.responseParser === 'xml') {
+				response = this._parseXmlResponse(responseText);
+			} else {
+				try {
+					response = JSON.parse(responseText);
+				} catch (e) {
+					logger.error('Unable to parse response as JSON', responseText);
 
-				throw e;
+					throw e;
+				}
 			}
 
 			return response;

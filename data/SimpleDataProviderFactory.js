@@ -25,6 +25,8 @@ var FormatNumberResultProcessor = require('./processors/FormatNumberResultProces
 var FormatPriceResultProcessor = require('./processors/FormatPriceResultProcessor');
 var GroupingResultProcessor = require('./processors/GroupingResultProcessor');
 var JoinResultProcessor = require('./processors/JoinResultProcessor');
+var JsonParseResultProcessor = require('./processors/JsonParseResultProcessor');
+var JsonStringifyResultProcessor = require('./processors/JsonStringifyResultProcessor');
 var MapResultProcessor = require('./processors/MapResultProcessor');
 var MatchResultProcessor = require('./processors/MatchResultProcessor');
 var MySqlBlobToArrayProcessor = require('./processors/MySqlBlobToArrayProcessor');
@@ -40,6 +42,7 @@ var SortResultProcessor = require('./processors/SortResultProcessor');
 var SplitResultProcessor = require('./processors/SplitResultProcessor');
 var SubtractResultProcessor = require('./processors/SubtractResultProcessor');
 var TrimResultProcessor = require('./processors/TrimResultProcessor');
+var UnwrapResultProcessor = require('./processors/UnwrapResultProcessor');
 var UppercaseResultProcessor = require('./processors/UppercaseResultProcessor');
 var WrapResultProcessor = require('./processors/WrapResultProcessor');
 
@@ -83,6 +86,8 @@ module.exports = (() => {
 		FormatPriceResultProcessor: FormatPriceResultProcessor,
 		GroupingResultProcessor: GroupingResultProcessor,
 		JoinResultProcessor: JoinResultProcessor,
+		JsonParseResultProcessor: JsonParseResultProcessor,
+		JsonStringifyResultProcessor: JsonStringifyResultProcessor,
 		MapResultProcessor: MapResultProcessor,
 		MatchResultProcessor: MatchResultProcessor,
 		MySqlBlobToArrayProcessor: MySqlBlobToArrayProcessor,
@@ -98,6 +103,7 @@ module.exports = (() => {
 		SplitResultProcessor: SplitResultProcessor,
 		SubtractResultProcessor: SubtractResultProcessor,
 		TrimResultProcessor: TrimResultProcessor,
+		UnwrapResultProcessor: UnwrapResultProcessor,
 		UppercaseResultProcessor: UppercaseResultProcessor,
 		WrapResultProcessor: WrapResultProcessor,
 		Default: ResultProcessor
