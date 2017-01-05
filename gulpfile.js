@@ -45,7 +45,7 @@ gulp.task('document', function (cb) {
 });
 
 gulp.task('commit-changes', function () {
-    return gulp.src([ './', './package.json', './documentation/**/*' ])
+    return gulp.src([ './', './package.json' ])
         .pipe(git.add())
         .pipe(git.commit('Release. Bump version number'));
 });
@@ -89,7 +89,6 @@ gulp.task('release', function (callback) {
         'ensure-clean-working-directory',
         'execute-node-tests',
         'bump-version',
-        'document',
         'commit-changes',
         'push-changes',
         'create-tag',
