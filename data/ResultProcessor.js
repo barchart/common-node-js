@@ -9,20 +9,32 @@ module.exports = (() => {
 
 	/**
 	 * Used by a {@link DataProvider} to process the output of a {@link QueryProvider}.
+	 * It is important to note that the output may, but is not required to be, the
+	 * same as the input.
 	 *
 	 * @public
 	 * @interface
-	 * @param {object} configuration - Used by inheriting class.
+	 * @param {Object} configuration - Used by inheriting class.
 	 */
 	class ResultProcessor {
 		constructor(configuration) {
 			this._configuration = configuration || {};
 		}
 
+		/**
+		 * @protected
+		 */
 		_getConfiguration() {
 			return this._configuration;
 		}
 
+		/**
+		 * Processes the results, returning a promise.
+		 *
+		 * @public
+		 * @param {Object} results - The data to process.
+		 * @returns {Promise} The processed output, as a promise.
+		 */
 		process(results) {
 			return Promise.resolve()
 				.then(() => {
@@ -30,6 +42,9 @@ module.exports = (() => {
 				});
 		}
 
+		/**
+		 * @protected
+		 */
 		_process(results) {
 			return results;
 		}
@@ -38,6 +53,14 @@ module.exports = (() => {
 			return '[ResultProcessor]';
 		}
 
+		/**
+		 * Wraps a {@link ResultProcessor} in a function that returns the result
+		 * of the wrapped instance's {@link ResultProcessor#process} function.
+		 *
+		 * @public
+		 * @param {ResultProcessor} resultProcessor - The {@link ResultProcessor} to wrap.
+		 * @returns {Promise} The processed output, as a promise.
+		 */
 		static toFunction(resultProcessor) {
 			assert.argumentIsRequired(resultProcessor, 'resultProcessor', ResultProcessor, 'ResultProcessor');
 

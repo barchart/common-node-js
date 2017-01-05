@@ -13,7 +13,7 @@ describe('When a AggregateResultProcessor is created', function() {
 		var result;
 
 		beforeEach(function(done) {
-			result = processor.process(null)
+			processor.process(null)
 				.then(function(r) {
 					result = r;
 
@@ -34,7 +34,7 @@ describe('When a AggregateResultProcessor is created', function() {
 		var result;
 
 		beforeEach(function(done) {
-			result = processor.process()
+			processor.process()
 				.then(function(r) {
 					result = r;
 

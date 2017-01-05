@@ -10,6 +10,16 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('data/processors/MutateResultProcessor');
 
+	/**
+	 * A result processor that is guaranteed to return the same
+	 * object as it's passed. However, during processing, the
+	 * object will be mutated.
+	 *
+	 * @public
+	 * @interface
+	 * @extends ResultProcessor
+	 * @param {Object} configuration - Used by inheriting class.
+	 */
 	class MutateResultProcessor extends ResultProcessor {
 		constructor(configuration) {
 			super(configuration);

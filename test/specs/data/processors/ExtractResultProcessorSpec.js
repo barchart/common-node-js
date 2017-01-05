@@ -26,7 +26,7 @@ describe('When a ExtractResultProcessor is created', function() {
 				{ thing:  three = '3'}
 			];
 
-			result = processor.process(input)
+			processor.process(input)
 				.then(function(r) {
 					result = r;
 

@@ -10,6 +10,17 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('data/processors/DefaultResultProcessor');
 
+	/**
+	 * Mutates an object, setting a property to a default value, if
+	 * the property does not exist or if the property's value is
+	 * undefined.
+	 *
+	 * @public
+	 * @extends MutateResultProcessor
+	 * @param {Object} configuration
+	 * @param {string} configuration.propertyName
+	 * @param {Object} configuration.defaultValue
+	 */
 	class DefaultResultProcessor extends MutateResultProcessor {
 		constructor(configuration) {
 			super(configuration);

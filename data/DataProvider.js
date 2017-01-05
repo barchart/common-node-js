@@ -32,7 +32,7 @@ module.exports = (() => {
 		 * the {@link ResultProcessor}.
 		 *
 		 * @public
-		 * @param {object} Data used to customize the query.
+		 * @param {Object} criteria - Used to customize the query.
 		 * @returns {Promise} The processed output, as a promise.
 		 */
 		getData(criteria) {
@@ -47,7 +47,7 @@ module.exports = (() => {
 		 * without causing an error to be thrown.
 		 *
 		 * @public
-		 * @param {object}
+		 * @param {Object} criteria
 		 * @returns {Boolean}
 		 */
 		getCriteriaIsValid(criteria) {

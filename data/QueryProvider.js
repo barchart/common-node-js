@@ -10,17 +10,27 @@ module.exports = (() => {
 	 *
 	 * @public
 	 * @interface
-	 * @param {object} configuration - Used by inheriting class.
+	 * @param {Object} configuration - Used by inheriting class.
 	 */
 	class QueryProvider {
 		constructor(configuration) {
 			this._configuration = configuration || {};
 		}
 
+		/**
+		 * @protected
+		 */
 		_getConfiguration() {
 			return this._configuration;
 		}
 
+		/**
+		 * Executes the query, returning the results as a promise.
+		 *
+		 * @public
+		 * @param {Object} criteria - The criteria needed to execute the query.
+		 * @returns {Promise} The query results, as a promise.
+		 */
 		runQuery(criteria) {
 			if (!this.getCriteriaIsValid(criteria)) {
 				throw new Error('Unable to run query, the query parameters are invalid.');
@@ -32,14 +42,28 @@ module.exports = (() => {
 				});
 		}
 
+		/**
+		 * @protected
+		 */
 		_runQuery(criteria) {
 			return null;
 		}
 
+		/**
+		 * Indicates if the criteria could be passed to the {@link runQuery} function
+		 * without causing an error to be thrown.
+		 *
+		 * @public
+		 * @param {Object} criteria
+		 * @returns {Boolean}
+		 */
 		getCriteriaIsValid(criteria) {
 			return this._getCriteriaIsValid(criteria);
 		}
 
+		/**
+		 * @protected
+		 */
 		_getCriteriaIsValid(criteria) {
 			return true;
 		}
