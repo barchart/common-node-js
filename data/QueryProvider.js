@@ -5,7 +5,14 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('data/QueryProvider');
 
-	 class QueryProvider {
+	/**
+	 * Used by a {@link DataProvider} to generate data.
+	 *
+	 * @public
+	 * @interface
+	 * @param {object} configuration - Used by inheriting class.
+	 */
+	class QueryProvider {
 		constructor(configuration) {
 			this._configuration = configuration || {};
 		}

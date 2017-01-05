@@ -7,6 +7,13 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('data/ResultProcessor');
 
+	/**
+	 * Used by a {@link DataProvider} to process the output of a {@link QueryProvider}.
+	 *
+	 * @public
+	 * @interface
+	 * @param {object} configuration - Used by inheriting class.
+	 */
 	class ResultProcessor {
 		constructor(configuration) {
 			this._configuration = configuration || {};

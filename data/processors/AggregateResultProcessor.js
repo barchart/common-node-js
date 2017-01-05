@@ -1,6 +1,5 @@
 var log4js = require('log4js');
 
-var attributes = require('common/lang/attributes');
 var is = require('common/lang/is');
 
 var ResultProcessor = require('./../ResultProcessor');
@@ -10,6 +9,13 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('data/processors/AggregateResultProcessor');
 
+	/**
+	 * Flattens an array of arrays.
+	 *
+	 * @public
+	 * @extends ResultProcessor
+	 * @param {object} configuration - Not used.
+	 */
 	class AggregateResultProcessor extends ResultProcessor {
 		constructor(configuration) {
 			super(configuration);

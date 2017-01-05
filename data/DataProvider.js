@@ -10,6 +10,14 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('data/DataProvider');
 
+	/**
+	 * Generates data using a {@link DataProvider} and processes the data
+	 * with a {@link ResultProcessor}.
+	 *
+	 * @public
+	 * @param {QueryProvider} queryProvider - The query provider.
+	 * @param {ResultProcessor} resultProcessor - The result processor.
+	 */
 	class DataProvider {
 		constructor(queryProvider, resultProcessor) {
 			assert.argumentIsRequired(queryProvider, 'queryProvider', QueryProvider, 'QueryProvider');
@@ -19,6 +27,14 @@ module.exports = (() => {
 			this._resultProcessor = resultProcessor;
 		}
 
+		/**
+		 * Invokes the {@link QueryProvider} and processes results with
+		 * the {@link ResultProcessor}.
+		 *
+		 * @public
+		 * @param {object} Data used to customize the query.
+		 * @returns {Promise} The processed output, as a promise.
+		 */
 		getData(criteria) {
 			return this._queryProvider.runQuery(criteria)
 				.then((data) => {
@@ -26,20 +42,20 @@ module.exports = (() => {
 				});
 		}
 
+		/**
+		 * Indicates if the data could be passed to the {@link getData} function
+		 * without causing an error to be thrown.
+		 *
+		 * @public
+		 * @param {object}
+		 * @returns {Boolean}
+		 */
 		getCriteriaIsValid(criteria) {
 			return this._queryProvider.getCriteriaIsValid(criteria);
 		}
 
 		toString() {
-			let resultProcessorString;
-
-			if (this._resultProcessor) {
-				resultProcessorString = this._resultProcessor.toString();
-			} else {
-				resultProcessorString = '[none]';
-			}
-
-			return `[DataProvider (QueryProvider=${this._queryProvider.toString()}, ResultProcessor=${resultProcessorString})]`;
+			return `[DataProvider (QueryProvider=${this._queryProvider.toString()}, ResultProcessor=${this._resultProcessor.toString()}]`;
 		}
 	}
 

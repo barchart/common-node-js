@@ -4,6 +4,7 @@ var bump = require('gulp-bump');
 var git = require('gulp-git');
 var gitStatus = require('git-get-status');
 var jasmine = require('gulp-jasmine');
+var jsdoc = require('gulp-jsdoc3');
 var jshint = require('gulp-jshint');
 var runSequence = require('run-sequence');
 var util = require('gulp-util');
@@ -32,8 +33,19 @@ gulp.task('bump-version', function () {
         .pipe(gulp.dest('./'));
 });
 
+gulp.task('document', function (cb) {
+	config = {
+		"opts": {
+			"destination": "./documentation"
+		},
+	};
+
+	gulp.src(['README.md', './**/*.js', '!./node_modules/**' ], {read: false})
+		.pipe(jsdoc(config, cb));
+});
+
 gulp.task('commit-changes', function () {
-    return gulp.src([ './', './package.json' ])
+    return gulp.src([ './', './package.json', './documentation/**/*' ])
         .pipe(git.add())
         .pipe(git.commit('Release. Bump version number'));
 });
@@ -77,6 +89,7 @@ gulp.task('release', function (callback) {
         'ensure-clean-working-directory',
         'execute-node-tests',
         'bump-version',
+        'document',
         'commit-changes',
         'push-changes',
         'create-tag',
