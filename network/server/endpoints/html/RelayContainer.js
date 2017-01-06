@@ -1,5 +1,3 @@
-var assert = require('common/lang/assert');
-
 var Container = require('./../Container');
 var RelayEndpoint = require('./RelayEndpoint');
 
