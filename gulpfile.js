@@ -88,6 +88,7 @@ gulp.task('release', function (callback) {
     runSequence(
         'ensure-clean-working-directory',
         'execute-node-tests',
+        'document',
         'bump-version',
         'commit-changes',
         'push-changes',
