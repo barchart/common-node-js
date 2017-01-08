@@ -212,7 +212,7 @@ module.exports = (() => {
 				delete this._subscribers[id];
 
 				if (!Object.keys(this._subscribers).some((key) => this._subscribers[key] === source)) {
-					this._sources = this._sources.filter((canidate) => candidate !== source);
+					this._sources = this._sources.filter((candidate) => candidate !== source);
 				}
 			}
 		}
