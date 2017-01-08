@@ -152,8 +152,6 @@ module.exports = (() => {
 				logger.info('Peer', s, 'signaled ready');
 
 				this._peerConnected.fire(s);
-
-				readyBinding.dispose();
 			});
 		}
 	}
