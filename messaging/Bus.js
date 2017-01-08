@@ -104,10 +104,12 @@ module.exports = (() => {
 
 				if (timeoutToUse > 0) {
 					requestPromise = promise.timeout(requestPromise, timeoutToUse)
-						.then((e) => {
+						.then((response) => {
 							const end = new Date();
 
 							logger.debug('Request [', messageType, '] completed after', (end.getTime() - start.getTime()), 'milliseconds');
+
+							return response;
 						}).catch((e) => {
 							const end = new Date();
 
