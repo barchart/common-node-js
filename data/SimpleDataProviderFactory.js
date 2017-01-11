@@ -9,6 +9,7 @@ var ResultProcessor = require('./ResultProcessor');
 var AddResultProcessor = require('./processors/AddResultProcessor');
 var AggregateResultProcessor = require('./processors/AggregateResultProcessor');
 var CompositeResultProcessor = require('./processors/CompositeResultProcessor');
+var ConcatenateResultProcessor = require('./processors/ConcatenateResultProcessor')
 var ConvertResultProcessor = require('./processors/ConvertResultProcessor');
 var CopyResultProcessor = require('./processors/CopyResultProcessor');
 var CountResultProcessor = require('./processors/CountResultProcessor');
@@ -70,6 +71,7 @@ module.exports = (() => {
 	const processorMap = {
 		AddResultProcessor: AddResultProcessor,
 		AggregateResultProcessor: AggregateResultProcessor,
+		ConcatenateResultProcessor: ConcatenateResultProcessor,
 		ConvertResultProcessor: ConvertResultProcessor,
 		CopyResultProcessor: CopyResultProcessor,
 		CountResultProcessor: CountResultProcessor,
@@ -108,7 +110,7 @@ module.exports = (() => {
 		WrapResultProcessor: WrapResultProcessor,
 		Default: ResultProcessor
 	};
-	
+
 	class SimpleDataProviderFactory extends DataProviderFactory {
 		constructor(customProcessors, customProviders, processorDefaults, providerDefaults) {
 			super();
