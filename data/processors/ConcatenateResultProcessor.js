@@ -36,7 +36,7 @@ module.exports = (() => {
 				let returnRef;
 
 				if (attributes.has(resultItemToProcess, sourcePropertyName)) {
-					returnRef = attributes.read(resultItemToProcess, sourcePropertyName);
+					returnRef = attributes.read(resultItemToProcess, sourcePropertyName).toString();
 				} else {
 					returnRef = sourcePropertyName;
 				}
