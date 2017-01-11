@@ -1,6 +1,6 @@
 var ConcatenateResultProcessor = require('./../../../../data/processors/ConcatenateResultProcessor');
 
-describe('When a ConcatenateResultProcessor is created, the following source pattern [ "name.first", " The Great" ]', function() {
+describe('When a ConcatenateResultProcessor is created with the following source pattern [ "name.first", " The Great" ]', function() {
 	'use strict';
 
 	var processor;
@@ -17,6 +17,7 @@ describe('When a ConcatenateResultProcessor is created, the following source pat
 			processor.process(original = { name: { first: 'Bryan' } })
 				.then(function(r) {
 					result = r;
+
 					done();
 				});
 		});

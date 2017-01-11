@@ -10,6 +10,18 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('data/processors/CopyResultProcessor');
 
+	/**
+	 * Copies a property's value to one (or more) other properties, optionally selecting a
+	 * portion of the property's value with a regular expression.
+	 *
+	 * @public
+	 * @extends MutateResultProcessor
+	 * @param {object} configuration
+	 * @param {string} configuration.sourcePropertyName - The property to copy.
+	 * @param {string} configuration.regex - Optional. A regular expression to apply to the source property value.
+	 * @param {string} configuration.targetPropertyName - Optional. The name of the property to assign.
+	 * @param {string[]} configuration.targetPropertyNames - Optional. The names of the properties to assign.
+	 */
 	class CopyResultProcessor extends MutateResultProcessor {
 		constructor(configuration) {
 			super(configuration);
