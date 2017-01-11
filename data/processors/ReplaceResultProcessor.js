@@ -10,6 +10,16 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('data/processors/ReplaceResultProcessor');
 
+	/**
+	 * Applies regular-expression based replacement to a single property.
+	 *
+	 * @public
+	 * @extends MutateResultProcessor
+	 * @param {object} configuration
+	 * @param {string} configuration.propertyName - Name of the property to apply the regular expression replacement to.
+	 * @param {string} configuration.selectExpression - The expression that defines the string to be replaced.
+	 * @param {string} configuration.replaceExpression - The expression that defines the replacement string.
+	 */
 	class ReplaceResultProcessor extends MutateResultProcessor {
 		constructor(configuration) {
 			super(configuration);
