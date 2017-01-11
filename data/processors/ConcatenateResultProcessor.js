@@ -52,8 +52,6 @@ module.exports = (() => {
 				return returnRef;
 			});
 
-			console.log(data);
-
 			attributes.write(resultItemToProcess, propertyName, data.join(''));
 		}
 
