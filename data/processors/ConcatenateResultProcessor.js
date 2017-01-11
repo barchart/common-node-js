@@ -10,23 +10,31 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('data/processors/ConcatenateResultProcessor');
 
+	/**
+	 * Concatenates literal strings (or property references) and assigns
+	 * result to a property.
+	 *
+	 * @public
+	 * @extends MutateResultProcessor
+	 * @param {object} configuration
+	 * @param {string} configuration.propertyName - Name of the property to assign concatenated value string to.
+	 * @param {string[]} configuration.source - An array interpreted as property references or literal strings.
+	 */
 	class ConcatenateResultProcessor extends MutateResultProcessor {
 		constructor(configuration) {
 			super(configuration);
 		}
 
 		_processItem(resultItemToProcess, configurationToUse) {
-			let targetPropertyName = configurationToUse.targetPropertyName;
+			let propertyName = configurationToUse.propertyName;
 
-			if (!is.string(targetPropertyName)) {
+			if (!is.string(propertyName)) {
 				return;
 			}
 
 			let source;
 
-			if (is.string(configurationToUse.source)) {
-				source = [configurationToUse.source];
-			} else if (is.array(configurationToUse.source)) {
+			if (is.array(configurationToUse.source)) {
 				source = configurationToUse.source;
 			} else {
 				source = [];
@@ -44,7 +52,9 @@ module.exports = (() => {
 				return returnRef;
 			});
 
-			attributes.write(resultItemToProcess, targetPropertyName, data.join(''));
+			console.log(data);
+
+			attributes.write(resultItemToProcess, propertyName, data.join(''));
 		}
 
 		toString() {

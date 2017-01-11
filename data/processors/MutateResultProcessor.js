@@ -13,7 +13,7 @@ module.exports = (() => {
 	/**
 	 * A result processor that is guaranteed to return the same
 	 * object as it's passed. However, during processing, the
-	 * object will be mutated.
+	 * object will likely be mutated.
 	 *
 	 * @public
 	 * @interface
