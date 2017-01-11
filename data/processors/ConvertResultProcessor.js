@@ -10,6 +10,15 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('data/processors/ConvertResultProcessor');
 
+	/**
+	 * Converts a property's value to another type.
+	 *
+	 * @public
+	 * @extends MutateResultProcessor
+	 * @param {object} configuration
+	 * @param {string} configuration.propertyName - Name of property to convert.
+	 * @param {string} configuration.propertyType - Desired type. Valid options are: "string"
+	 */
 	class ConvertResultProcessor extends MutateResultProcessor {
 		constructor(configuration) {
 			super(configuration);
