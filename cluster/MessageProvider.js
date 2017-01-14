@@ -131,7 +131,7 @@ module.exports = (() => {
 				worker.on('message', (message) => {
 					logger.trace('Master received message from worker process', worker.id, message);
 
-					const envelope = JSON.parse(message);
+					const envelope = message;
 					const handler = this._handlers[envelope.t];
 
 					if (handler) {
@@ -165,7 +165,7 @@ module.exports = (() => {
 			process.on('message', (message) => {
 				logger.trace('Worker process', cluster.worker.id, 'received message from master process', message);
 
-				const envelope = JSON.parse(message);
+				const envelope = message;
 				const handler = this._handlers[envelope.t];
 
 				if (handler) {
@@ -214,11 +214,11 @@ module.exports = (() => {
 		}
 
 		static getMessage(sender, type, payload) {
-			return JSON.stringify({
+			return {
 				s: sender,
 				t: type,
 				p: payload || { }
-			});
+			};
 		}
 	}
 
