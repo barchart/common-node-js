@@ -1,12 +1,12 @@
-var AggregateResultProcessor = require('./../../../../data/processors/AggregateResultProcessor');
+var FlattenResultProcessor = require('./../../../../data/processors/FlattenResultProcessor');
 
-describe('When a AggregateResultProcessor is created', function() {
+describe('When a FlattenResultProcessor is created', function() {
 	'use strict';
 
 	var processor;
 
 	beforeEach(function() {
-		processor = new AggregateResultProcessor();
+		processor = new FlattenResultProcessor();
 	});
 
 	describe('and a null value is processed', function() {

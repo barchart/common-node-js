@@ -21,6 +21,7 @@ var EncodeUriResultProcessor = require('./processors/EncodeUriResultProcessor');
 var ExtractResultProcessor = require('./processors/ExtractResultProcessor');
 var FilterResultProcessor = require('./processors/FilterResultProcessor');
 var FirstResultProcessor = require('./processors/FirstResultProcessor');
+var FlattenResultProcessor = require('./processors/FlattenResultProcessor');
 var FormatDateResultProcessor = require('./processors/FormatDateResultProcessor');
 var FormatNumberResultProcessor = require('./processors/FormatNumberResultProcessor');
 var FormatPriceResultProcessor = require('./processors/FormatPriceResultProcessor');
@@ -42,6 +43,7 @@ var SliceResultProcessor = require('./processors/SliceResultProcessor');
 var SortResultProcessor = require('./processors/SortResultProcessor');
 var SplitResultProcessor = require('./processors/SplitResultProcessor');
 var SubtractResultProcessor = require('./processors/SubtractResultProcessor');
+var SumResultProcessor = require('./processors/SumResultProcessor');
 var TrimResultProcessor = require('./processors/TrimResultProcessor');
 var UnwrapResultProcessor = require('./processors/UnwrapResultProcessor');
 var UppercaseResultProcessor = require('./processors/UppercaseResultProcessor');
@@ -71,6 +73,7 @@ module.exports = (() => {
 	const processorMap = {
 		AddResultProcessor: AddResultProcessor,
 		AggregateResultProcessor: AggregateResultProcessor,
+		FlattenResultProcessor: FlattenResultProcessor,
 		ConcatenateResultProcessor: ConcatenateResultProcessor,
 		ConvertResultProcessor: ConvertResultProcessor,
 		CopyResultProcessor: CopyResultProcessor,
@@ -104,6 +107,7 @@ module.exports = (() => {
 		SortResultProcessor: SortResultProcessor,
 		SplitResultProcessor: SplitResultProcessor,
 		SubtractResultProcessor: SubtractResultProcessor,
+		SumResultProcessor: SumResultProcessor,
 		TrimResultProcessor: TrimResultProcessor,
 		UnwrapResultProcessor: UnwrapResultProcessor,
 		UppercaseResultProcessor: UppercaseResultProcessor,

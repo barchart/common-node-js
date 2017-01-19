@@ -44,6 +44,7 @@ module.exports = (() => {
 
 		/**
 		 * @protected
+		 * @ignore
 		 */
 		_runQuery(criteria) {
 			return null;
@@ -63,6 +64,7 @@ module.exports = (() => {
 
 		/**
 		 * @protected
+		 * @ignore
 		 */
 		_getCriteriaIsValid(criteria) {
 			return true;
