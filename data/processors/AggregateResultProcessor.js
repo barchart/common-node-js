@@ -4,14 +4,16 @@ var attributes = require('common/lang/attributes');
 var is = require('common/lang/is');
 
 var ResultProcessor = require('./../ResultProcessor');
-
-var AverageResultProcessor = require('./AverageResultProcessor');
 var SumResultProcessor = require('./SumResultProcessor');
 
 module.exports = (() => {
 	'use strict';
 
 	const logger = log4js.getLogger('data/processors/AggregateResultProcessor');
+
+	const aggregationProcessors = {
+		'SumResultProcessor': SumResultProcessor
+	};
 
 	class AggregateResultProcessor extends ResultProcessor {
 		constructor(configuration) {
@@ -29,36 +31,63 @@ module.exports = (() => {
 				return [ ];
 			}
 
-			let groupingPropertyName = configuration.groupBy;
+			const groupingPropertyName = configuration.groupBy;
 
-			const root = [ ];
+			const aggregations = configuration.aggregate || [ ];
+			const aggregateInner = configuration.aggregateInnerNodes || false;
+
+			const root = {
+				groups: [ ]
+			};
 
 			results.forEach((item) => {
 				let names = attributes.read(item, groupingPropertyName);
 
-				names.reduce((groups, name) => {
+				names.reduce((groups, name, index) => {
 					let group = groups.find(group => group.name === name);
 
 					if (!is.object(group)) {
 						group = {
 							name: name,
-							groups: [ ],
-							items: [ ]
+							groups: [ ]
 						};
 
 						groups.push(group);
 					}
 
-					group.items.push(item);
+					if (aggregateInner || names.length === index + 1) {
+						group.items = group.items || [ ];
+						group.items.push(item);
+					}
 
 					return group.groups;
-				}, root);
+				}, root.groups);
 			}, [ ]);
 
-			let aggregations = configuration.aggregations || [ ];
-
 			if (aggregations.length > 0) {
+				const aggregateGroups = (node) => {
+					node.groups.forEach((child) => {
+						if (aggregateInner || child.groups.length === 0) {
+							child.totals = aggregations.reduce((totals, configuration) => {
+								const processorName = configuration.processor;
+								const resultPropertyName = configuration.resultPropertyName;
 
+								if (is.string(processorName) && is.string(resultPropertyName) && aggregationProcessors.hasOwnProperty(processorName)) {
+									const Processor = aggregationProcessors[processorName];
+									const processor = new Processor(configuration);
+
+									attributes.write(totals, `${resultPropertyName}`, processor._process(child.items));
+								}
+
+								return totals;
+							}, {});
+						}
+
+						aggregateGroups(child);
+					});
+				};
+
+				aggregateGroups(root);
 			}
 
 			return root;
@@ -69,28 +98,6 @@ module.exports = (() => {
 		}
 	}
 
-	function getSum(items, propertyName) {
-		return items.reduce((sum, item) => sum + attributes.read(item, propertyName));
-	}
-
-	function getAverage(items, propertyName) {
-		if (items.length === 0) {
-			return 0;
-		}
-
-		return getSum(items, propertyName) / items.length;
-	}
-
-	function getWeightedAverage(items, sumProperty, weightProperty) {
-		if (items.length === 0) {
-			return 0;
-		}
-
-		const weightTotal = getSum(items, weightProperty);
-		const weightedSum = items.reduce((sum, item) => sum + attributes.read(item, sumProperty) * attributes.read(item, weightProperty));
-
-		return weightedSum / weightTotal;
-	}
 
 	return AggregateResultProcessor;
 })();

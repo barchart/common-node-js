@@ -99,3 +99,35 @@ describe('When a SumResultProcessor is used to process an array of numbers', fun
 		});
 	});
 });
+
+describe('When a SumResultProcessor is used process a zero-length array', function() {
+	'use strict';
+
+	var processor;
+
+	beforeEach(function() {
+		processor = new SumResultProcessor({ });
+	});
+
+	describe('where each item is numeric', function() {
+		var items;
+		var result;
+
+		beforeEach(function(done) {
+			processor.process(items = [ ])
+				.then(function(r) {
+					result = r;
+
+					done();
+				});
+		});
+
+		it('the result should be a number', function() {
+			expect(typeof result).toEqual('number');
+		});
+
+		it('the result should be the correct sum', function() {
+			expect(result).toEqual(0);
+		});
+	});
+});
