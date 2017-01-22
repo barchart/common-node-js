@@ -7,7 +7,6 @@ var DataProviderFactory = require('./DataProviderFactory');
 var ResultProcessor = require('./ResultProcessor');
 
 var AddResultProcessor = require('./processors/AddResultProcessor');
-var AggregateResultProcessor = require('./processors/AggregateResultProcessor');
 var CompositeResultProcessor = require('./processors/CompositeResultProcessor');
 var ConcatenateResultProcessor = require('./processors/ConcatenateResultProcessor')
 var ConvertResultProcessor = require('./processors/ConvertResultProcessor');
@@ -26,6 +25,7 @@ var FormatDateResultProcessor = require('./processors/FormatDateResultProcessor'
 var FormatNumberResultProcessor = require('./processors/FormatNumberResultProcessor');
 var FormatPriceResultProcessor = require('./processors/FormatPriceResultProcessor');
 var GroupingResultProcessor = require('./processors/GroupingResultProcessor');
+var GroupResultProcessor = require('./processors/GroupResultProcessor');
 var JoinResultProcessor = require('./processors/JoinResultProcessor');
 var JsonParseResultProcessor = require('./processors/JsonParseResultProcessor');
 var JsonStringifyResultProcessor = require('./processors/JsonStringifyResultProcessor');
@@ -72,8 +72,6 @@ module.exports = (() => {
 
 	const processorMap = {
 		AddResultProcessor: AddResultProcessor,
-		AggregateResultProcessor: AggregateResultProcessor,
-		FlattenResultProcessor: FlattenResultProcessor,
 		ConcatenateResultProcessor: ConcatenateResultProcessor,
 		ConvertResultProcessor: ConvertResultProcessor,
 		CopyResultProcessor: CopyResultProcessor,
@@ -86,10 +84,12 @@ module.exports = (() => {
 		ExtractResultProcessor: ExtractResultProcessor,
 		FilterResultProcessor: FilterResultProcessor,
 		FirstResultProcessor: FirstResultProcessor,
+		FlattenResultProcessor: FlattenResultProcessor,
 		FormatDateResultProcessor: FormatDateResultProcessor,
 		FormatNumberResultProcessor: FormatNumberResultProcessor,
 		FormatPriceResultProcessor: FormatPriceResultProcessor,
 		GroupingResultProcessor: GroupingResultProcessor,
+		GroupResultProcessor: GroupResultProcessor,
 		JoinResultProcessor: JoinResultProcessor,
 		JsonParseResultProcessor: JsonParseResultProcessor,
 		JsonStringifyResultProcessor: JsonStringifyResultProcessor,
