@@ -19,13 +19,13 @@ var EmptyCoalescingResultProcessor = require('./processors/EmptyCoalescingResult
 var EncodeUriResultProcessor = require('./processors/EncodeUriResultProcessor');
 var ExtractResultProcessor = require('./processors/ExtractResultProcessor');
 var FilterResultProcessor = require('./processors/FilterResultProcessor');
+var FindResultProcessor = require('./processors/FindResultProcessor');
 var FirstResultProcessor = require('./processors/FirstResultProcessor');
 var FlattenResultProcessor = require('./processors/FlattenResultProcessor');
 var FormatDateResultProcessor = require('./processors/FormatDateResultProcessor');
 var FormatNumberResultProcessor = require('./processors/FormatNumberResultProcessor');
 var FormatPriceResultProcessor = require('./processors/FormatPriceResultProcessor');
 var GroupingResultProcessor = require('./processors/GroupingResultProcessor');
-var GroupResultProcessor = require('./processors/GroupResultProcessor');
 var JoinResultProcessor = require('./processors/JoinResultProcessor');
 var JsonParseResultProcessor = require('./processors/JsonParseResultProcessor');
 var JsonStringifyResultProcessor = require('./processors/JsonStringifyResultProcessor');
@@ -44,6 +44,7 @@ var SortResultProcessor = require('./processors/SortResultProcessor');
 var SplitResultProcessor = require('./processors/SplitResultProcessor');
 var SubtractResultProcessor = require('./processors/SubtractResultProcessor');
 var SumResultProcessor = require('./processors/SumResultProcessor');
+var TreeResultProcessor = require('./processors/TreeResultProcessor');
 var TrimResultProcessor = require('./processors/TrimResultProcessor');
 var UnwrapResultProcessor = require('./processors/UnwrapResultProcessor');
 var UppercaseResultProcessor = require('./processors/UppercaseResultProcessor');
@@ -83,13 +84,13 @@ module.exports = (() => {
 		EncodeUriResultProcessor: EncodeUriResultProcessor,
 		ExtractResultProcessor: ExtractResultProcessor,
 		FilterResultProcessor: FilterResultProcessor,
+		FindResultProcessor: FindResultProcessor,
 		FirstResultProcessor: FirstResultProcessor,
 		FlattenResultProcessor: FlattenResultProcessor,
 		FormatDateResultProcessor: FormatDateResultProcessor,
 		FormatNumberResultProcessor: FormatNumberResultProcessor,
 		FormatPriceResultProcessor: FormatPriceResultProcessor,
 		GroupingResultProcessor: GroupingResultProcessor,
-		GroupResultProcessor: GroupResultProcessor,
 		JoinResultProcessor: JoinResultProcessor,
 		JsonParseResultProcessor: JsonParseResultProcessor,
 		JsonStringifyResultProcessor: JsonStringifyResultProcessor,
@@ -108,6 +109,7 @@ module.exports = (() => {
 		SplitResultProcessor: SplitResultProcessor,
 		SubtractResultProcessor: SubtractResultProcessor,
 		SumResultProcessor: SumResultProcessor,
+		TreeResultProcessor: TreeResultProcessor,
 		TrimResultProcessor: TrimResultProcessor,
 		UnwrapResultProcessor: UnwrapResultProcessor,
 		UppercaseResultProcessor: UppercaseResultProcessor,

@@ -8,9 +8,19 @@ var ResultProcessor = require('./../ResultProcessor');
 module.exports = (() => {
 	'use strict';
 
-	const logger = log4js.getLogger('data/processors/GroupResultProcessor');
+	const logger = log4js.getLogger('data/processors/TreeResultProcessor');
 
-	class GroupResultProcessor extends ResultProcessor {
+	/**
+	 * Groups an array of objects into a tree structure, based on an
+	 * array read from each item.
+	 *
+	 * @public
+	 * @extends ResultProcessor
+	 * @param {object} configuration
+	 * @param {string} configuration.groupBy - The name of the item property that contains the structure (e.g. [ 'Animals', 'Mammals', 'Cat' ])
+	 * @param {boolean=false} configuration.groupInnerNodes - If true, each tree node will have an "items" array. Otherwise, only the leaf nodes will have an "items" array.
+	 */
+	class TreeResultProcessor extends ResultProcessor {
 		constructor(configuration) {
 			super(configuration);
 		}
@@ -27,9 +37,7 @@ module.exports = (() => {
 			}
 
 			const groupingPropertyName = configuration.groupBy;
-
-			const aggregations = configuration.aggregate || [ ];
-			const aggregateInner = configuration.aggregateInnerNodes || false;
+			const groupInnerNodes = configuration.groupInnerNodes || false;
 
 			const root = {
 				groups: [ ]
@@ -50,7 +58,7 @@ module.exports = (() => {
 						groups.push(group);
 					}
 
-					if (aggregateInner || names.length === index + 1) {
+					if (groupInnerNodes || names.length === index + 1) {
 						group.items = group.items || [ ];
 						group.items.push(item);
 					}
@@ -63,9 +71,9 @@ module.exports = (() => {
 		}
 
 		toString() {
-			return '[GroupResultProcessor]';
+			return '[TreeResultProcessor]';
 		}
 	}
 
-	return GroupResultProcessor;
+	return TreeResultProcessor;
 })();
