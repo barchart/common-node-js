@@ -8,7 +8,7 @@ var ResultProcessor = require('./ResultProcessor');
 
 var AddResultProcessor = require('./processors/AddResultProcessor');
 var CompositeResultProcessor = require('./processors/CompositeResultProcessor');
-var ConcatenateResultProcessor = require('./processors/ConcatenateResultProcessor')
+var ConcatenateResultProcessor = require('./processors/ConcatenateResultProcessor');
 var ConvertResultProcessor = require('./processors/ConvertResultProcessor');
 var CopyResultProcessor = require('./processors/CopyResultProcessor');
 var CountResultProcessor = require('./processors/CountResultProcessor');
