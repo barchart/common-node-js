@@ -18,7 +18,7 @@ module.exports = (() => {
 	 * @extends ResultProcessor
 	 * @param {object} configuration
 	 * @param {string} configuration.groupBy - The name of the item property that contains the structure (e.g. [ 'Animals', 'Mammals', 'Cat' ])
-	 * @param {boolean=false} configuration.groupInnerNodes - If true, each tree node will have an "items" array. Otherwise, only the leaf nodes will have an "items" array.
+	 * @param {boolean=} configuration.groupInnerNodes - If true, each tree node will have an "items" array. Otherwise, only the leaf nodes will have an "items" array.
 	 */
 	class TreeResultProcessor extends ResultProcessor {
 		constructor(configuration) {

@@ -79,7 +79,7 @@ describe('When a TreeResultProcessor is used to process an array of objects', fu
 		it('the Canidae family should contain the Vulpes genus', function() {
 			var canidae = result.groups[0];
 
-			expect(canidae.groups.some(s => s.name === 'Vulpes')).toEqual(true);;
+			expect(canidae.groups.some(s => s.name === 'Vulpes')).toEqual(true);
 		});
 
 		it('the Vulpes genus should have two items', function() {
@@ -106,7 +106,7 @@ describe('When a TreeResultProcessor is used to process an array of objects', fu
 		it('the Canidae family should contain the Canis genus', function() {
 			var canidae = result.groups[0];
 
-			expect(canidae.groups.some(s => s.name === 'Canis')).toEqual(true);;
+			expect(canidae.groups.some(s => s.name === 'Canis')).toEqual(true);
 		});
 
 		it('the Canis genus should have one item', function() {

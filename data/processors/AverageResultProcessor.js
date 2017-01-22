@@ -19,7 +19,7 @@ module.exports = (() => {
 	 * @extends ResultProcessor
 	 * @param {object} configuration
 	 * @param {string=} configuration.propertyName - If the array contains objects, this is the property to sum.
-	 * @param {string=} configuration.weightPropertyName - If the array contains objects, this property's value is the weigting factor.
+	 * @param {string=} configuration.weightPropertyName - If the array contains objects, this property's value is the weighting factor.
 	 */
 	class AverageResultProcessor extends ResultProcessor {
 		constructor(configuration) {
