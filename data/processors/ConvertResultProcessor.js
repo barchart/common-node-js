@@ -28,20 +28,32 @@ module.exports = (() => {
 			const propertyName = configurationToUse.propertyName;
 
 			if (attributes.has(resultItemToProcess, propertyName)) {
-				let propertyValue = attributes.read(resultItemToProcess, propertyName);
-				let propertyType = configurationToUse.propertyType;
+				const propertyValue = attributes.read(resultItemToProcess, propertyName);
+				const propertyType = configurationToUse.propertyType;
 
-				if (propertyType.toUpperCase() === 'STRING') {
+				let convertedValue;
+
+				if (propertyType.toLowerCase() === 'string') {
 					if (is.null(propertyValue)) {
-						propertyType = 'null';
+						convertedValue = 'null';
 					} else if (is.undefined(propertyValue)) {
-						propertyType = 'undefined';
+						convertedValue = 'undefined';
 					} else {
-						propertyType = propertyValue.toString();
+						convertedValue = propertyValue.toString();
+					}
+				} else if (propertyType.toLowerCase() === 'number') {
+					if (is.number(propertyValue)) {
+						convertedValue = propertyValue;
+					} else if (is.string(propertyValue)) {
+						convertedValue = parseFloat(propertyValue);
+					} else {
+						convertedValue = null;
 					}
 				}
 
-				attributes.write(resultItemToProcess, propertyName, propertyType);
+				if (convertedValue !== null) {
+					attributes.write(resultItemToProcess, propertyName, convertedValue);
+				}
 			}
 		}
 
