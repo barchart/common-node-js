@@ -11,6 +11,16 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('data/processors/FormatNumberResultProcessor');
 
+	/**
+	 * Formats a numeric property using numeral.js format pattern.
+	 *
+	 * @public
+	 * @interface
+	 * @extends MutateResultProcessor
+	 * @param {object} configuration
+	 * @param {string} configuration.propertyName - The name of the numeric property to format.
+	 * @param {string} configuration.format - The numeral.js format string.
+	 */
 	class FormatNumberResultProcessor extends MutateResultProcessor {
 		constructor(configuration) {
 			super(configuration);

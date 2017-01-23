@@ -6,6 +6,24 @@ var is = require('common/lang/is');
 
 var MutateResultProcessor = require('./MutateResultProcessor');
 
+/**
+ * Formats a numeric property using Barchart's price formatting rules.
+ *
+ * @public
+ * @interface
+ * @extends MutateResultProcessor
+ * @param {object} configuration
+ * @param {string=} configuration.unitCode - The Barchart "unit code" value.
+ * @param {string=} configuration.unitCodePropertyName - The name of the property that contains the Barchart "unit code" value.
+ * @param {string=} configuration.baseCode - The Barchart "unit code" value.
+ * @param {string=} configuration.baseCodePropertyName - The name of the property that contains the Barchart "unit code" value.
+ * @param {string=} configuration.fractionSeparator - The fraction separator to use (usually a dash character).
+ * @param {string=} configuration.fractionSeparatorPropertyName - The name of the property that contains the "fraction separator" value.
+ * @param {boolean=} configuration.specialFractions - Indicates if a special mode should be used to format prices.
+ * @param {string=} configuration.specialFractionsPropertyName - The name of the property that contains the "special fractions" value.
+ * @param {string=} configuration.zeroOverride - If true, zero values will be formatted as this string.
+ * @param {boolean=} configuration.usePlusPrefix =  If true, a plus sign will be prepended to positive values (or zero).
+ */
 module.exports = (() => {
 	'use strict';
 
@@ -53,8 +71,8 @@ module.exports = (() => {
 
 					if (is.string(configurationToUse.fractionSeparator)) {
 						fractionSeparator = configurationToUse.fractionSeparator;
-					} else if (is.string(configurationToUse.fractionSeparatorProperty)) {
-						fractionSeparator = attributes.read(resultItemToProcess, configurationToUse.fractionSeparatorProperty);
+					} else if (is.string(configurationToUse.fractionSeparatorPropertyName)) {
+						fractionSeparator = attributes.read(resultItemToProcess, configurationToUse.fractionSeparatorPropertyName);
 					} else {
 						fractionSeparator = '.';
 					}
@@ -63,8 +81,8 @@ module.exports = (() => {
 
 					if (is.string(configurationToUse.specialFractions)) {
 						specialFractions = configurationToUse.specialFractions;
-					} else if (is.string(configurationToUse.specialFractionsProperty)) {
-						specialFractions = attributes.read(resultItemToProcess, configurationToUse.specialFractionsProperty);
+					} else if (is.string(configurationToUse.specialFractionsPropertyName)) {
+						specialFractions = attributes.read(resultItemToProcess, configurationToUse.specialFractionsPropertyName);
 					} else {
 						specialFractions = false;
 					}
