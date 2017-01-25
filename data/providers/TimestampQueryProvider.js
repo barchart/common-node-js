@@ -43,9 +43,11 @@ module.exports = (() => {
 				hour: m.hour(),
 				minute: m.minute(),
 				second: m.second(),
-				timezone: 'CST',
-				timeDisplay: m.format('h:mm A [CST]'),
+				timezone: 'CT',
+				timeDisplay: m.format('h:mm A [CT]'),
 				dateDisplay: m.format('MMMM D, YYYY'),
+				timeDisplayShort: m.format('hh:mm A'),
+				dateShortDisplay: m.format('MM/DD'),
 				unix: m.format('x')
 			};
 		}
