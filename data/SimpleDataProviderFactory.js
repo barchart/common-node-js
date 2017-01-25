@@ -19,6 +19,7 @@ var DivideResultProcessor = require('./processors/DivideResultProcessor');
 var EmptyCoalescingResultProcessor = require('./processors/EmptyCoalescingResultProcessor');
 var EncodeUriResultProcessor = require('./processors/EncodeUriResultProcessor');
 var ExtractResultProcessor = require('./processors/ExtractResultProcessor');
+var FilterContainsResultProcessor = require('./processors/FilterContainsResultProcessor');
 var FilterResultProcessor = require('./processors/FilterResultProcessor');
 var FindResultProcessor = require('./processors/FindResultProcessor');
 var FirstResultProcessor = require('./processors/FirstResultProcessor');
@@ -85,6 +86,7 @@ module.exports = (() => {
 		EmptyCoalescingResultProcessor: EmptyCoalescingResultProcessor,
 		EncodeUriResultProcessor: EncodeUriResultProcessor,
 		ExtractResultProcessor: ExtractResultProcessor,
+		FilterContainsResultProcessor: FilterContainsResultProcessor,
 		FilterResultProcessor: FilterResultProcessor,
 		FindResultProcessor: FindResultProcessor,
 		FirstResultProcessor: FirstResultProcessor,
