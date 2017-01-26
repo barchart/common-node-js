@@ -12,7 +12,6 @@ var MutateResultProcessor = require('./MutateResultProcessor');
  * Formats a numeric property using Barchart's price formatting rules.
  *
  * @public
- * @interface
  * @extends MutateResultProcessor
  * @param {object} configuration
  * @param {string=} configuration.unitCode - The Barchart "unit code" value.

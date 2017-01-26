@@ -16,7 +16,6 @@ module.exports = (() => {
 	 * item that matches a desired value.
 	 *
 	 * @public
-	 * @interface
 	 * @extends ResultProcessor
 	 * @param {object} configuration
 	 * @param {string} configuration.sourcePropertyName - The property name of the array to filter.

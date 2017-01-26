@@ -15,7 +15,6 @@ module.exports = (() => {
 	 * Formats a numeric property using numeral.js format pattern.
 	 *
 	 * @public
-	 * @interface
 	 * @extends MutateResultProcessor
 	 * @param {object} configuration
 	 * @param {string} configuration.propertyName - The name of the numeric property to format.

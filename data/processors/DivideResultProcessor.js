@@ -14,7 +14,6 @@ module.exports = (() => {
 	 * Divides two numbers and assigns the result.
 	 *
 	 * @public
-	 * @interface
 	 * @extends BinaryOperatorResultProcessor
 	 * @param {object} configuration
 	 * @param {string} configuration.propertyName - The property to which the result will be assigned.
