@@ -40,7 +40,7 @@ gulp.task('document', function (cb) {
 		},
 	};
 
-	gulp.src(['README.md', './**/*.js', '!./node_modules/**' ], {read: false})
+	gulp.src(['README.md', './**/*.js', '!./node_modules/**', '!./test/**' ], {read: false})
 		.pipe(jsdoc(config, cb));
 });
 
