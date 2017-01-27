@@ -69,7 +69,7 @@ module.exports = (() => {
 
 						return this._started;
 					}).catch((e) => {
-						logger.error('S3 provider failed to start', e);
+						logger.eor('S3 provider failed to start', e);
 
 						throw e;
 					});
@@ -95,10 +95,10 @@ module.exports = (() => {
 			}
 
 			return new Promise((resolveCallback, rejectCallback) => {
-				this._s3.listObjects({Bucket: bucket}, (err, data) => {
-					if (err) {
-						logger.error('S3 failed to retrieve contents: ', err);
-						rejectCallback(err);
+				this._s3.listObjects({Bucket: bucket}, (e, data) => {
+					if (e) {
+						logger.eor('S3 failed to retrieve contents: ', e);
+						rejectCallback(e);
 					} else {
 						resolveCallback({
 							content: data.Contents
@@ -162,10 +162,10 @@ module.exports = (() => {
 					queueSize: 1
 				};
 
-				this._s3.upload(params, options, (err, data) => {
-					if (err) {
-						logger.error('S3 failed to upload object: ', err);
-						rejectCallback(err);
+				this._s3.upload(params, options, (e, data) => {
+					if (e) {
+						logger.eor('S3 failed to upload object: ', e);
+						rejectCallback(e);
 					} else {
 						resolveCallback({data: data});
 					}
@@ -191,10 +191,10 @@ module.exports = (() => {
 			}
 
 			return new Promise((resolveCallback, rejectCallback) => {
-				this._s3.getObject({ Bucket: bucket, Key: filename }, (err, data) => {
-					if (err) {
-						logger.error('S3 failed to upload object: ', err);
-						rejectCallback(err);
+				this._s3.getObject({ Bucket: bucket, Key: filename }, (e, data) => {
+					if (e) {
+						logger.eor('S3 failed to upload object: ', e);
+						rejectCallback(e);
 					} else {
 						resolveCallback(ContentHandler.getHandlerFor(data.ContentType).fromBuffer(data.Body));
 					}
@@ -225,10 +225,10 @@ module.exports = (() => {
 					Key: filename
 				};
 
-				this._s3.deleteObject(params, (err, data) => {
-					if (err) {
-						logger.error('S3 failed to delete object: ', err);
-						rejectCallback(err);
+				this._s3.deleteObject(params, (e, data) => {
+					if (e) {
+						logger.eor('S3 failed to delete object: ', e);
+						rejectCallback(e);
 					} else {
 						resolveCallback({data: data});
 					}
