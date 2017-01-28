@@ -305,6 +305,8 @@ module.exports = (() => {
 
 					if (data.Topics) {
 						data.Topics.forEach(topic => topics.push(topic.TopicArn));
+
+						logger.debug('Received', topics.length, 'SNS topics.');
 					}
 
 					if (data.NextToken) {
