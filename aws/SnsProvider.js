@@ -128,27 +128,43 @@ module.exports = (() => {
 				.then((topicArn) => {
 					const qualifiedTopicName = getQualifiedTopicName(this._configuration.prefix, topicName);
 
-					return new Promise(
-						(resolveCallback, rejectCallback) => {
-							logger.debug('Deleting SNS topic:', qualifiedTopicName);
+					logger.info('Deleting SNS topic:', qualifiedTopicName, ' at topic ARN:', topicArn);
 
-							this._sns.deleteTopic({
-								TopicArn: topicArn
-							}, (error, data) => {
-								if (error === null) {
-									logger.info('SNS topic deleted:', qualifiedTopicName);
-
-									resolveCallback();
-								} else {
-									logger.error('SNS topic deletion failed:', qualifiedTopicName);
-									logger.error(error);
-
-									rejectCallback('Failed to delete SNS topic.');
-								}
-							});
-						}
-					);
+					return this.deleteTopicArn(topicArn);
 				});
+		}
+
+		deleteTopicArn(topicArn) {
+			assert.argumentIsRequired(topicArn, 'topicArn', String);
+
+			if (this.getIsDisposed()) {
+				throw new Error('The SNS Provider has been disposed.');
+			}
+
+			if (!this._started) {
+				throw new Error('The SNS Provider has not been started.');
+			}
+
+			return new Promise(
+				(resolveCallback, rejectCallback) => {
+					logger.debug('Deleting SNS topic at ARN:', topicArn);
+
+					this._sns.deleteTopic({
+						TopicArn: topicArn
+					}, (error, data) => {
+						if (error === null) {
+							logger.info('SNS topic deleted at ARN:', topicArn);
+
+							resolveCallback();
+						} else {
+							logger.error('SNS topic deletion failed at ARN:', topicArn);
+							logger.error(error);
+
+							rejectCallback('Failed to delete SNS topic.');
+						}
+					});
+				}
+			);
 		}
 
 		publish(topicName, payload) {
