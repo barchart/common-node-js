@@ -441,7 +441,7 @@ module.exports = (() => {
 		}
 	}
 
-	function receiveMessages(queueName, waitTime,maximumMessages) {
+	function receiveMessages(queueName, waitTime, maximumMessages) {
 		if (this.getIsDisposed()) {
 			throw new Error('The SQS Provider has been disposed.');
 		}
