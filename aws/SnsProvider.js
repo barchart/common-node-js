@@ -255,6 +255,80 @@ module.exports = (() => {
 			return this._subscriptionPromises[qualifiedTopicName];
 		}
 
+		getTopics() {
+			if (this.getIsDisposed()) {
+				throw new Error('The SNS Provider has been disposed.');
+			}
+
+			if (!this._started) {
+				throw new Error('The SNS Provider has not been started.');
+			}
+
+			const getTopicBatch = (token) => {
+				return new Promise(
+					(resolveCallback, rejectCallback) => {
+						logger.debug('Requesting batch of SNS topics');
+
+						const params = { };
+
+						if (token) {
+							params.NextToken = token;
+						}
+
+						this._sns.listTopics(params, (error, data) => {
+							if (error === null) {
+								logger.info('SNS topic list batch received.');
+
+								if (data.NextToken) {
+									logger.debug('Another batch of SNS topics is available.');
+								} else {
+									logger.info('Batch of SNS topics is final, no more topics exist.');
+								}
+
+								resolveCallback(data);
+							} else {
+								logger.error('SNS topic list lookup failed');
+								logger.error(error);
+
+								rejectCallback('Failed to retrieve list of SNS topics.');
+							}
+						});
+					}
+				);
+			};
+
+			return new Promise((resolveCallback, rejectCallback) => {
+				let topics = [ ];
+
+				const processBatch = (data) => {
+					let batchPromise;
+
+					if (data.Topics) {
+						data.Topics.forEach(topic => topics.push(topic.TopicArn));
+					}
+
+					if (data.NextToken) {
+						batchPromise = getTopicBatch(data.NextToken)
+							.then((data) => {
+								return processBatch(data);
+							});
+					} else {
+						batchPromise = resolveCallback(topics);
+					}
+
+					return batchPromise;
+				};
+
+				getTopicBatch()
+					.then((data) => {
+						return processBatch(data)
+							.then((topics) => {
+								resolveCallback(topics);
+							});
+					});
+			});
+		}
+
 		_onDispose() {
 			this._topicPromises = null;
 			this._subscriptionPromises = null;
