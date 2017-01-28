@@ -69,6 +69,38 @@ module.exports = (() => {
 			return this._startPromise;
 		}
 
+		listQueues(queueNamePrefix) {
+			assert.argumentIsOptional(queueNamePrefix, 'queueNamePrefix', String);
+
+			return new Promise((resolveCallback, rejectCallback) => {
+				let params;
+				let queuePrefixDescription;
+
+				if (queueNamePrefix) {
+					params = { QueueNamePrefix: queueNamePrefix };
+					queuePrefixDescription = queueNamePrefix;
+				} else {
+					params = { };
+					queuePrefixDescription = '[any]';
+				}
+
+				logger.info('Listing SQS queues with name prefix', queuePrefixDescription);
+
+				this._sqs.listQueues(params, (error, data) => {
+					if (error === null) {
+						logger.debug('Listing of', data.QueueUrls.length, 'SQS queues with name prefix', queuePrefixDescription, 'complete');
+
+						resolveCallback(data.QueueUrls);
+					} else {
+						logger.error('Listing of SQS queues with name prefix', queuePrefixDescription, 'failed');
+						logger.error(error);
+
+						rejectCallback('Failed to list SQS queues.');
+					}
+				});
+			});
+		}
+
 		getQueueUrl(queueName) {
 			assert.argumentIsRequired(queueName, 'queueName', String);
 
@@ -210,6 +242,12 @@ module.exports = (() => {
 			}
 
 			return deletePromise;
+		}
+
+		deleteQueueUrl(queueUrl) {
+			assert.argumentIsRequired(queueUrl, 'queueUrl', String);
+
+			return executeQueueDelete.call(this, 'unspecified', queueUrl);
 		}
 
 		send(queueName, payload) {
@@ -459,7 +497,7 @@ module.exports = (() => {
 				waitTimeToUse = Math.round(waitTime / 1000);
 			}
 		} else {
-			waitTimeToUse = 10;
+			waitTimeToUse = 20;
 		}
 
 		let maximumMessagesToUse;
@@ -578,17 +616,17 @@ module.exports = (() => {
 	function executeQueueDelete(qualifiedQueueName, queueUrl) {
 		return new Promise(
 			(resolveCallback, rejectCallback) => {
-				logger.debug('Deleting SQS queue:', qualifiedQueueName);
+				logger.debug('Deleting SQS queue:', qualifiedQueueName, 'at URL', queueUrl);
 
 				this._sqs.deleteQueue({
 					QueueUrl: queueUrl
 				}, (error, data) => {
 					if (error === null) {
-						logger.info('SQS queue deleted:', qualifiedQueueName);
+						logger.info('SQS queue deleted:', qualifiedQueueName, 'at URL', queueUrl);
 
 						resolveCallback();
 					} else {
-						logger.error('SQS queue delete failed:', qualifiedQueueName);
+						logger.error('SQS queue delete failed:', qualifiedQueueName, 'at URL', queueUrl);
 						logger.error(error);
 
 						rejectCallback('Failed to delete SQS queue.');
