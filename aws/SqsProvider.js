@@ -69,7 +69,7 @@ module.exports = (() => {
 			return this._startPromise;
 		}
 
-		listQueues(queueNamePrefix) {
+		getQueues(queueNamePrefix) {
 			assert.argumentIsOptional(queueNamePrefix, 'queueNamePrefix', String);
 
 			return new Promise((resolveCallback, rejectCallback) => {
