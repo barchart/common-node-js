@@ -15,7 +15,7 @@ module.exports = (() => {
 		html: 'text/html',
 		json: 'application/json'
 	};
-	
+
 	const encodingTypes = {
 		utf8: 'utf-8'
 	};
@@ -69,7 +69,7 @@ module.exports = (() => {
 
 						return this._started;
 					}).catch((e) => {
-						logger.eor('S3 provider failed to start', e);
+						logger.error('S3 provider failed to start', e);
 
 						throw e;
 					});
@@ -97,7 +97,7 @@ module.exports = (() => {
 			return new Promise((resolveCallback, rejectCallback) => {
 				this._s3.listObjects({Bucket: bucket}, (e, data) => {
 					if (e) {
-						logger.eor('S3 failed to retrieve contents: ', e);
+						logger.error('S3 failed to retrieve contents: ', e);
 						rejectCallback(e);
 					} else {
 						resolveCallback({
@@ -164,7 +164,7 @@ module.exports = (() => {
 
 				this._s3.upload(params, options, (e, data) => {
 					if (e) {
-						logger.eor('S3 failed to upload object: ', e);
+						logger.error('S3 failed to upload object: ', e);
 						rejectCallback(e);
 					} else {
 						resolveCallback({data: data});
@@ -193,7 +193,7 @@ module.exports = (() => {
 			return new Promise((resolveCallback, rejectCallback) => {
 				this._s3.getObject({ Bucket: bucket, Key: filename }, (e, data) => {
 					if (e) {
-						logger.eor('S3 failed to upload object: ', e);
+						logger.error('S3 failed to upload object: ', e);
 						rejectCallback(e);
 					} else {
 						resolveCallback(ContentHandler.getHandlerFor(data.ContentType).fromBuffer(data.Body));
@@ -227,7 +227,7 @@ module.exports = (() => {
 
 				this._s3.deleteObject(params, (e, data) => {
 					if (e) {
-						logger.eor('S3 failed to delete object: ', e);
+						logger.error('S3 failed to delete object: ', e);
 						rejectCallback(e);
 					} else {
 						resolveCallback({data: data});
