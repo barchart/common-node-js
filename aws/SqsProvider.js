@@ -92,9 +92,11 @@ module.exports = (() => {
 
 				this._sqs.listQueues({ QueueNamePrefix: queuePrefixToUse }, (error, data) => {
 					if (error === null) {
-						logger.debug('Listing of', data.QueueUrls.length, 'SQS queues with name prefix', queuePrefixToUse, 'complete');
+						const queueUrls = data.QueueUrls || [ ];
 
-						resolveCallback(data.QueueUrls);
+						logger.debug('Listing of', queueUrls.length, 'SQS queues with name prefix', queuePrefixToUse, 'complete');
+
+						resolveCallback(queueUrls);
 					} else {
 						logger.error('Listing of SQS queues with name prefix', queuePrefixToUse, 'failed');
 						logger.error(error);
