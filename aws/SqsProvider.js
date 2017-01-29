@@ -4,6 +4,7 @@ var log4js = require('log4js');
 var assert = require('common/lang/assert');
 var Disposable = require('common/lang/Disposable');
 var is = require('common/lang/is');
+var object = require('common/lang/object');
 var Scheduler = require('common/timing/Scheduler');
 
 module.exports = (() => {
@@ -69,30 +70,33 @@ module.exports = (() => {
 			return this._startPromise;
 		}
 
+		getConfiguration() {
+			if (this.getIsDisposed()) {
+				throw new Error('The SQS Provider has been disposed.');
+			}
+
+			return object.clone(this._configuration);
+		}
+
 		getQueues(queueNamePrefix) {
 			assert.argumentIsOptional(queueNamePrefix, 'queueNamePrefix', String);
 
 			return new Promise((resolveCallback, rejectCallback) => {
-				let params;
-				let queuePrefixDescription;
+				let queuePrefixToUse = this._configuration.prefix;
 
 				if (queueNamePrefix) {
-					params = { QueueNamePrefix: queueNamePrefix };
-					queuePrefixDescription = queueNamePrefix;
-				} else {
-					params = { };
-					queuePrefixDescription = '[any]';
+					queuePrefixToUse = queuePrefixToUse + queueNamePrefix;
 				}
 
-				logger.info('Listing SQS queues with name prefix', queuePrefixDescription);
+				logger.info('Listing SQS queues with name prefix', queuePrefixToUse);
 
-				this._sqs.listQueues(params, (error, data) => {
+				this._sqs.listQueues({ QueueNamePrefix: queuePrefixToUse }, (error, data) => {
 					if (error === null) {
-						logger.debug('Listing of', data.QueueUrls.length, 'SQS queues with name prefix', queuePrefixDescription, 'complete');
+						logger.debug('Listing of', data.QueueUrls.length, 'SQS queues with name prefix', queuePrefixToUse, 'complete');
 
 						resolveCallback(data.QueueUrls);
 					} else {
-						logger.error('Listing of SQS queues with name prefix', queuePrefixDescription, 'failed');
+						logger.error('Listing of SQS queues with name prefix', queuePrefixToUse, 'failed');
 						logger.error(error);
 
 						rejectCallback('Failed to list SQS queues.');

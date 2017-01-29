@@ -4,6 +4,7 @@ var log4js = require('log4js');
 var assert = require('common/lang/assert');
 var Disposable = require('common/lang/Disposable');
 var is = require('common/lang/is');
+var object = require('common/lang/object');
 var RateLimiter = require('common/timing/RateLimiter');
 
 module.exports = (() => {
@@ -62,6 +63,14 @@ module.exports = (() => {
 			}
 
 			return this._startPromise;
+		}
+
+		getConfiguration() {
+			if (this.getIsDisposed()) {
+				throw new Error('The SES Provider has been disposed.');
+			}
+
+			return object.clone(this._configuration);
 		}
 
 		sendEmail(senderAddress, recipientAddress, subject, htmlBody, textBody) {

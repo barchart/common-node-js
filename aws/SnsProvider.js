@@ -3,6 +3,7 @@ var log4js = require('log4js');
 
 var assert = require('common/lang/assert');
 var Disposable = require('common/lang/Disposable');
+var object = require('common/lang/object');
 
 module.exports = (() => {
 	'use strict';
@@ -54,6 +55,22 @@ module.exports = (() => {
 			}
 
 			return this._startPromise;
+		}
+
+		getConfiguration() {
+			if (this.getIsDisposed()) {
+				throw new Error('The SNS Provider has been disposed.');
+			}
+
+			return object.clone(this._configuration);
+		}
+
+		getConfiguration() {
+			if (this.getIsDisposed()) {
+				throw new Error('The SNS Provider has been disposed.');
+			}
+
+			return object.clone(this._configuration);
 		}
 
 		getTopicArn(topicName) {
@@ -271,7 +288,9 @@ module.exports = (() => {
 			return this._subscriptionPromises[qualifiedTopicName];
 		}
 
-		getTopics() {
+		getTopics(topicNamePrefix) {
+			assert.argumentIsOptional(topicNamePrefix, 'topicNamePrefix', String);
+
 			if (this.getIsDisposed()) {
 				throw new Error('The SNS Provider has been disposed.');
 			}
@@ -316,11 +335,17 @@ module.exports = (() => {
 			return new Promise((resolveCallback, rejectCallback) => {
 				let topics = [ ];
 
+				let topicArnRegex = new RegExp(`^arn:aws:sns:.*:[0-9]*:${this._configuration.prefix}${(topicNamePrefix || '')}`);
+
 				const processBatch = (data) => {
 					let batchPromise;
 
 					if (data.Topics) {
-						data.Topics.forEach(topic => topics.push(topic.TopicArn));
+						data.Topics.forEach(topic => {
+							if (topicArnRegex.test(topic.TopicArn)) {
+								topics.push(topic.TopicArn);
+							}
+						});
 
 						logger.debug('Received', topics.length, 'SNS topics.');
 					}
