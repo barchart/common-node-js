@@ -29,6 +29,8 @@ var SocketEmitterContainer = require('./../endpoints/socket/specialized/SocketEm
 var SocketSubscriptionContainer = require('./../endpoints/socket/specialized/SocketSubscriptionContainer');
 var Verb = require('./../../http/Verb');
 
+var S3Provider = require('./../../../aws/S3Provider');
+
 module.exports = (() => {
 	'use strict';
 
@@ -261,6 +263,8 @@ module.exports = (() => {
 
 			this._started = true;
 
+			let startPromise = Promise.resolve();
+
 			const startStack = new DisposableStack();
 
 			const secure = this.getIsSecure();
@@ -291,11 +295,34 @@ module.exports = (() => {
 
 			if (this._staticPaths !== null) {
 				Object.keys(this._staticPaths).forEach((serverPath) => {
-					const filePath = this._staticPaths[serverPath];
+					const staticPathItem = this._staticPaths[serverPath];
 
-					logger.info('Bound static', (secure ? 'HTTPS' : 'HTTP'), 'path on port', port, filePath, 'to', serverPath);
+					if (staticPathItem.type === 'local') {
+						logger.info('Bound static', (secure ? 'HTTPS' : 'HTTP'), 'path on port', port, staticPathItem.filePath, 'to', serverPath);
 
-					app.use(serverPath, express.static(filePath));
+						app.use(serverPath, express.static(staticPathItem.filePath));
+					} else if (staticPathItem.type === 's3') {
+						const s3provider = new S3Provider(staticPathItem.s3);
+
+						startPromise = startPromise
+							.then(() => {
+								const s3Provider = new S3Provider();
+
+								return s3Provider.start()
+									.then(() => {
+										const router = express.Router();
+
+										router.get(/^(.*)$/, (request, response, next) => {
+											logger.info(request.params[0]);
+										});
+
+										app.use(router);
+									});
+							});
+					} else {
+						logger.warn('Unable to configure static path', staticPathItem);
+					}
+
 				});
 			}
 
@@ -478,6 +505,10 @@ module.exports = (() => {
 			}));
 
 			return startStack;
+
+			return startPromise.then(() => {
+				return startStack;
+			});
 		}
 	}
 
@@ -863,7 +894,15 @@ module.exports = (() => {
 					});
 			}
 
-			return handlerPromise;
+			return handlerPromise
+				.catch((error) => {
+					logger.error('Processing failed for', verb.getCode(), 'at', path.join(basePath, routePath), '(' + sequence + ')');
+					logger.error(error);
+
+
+					response.status(500);
+					response.json(generateRestResponse(error.message || error.toString() || 'internal server error'));
+				});
 		});
 
 		return handlers;

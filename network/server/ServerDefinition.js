@@ -1,9 +1,15 @@
 var assert = require('common/lang/assert');
+var is = require('common/lang/is');
 
 var Container = require('./endpoints/Container');
 
 module.exports = (() => {
 	'use strict';
+
+	const staticPathTypes = {
+		local: 'local',
+		s3: 's3'
+	};
 
 	class ServerDefinition {
 		constructor() {
@@ -21,9 +27,10 @@ module.exports = (() => {
 			return this;
 		}
 
-		withStaticPath(staticFilePath, staticServerPath) {
+		withStaticPath(staticFilePath, staticServerPath, s3Configuration) {
 			assert.argumentIsRequired(staticFilePath, 'staticFilePath', String);
 			assert.argumentIsRequired(staticServerPath, 'staticServerPath', String);
+			assert.argumentIsOptional(s3Configuration, 's3Configuration', Object);
 
 			this._staticPaths = this._staticPaths || {};
 
@@ -31,7 +38,22 @@ module.exports = (() => {
 				throw new Error('The path for serving static files has already been defined.');
 			}
 
-			this._staticPaths[staticServerPath] = staticFilePath;
+			let configuration;
+
+			if (is.object(s3Configuration)) {
+				configuration = {
+					type: staticPathTypes.s3,
+					folder: staticFilePath,
+					s3: s3Configuration
+				};
+			} else {
+				configuration = {
+					type: staticPathTypes.local,
+					filePath: staticFilePath
+				};
+			}
+
+			this._staticPaths[staticServerPath] = configuration;
 
 			return this;
 		}
