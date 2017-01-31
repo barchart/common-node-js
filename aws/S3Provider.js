@@ -1,5 +1,6 @@
 var aws = require('aws-sdk');
 var log4js = require('log4js');
+var path = require('path');
 
 var assert = require('common/lang/assert');
 var Disposable = require('common/lang/Disposable');
@@ -29,6 +30,8 @@ module.exports = (() => {
 	 * @param {object} configuration
 	 * @param {string} configuration.region
 	 * @param {string=} configuration.apiVersion
+	 * @param {string=} configuration.bucket
+	 * @param {string=} configuration.folder
 	 */
 	class S3Provider extends Disposable {
 		constructor(configuration) {
@@ -118,7 +121,22 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Uploads an object to a bucket.
+		 * Uploads an object, using the bucket (and folder) specified
+		 * in the provider's configuration.
+		 *
+		 * @param {string} filename
+		 * @param {string|Buffer} buffer - The content to upload
+		 * @param {string=} mimeType = Defaults to "text/plain"
+		 * @param {boolean=} secure = Indicates if the "private" ACL applies to the object
+		 *
+		 * @returns {Promise.<object>}
+		 */
+		upload(filename, content, mimeType, secure) {
+			return this.uploadObject(this._configuration.bucket, S3Provider.getQualifiedFilename(this._configuration.folder, filename), content, mimeType, secure);
+		}
+
+		/**
+		 * Uploads an object.
 		 *
 		 * @param {string} bucket
 		 * @param {string} filename
@@ -158,13 +176,11 @@ module.exports = (() => {
 					throw new Error('Unable to automatically determine MIME type for file.');
 				}
 
-				const params = {
-					Bucket: bucket,
-					Key: filename,
+				const params = getParameters(bucket, filename, {
 					ACL: acl,
 					Body: ContentHandler.getHandlerFor(mimeTypeToUse).toBuffer(content),
 					ContentType: mimeTypeToUse
-				};
+				});
 
 				const options = {
 					partSize: 10 * 1024 * 1024,
@@ -183,7 +199,22 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Downloads an object from a bucket
+		 * Downloads an object, using the bucket (and folder) specified
+		 * in the provider's configuration.
+		 *
+		 * @param {string} filename
+		 * @param {string|Buffer} buffer - The content to upload
+		 * @param {string=} mimeType = Defaults to "text/plain"
+		 * @param {boolean=} secure = Indicates if the "private" ACL applies to the object
+		 *
+		 * @returns {Promise.<object>}
+		 */
+		download(filename) {
+			return this.downloadObject(this._configuration.bucket, S3Provider.getQualifiedFilename(this._configuration.folder, filename));
+		}
+
+		/**
+		 * Downloads an object.
 		 *
 		 * @param {string} bucket
 		 * @param {string} filename
@@ -200,7 +231,7 @@ module.exports = (() => {
 			}
 
 			return new Promise((resolveCallback, rejectCallback) => {
-				this._s3.getObject({ Bucket: bucket, Key: filename }, (e, data) => {
+				this._s3.getObject(getParameters(bucket, filename), (e, data) => {
 					if (e) {
 						logger.error('S3 failed to get object: ', e);
 						rejectCallback(e);
@@ -208,26 +239,6 @@ module.exports = (() => {
 						resolveCallback(ContentHandler.getHandlerFor(data.ContentType).fromBuffer(data.Body));
 					}
 				});
-			});
-		}
-
-		downloadStream(bucket, filename) {
-			if (this.getIsDisposed()) {
-				throw new Error('The S3 Provider has been disposed.');
-			}
-
-			if (!this._started) {
-				throw new Error('The S3 Provider has not been started.');
-			}
-
-			return new Promise((resolveCallback, rejectCallback) => {
-				try {
-					resolveCallback(this._s3.getObject({ Bucket: bucket, Key: filename }).createReadStream());
-				} catch (e) {
-					logger.error('Failed to create S3 read stream', e);
-
-					rejectCallback(e);
-				}
 			});
 		}
 
@@ -249,12 +260,7 @@ module.exports = (() => {
 			}
 
 			return new Promise((resolveCallback, rejectCallback) => {
-				const params = {
-					Bucket: bucket,
-					Key: filename
-				};
-
-				this._s3.deleteObject(params, (e, data) => {
+				this._s3.deleteObject(getParameters(bucket, filename), (e, data) => {
 					if (e) {
 						logger.error('S3 failed to delete object: ', e);
 						rejectCallback(e);
@@ -271,42 +277,31 @@ module.exports = (() => {
 		 * @static
 		 * @public
 		 *
-		 * @param {string|Array.<string>} folders
-		 * @param {string} filename
+		 * @param {...string|Array.<string>} components
 		 *
 		 * @returns {string}
 		 */
-		static getQualifiedFilename(items, item) {
-			let components;
+		static getQualifiedFilename() {
+			const a = arguments;
 
-			if (is.array(items)) {
-				components = object.clone(items);
-			} else {
-				components = [ ];
+			return Array.from(arguments).reduce((components, value) => {
+				let next = [ ];
 
-				if (is.string(items)) {
-					components.push(items);
-				}
-			}
-
-			if (is.string(item)) {
-				components.push(item);
-			}
-
-			return components.map((component) => {
-				return component.replace(/([\/\\]{2,})/g, '/').replace(/([\/\\])/g, '/');
-			}).reduce((aggregator, component, index) => {
-
-				let path;
-
-				if (index > 0) {
-					path = aggregator + '/';
-				} else {
-					path = '';
+				if (is.array(value)) {
+					next = value;
+				} else if (is.string(value)) {
+					next = [ value ];
 				}
 
-				return path + component.replace(/^[\/\\]*/g, '').replace(/[\/\\]*$/g, '');
-			}, '');
+				return components.concat(
+					next
+						.join('/')
+						.split(/[\\\/]/g)
+						.filter((component) => {
+							return is.string(component) && component.length > 0;
+						})
+				);
+			}, [ ]).join('/');
 		}
 
 		_onDispose() {
@@ -316,6 +311,13 @@ module.exports = (() => {
 		toString() {
 			return '[S3Provider]';
 		}
+	}
+
+	function getParameters(bucket, filename, additional) {
+		return Object.assign(additional || { }, {
+			Bucket: bucket,
+			Key: S3Provider.getQualifiedFilename(filename)
+		});
 	}
 
 	const contentHandlers = [ ];

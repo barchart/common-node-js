@@ -43,7 +43,7 @@ module.exports = (() => {
 			if (is.object(s3Configuration)) {
 				configuration = {
 					type: staticPathTypes.s3,
-					folder: staticFilePath,
+					keyPrefix: staticFilePath,
 					s3: s3Configuration
 				};
 			} else {

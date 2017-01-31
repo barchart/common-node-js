@@ -308,26 +308,15 @@ module.exports = (() => {
 
 								return s3.start()
 									.then(() => {
-										const bucket = staticPathItem.s3.bucket;
-										const folders = [ ];
-
-										if (is.string(staticPathItem.s3.folder)) {
-											folders.push(staticPathItem.s3.folder);
-										}
-
-										if (is.string(staticPathItem.folder)) {
-											folders.push(staticPathItem.folder);
-										}
-
-										logger.info('Bound static path', serverPath, 'on', (secure ? 'HTTPS' : 'HTTP'), 'port', port, 'to s3 bucket', bucket, 'and folder', S3Provider.getQualifiedFilename(folders));
+										logger.info('Bound static path', serverPath, 'on', (secure ? 'HTTPS' : 'HTTP'), 'port', port, 'to s3 bucket', staticPathItem.s3.bucket);
 
 										const router = express.Router();
 
-										router.get(new RegExp(`^${serverPath}(.*)$`), (request, response) => {
+										router.get(new RegExp('^[\\/\]*' + serverPath + '(.*)$'), (request, response) => {
 											const requestPath = request.params[0];
 
 											if (is.string(requestPath) && requestPath.length > 0) {
-												return s3.downloadObject(bucket, S3Provider.getQualifiedFilename(folders, request.params[0]))
+												return s3.download(staticPathItem.keyPrefix + requestPath)
 													.then((data) => {
 														response.send(data);
 													}).catch((e) => {
