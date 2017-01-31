@@ -298,22 +298,46 @@ module.exports = (() => {
 					const staticPathItem = this._staticPaths[serverPath];
 
 					if (staticPathItem.type === 'local') {
-						logger.info('Bound static', (secure ? 'HTTPS' : 'HTTP'), 'path on port', port, staticPathItem.filePath, 'to', serverPath);
+						logger.info('Bound static path', serverPath, 'on', (secure ? 'HTTPS' : 'HTTP'), 'port', port, 'to file system at', staticPathItem.filePath);
 
 						app.use(serverPath, express.static(staticPathItem.filePath));
 					} else if (staticPathItem.type === 's3') {
-						const s3provider = new S3Provider(staticPathItem.s3);
-
 						startPromise = startPromise
 							.then(() => {
-								const s3Provider = new S3Provider();
+								const s3 = new S3Provider(staticPathItem.s3);
 
-								return s3Provider.start()
+								return s3.start()
 									.then(() => {
+										const bucket = staticPathItem.s3.bucket;
+										const folders = [ ];
+
+										if (is.string(staticPathItem.s3.folder)) {
+											folders.push(staticPathItem.s3.folder);
+										}
+
+										if (is.string(staticPathItem.folder)) {
+											folders.push(staticPathItem.folder);
+										}
+
+										logger.info('Bound static path', serverPath, 'on', (secure ? 'HTTPS' : 'HTTP'), 'port', port, 'to s3 bucket', bucket, 'and folder', S3Provider.getQualifiedFilename(folders));
+
 										const router = express.Router();
 
-										router.get(/^(.*)$/, (request, response, next) => {
-											logger.info(request.params[0]);
+										router.get(new RegExp(`^${serverPath}(.*)$`), (request, response) => {
+											const requestPath = request.params[0];
+
+											if (is.string(requestPath) && requestPath.length > 0) {
+												return s3.downloadObject(bucket, S3Provider.getQualifiedFilename(folders, request.params[0]))
+													.then((data) => {
+														response.send(data);
+													}).catch((e) => {
+														response.status(404);
+														response.json(generateRestResponse('file not found'));
+													});
+											} else {
+												response.status(404);
+												response.json(generateRestResponse('no data'));
+											}
 										});
 
 										app.use(router);
@@ -322,7 +346,6 @@ module.exports = (() => {
 					} else {
 						logger.warn('Unable to configure static path', staticPathItem);
 					}
-
 				});
 			}
 
@@ -898,7 +921,6 @@ module.exports = (() => {
 				.catch((error) => {
 					logger.error('Processing failed for', verb.getCode(), 'at', path.join(basePath, routePath), '(' + sequence + ')');
 					logger.error(error);
-
 
 					response.status(500);
 					response.json(generateRestResponse(error.message || error.toString() || 'internal server error'));

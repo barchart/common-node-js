@@ -202,12 +202,32 @@ module.exports = (() => {
 			return new Promise((resolveCallback, rejectCallback) => {
 				this._s3.getObject({ Bucket: bucket, Key: filename }, (e, data) => {
 					if (e) {
-						logger.error('S3 failed to upload object: ', e);
+						logger.error('S3 failed to get object: ', e);
 						rejectCallback(e);
 					} else {
 						resolveCallback(ContentHandler.getHandlerFor(data.ContentType).fromBuffer(data.Body));
 					}
 				});
+			});
+		}
+
+		downloadStream(bucket, filename) {
+			if (this.getIsDisposed()) {
+				throw new Error('The S3 Provider has been disposed.');
+			}
+
+			if (!this._started) {
+				throw new Error('The S3 Provider has not been started.');
+			}
+
+			return new Promise((resolveCallback, rejectCallback) => {
+				try {
+					resolveCallback(this._s3.getObject({ Bucket: bucket, Key: filename }).createReadStream());
+				} catch (e) {
+					logger.error('Failed to create S3 read stream', e);
+
+					rejectCallback(e);
+				}
 			});
 		}
 
@@ -243,6 +263,50 @@ module.exports = (() => {
 					}
 				});
 			});
+		}
+
+		/**
+		 * Creates a filename that uses a folder.
+		 *
+		 * @static
+		 * @public
+		 *
+		 * @param {string|Array.<string>} folders
+		 * @param {string} filename
+		 *
+		 * @returns {string}
+		 */
+		static getQualifiedFilename(items, item) {
+			let components;
+
+			if (is.array(items)) {
+				components = object.clone(items);
+			} else {
+				components = [ ];
+
+				if (is.string(items)) {
+					components.push(items);
+				}
+			}
+
+			if (is.string(item)) {
+				components.push(item);
+			}
+
+			return components.map((component) => {
+				return component.replace(/([\/\\]{2,})/g, '/').replace(/([\/\\])/g, '/');
+			}).reduce((aggregator, component, index) => {
+
+				let path;
+
+				if (index > 0) {
+					path = aggregator + '/';
+				} else {
+					path = '';
+				}
+
+				return path + component.replace(/^[\/\\]*/g, '').replace(/[\/\\]*$/g, '');
+			}, '');
 		}
 
 		_onDispose() {
