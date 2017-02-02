@@ -14,7 +14,7 @@ module.exports = (() => {
 	 * clone of a configuration object.
 	 *
 	 * @public
-	 * @interface
+	 * @extends QueryProvider
 	 * @param {Object} configuration
 	 * @param {Object} configuration.results - The object to clone and return.
 	 */

@@ -19,6 +19,7 @@ module.exports = (() => {
 
 		/**
 		 * @protected
+		 * @ignore
 		 */
 		_getConfiguration() {
 			return this._configuration;

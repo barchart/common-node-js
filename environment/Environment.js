@@ -3,12 +3,21 @@ var path = require('path');
 
 var assert = require('common/lang/assert');
 var is = require('common/lang/is');
+var object = require('common/lang/object');
 
 module.exports = (() => {
 	'use strict';
 
 	let instance = null;
 
+	/**
+	 * An object that is used to store environment variables for the current process.
+	 *
+	 * @public
+	 * @param {string} environmentName - The name of the environment mode (e.g. "development" or "production").
+	 * @param {Object} configuration - The application's configuration data.
+	 * @param {string} version - The version of the application.
+	 */
 	class Environment {
 		constructor(environmentName, configuration, version) {
 			assert.argumentIsRequired(environmentName, 'environmentName', String);
@@ -20,18 +29,42 @@ module.exports = (() => {
 			this._version = version;
 		}
 
+		/**
+		 * The environment's name (e.g. "development" or "production").
+		 *
+		 * @public
+		 * @returns {string}
+		 */
 		getName() {
 			return this._name;
 		}
 
+		/**
+		 * The application's configuration data.
+		 *
+		 * @public
+		 * @returns {Object}
+		 */
 		getConfiguration() {
-			return this._configuration;
+			return object.clone(this._configuration);
 		}
 
+		/**
+		 * The application's version.
+		 *
+		 * @public
+		 * @returns {string}
+		 */
 		getVersion() {
 			return this._version;
 		}
 
+		/**
+		 * True if the {@link Environment#getName} is "production" -- otherwise false.
+		 *
+		 * @public
+		 * @returns {boolean}
+		 */
 		getIsProduction() {
 			return this._name === 'production';
 		}
@@ -40,6 +73,15 @@ module.exports = (() => {
 			return readConfigurationFile(this._configuration.server.path, filePath, this._name);
 		}
 
+		/**
+		 * Builds the a singleton instance of the {@link Environment} class; accessible
+		 * from the {@link Environment.getInstance} function.
+		 *
+		 * @param {string} applicationPath - The root application directory, which must contain a "config" folder with a "config.yml" file.
+		 * @param {string} version - The version of the application.
+		 *
+		 * @returns {Environment}
+		 */
 		static initialize(applicationPath, version) {
 			assert.argumentIsRequired(applicationPath, 'applicationPath', String);
 			assert.argumentIsRequired(version, 'version', String);
@@ -62,6 +104,13 @@ module.exports = (() => {
 			return instance;
 		}
 
+		/**
+		 * Returns the singleton instance of the {@link Environment} class. The
+		 * {@link Environment.initialize} function must be called before using
+		 * this function.
+		 *
+		 * @returns {Environment}
+		 */
 		static getInstance() {
 			if (instance === null) {
 				throw new Error('The environment has not been initialized.');
