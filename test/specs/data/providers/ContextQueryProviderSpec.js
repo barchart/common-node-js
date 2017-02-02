@@ -6,7 +6,7 @@ describe('When running a ContextQueryProvider, configured read a single property
 	var processor;
 
 	beforeEach(function() {
-		processor = new ContextQueryProvider({ proeprty: 'a.b.c' });
+		processor = new ContextQueryProvider({ property: 'a.b.c' });
 	});
 
 	describe('and the property exists', function() {
@@ -14,8 +14,6 @@ describe('When running a ContextQueryProvider, configured read a single property
 		var resultPromise;
 
 		beforeEach(function() {
-			processor = new ContextQueryProvider({ property: 'a.b.c' });
-
 			resultPromise = processor.runQuery(context = { a: { b : { c: { } } } });
 		});
 
@@ -33,8 +31,6 @@ describe('When running a ContextQueryProvider, configured read a single property
 		var resultPromise;
 
 		beforeEach(function() {
-			processor = new ContextQueryProvider({ property: 'a.b.c' });
-
 			resultPromise = processor.runQuery(context = { x: { y : { z: { } } } });
 		});
 
