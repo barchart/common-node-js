@@ -30,10 +30,8 @@ module.exports = (() => {
 				}, { });
 			} else if (is.string(configuration.property)) {
 				returnRef = attributes.read(criteria, configuration.property);
-			} else if (is.boolean(configuration.current) && configuration.current) {
-				returnRef = criteria;
 			} else {
-				returnRef = undefined;
+				returnRef = criteria;
 			}
 
 			return returnRef;

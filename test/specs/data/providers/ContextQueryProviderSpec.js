@@ -104,14 +104,14 @@ describe('When running a ContextQueryProvider, configured read two properties', 
 	});
 });
 
-describe('When running a ContextQueryProvider, configured to use the "current" option', function() {
+describe('When running a ContextQueryProvider, without specifying particular properties', function() {
 	'use strict';
 
 	var context;
 	var resultPromise;
 
 	beforeEach(function() {
-		var processor = new ContextQueryProvider({ current: true });
+		var processor = new ContextQueryProvider({ });
 
 		resultPromise = processor.runQuery(context = { });
 	});
