@@ -20,7 +20,7 @@ describe('When configured with an object representing a chess game', function() 
 
 					done();
 				});
-		})
+		});
 
 		it('should not be a reference to the configuration object', function() {
 			expect(results).not.toBe(configuration.results);
@@ -41,5 +41,5 @@ describe('When configured with an object representing a chess game', function() 
 		it('should have a "moves" property with the same second move', function() {
 			expect(results.moves[1]).toEqual(configuration.results.moves[1]);
 		});
-	})
+	});
 });

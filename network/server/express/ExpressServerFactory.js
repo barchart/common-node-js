@@ -516,8 +516,6 @@ module.exports = (() => {
 				server.close();
 			}));
 
-			return startStack;
-
 			return startPromise.then(() => {
 				return startStack;
 			});
