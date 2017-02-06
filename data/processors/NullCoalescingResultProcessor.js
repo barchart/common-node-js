@@ -9,6 +9,16 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('data/processors/NullCoalescingResultProcessor');
 
+
+	/**
+	 * Replaces all null values.
+	 *
+	 * @public
+	 * @extends MutateResultProcessor
+	 * @param {object} configuration
+	 * @param {string} configuration.propertyName - The property to check.
+	 * @param {object} configuration.replaceValue - The value to assign when the current value is null.
+	 */
 	class NullCoalescingResultProcessor extends MutateResultProcessor {
 		constructor(configuration) {
 			super(configuration);
