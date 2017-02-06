@@ -25,10 +25,14 @@ module.exports = (() => {
 
 			if (!is.string(propertyName) || propertyName.length === 0) {
 				returnRef = results;
-			} else if (is.array(results) && wrapArray) {
-				returnRef = results.map((item) => {
-					return wrap(propertyName, item);
-				});
+			} else if (wrapArray) {
+				if (is.array(results)) {
+					returnRef = results.map((item) => {
+						return wrap(propertyName, item);
+					});
+				} else {
+					returnRef = [ ];
+				}
 			} else {
 				returnRef = wrap(propertyName, results);
 			}
