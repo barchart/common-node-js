@@ -12,8 +12,8 @@ module.exports = (() => {
 	const logger = log4js.getLogger('data/providers/EnvironmentQueryProvider');
 
 	/**
-	 * A {@link QueryProvider} query provider that returns one or
-	 * more properties read from the {@link Environment} singleton.
+	 * A {@link QueryProvider} that returns one or more properties
+	 * from the {@link Environment} singleton.
 	 *
 	 * @public
 	 * @extends QueryProvider

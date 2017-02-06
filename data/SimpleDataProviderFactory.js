@@ -58,6 +58,7 @@ var HardcodeQueryProvider = require('./providers/HardcodeQueryProvider');
 var MySqlQueryProvider = require('./providers/MySqlQueryProvider');
 var OnDemandQueryProvider = require('./providers/OnDemandQueryProvider');
 var RestQueryProvider = require('./providers/RestQueryProvider');
+var SystemQueryProvider = require('./providers/SystemQueryProvider');
 var TimestampQueryProvider = require('./providers/TimestampQueryProvider');
 
 module.exports = (() => {
@@ -70,6 +71,7 @@ module.exports = (() => {
 		MySqlQueryProvider: MySqlQueryProvider,
 		OnDemandQueryProvider: OnDemandQueryProvider,
 		RestQueryProvider: RestQueryProvider,
+		SystemQueryProvider: SystemQueryProvider,
 		TimestampQueryProvider: TimestampQueryProvider,
 	};
 
