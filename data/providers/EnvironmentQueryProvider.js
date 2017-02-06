@@ -33,7 +33,7 @@ module.exports = (() => {
 
 			if (is.array(configuration.properties)) {
 				returnRef = configuration.properties.reduce((map, property) => {
-					map[property] = attributes.read(Environment.getInstance().getConfiguration(), property);
+					attributes.write(map, property, attributes.read(Environment.getInstance().getConfiguration(), property));
 
 					return map;
 				}, {});
