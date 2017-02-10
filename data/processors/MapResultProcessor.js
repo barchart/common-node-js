@@ -10,19 +10,36 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('data/processors/MapResultProcessor');
 
+	/**
+	 * Replaces an array with an array of "mapped" values, using a lookup object.
+	 *
+	 * @public
+	 * @extends MutateResultProcessor
+	 * @param {object} configuration
+	 * @param {object} configuration.mapPropertyName - The map of replacement values.
+	 * @param {Array} configuration.targetPropertyName - The array of values to replace.
+	 */
 	class MapResultProcessor extends MutateResultProcessor {
 		constructor(configuration) {
 			super(configuration);
 		}
 
 		_processItem(resultItemToProcess, configurationToUse) {
-			const propertyName = configurationToUse.propertyName;
-			const map = configurationToUse.map;
+			const map = attributes.read(resultItemToProcess, configurationToUse.mapPropertyName);
+			const values = attributes.read(resultItemToProcess, configurationToUse.targetPropertyName);
 
-			const propertyValue = attributes.read(resultItemToProcess, propertyName);
+			if (is.object(map) && is.array(values)) {
+				attributes.write(resultItemToProcess, configurationToUse.targetPropertyName, values.map((value) => {
+					let mapped;
 
-			if (map.hasOwnProperty(propertyValue)) {
-				attributes.write(resultItemToProcess, propertyName, map[propertyValue]);
+					if (attributes.has(map, value)) {
+						mapped = attributes.read(map, value);
+					} else {
+						mapped = value;
+					}
+
+					return mapped;
+				}));
 			}
 		}
 

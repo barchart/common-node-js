@@ -31,7 +31,7 @@ var GroupingResultProcessor = require('./processors/GroupingResultProcessor');
 var JoinResultProcessor = require('./processors/JoinResultProcessor');
 var JsonParseResultProcessor = require('./processors/JsonParseResultProcessor');
 var JsonStringifyResultProcessor = require('./processors/JsonStringifyResultProcessor');
-var MapResultProcessor = require('./processors/MapResultProcessor');
+var MapResultProcessor = require('./processors/TranslateResultProcessor');
 var MatchResultProcessor = require('./processors/MatchResultProcessor');
 var MySqlBlobToArrayProcessor = require('./processors/MySqlBlobToArrayProcessor');
 var NullCoalescingResultProcessor = require('./processors/NullCoalescingResultProcessor');
@@ -46,6 +46,7 @@ var SortResultProcessor = require('./processors/SortResultProcessor');
 var SplitResultProcessor = require('./processors/SplitResultProcessor');
 var SubtractResultProcessor = require('./processors/SubtractResultProcessor');
 var SumResultProcessor = require('./processors/SumResultProcessor');
+var TranslateResultProcessor = require('./processors/TranslateResultProcessor');
 var TreeResultProcessor = require('./processors/TreeResultProcessor');
 var TrimResultProcessor = require('./processors/TrimResultProcessor');
 var UnwrapResultProcessor = require('./processors/UnwrapResultProcessor');
@@ -147,7 +148,7 @@ module.exports = (() => {
 			}
 
 			const Constructor = providerMap[providerTypeName] || this._customProviders[providerTypeName];
-			const queryProvider = new Constructor(mergeConfigurations(this._providerDefaults[providerTypeName] || { }, providerConfiguration));
+			const queryProvider = new Constructor(mergeConfigurations(this._providerDefaults[providerTypeName] || {}, providerConfiguration));
 
 			let processor;
 
@@ -186,7 +187,7 @@ module.exports = (() => {
 
 		const Constructor = processorMap[processorTypeName] || this._customProcessors[processorTypeName];
 
-		return new Constructor(mergeConfigurations(this._processorDefaults[processorTypeName] || { }, processorConfiguration));
+		return new Constructor(mergeConfigurations(this._processorDefaults[processorTypeName] || {}, processorConfiguration));
 	}
 
 	function mergeConfigurations(defaultConfiguration, providerConfiguration) {
