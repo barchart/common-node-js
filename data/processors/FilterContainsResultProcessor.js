@@ -12,15 +12,17 @@ module.exports = (() => {
 	const logger = log4js.getLogger('data/processors/FilterContainsResultProcessor');
 
 	/**
-	 * Filters an array. Each included item will have an array with at least one
-	 * item that matches a desired value.
+	 * Filters an array to items which have an "inner" array that which contains
+	 * a single value (or one of a set of possible value).
 	 *
 	 * @public
 	 * @extends ResultProcessor
 	 * @param {object} configuration
-	 * @param {string} configuration.sourcePropertyName - The property name of the array to filter.
-	 * @param {string} configuration.matchPropertyName - The property name of the value to match within the "matches" array.
-	 * @param {string} configuration.matchTargetsPropertyName - The property name of the array on each "source" item.
+	 * @param {string} configuration.outerArrayPropertyName - The name of the array to filter.
+	 * @param {string} configuration.innerArrayPropertyName - The name of the collection, on each item, to examine for matches.
+	 * @param {string=} configuration.valuePropertyName - The name of the value to look for in the "inner" array.
+	 * @param {string=} configuration.valuesPropertyName - The name of an array of values to look for in the "inner" array.
+	 * @param {boolean=} configuration.exact - If true, the "inner" array must match all the items in the "values" array, in order.
 	 */
 	class FilterContainsResultProcessor extends ResultProcessor {
 		constructor(configuration) {
@@ -30,24 +32,56 @@ module.exports = (() => {
 		_process(results) {
 			const configuration = this._getConfiguration();
 
-			const sourcePropertyName = configuration.sourcePropertyName;
-			const matchPropertyName = configuration.matchPropertyName;
-			const matchTargetsPropertyName = configuration.matchTargetsPropertyName;
+			const outerArrayPropertyName = configuration.outerArrayPropertyName;
+			const innerArrayPropertyName = configuration.innerArrayPropertyName;
 
-			const source = attributes.read(results, sourcePropertyName);
+			const valuePropertyName = configuration.valuePropertyName;
+			const valuesPropertyName = configuration.valuesPropertyName;
 
-			let returnRef;
+			const itemsToFilter = attributes.read(results, outerArrayPropertyName);
 
-			if (is.array(source) && attributes.has(results, matchPropertyName)) {
-				const valueToMatch = attributes.read(results, matchPropertyName);
+			let returnRef = [ ];
 
-				returnRef = source.filter((item) => {
-					const matchTargets = attributes.read(item, matchTargetsPropertyName);
-					
-					return is.array(matchTargets) && matchTargets.some(value => value === valueToMatch);
-				});
-			} else {
-				returnRef = [ ];
+			if (is.array(itemsToFilter) && itemsToFilter.length !== 0) {
+				let possibleValues;
+
+				if (is.string(valuePropertyName) && attributes.has(results, valuePropertyName)) {
+					possibleValues = [ attributes.read(results, valuePropertyName) ];
+				} else if (is.string(valuesPropertyName) && attributes.has(results, valuesPropertyName)) {
+					possibleValues = attributes.read(results, valuesPropertyName);
+				} else {
+					possibleValues = [ ];
+				}
+
+				if (is.array(possibleValues) && possibleValues.length !== 0) {
+					let predicate;
+
+					if (is.boolean(configuration.exact) && configuration.exact) {
+						predicate = (item) => {
+							const candidateValues = attributes.read(item, innerArrayPropertyName);
+
+							let returnVal;
+
+							if (is.array(candidateValues) && candidateValues.length === possibleValues.length) {
+								returnVal = candidateValues.every((candidateValue, candidateIndex) => {
+									return candidateValue === possibleValues[candidateIndex];
+								});
+							} else {
+								returnVal = false;
+							}
+
+							return returnVal;
+						};
+					} else {
+						predicate = (item) => {
+							const candidateValues = attributes.read(item, innerArrayPropertyName);
+
+							return is.array(candidateValues) && candidateValues.some(candidateValue => possibleValues.some(possibleValue => candidateValue === possibleValue));
+						};
+					}
+
+					returnRef = itemsToFilter.filter(predicate);
+				}
 			}
 
 			return returnRef;
