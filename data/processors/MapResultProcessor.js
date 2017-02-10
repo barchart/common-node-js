@@ -11,7 +11,8 @@ module.exports = (() => {
 	const logger = log4js.getLogger('data/processors/MapResultProcessor');
 
 	/**
-	 * Replaces an array with an array of "mapped" values, using a lookup object.
+	 * Reads an array and creates a new array, mapping each item to an
+	 * alternate value (if possible) and overwrites the array.
 	 *
 	 * @public
 	 * @extends MutateResultProcessor

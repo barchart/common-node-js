@@ -9,7 +9,8 @@ var is = require('common/lang/is');
 var MutateResultProcessor = require('./MutateResultProcessor');
 
 /**
- * Formats a numeric property using Barchart's price formatting rules.
+ * Formats a numeric property using Barchart's price formatting rules and
+ * overwrites the property.
  *
  * @public
  * @extends MutateResultProcessor

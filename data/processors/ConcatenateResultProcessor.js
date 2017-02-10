@@ -12,7 +12,7 @@ module.exports = (() => {
 
 	/**
 	 * Concatenates literal strings (or property references) and assigns
-	 * result to a property.
+	 * result.
 	 *
 	 * @public
 	 * @extends MutateResultProcessor

@@ -11,7 +11,7 @@ module.exports = (() => {
 	const logger = log4js.getLogger('data/processors/ConvertResultProcessor');
 
 	/**
-	 * Converts a property's value to another type.
+	 * Converts a property's value to another type and overwrites the property.
 	 *
 	 * @public
 	 * @extends MutateResultProcessor

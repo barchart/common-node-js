@@ -9,7 +9,6 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('data/processors/NullCoalescingResultProcessor');
 
-
 	/**
 	 * Replaces all null values.
 	 *
