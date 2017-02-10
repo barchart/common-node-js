@@ -13,7 +13,8 @@ module.exports = (() => {
 
 	/**
 	 * Filters an array to items which have an "inner" array that which contains
-	 * a single value (or one of a set of possible value).
+	 * a single value, one value for a set of possible values, or all values from
+	 * a list of values.
 	 *
 	 * @public
 	 * @extends ResultProcessor
