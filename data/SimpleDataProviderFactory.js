@@ -116,6 +116,7 @@ module.exports = (() => {
 		SplitResultProcessor: SplitResultProcessor,
 		SubtractResultProcessor: SubtractResultProcessor,
 		SumResultProcessor: SumResultProcessor,
+		TranslateResultProcessor: TranslateResultProcessor,
 		TreeResultProcessor: TreeResultProcessor,
 		TrimResultProcessor: TrimResultProcessor,
 		UnwrapResultProcessor: UnwrapResultProcessor,
