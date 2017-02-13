@@ -43,6 +43,10 @@ module.exports = (() => {
 				groups: [ ]
 			};
 
+			if (groupInnerNodes) {
+				root.items = results;
+			}
+
 			results.forEach((item) => {
 				let names = attributes.read(item, groupingPropertyName);
 

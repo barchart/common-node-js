@@ -20,6 +20,7 @@ var EmptyCoalescingResultProcessor = require('./processors/EmptyCoalescingResult
 var EncodeUriResultProcessor = require('./processors/EncodeUriResultProcessor');
 var ExtractResultProcessor = require('./processors/ExtractResultProcessor');
 var FilterContainsResultProcessor = require('./processors/FilterContainsResultProcessor');
+var FilterEqualsResultProcessor = require('./processors/FilterEqualsResultProcessor');
 var FilterResultProcessor = require('./processors/FilterResultProcessor');
 var FindResultProcessor = require('./processors/FindResultProcessor');
 var FirstResultProcessor = require('./processors/FirstResultProcessor');
@@ -37,6 +38,7 @@ var MySqlBlobToArrayProcessor = require('./processors/MySqlBlobToArrayProcessor'
 var NullCoalescingResultProcessor = require('./processors/NullCoalescingResultProcessor');
 var OverwriteResultProcessor = require('./processors/OverwriteResultProcessor');
 var PartitionResultProcessor = require('./processors/PartitionResultProcessor');
+var PushResultProcessor = require('./processors/PushResultProcessor');
 var ReplaceResultProcessor = require('./processors/ReplaceResultProcessor');
 var ScalarResultProcessor = require('./processors/ScalarResultProcessor');
 var SelectResultProcessor = require('./processors/SelectResultProcessor');
@@ -90,6 +92,7 @@ module.exports = (() => {
 		EncodeUriResultProcessor: EncodeUriResultProcessor,
 		ExtractResultProcessor: ExtractResultProcessor,
 		FilterContainsResultProcessor: FilterContainsResultProcessor,
+		FilterEqualsResultProcessor: FilterEqualsResultProcessor,
 		FilterResultProcessor: FilterResultProcessor,
 		FindResultProcessor: FindResultProcessor,
 		FirstResultProcessor: FirstResultProcessor,
@@ -107,6 +110,7 @@ module.exports = (() => {
 		NullCoalescingResultProcessor: NullCoalescingResultProcessor,
 		OverwriteResultProcessor: OverwriteResultProcessor,
 		PartitionResultProcessor: PartitionResultProcessor,
+		PushResultProcessor: PushResultProcessor,
 		ReplaceResultProcessor: ReplaceResultProcessor,
 		ScalarResultProcessor: ScalarResultProcessor,
 		SelectResultProcessor: SelectResultProcessor,
