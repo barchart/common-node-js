@@ -11,13 +11,24 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('data/processors/GroupingResultProcessor');
 
+	/**
+	 * Breaks an array into named groups according to the value of a single
+	 * property from each item in the array.
+	 *
+	 * @public
+	 * @extends MutateResultProcessor
+	 * @param {object} configuration
+	 * @param {string} configuration.sourcePropertyName - The name of the array to group.
+	 * @param {string} configuration.groupPropertyName - The name of the discriminator property each item in the array.
+	 * @param {string=} configuration.targetPropertyName - The name of the property to assign the grouped results to (defaults to the sourcePropertyName).
+	 */
 	class GroupingResultProcessor extends MutateResultProcessor {
 		constructor(configuration) {
 			super(configuration);
 		}
 
 		_processItem(resultItemToProcess, configurationToUse) {
-			if (!(is.string(configurationToUse.sourcePropertyName) && attributes.has(resultItemToProcess, configurationToUse.sourcePropertyName) && is.string(configurationToUse.groupPropertyName))) {
+			if (!(is.string(configurationToUse.sourcePropertyName) && is.string(configurationToUse.groupPropertyName))) {
 				return;
 			}
 
@@ -25,6 +36,7 @@ module.exports = (() => {
 			const groupPropertyName = configurationToUse.groupPropertyName;
 
 			let source = attributes.read(resultItemToProcess, sourcePropertyName);
+
 			let groups;
 
 			if (is.array(source)) {

@@ -21,12 +21,11 @@ describe('When a MapResultProcessor is created', function () {
 			processor.process(original = {
 				alphabet: map = {a: 'alpha', b: 'beta', c: 'charlie'},
 				letters: letters = ['a', 'c', 'e']
-			})
-				.then(function (r) {
-					result = r;
+			}).then(function (r) {
+				result = r;
 
-					done();
-				});
+				done();
+			});
 		});
 
 		it('the original object should be returned', function () {

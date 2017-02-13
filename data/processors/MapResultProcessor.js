@@ -17,8 +17,8 @@ module.exports = (() => {
 	 * @public
 	 * @extends MutateResultProcessor
 	 * @param {object} configuration
-	 * @param {object} configuration.mapPropertyName - The map of replacement values.
-	 * @param {Array} configuration.targetPropertyName - The array of values to replace.
+	 * @param {string} configuration.mapPropertyName - The map of replacement values.
+	 * @param {string} configuration.targetPropertyName - The array of values to replace.
 	 */
 	class MapResultProcessor extends MutateResultProcessor {
 		constructor(configuration) {
