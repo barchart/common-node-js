@@ -18,6 +18,7 @@ module.exports = (() => {
 	 * @extends ResultProcessor
 	 * @param {object} configuration
 	 * @param {object} configuration.conditions - An object of key/value pairs where the key is the name of the property to match and the value is the expected value.
+	 * @param {boolean=} configuration.inverse - If true, matches are excluded (instead of included) from the results.
 	 */
 	class FilterEqualsResultProcessor extends ResultProcessor {
 		constructor(configuration) {
@@ -33,11 +34,19 @@ module.exports = (() => {
 				const conditions = configuration.conditions;
 				const properties = Object.keys(configuration.conditions);
 
+				let predicate;
+
+				if (is.boolean(configuration.inverse) && configuration.inverse) {
+					predicate = (a, b) => a !== b;
+				} else {
+					predicate = (a, b) => a === b;
+				}
+
 				returnRef = results.filter((result) => {
 					return properties.every((propertyName) => {
 						const expectedValue = conditions[propertyName];
 
-						return attributes.has(result, propertyName) && attributes.read(result, propertyName) === expectedValue;
+						return attributes.has(result, propertyName) && predicate(attributes.read(result, propertyName), expectedValue);
 					});
 				});
 			} else {

@@ -3,7 +3,7 @@ var FilterEqualsResultProcessor = require('./../../../../data/processors/FilterE
 describe('When a FilterEqualsResultProcessor is created', function () {
 	'use strict';
 
-	var original;
+	var tools;
 
 	var webstorm;
 	var intellij;
@@ -11,7 +11,7 @@ describe('When a FilterEqualsResultProcessor is created', function () {
 	var vs;
 
 	beforeEach(function() {
-		original = [
+		tools = [
 			webstorm = { product: 'WebStorm', vendor: 'JetBrains', language: 'JavaScript' },
 			intellij = { product: 'IntelliJ', vendor: 'JetBrains', language: 'Java' },
 			eclipse = { product: 'Eclipse', vendor: 'Eclipse Foundation', language: 'Java' },
@@ -19,14 +19,14 @@ describe('When a FilterEqualsResultProcessor is created', function () {
 		];
 	});
 
-	describe('and used on used to filter items based on one property', function () {
+	describe('and used to filter for items that are provided by JetBrains', function () {
 		var processor;
 		var result;
 
 		beforeEach(function(done) {
 			processor = new FilterEqualsResultProcessor({ conditions: { vendor: 'JetBrains' }});
 
-			processor.process(original).then(function(r) {
+			processor.process(tools).then(function(r) {
 				result = r;
 
 				done();
@@ -34,7 +34,7 @@ describe('When a FilterEqualsResultProcessor is created', function () {
 		});
 
 		it('a new array should be returned', function() {
-			expect(result).not.toBe(original);
+			expect(result).not.toBe(tools);
 		});
 
 		it('the new array should have two items', function() {
@@ -50,14 +50,45 @@ describe('When a FilterEqualsResultProcessor is created', function () {
 		});
 	});
 
-	describe('and used on used to filter items based on multiple properties', function () {
+	describe('and used to filter for items that are not provided by JetBrains', function () {
+		var processor;
+		var result;
+
+		beforeEach(function(done) {
+			processor = new FilterEqualsResultProcessor({ conditions: { vendor: 'JetBrains' }, inverse: true });
+
+			processor.process(tools).then(function(r) {
+				result = r;
+
+				done();
+			});
+		});
+
+		it('a new array should be returned', function() {
+			expect(result).not.toBe(tools);
+		});
+
+		it('the new array should have two items', function() {
+			expect(result.length).toEqual(2);
+		});
+
+		it('the first item should be Eclipse', function() {
+			expect(result[0]).toBe(eclipse);
+		});
+
+		it('the second item should be Visual Studio', function() {
+			expect(result[1]).toBe(vs);
+		});
+	});
+
+	describe('and used to filter for items that are provided by JetBrains and support JavaScript', function () {
 		var processor;
 		var result;
 
 		beforeEach(function (done) {
 			processor = new FilterEqualsResultProcessor({ conditions: { vendor: 'JetBrains', language: 'JavaScript' }});
 
-			processor.process(original).then(function (r) {
+			processor.process(tools).then(function (r) {
 				result = r;
 
 				done();
@@ -65,7 +96,7 @@ describe('When a FilterEqualsResultProcessor is created', function () {
 		});
 
 		it('a new array should be returned', function () {
-			expect(result).not.toBe(original);
+			expect(result).not.toBe(tools);
 		});
 
 		it('the new array should have one item', function() {
@@ -74,6 +105,33 @@ describe('When a FilterEqualsResultProcessor is created', function () {
 
 		it('the first item should be WebStorm', function() {
 			expect(result[0]).toBe(webstorm);
+		});
+	});
+
+	describe('and used to filter for items that are neither JetBrains products or support Java', function () {
+		var processor;
+		var result;
+
+		beforeEach(function (done) {
+			processor = new FilterEqualsResultProcessor({ conditions: { vendor: 'JetBrains', language: 'Java' }, inverse: true });
+
+			processor.process(tools).then(function (r) {
+				result = r;
+
+				done();
+			});
+		});
+
+		it('a new array should be returned', function () {
+			expect(result).not.toBe(tools);
+		});
+
+		it('the new array should have one items', function() {
+			expect(result.length).toEqual(1);
+		});
+
+		it('the first item should be Visual Studio', function() {
+			expect(result[0]).toBe(vs);
 		});
 	});
 });
