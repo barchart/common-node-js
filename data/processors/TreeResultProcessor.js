@@ -40,7 +40,8 @@ module.exports = (() => {
 			const groupInnerNodes = configuration.groupInnerNodes || false;
 
 			const root = {
-				groups: [ ]
+				groups: [ ],
+				parent: null
 			};
 
 			if (groupInnerNodes) {
@@ -50,25 +51,28 @@ module.exports = (() => {
 			results.forEach((item) => {
 				let names = attributes.read(item, groupingPropertyName);
 
-				names.reduce((groups, name, index) => {
-					let group = groups.find(group => group.name === name);
+				names.reduce((parent, name, index) => {
+					const groups = parent.groups;
 
-					if (!is.object(group)) {
-						group = {
+					let child = groups.find(group => group.name === name);
+
+					if (!is.object(child)) {
+						child = {
+							parent: parent,
 							name: name,
 							groups: [ ]
 						};
 
-						groups.push(group);
+						groups.push(child);
 					}
 
 					if (groupInnerNodes || names.length === index + 1) {
-						group.items = group.items || [ ];
-						group.items.push(item);
+						child.items = child.items || [ ];
+						child.items.push(item);
 					}
 
-					return group.groups;
-				}, root.groups);
+					return child;
+				}, root);
 			}, [ ]);
 
 			return root;
