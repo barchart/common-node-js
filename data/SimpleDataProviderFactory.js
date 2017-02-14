@@ -50,6 +50,7 @@ var SubtractResultProcessor = require('./processors/SubtractResultProcessor');
 var SumResultProcessor = require('./processors/SumResultProcessor');
 var TranslateResultProcessor = require('./processors/TranslateResultProcessor');
 var TreeResultProcessor = require('./processors/TreeResultProcessor');
+var UnitConversionResultProcessor = require('./processors/UnitConversionResultProcessor');
 var TrimResultProcessor = require('./processors/TrimResultProcessor');
 var UnwrapResultProcessor = require('./processors/UnwrapResultProcessor');
 var UppercaseResultProcessor = require('./processors/UppercaseResultProcessor');
@@ -122,6 +123,7 @@ module.exports = (() => {
 		SumResultProcessor: SumResultProcessor,
 		TranslateResultProcessor: TranslateResultProcessor,
 		TreeResultProcessor: TreeResultProcessor,
+		UnitConversionResultProcessor: UnitConversionResultProcessor,
 		TrimResultProcessor: TrimResultProcessor,
 		UnwrapResultProcessor: UnwrapResultProcessor,
 		UppercaseResultProcessor: UppercaseResultProcessor,
