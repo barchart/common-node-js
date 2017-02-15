@@ -24,7 +24,7 @@ describe('When a FilterEqualsResultProcessor is created', function () {
 		var result;
 
 		beforeEach(function(done) {
-			processor = new FilterEqualsResultProcessor({ conditions: { vendor: 'JetBrains' }});
+			processor = new FilterEqualsResultProcessor({ conditions: [ { propertyName: 'vendor', value: 'JetBrains' } ] });
 
 			processor.process(tools).then(function(r) {
 				result = r;
@@ -55,7 +55,7 @@ describe('When a FilterEqualsResultProcessor is created', function () {
 		var result;
 
 		beforeEach(function(done) {
-			processor = new FilterEqualsResultProcessor({ conditions: { vendor: 'JetBrains' }, inverse: true });
+			processor = new FilterEqualsResultProcessor({ conditions: [ { propertyName: 'vendor', value: 'JetBrains', inverse: true } ] });
 
 			processor.process(tools).then(function(r) {
 				result = r;
@@ -86,7 +86,7 @@ describe('When a FilterEqualsResultProcessor is created', function () {
 		var result;
 
 		beforeEach(function (done) {
-			processor = new FilterEqualsResultProcessor({ conditions: { vendor: 'JetBrains', language: 'JavaScript' }});
+			processor = new FilterEqualsResultProcessor({ conditions:  [ { propertyName: 'vendor', value: 'JetBrains' }, { propertyName: 'language', value: 'JavaScript' } ] });
 
 			processor.process(tools).then(function (r) {
 				result = r;
@@ -113,7 +113,7 @@ describe('When a FilterEqualsResultProcessor is created', function () {
 		var result;
 
 		beforeEach(function (done) {
-			processor = new FilterEqualsResultProcessor({ conditions: { vendor: 'JetBrains', language: 'Java' }, inverse: true });
+			processor = new FilterEqualsResultProcessor({ conditions: [ { propertyName: 'vendor', value: 'JetBrains', inverse: true }, { propertyName: 'language', value: 'Java', inverse: true } ] });
 
 			processor.process(tools).then(function (r) {
 				result = r;
@@ -126,7 +126,7 @@ describe('When a FilterEqualsResultProcessor is created', function () {
 			expect(result).not.toBe(tools);
 		});
 
-		it('the new array should have one items', function() {
+		it('the new array should have one item', function() {
 			expect(result.length).toEqual(1);
 		});
 
