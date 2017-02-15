@@ -35,6 +35,7 @@ var JsonParseResultProcessor = require('./processors/JsonParseResultProcessor');
 var JsonStringifyResultProcessor = require('./processors/JsonStringifyResultProcessor');
 var MapResultProcessor = require('./processors/MapResultProcessor');
 var MatchResultProcessor = require('./processors/MatchResultProcessor');
+var MultiplyResultProcessor = require('./processors/MultiplyResultProcessor');
 var MySqlBlobToArrayProcessor = require('./processors/MySqlBlobToArrayProcessor');
 var NullCoalescingResultProcessor = require('./processors/NullCoalescingResultProcessor');
 var OverwriteResultProcessor = require('./processors/OverwriteResultProcessor');
@@ -109,6 +110,7 @@ module.exports = (() => {
 		JsonStringifyResultProcessor: JsonStringifyResultProcessor,
 		MapResultProcessor: MapResultProcessor,
 		MatchResultProcessor: MatchResultProcessor,
+		MultiplyResultProcessor: MultiplyResultProcessor,
 		MySqlBlobToArrayProcessor: MySqlBlobToArrayProcessor,
 		NullCoalescingResultProcessor: NullCoalescingResultProcessor,
 		OverwriteResultProcessor: OverwriteResultProcessor,
