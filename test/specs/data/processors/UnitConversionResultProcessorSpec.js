@@ -7,7 +7,7 @@ describe('When a UnitConversionResultProcessor is created, using references', fu
 
 	beforeEach(function () {
 		processor = new UnitConversionResultProcessor({
-			name: 'converted',
+			propertyName: 'converted',
 			valueRef: 'distance',
 			unitRef: 'unit',
 			factorRef: 'ratio.value',

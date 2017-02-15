@@ -17,7 +17,7 @@ module.exports = (() => {
 	 * @public
 	 * @extends MutateResultProcessor
 	 * @param {object} configuration
-	 * @param {string} configurationToUse.name
+	 * @param {string=} configurationToUse.propertyName
 	 * @param {number=} configurationToUse.value
 	 * @param {string=} configurationToUse.valueRef
 	 * @param {string=} configurationToUse.unit
@@ -35,20 +35,22 @@ module.exports = (() => {
 		}
 
 		_processItem(resultItemToProcess, configurationToUse) {
-			let name;
+			let propertyName;
 
-			if (is.string(configurationToUse.name)) {
-				name = configurationToUse.name;
+			if (is.string(configurationToUse.propertyName)) {
+				propertyName = configurationToUse.propertyName;
+			} else if (is.string(configurationToUse.valueRef)) {
+				propertyName = configurationToUse.valueRef;
 			} else {
-				name = null;
+				propertyName = null;
 			}
 
 			let value;
 
 			if (is.number(configurationToUse.value)) {
 				value = configurationToUse.value;
-			} else if (is.string(configurationToUse.valueRef)) {
-				value = parseFloat(attributes.read(resultItemToProcess, configurationToUse.valueRef));
+			} else if (is.string(configurationToUse.valueRef) && attributes.has(resultItemToProcess, configurationToUse.valueRef)) {
+				value = attributes.read(resultItemToProcess, configurationToUse.valueRef);
 			} else {
 				value = null;
 			}
@@ -57,7 +59,7 @@ module.exports = (() => {
 
 			if (is.string(configurationToUse.unit)) {
 				unit = configurationToUse.unit;
-			} else if (is.string(configurationToUse.unitRef)) {
+			} else if (is.string(configurationToUse.unitRef) && attributes.has(resultItemToProcess, configurationToUse.unitRef)) {
 				unit = attributes.read(resultItemToProcess, configurationToUse.unitRef);
 			} else {
 				unit = null;
@@ -67,7 +69,7 @@ module.exports = (() => {
 
 			if (is.number(configurationToUse.factor)) {
 				factor = configurationToUse.factor;
-			} else if (is.string(configurationToUse.factorRef)) {
+			} else if (is.string(configurationToUse.factorRef) && attributes.has(resultItemToProcess, configurationToUse.factorRef)) {
 				factor = parseFloat(attributes.read(resultItemToProcess, configurationToUse.factorRef));
 			} else {
 				factor = null;
@@ -77,7 +79,7 @@ module.exports = (() => {
 
 			if (is.string(configurationToUse.numeratorUnit)) {
 				numerator = configurationToUse.numeratorUnit;
-			} else if (is.string(configurationToUse.numeratorUnitRef)) {
+			} else if (is.string(configurationToUse.numeratorUnitRef)  && attributes.has(resultItemToProcess, configurationToUse.numeratorUnitRef)) {
 				numerator = attributes.read(resultItemToProcess, configurationToUse.numeratorUnitRef);
 			} else {
 				numerator = null;
@@ -87,20 +89,20 @@ module.exports = (() => {
 
 			if (is.string(configurationToUse.denominatorUnit)) {
 				denominator = configurationToUse.denominatorUnit;
-			} else if (is.string(configurationToUse.denominatorUnitRef)) {
+			} else if (is.string(configurationToUse.denominatorUnitRef) && attributes.has(resultItemToProcess, configurationToUse.denominatorUnitRef)) {
 				denominator = attributes.read(resultItemToProcess, configurationToUse.denominatorUnitRef);
 			} else {
 				denominator = null;
 			}
 
-			if (is.string(name) && is.number(value) && is.number(factor) && is.string(unit) && is.string(numerator) && is.string(denominator) && (unit === numerator || unit === denominator)) {
+			if (is.string(propertyName) && is.number(value) && is.number(factor) && is.string(unit) && is.string(numerator) && is.string(denominator) && (unit === numerator || unit === denominator)) {
 				if (numerator === denominator) {
 					factor = 1;
 				} else if (unit === numerator) {
 					factor = 1 / factor;
 				}
 
-				attributes.write(resultItemToProcess, name, value * factor);
+				attributes.write(resultItemToProcess, propertyName, value * factor);
 			}
 		}
 
