@@ -56,15 +56,15 @@ module.exports = (() => {
 				let targetValue;
 
 				if (is.array(targetItem[targetProperty])) {
-					const joinValues = targetItem[targetProperty];
+					const joinValues = attributes.read(targetItem, targetProperty);
 
 					targetValue = joinValues.map((joinValue) => {
-						return sourceItemMap[joinValue];
+						return attributes.read(sourceItemMap, joinValue);
 					});
 				} else {
-					const joinValue = targetItem[targetProperty];
+					const joinValue = attributes.read(targetItem, targetProperty);
 
-					targetValue = sourceItemMap[joinValue];
+					targetValue = attributes.read(sourceItemMap, joinValue);
 				}
 
 				attributes.write(targetItem, aliasProperty, targetValue);
