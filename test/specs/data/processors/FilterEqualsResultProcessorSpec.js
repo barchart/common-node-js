@@ -15,7 +15,7 @@ describe('When a FilterEqualsResultProcessor is created', function () {
 			webstorm = { product: 'WebStorm', vendor: 'JetBrains', language: 'JavaScript' },
 			intellij = { product: 'IntelliJ', vendor: 'JetBrains', language: 'Java' },
 			eclipse = { product: 'Eclipse', vendor: 'Eclipse Foundation', language: 'Java' },
-			vs = { product: 'Visual Studio', vendor: 'Microsoft', language: 'C#' },
+			vs = { product: 'Visual Studio', vendor: 'Microsoft', language: 'C#' }
 		];
 	});
 

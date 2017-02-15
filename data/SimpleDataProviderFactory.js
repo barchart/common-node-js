@@ -21,6 +21,7 @@ var EncodeUriResultProcessor = require('./processors/EncodeUriResultProcessor');
 var ExtractResultProcessor = require('./processors/ExtractResultProcessor');
 var FilterContainsResultProcessor = require('./processors/FilterContainsResultProcessor');
 var FilterEqualsResultProcessor = require('./processors/FilterEqualsResultProcessor');
+var FilterRegexResultProcessor = require('./processors/FilterRegexResultProcessor');
 var FilterResultProcessor = require('./processors/FilterResultProcessor');
 var FindResultProcessor = require('./processors/FindResultProcessor');
 var FirstResultProcessor = require('./processors/FirstResultProcessor');
@@ -94,6 +95,7 @@ module.exports = (() => {
 		ExtractResultProcessor: ExtractResultProcessor,
 		FilterContainsResultProcessor: FilterContainsResultProcessor,
 		FilterEqualsResultProcessor: FilterEqualsResultProcessor,
+		FilterRegexResultProcessor: FilterRegexResultProcessor,
 		FilterResultProcessor: FilterResultProcessor,
 		FindResultProcessor: FindResultProcessor,
 		FirstResultProcessor: FirstResultProcessor,

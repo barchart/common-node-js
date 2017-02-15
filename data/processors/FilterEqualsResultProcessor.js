@@ -11,8 +11,8 @@ module.exports = (() => {
 	const logger = log4js.getLogger('data/processors/FilterEqualsResultProcessor');
 
 	/**
-	 * Filters an array to items that have one (or more) properties that
-	 * match a configured value.
+	 * Filters an array to items based on equality checks against
+	 * one (or more) of the item's properties.
 	 *
 	 * @public
 	 * @extends ResultProcessor
@@ -41,15 +41,10 @@ module.exports = (() => {
 							valueToMatch = condition.value;
 						}
 
-						let returnVal;
+						const match = propertyValue === valueToMatch;
+						const inverse = is.boolean(condition.inverse) && condition.inverse;
 
-						if (is.boolean(condition.inverse) && condition.inverse) {
-							returnVal = propertyValue !== valueToMatch;
-						} else {
-							returnVal = propertyValue === valueToMatch;
-						}
-
-						return returnVal;
+						return match ^ inverse;
 					});
 				});
 			} else {
