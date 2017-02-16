@@ -1,5 +1,6 @@
 var log4js = require('log4js');
 
+var array = require('common/lang/array');
 var attributes = require('common/lang/attributes');
 var is = require('common/lang/is');
 
@@ -8,65 +9,67 @@ var ResultProcessor = require('./../ResultProcessor');
 module.exports = (() => {
 	'use strict';
 
-	const logger = log4js.getLogger('data/processors/TreeResultProcessor');
+	const logger = log4js.getLogger('data/processors/TreePathResultProcessor');
 
 	/**
-	 * Groups an array of objects into a tree structure, based on an
-	 * array read from each item.
+	 * Takes an array and generates a tree structure.
 	 *
 	 * @public
 	 * @extends ResultProcessor
 	 * @param {object} configuration
-	 * @param {string} configuration.groupBy - The name of the item property that contains the structure (e.g. [ 'Animals', 'Mammals', 'Cat' ])
-	 * @param {boolean=} configuration.groupInnerNodes - If true, each tree node will have an "items" array. Otherwise, only the leaf nodes will have an "items" array.
+	 * @param {string=} configuration.pathPropertyName - The name of the item property that contains it's proper location in the tree structure (e.g. [ 'Animals', 'Mammals', 'Cat' ])
+	 * @param {Array<string>=} configuration.pathPropertyNames
+	 * @param {boolean=} configuration.itemizeInnerNodes - If true, each tree node will have an "items" array. Otherwise, only the leaf nodes will have an "items" array.
 	 */
-	class TreeResultProcessor extends ResultProcessor {
+	class TreePathResultProcessor extends ResultProcessor {
 		constructor(configuration) {
 			super(configuration);
 		}
 
 		_process(results) {
-			if (!is.array(results)) {
-				return results;
-			}
-
 			const configuration = this._getConfiguration();
 
-			if (!is.string(configuration.groupBy)) {
-				return [ ];
-			}
+			const pathPropertyName = configuration.pathPropertyName;
+			const pathPropertyNames = configuration.pathPropertyNames;
 
-			const groupingPropertyName = configuration.groupBy;
-			const groupInnerNodes = configuration.groupInnerNodes || false;
+			let pathExtractor;
+
+			if (is.string(configuration.pathPropertyName)) {
+				pathExtractor = item => attributes.read(item, pathPropertyName);
+			} else {
+				pathExtractor = item => pathPropertyNames.map((pathPropertyName) => attributes.read(item, pathPropertyName));
+			}
+			
+			const itemizeInnerNodes = configuration.itemizeInnerNodes || false;
 
 			const root = {
-				groups: [ ],
+				children: [ ],
 				parent: null
 			};
 
-			if (groupInnerNodes) {
+			if (itemizeInnerNodes) {
 				root.items = results;
 			}
 
 			results.forEach((item) => {
-				let names = attributes.read(item, groupingPropertyName);
+				let names = pathExtractor(item);
 
 				names.reduce((parent, name, index) => {
-					const groups = parent.groups;
+					const children = parent.children;
 
-					let child = groups.find(group => group.name === name);
+					let child = children.find(group => group.name === name);
 
 					if (!is.object(child)) {
 						child = {
 							parent: parent,
 							name: name,
-							groups: [ ]
+							children: [ ]
 						};
 
-						groups.push(child);
+						children.push(child);
 					}
 
-					if (groupInnerNodes || names.length === index + 1) {
+					if (itemizeInnerNodes || names.length === index + 1) {
 						child.items = child.items || [ ];
 						child.items.push(item);
 					}
@@ -79,9 +82,9 @@ module.exports = (() => {
 		}
 
 		toString() {
-			return '[TreeResultProcessor]';
+			return '[TreePathResultProcessor]';
 		}
 	}
 
-	return TreeResultProcessor;
+	return TreePathResultProcessor;
 })();
