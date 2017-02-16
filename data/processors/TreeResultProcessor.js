@@ -36,8 +36,10 @@ module.exports = (() => {
 
 			if (is.string(configuration.pathPropertyName)) {
 				pathExtractor = item => attributes.read(item, pathPropertyName);
-			} else {
+			} else if (is.array(pathPropertyNames)) {
 				pathExtractor = item => pathPropertyNames.map((pathPropertyName) => attributes.read(item, pathPropertyName));
+			} else {
+				pathExtractor = null;
 			}
 			
 			const itemizeInnerNodes = configuration.itemizeInnerNodes || false;
@@ -47,36 +49,38 @@ module.exports = (() => {
 				parent: null
 			};
 
-			if (itemizeInnerNodes) {
-				root.items = results;
+			if (pathExtractor) {
+				if (itemizeInnerNodes) {
+					root.items = results;
+				}
+
+				results.forEach((item) => {
+					let names = pathExtractor(item);
+
+					names.reduce((parent, name, index) => {
+						const children = parent.children;
+
+						let child = children.find(group => group.name === name);
+
+						if (!is.object(child)) {
+							child = {
+								parent: parent,
+								name: name,
+								children: []
+							};
+
+							children.push(child);
+						}
+
+						if (itemizeInnerNodes || names.length === index + 1) {
+							child.items = child.items || [];
+							child.items.push(item);
+						}
+
+						return child;
+					}, root);
+				}, []);
 			}
-
-			results.forEach((item) => {
-				let names = pathExtractor(item);
-
-				names.reduce((parent, name, index) => {
-					const children = parent.children;
-
-					let child = children.find(group => group.name === name);
-
-					if (!is.object(child)) {
-						child = {
-							parent: parent,
-							name: name,
-							children: [ ]
-						};
-
-						children.push(child);
-					}
-
-					if (itemizeInnerNodes || names.length === index + 1) {
-						child.items = child.items || [ ];
-						child.items.push(item);
-					}
-
-					return child;
-				}, root);
-			}, [ ]);
 
 			return root;
 		}
