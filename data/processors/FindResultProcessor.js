@@ -1,5 +1,4 @@
 var log4js = require('log4js');
-var moment = require('moment');
 
 var attributes = require('common/lang/attributes');
 var is = require('common/lang/is');
