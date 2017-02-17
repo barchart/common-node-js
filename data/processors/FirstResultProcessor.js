@@ -9,6 +9,13 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('data/processors/FirstResultProcessor');
 
+	/**
+	 * Accepts an array of items and returns the first item in the array.
+	 *
+	 * @public
+	 * @extends ResultProcessor
+	 * @param {object} configuration
+	 */
 	class FirstResultProcessor extends ResultProcessor {
 		constructor(configuration) {
 			super(configuration);

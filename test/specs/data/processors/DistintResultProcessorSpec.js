@@ -9,13 +9,10 @@ describe('When a DistinctResultProcessor is created and "wrapping" is desired', 
 		processor = new DistinctResultProcessor({property: 'firstName', wrap: true});
 	});
 
-	describe('and and used to extract unique first names', function () {
+	describe('and used to extract unique first names', function () {
 		var result;
 
 		var original;
-
-		var map;
-		var letters;
 
 		beforeEach(function (done) {
 			processor.process(original = [ { firstName: 'Bill', lastName: 'Clinton'}, { firstName: 'Bill', lastName: 'Moyers'}, { firstName: 'Hillary', lastName: 'Clinton'} ]).then(function (r) {
@@ -56,13 +53,10 @@ describe('When a DistinctResultProcessor is created and "wrapping" is not desire
 		processor = new DistinctResultProcessor({property: 'firstName', wrap: false});
 	});
 
-	describe('and and used to extract unique first names', function () {
+	describe('and used to extract unique first names', function () {
 		var result;
 
 		var original;
-
-		var map;
-		var letters;
 
 		beforeEach(function (done) {
 			processor.process(original = [ { firstName: 'Bill', lastName: 'Clinton'}, { firstName: 'Bill', lastName: 'Moyers'}, { firstName: 'Hillary', lastName: 'Clinton'} ]).then(function (r) {
