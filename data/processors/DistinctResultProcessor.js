@@ -11,6 +11,16 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('data/processors/DistinctResultProcessor');
 
+	/**
+	 * Accepts an array of items and returns a new array composed of distinct property
+	 * values read from item's in the original array.
+	 *
+	 * @public
+	 * @extends ResultProcessor
+	 * @param {object} configuration
+	 * @param {string} configuration.property - The name of the property to find distinct values for.
+	 * @param {boolean=} configuration.wrap - If explicitly false, the distinct values will not be wrapped in objects, using the "property" name.
+	 */
 	class DistinctResultProcessor extends ResultProcessor {
 		constructor(configuration) {
 			super(configuration);
