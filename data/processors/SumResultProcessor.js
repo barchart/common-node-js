@@ -16,7 +16,7 @@ module.exports = (() => {
 	 * @public
 	 * @extends ResultProcessor
 	 * @param {object} configuration
-	 * @param {string=} configuration.propertyName - If the array contains objects, this is the name of the numeric property to average.
+	 * @param {string=} configuration.propertyName - If the array contains objects, this is the name of the numeric property to sum.
 	 */
 	class SumResultProcessor extends ResultProcessor {
 		constructor(configuration) {

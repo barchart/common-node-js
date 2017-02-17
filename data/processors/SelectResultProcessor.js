@@ -33,27 +33,31 @@ module.exports = (() => {
 
 				if (is.array(results)) {
 					resultsToProcess = results;
-				} else {
+				} else if (is.object(results)) {
 					resultsToProcess = [ results ];
+				} else {
+					resultsToProcess = null;
 				}
 
-				resultsToProcess = resultsToProcess.map((result) => {
-					const transform = {};
+				if (resultsToProcess) {
+					resultsToProcess = resultsToProcess.map((result) => {
+						const transform = {};
 
-					Object.keys(configuration.properties)
-						.forEach((inputPropertyName) => {
-							const outputPropertyName = configuration.properties[inputPropertyName];
+						Object.keys(configuration.properties)
+							.forEach((inputPropertyName) => {
+								const outputPropertyName = configuration.properties[inputPropertyName];
 
-							attributes.write(transform, outputPropertyName, attributes.read(result, inputPropertyName));
-						});
+								attributes.write(transform, outputPropertyName, attributes.read(result, inputPropertyName));
+							});
 
-					return transform;
-				});
+						return transform;
+					});
 
-				if (is.array(results)) {
-					results = resultsToProcess;
-				} else {
-					results = resultsToProcess[0];
+					if (is.array(results)) {
+						results = resultsToProcess;
+					} else {
+						results = resultsToProcess[0];
+					}
 				}
 			}
 

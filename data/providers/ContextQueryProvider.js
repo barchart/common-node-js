@@ -23,7 +23,7 @@ module.exports = (() => {
 			if (is.array(configuration.properties)) {
 				returnRef = configuration.properties.reduce((map, property) => {
 					if (attributes.has(criteria, property)) {
-						map[property] = attributes.read(criteria, property);
+						attributes.write(map, property, attributes.read(criteria, property));
 					}
 
 					return map;
