@@ -133,6 +133,21 @@ module.exports = (() => {
 				});
 		}
 
+		_getBaseCriteria(criteria) {
+			const configuration = this._getConfiguration();
+			const baseCriteriaProperty = configuration.criteriaProperty;
+
+			let returnRef;
+
+			if (is.string(baseCriteriaProperty) && attributes.has(criteria, baseCriteriaProperty)) {
+				returnRef = attributes.read(criteria, baseCriteriaProperty);
+			} else {
+				returnRef = {};
+			}
+
+			return returnRef;
+		}
+
 		_getStaticCriteria() {
 			const configuration = this._getConfiguration();
 
@@ -188,10 +203,11 @@ module.exports = (() => {
 				throw new Error(`Request options for ${this.toString()} require a hostname`);
 			}
 
+			const baseCriteria = this._getBaseCriteria(criteria);
 			const staticCriteria = this._getStaticCriteria();
 			const dynamicCriteria = this._getDynamicCriteria();
 
-			const query = Object.assign({ }, staticCriteria);
+			const query = Object.assign(baseCriteria, staticCriteria);
 
 			Object.keys(dynamicCriteria)
 				.forEach((key) => {
@@ -199,8 +215,8 @@ module.exports = (() => {
 
 					let valueToUse;
 
-					if (criteria.hasOwnProperty(key)) {
-						valueToUse = criteria[key];
+					if (attributes.has(criteria, key)) {
+						valueToUse = attributes.read(criteria, key);
 					}
 
 					if (is.undefined(valueToUse)) {
