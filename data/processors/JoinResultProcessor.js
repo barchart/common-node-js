@@ -55,16 +55,16 @@ module.exports = (() => {
 			target.forEach((targetItem) => {
 				let targetValue;
 
-				if (is.array(targetItem[targetProperty])) {
+				if (is.array(attributes.read(targetItem, targetProperty))) {
 					const joinValues = attributes.read(targetItem, targetProperty);
 
 					targetValue = joinValues.map((joinValue) => {
-						return attributes.read(sourceItemMap, joinValue);
+						return attributes.read(sourceItemMap, joinValue.toString());
 					});
 				} else {
 					const joinValue = attributes.read(targetItem, targetProperty);
 
-					targetValue = attributes.read(sourceItemMap, joinValue);
+					targetValue = attributes.read(sourceItemMap, joinValue.toString());
 				}
 
 				attributes.write(targetItem, aliasProperty, targetValue);
