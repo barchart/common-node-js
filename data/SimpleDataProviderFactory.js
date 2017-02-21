@@ -30,6 +30,7 @@ var FormatDateResultProcessor = require('./processors/FormatDateResultProcessor'
 var FormatNumberResultProcessor = require('./processors/FormatNumberResultProcessor');
 var FormatPriceResultProcessor = require('./processors/FormatPriceResultProcessor');
 var GroupingResultProcessor = require('./processors/GroupingResultProcessor');
+var IndexResultProcessor = require('./processors/IndexResultProcessor');
 var JoinResultProcessor = require('./processors/JoinResultProcessor');
 var JsonParseResultProcessor = require('./processors/JsonParseResultProcessor');
 var JsonStringifyResultProcessor = require('./processors/JsonStringifyResultProcessor');
@@ -105,6 +106,7 @@ module.exports = (() => {
 		FormatNumberResultProcessor: FormatNumberResultProcessor,
 		FormatPriceResultProcessor: FormatPriceResultProcessor,
 		GroupingResultProcessor: GroupingResultProcessor,
+		IndexResultProcessor: IndexResultProcessor,
 		JoinResultProcessor: JoinResultProcessor,
 		JsonParseResultProcessor: JsonParseResultProcessor,
 		JsonStringifyResultProcessor: JsonStringifyResultProcessor,
