@@ -135,12 +135,12 @@ module.exports = (() => {
 
 		_getBaseCriteria(criteria) {
 			const configuration = this._getConfiguration();
-			const baseCriteriaProperty = configuration.criteriaProperty;
+			const criteriaContext = configuration.criteriaContext;
 
 			let returnRef;
 
-			if (is.string(baseCriteriaProperty) && attributes.has(criteria, baseCriteriaProperty)) {
-				returnRef = attributes.read(criteria, baseCriteriaProperty);
+			if (is.boolean(criteriaContext) && criteriaContext) {
+				returnRef = criteria;
 			} else {
 				returnRef = {};
 			}
