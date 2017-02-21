@@ -13,7 +13,8 @@ module.exports = (() => {
 	const extractOne = item => 1;
 
 	/**
-	 * Sums an array.
+	 * Given an array, computes the average of a property value across the
+	 * items (optionally, using a weighting factor for each item's value).
 	 *
 	 * @public
 	 * @extends ResultProcessor
