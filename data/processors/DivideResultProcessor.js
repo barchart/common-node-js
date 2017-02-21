@@ -24,12 +24,7 @@ module.exports = (() => {
 	 */
 	class DivideResultProcessor extends BinaryOperatorResultProcessor {
 		constructor(configuration) {
-			super(Object.assign(configuration, {
-				left: configuration.numerator,
-				right: configuration.denominator,
-				leftRef: configuration.numeratorRef,
-				rightRef: configuration.denominatorRef
-			}));
+			super(rewriteConfiguration(configuration));
 		}
 
 		_validateRight(right) {
@@ -43,6 +38,27 @@ module.exports = (() => {
 		toString() {
 			return '[DivideResultProcessor]';
 		}
+	}
+
+	function rewriteConfigurationItem(configurationItem) {
+		return Object.assign(configurationItem, {
+			left: configurationItem.numerator,
+			right: configurationItem.denominator,
+			leftRef: configurationItem.numeratorRef,
+			rightRef: configurationItem.denominatorRef
+		})
+	}
+
+	function rewriteConfiguration(configuration) {
+		if (is.array(configuration.items)) {
+			configuration.items = configuration.items.map((configurationItem) => {
+				return rewriteConfigurationItem(configurationItem);
+			});
+		} else {
+			rewriteConfigurationItem(configuration);
+		}
+
+		return configuration;
 	}
 
 	return DivideResultProcessor;

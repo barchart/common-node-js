@@ -163,3 +163,35 @@ describe('When a DivideResultProcessor is created, using a numerator reference',
 		});
 	});
 });
+
+describe('When a DivideResultProcessor is created, repeating the operation multiple times', function() {
+	'use strict';
+
+	var processor;
+
+	beforeEach(function() {
+		processor = new DivideResultProcessor({ items: [ { propertyName: 'a', numeratorRef: 'a', denominatorRef: 'b' }, { propertyName: 'a', numeratorRef: 'a', denominatorRef: 'b' } ] });
+	});
+
+	describe('and an object with a non-zero numerator property is passed', function() {
+		var result;
+		var original;
+
+		beforeEach(function(done) {
+			processor.process(original = { a: 2000, b: 10 })
+				.then(function(r) {
+					result = r;
+
+					done();
+				});
+		});
+
+		it('the original object should be returned', function() {
+			expect(result).toBe(original);
+		});
+
+		it('the "a" property should be the result dividing the "a" property by the "b" property twice', function() {
+			expect(result.a).toEqual(20);
+		});
+	});
+});
