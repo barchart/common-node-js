@@ -8,7 +8,7 @@ var ResultProcessor = require('./../ResultProcessor');
 module.exports = (() => {
 	'use strict';
 
-	const logger = log4js.getLogger('data/processors/MapToObjectResultProcessor');
+	const logger = log4js.getLogger('data/processors/IndexResultProcessor');
 
 	const extractOne = item => 1;
 
@@ -20,7 +20,7 @@ module.exports = (() => {
 	 * @extends ResultProcessor
 	 * @param {object} configuration
 	 */
-	class MapToObjectResultProcessor extends ResultProcessor {
+	class IndexResultProcessor extends ResultProcessor {
 		constructor(configuration) {
 			super(configuration);
 		}
@@ -28,8 +28,20 @@ module.exports = (() => {
 		_process(results) {
 			let returnRef = null;
 
-			if (is.array(results)) {
+			const configuration = this._getConfiguration();
 
+			const keyPropertyName = configuration.keyPropertyName;
+
+			if (is.array(results) && is.string(keyPropertyName)) {
+				returnRef = results.reduce((object, item) => {
+					const key = attributes.read(item, keyPropertyName);
+
+					if (is.string(key)) {
+						attributes.write(object, key, item);
+					}
+
+					return object;
+				}, { });
 			} else {
 				returnRef = null;
 			}
@@ -38,9 +50,9 @@ module.exports = (() => {
 		}
 
 		toString() {
-			return '[MapToObjectResultProcessor]';
+			return '[IndexResultProcessor]';
 		}
 	}
 
-	return MapToObjectResultProcessor;
+	return IndexResultProcessor;
 })();
