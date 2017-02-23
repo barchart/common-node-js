@@ -19,119 +19,154 @@ describe('When a FilterEqualsResultProcessor is created', function () {
 		];
 	});
 
-	describe('and used to filter for items that are provided by JetBrains', function () {
-		var processor;
-		var result;
+	describe('and filtering based on hardcoded value(s)', function() {
+		describe('for items that are provided by JetBrains', function () {
+			var processor;
+			var result;
 
-		beforeEach(function(done) {
-			processor = new FilterEqualsResultProcessor({ conditions: [ { propertyName: 'vendor', value: 'JetBrains' } ] });
+			beforeEach(function(done) {
+				processor = new FilterEqualsResultProcessor({ conditions: [ { propertyName: 'vendor', value: 'JetBrains' } ] });
 
-			processor.process(tools).then(function(r) {
-				result = r;
+				processor.process(tools).then(function(r) {
+					result = r;
 
-				done();
+					done();
+				});
+			});
+
+			it('a new array should be returned', function() {
+				expect(result).not.toBe(tools);
+			});
+
+			it('the new array should have two items', function() {
+				expect(result.length).toEqual(2);
+			});
+
+			it('the first item should be WebStorm', function() {
+				expect(result[0]).toBe(webstorm);
+			});
+
+			it('the second item should be IntelliJ', function() {
+				expect(result[1]).toBe(intellij);
 			});
 		});
 
-		it('a new array should be returned', function() {
-			expect(result).not.toBe(tools);
+		describe('for items that are not provided by JetBrains', function () {
+			var processor;
+			var result;
+
+			beforeEach(function(done) {
+				processor = new FilterEqualsResultProcessor({ conditions: [ { propertyName: 'vendor', value: 'JetBrains', inverse: true } ] });
+
+				processor.process(tools).then(function(r) {
+					result = r;
+
+					done();
+				});
+			});
+
+			it('a new array should be returned', function() {
+				expect(result).not.toBe(tools);
+			});
+
+			it('the new array should have two items', function() {
+				expect(result.length).toEqual(2);
+			});
+
+			it('the first item should be Eclipse', function() {
+				expect(result[0]).toBe(eclipse);
+			});
+
+			it('the second item should be Visual Studio', function() {
+				expect(result[1]).toBe(vs);
+			});
 		});
 
-		it('the new array should have two items', function() {
-			expect(result.length).toEqual(2);
+		describe('for items that are provided by JetBrains and support JavaScript', function () {
+			var processor;
+			var result;
+
+			beforeEach(function (done) {
+				processor = new FilterEqualsResultProcessor({ conditions:  [ { propertyName: 'vendor', value: 'JetBrains' }, { propertyName: 'language', value: 'JavaScript' } ] });
+
+				processor.process(tools).then(function (r) {
+					result = r;
+
+					done();
+				});
+			});
+
+			it('a new array should be returned', function () {
+				expect(result).not.toBe(tools);
+			});
+
+			it('the new array should have one item', function() {
+				expect(result.length).toEqual(1);
+			});
+
+			it('the first item should be WebStorm', function() {
+				expect(result[0]).toBe(webstorm);
+			});
 		});
 
-		it('the first item should be WebStorm', function() {
-			expect(result[0]).toBe(webstorm);
-		});
+		describe('for items that are neither JetBrains products or support Java', function () {
+			var processor;
+			var result;
 
-		it('the second item should be IntelliJ', function() {
-			expect(result[1]).toBe(intellij);
+			beforeEach(function (done) {
+				processor = new FilterEqualsResultProcessor({ conditions: [ { propertyName: 'vendor', value: 'JetBrains', inverse: true }, { propertyName: 'language', value: 'Java', inverse: true } ] });
+
+				processor.process(tools).then(function (r) {
+					result = r;
+
+					done();
+				});
+			});
+
+			it('a new array should be returned', function () {
+				expect(result).not.toBe(tools);
+			});
+
+			it('the new array should have one item', function() {
+				expect(result.length).toEqual(1);
+			});
+
+			it('the first item should be Visual Studio', function() {
+				expect(result[0]).toBe(vs);
+			});
 		});
 	});
 
-	describe('and used to filter for items that are not provided by JetBrains', function () {
-		var processor;
-		var result;
+	describe('and filtering based on hardcoded value(s)', function() {
+		describe('for items that are provided by a dynamic reference', function () {
+			var processor;
+			var result;
 
-		beforeEach(function(done) {
-			processor = new FilterEqualsResultProcessor({ conditions: [ { propertyName: 'vendor', value: 'JetBrains', inverse: true } ] });
+			beforeEach(function(done) {
+				processor = new FilterEqualsResultProcessor({ sourceRef: 'ide', conditions: [ { propertyName: 'vendor', valueRef: 'query' } ] });
 
-			processor.process(tools).then(function(r) {
-				result = r;
+				processor.process({ ide: tools, query: 'JetBrains' }).then(function(r) {
+					result = r;
 
-				done();
+					done();
+				});
 			});
-		});
 
-		it('a new array should be returned', function() {
-			expect(result).not.toBe(tools);
-		});
-
-		it('the new array should have two items', function() {
-			expect(result.length).toEqual(2);
-		});
-
-		it('the first item should be Eclipse', function() {
-			expect(result[0]).toBe(eclipse);
-		});
-
-		it('the second item should be Visual Studio', function() {
-			expect(result[1]).toBe(vs);
-		});
-	});
-
-	describe('and used to filter for items that are provided by JetBrains and support JavaScript', function () {
-		var processor;
-		var result;
-
-		beforeEach(function (done) {
-			processor = new FilterEqualsResultProcessor({ conditions:  [ { propertyName: 'vendor', value: 'JetBrains' }, { propertyName: 'language', value: 'JavaScript' } ] });
-
-			processor.process(tools).then(function (r) {
-				result = r;
-
-				done();
+			it('a new array should be returned', function() {
+				expect(result).not.toBe(tools);
 			});
-		});
 
-		it('a new array should be returned', function () {
-			expect(result).not.toBe(tools);
-		});
-
-		it('the new array should have one item', function() {
-			expect(result.length).toEqual(1);
-		});
-
-		it('the first item should be WebStorm', function() {
-			expect(result[0]).toBe(webstorm);
-		});
-	});
-
-	describe('and used to filter for items that are neither JetBrains products or support Java', function () {
-		var processor;
-		var result;
-
-		beforeEach(function (done) {
-			processor = new FilterEqualsResultProcessor({ conditions: [ { propertyName: 'vendor', value: 'JetBrains', inverse: true }, { propertyName: 'language', value: 'Java', inverse: true } ] });
-
-			processor.process(tools).then(function (r) {
-				result = r;
-
-				done();
+			it('the new array should have two items', function() {
+				expect(result.length).toEqual(2);
 			});
-		});
 
-		it('a new array should be returned', function () {
-			expect(result).not.toBe(tools);
-		});
+			it('the first item should be WebStorm', function() {
+				expect(result[0]).toBe(webstorm);
+			});
 
-		it('the new array should have one item', function() {
-			expect(result.length).toEqual(1);
-		});
-
-		it('the first item should be Visual Studio', function() {
-			expect(result[0]).toBe(vs);
+			it('the second item should be IntelliJ', function() {
+				expect(result[1]).toBe(intellij);
+			});
 		});
 	});
 });

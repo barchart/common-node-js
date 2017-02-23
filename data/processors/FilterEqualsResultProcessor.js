@@ -28,15 +28,25 @@ module.exports = (() => {
 
 			let returnRef;
 
-			if (is.array(results) && is.array(configuration.conditions)) {
-				returnRef = results.filter((result) => {
+			if (is.array(configuration.conditions)) {
+				let source;
+
+				if (is.array(results)) {
+					source = results;
+				} else if (is.string(configuration.sourceRef)) {
+					source = attributes.read(results, configuration.sourceRef);
+				} else {
+					source = [ ];
+				}
+
+				returnRef = source.filter((result) => {
 					return configuration.conditions.every((condition) => {
 						const propertyValue = attributes.read(result, condition.propertyName);
 
 						let valueToMatch;
 
-						if (is.string(condition.valueRef) && attributes.has(result, condition.valueRef)) {
-							valueToMatch = attributes.read(result, condition.valueRef);
+						if (is.string(condition.valueRef) && attributes.has(results, condition.valueRef)) {
+							valueToMatch = attributes.read(results, condition.valueRef);
 						} else {
 							valueToMatch = condition.value;
 						}
@@ -48,7 +58,7 @@ module.exports = (() => {
 					});
 				});
 			} else {
-				returnRef = results;
+				returnRef = [ ];
 			}
 
 			return returnRef;
