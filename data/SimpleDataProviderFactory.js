@@ -7,6 +7,7 @@ var DataProviderFactory = require('./DataProviderFactory');
 var ResultProcessor = require('./ResultProcessor');
 
 var AddResultProcessor = require('./processors/AddResultProcessor');
+var AverageResultProcessor = require('./processors/AverageResultProcessor');
 var CompositeResultProcessor = require('./processors/CompositeResultProcessor');
 var ConcatenateResultProcessor = require('./processors/ConcatenateResultProcessor');
 var ConvertResultProcessor = require('./processors/ConvertResultProcessor');
@@ -84,6 +85,7 @@ module.exports = (() => {
 
 	const processorMap = {
 		AddResultProcessor: AddResultProcessor,
+		AverageResultProcessor: AverageResultProcessor,
 		ConcatenateResultProcessor: ConcatenateResultProcessor,
 		ConvertResultProcessor: ConvertResultProcessor,
 		CopyResultProcessor: CopyResultProcessor,
