@@ -19,8 +19,10 @@ module.exports = (() => {
 		_process(results) {
 			const configuration = this._getConfiguration();
 
-			const target = attributes.read(results, configuration.target);
-			const source = attributes.read(results, configuration.source);
+			const separator = configuration.customSeparator;
+
+			const target = attributes.read(results, configuration.target, separator);
+			const source = attributes.read(results, configuration.source, separator);
 
 			let targetProperty;
 			let sourceProperty;
@@ -39,7 +41,7 @@ module.exports = (() => {
 			let sourceItemMap;
 
 			const keySelector = (item) => {
-				return attributes.read(item, sourceProperty);
+				return attributes.read(item, sourceProperty, separator);
 			};
 
 			if (!is.array(source)) {
@@ -55,19 +57,19 @@ module.exports = (() => {
 			target.forEach((targetItem) => {
 				let targetValue;
 
-				if (is.array(attributes.read(targetItem, targetProperty))) {
-					const joinValues = attributes.read(targetItem, targetProperty);
+				if (is.array(attributes.read(targetItem, targetProperty), separator)) {
+					const joinValues = attributes.read(targetItem, targetProperty, separator);
 
 					targetValue = joinValues.map((joinValue) => {
-						return attributes.read(sourceItemMap, joinValue.toString());
+						return attributes.read(sourceItemMap, joinValue.toString(), separator);
 					});
 				} else {
-					const joinValue = attributes.read(targetItem, targetProperty);
+					const joinValue = attributes.read(targetItem, targetProperty, separator);
 
-					targetValue = attributes.read(sourceItemMap, joinValue.toString());
+					targetValue = attributes.read(sourceItemMap, joinValue.toString(), separator);
 				}
 
-				attributes.write(targetItem, aliasProperty, targetValue);
+				attributes.write(targetItem, aliasProperty, targetValue, separator);
 			});
 
 			return target;

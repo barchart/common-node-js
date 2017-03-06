@@ -29,18 +29,20 @@ module.exports = (() => {
 			const map = attributes.read(resultItemToProcess, configurationToUse.mapPropertyName);
 			const values = attributes.read(resultItemToProcess, configurationToUse.targetPropertyName);
 
+			const separator = configurationToUse.customSeparator;
+
 			if (is.object(map) && is.array(values)) {
 				attributes.write(resultItemToProcess, configurationToUse.targetPropertyName, values.map((value) => {
 					let mapped;
 
-					if (attributes.has(map, value)) {
-						mapped = attributes.read(map, value);
+					if (attributes.has(map, value, separator)) {
+						mapped = attributes.read(map, value, separator);
 					} else {
 						mapped = value;
 					}
 
 					return mapped;
-				}));
+				}), separator);
 			}
 		}
 
