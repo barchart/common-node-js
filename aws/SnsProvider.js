@@ -65,14 +65,6 @@ module.exports = (() => {
 			return object.clone(this._configuration);
 		}
 
-		getConfiguration() {
-			if (this.getIsDisposed()) {
-				throw new Error('The SNS Provider has been disposed.');
-			}
-
-			return object.clone(this._configuration);
-		}
-
 		getTopicArn(topicName) {
 			assert.argumentIsRequired(topicName, 'topicName', String);
 
