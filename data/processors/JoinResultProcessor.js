@@ -83,10 +83,10 @@ module.exports = (() => {
 	function getTargetValue(sourceItemMap, joinValue, separator) {
 		let targetValue;
 
-		if (!is.null(joinValue) && !is.undefined(joinValue)) {
-			targetValue = attributes.read(sourceItemMap, joinValue.toString(), separator);
+		if (is.null(joinValue) || is.undefined(joinValue)) {
+			targetValue = sourceItemMap[joinValue];
 		} else {
-			targetValue = undefined;
+			targetValue = attributes.read(sourceItemMap, joinValue.toString(), separator);
 		}
 
 		return targetValue;
