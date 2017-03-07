@@ -61,12 +61,12 @@ module.exports = (() => {
 					const joinValues = attributes.read(targetItem, targetProperty, separator);
 
 					targetValue = joinValues.map((joinValue) => {
-						return attributes.read(sourceItemMap, joinValue.toString(), separator);
+						return getTargetValue(sourceItemMap, joinValue, separator);
 					});
 				} else {
 					const joinValue = attributes.read(targetItem, targetProperty, separator);
 
-					targetValue = attributes.read(sourceItemMap, joinValue.toString(), separator);
+					targetValue = getTargetValue(sourceItemMap, joinValue, separator);
 				}
 
 				attributes.write(targetItem, aliasProperty, targetValue, separator);
@@ -78,6 +78,18 @@ module.exports = (() => {
 		toString() {
 			return '[JoinResultProcessor]';
 		}
+	}
+
+	function getTargetValue(sourceItemMap, joinValue, separator) {
+		let targetValue;
+
+		if (!is.null(joinValue) && !is.undefined(joinValue)) {
+			targetValue = attributes.read(sourceItemMap, joinValue.toString(), separator);
+		} else {
+			targetValue = undefined;
+		}
+
+		return targetValue;
 	}
 
 	return JoinResultProcessor;
