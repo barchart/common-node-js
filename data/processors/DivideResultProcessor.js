@@ -46,7 +46,7 @@ module.exports = (() => {
 			right: configurationItem.denominator,
 			leftRef: configurationItem.numeratorRef,
 			rightRef: configurationItem.denominatorRef
-		})
+		});
 	}
 
 	function rewriteConfiguration(configuration) {
