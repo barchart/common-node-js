@@ -52,20 +52,14 @@ module.exports = (() => {
 					response.on('end', () => {
 						logger.debug('Completed HTTP query', queryId);
 
-						let parsedResponse = null;
-						let parseSuccess = false;
-
 						try {
-							parsedResponse = this._parseResponse(responseText);
-							parseSuccess = true;
+							const parsedResponse = this._parseResponse(responseText);
+
+							resolveCallback(parsedResponse);
 						} catch (e) {
 							logger.error('Unable to parse response', criteria, e);
-						}
 
-						if (parseSuccess) {
-							resolveCallback(parsedResponse);
-						} else {
-							rejectCallback('Unable to parse REST response');
+							rejectCallback(e);
 						}
 					});
 				};
