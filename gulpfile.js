@@ -106,7 +106,7 @@ gulp.task('release', function (callback) {
 });
 
 gulp.task('lint', function() {
-    return gulp.src([ './**/*.js', './test/specs/**/*.js', '!./node_modules/**', '!./test/dist/**' ])
+    return gulp.src([ './**/*.js', './test/specs/**/*.js', '!./node_modules/**', '!./test/dist/**', '!./docs/**' ])
         .pipe(jshint({'esversion': 6}))
         .pipe(jshint.reporter('default'));
 });
