@@ -27,13 +27,30 @@ module.exports = (() => {
 			const configurationParameters = this._configuration.parameters;
 
 			let parameters = [];
+			let parametersValid = true;
 
 			if (is.array(configurationParameters)) {
 				parameters = configurationParameters.map((param) => {
-					return attributes.read(criteria, param);
+					const values = attributes.read(criteria, param);
+
+					if (is.undefined(values)) {
+						parametersValid = false;
+					}
+
+					return values;
 				});
 			} else if (is.string(configurationParameters)) {
-				parameters = attributes.read(criteria, configurationParameters);
+				const values = attributes.read(criteria, configurationParameters);
+
+				if (is.undefined(values)) {
+					parametersValid = false;
+				}
+
+				parameters = values;
+			}
+
+			if (!parametersValid) {
+				return [];
 			}
 
 			connection.on('error', (e) => {
