@@ -33,7 +33,7 @@ module.exports = (() => {
 				parameters = configurationParameters.map((param) => {
 					const values = attributes.read(criteria, param);
 
-					if (is.undefined(values)) {
+					if (is.undefined(values) || (is.array(values) && values.length === 0)) {
 						parametersValid = false;
 					}
 
@@ -42,7 +42,7 @@ module.exports = (() => {
 			} else if (is.string(configurationParameters)) {
 				const values = attributes.read(criteria, configurationParameters);
 
-				if (is.undefined(values)) {
+				if (is.undefined(values) || (is.array(values) && values.length === 0)) {
 					parametersValid = false;
 				}
 
