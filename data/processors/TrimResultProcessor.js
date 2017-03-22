@@ -26,17 +26,20 @@ module.exports = (() => {
 
 		_processItem(resultItemToProcess, configurationToUse) {
 			const propertyName = configurationToUse.propertyName;
-			const propertyValue = attributes.read(resultItemToProcess, propertyName);
 
-			let convertedValue;
+			if (attributes.has(resultItemToProcess, propertyName)) {
+				const propertyValue = attributes.read(resultItemToProcess, propertyName);
 
-			if (is.array(propertyValue)) {
-				convertedValue = propertyValue.map(trim);
-			} else {
-				convertedValue = trim(propertyValue);
+				let convertedValue;
+
+				if (is.array(propertyValue)) {
+					convertedValue = propertyValue.map(trim);
+				} else {
+					convertedValue = trim(propertyValue);
+				}
+
+				attributes.write(resultItemToProcess, propertyName, convertedValue);
 			}
-
-			attributes.write(resultItemToProcess, propertyName, convertedValue);
 		}
 
 		toString() {

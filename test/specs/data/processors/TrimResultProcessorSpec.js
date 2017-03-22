@@ -9,6 +9,27 @@ describe('When a TrimResultProcessor is used on a string-based property', functi
 		processor = new TrimResultProcessor({ propertyName: 'hair' });
 	});
 
+	describe('and the property does not exist', function() {
+		var result;
+		var original;
+
+		beforeEach(function(done) {
+			processor.process(original = { })
+				.then(function(r) {
+					result = r;
+					done();
+				});
+		});
+
+		it('the original object should be returned', function() {
+			expect(result).toBe(original);
+		});
+
+		it('the object should not have a "hair" property defined', function() {
+			expect(result.hasOwnProperty('hair')).toEqual(false);
+		});
+	});
+
 	describe('and the property value has no leading or trailing spaces', function() {
 		var result;
 		var original;
