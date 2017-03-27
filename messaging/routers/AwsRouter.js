@@ -6,6 +6,7 @@ var Event = require('common/messaging/Event');
 var Disposable = require('common/lang/Disposable');
 var DisposableStack = require('common/collections/specialized/DisposableStack');
 var is = require('common/lang/is');
+var promise = require('common/lang/promise');
 
 var Router = require('./Router');
 var SqsProvider = require('./../../aws/SqsProvider');
@@ -79,7 +80,7 @@ module.exports = (() => {
 				payload: payload
 			};
 
-			const routePromise = new Promise((resolveCallback, rejectedCallback) => {
+			const routePromise = promise.build((resolveCallback, rejectedCallback) => {
 				this._pendingRequests[messageId] = resolveCallback;
 			});
 

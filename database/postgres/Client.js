@@ -3,6 +3,7 @@ var log4js = require('log4js');
 var assert = require('common/lang/assert');
 var Disposable = require('common/lang/Disposable');
 var is = require('common/lang/is');
+var promise = require('common/lang/promise');
 
 module.exports = (() => {
 	'use strict';
@@ -26,7 +27,7 @@ module.exports = (() => {
 			assert.argumentIsRequired(query, 'query', String);
 			assert.argumentIsOptional(name, 'name', String);
 
-			return new Promise((resolveCallback, rejectCallback) => {
+			return promise.build((resolveCallback, rejectCallback) => {
 				const queryObject = {
 					values: parameters || []
 				};

@@ -7,6 +7,7 @@ var xmlParser = require('xml2js').parseString;
 var attributes = require('common/lang/attributes');
 
 var is = require('common/lang/is');
+var promise = require('common/lang/promise');
 
 var QueryProvider = require('./../QueryProvider');
 
@@ -23,7 +24,7 @@ module.exports = (() => {
 		}
 
 		_runQuery(criteria) {
-			return new Promise((resolveCallback, rejectCallback) => {
+			return promise.build((resolveCallback, rejectCallback) => {
 				const secure = this._getConfiguration().protocol === 'https';
 
 				const requestOptions = this._getRequestOptions(criteria);
@@ -294,7 +295,7 @@ module.exports = (() => {
 		}
 
 		_parseXmlResponse(responseText) {
-			return new Promise((resolve, reject) => {
+			return promise.build((resolve, reject) => {
 				xmlParser(responseText, (err, result) => {
 					if (err) {
 						logger.error('Unable to parse response as XML');

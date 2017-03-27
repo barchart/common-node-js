@@ -8,6 +8,7 @@ var Event = require('common/messaging/Event');
 var Disposable = require('common/lang/Disposable');
 var DisposableStack = require('common/collections/specialized/DisposableStack');
 var is = require('common/lang/is');
+var promise = require('common/lang/promise');
 var random = require('common/lang/random');
 
 var MessageProvider = require('./../../cluster/MessageProvider');
@@ -144,7 +145,7 @@ module.exports = (() => {
 		}
 
 		_route(messageType, payload) {
-			return new Promise((resolveCallback, rejectCallback) => {
+			return promise.build((resolveCallback, rejectCallback) => {
 				const envelope = getRequestEnvelope(messageType, payload);
 				const messageId = envelope.id;
 

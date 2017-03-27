@@ -18,6 +18,7 @@ var Disposable = require('common/lang/Disposable');
 var DisposableStack = require('common/collections/specialized/DisposableStack');
 var Event = require('common/messaging/Event');
 var is = require('common/lang/is');
+var promise = require('common/lang/promise');
 
 var Container = require('./../endpoints/Container');
 var PageContainer = require('./../endpoints/html/PageContainer');
@@ -874,7 +875,7 @@ module.exports = (() => {
 			let handlerPromise;
 
 			if (secureRedirect && request.headers['x-forwarded-proto'] === 'http') {
-				handlerPromise = new Promise((resolveCallback, rejectCallback) => {
+				handlerPromise = promise.build((resolveCallback, rejectCallback) => {
 					if (verb === Verb.GET) {
 						logger.warn('Redirecting HTTP ', verb.getCode(), 'at', path.join(basePath, routePath), ' to HTTPS (' + sequence + ')');
 

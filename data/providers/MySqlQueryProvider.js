@@ -3,6 +3,7 @@ var log4js = require('log4js');
 var mysql = require('mysql');
 
 var is = require('common/lang/is');
+var promise = require('common/lang/promise');
 
 var QueryProvider = require('./../QueryProvider');
 
@@ -57,7 +58,7 @@ module.exports = (() => {
 				logger.error('MySql connection error (fatal)', e);
 			});
 
-			return new Promise((resolve, reject) => {
+			return promise.build((resolve, reject) => {
 				connection.query(this._configuration.query, parameters, (e, rows) => {
 					try {
 						if (e) {

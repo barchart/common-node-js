@@ -4,6 +4,7 @@ var twilio = require('twilio');
 var assert = require('common/lang/assert');
 var is = require('common/lang/is');
 var Disposable = require('common/lang/Disposable');
+var promise = require('common/lang/promise');
 var RateLimiter = require('common/timing/RateLimiter');
 
 module.exports = (() => {
@@ -98,7 +99,7 @@ module.exports = (() => {
 			const sourceNumberToUse = sourceNumber || this._configuration.sourceNumber;
 
 			return this._rateLimiter.enqueue(() => {
-				return new Promise((resolveCallback, rejectCallback) => {
+				return promise.build((resolveCallback, rejectCallback) => {
 					recipientNumbersToUse.forEach((targetNumber) => {
 						logger.debug('Sending sms via twilio to', targetNumber);
 

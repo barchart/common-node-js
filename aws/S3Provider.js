@@ -6,6 +6,7 @@ var assert = require('common/lang/assert');
 var Disposable = require('common/lang/Disposable');
 var is = require('common/lang/is');
 var object = require('common/lang/object');
+var promise = require('common/lang/promise');
 
 module.exports = (() => {
 	'use strict';
@@ -106,7 +107,7 @@ module.exports = (() => {
 				throw new Error('The S3 Provider has not been started.');
 			}
 
-			return new Promise((resolveCallback, rejectCallback) => {
+			return promise.build((resolveCallback, rejectCallback) => {
 				this._s3.listObjects({Bucket: bucket}, (e, data) => {
 					if (e) {
 						logger.error('S3 failed to retrieve contents: ', e);
@@ -155,7 +156,7 @@ module.exports = (() => {
 				throw new Error('The S3 Provider has not been started.');
 			}
 
-			return new Promise((resolveCallback, rejectCallback) => {
+			return promise.build((resolveCallback, rejectCallback) => {
 				let acl;
 
 				if (is.boolean(secure) && secure) {
@@ -230,7 +231,7 @@ module.exports = (() => {
 				throw new Error('The S3 Provider has not been started.');
 			}
 
-			return new Promise((resolveCallback, rejectCallback) => {
+			return promise.build((resolveCallback, rejectCallback) => {
 				this._s3.getObject(getParameters(bucket, filename), (e, data) => {
 					if (e) {
 						logger.error('S3 failed to get object: ', e);
@@ -259,7 +260,7 @@ module.exports = (() => {
 				throw new Error('The S3 Provider has not been started.');
 			}
 
-			return new Promise((resolveCallback, rejectCallback) => {
+			return promise.build((resolveCallback, rejectCallback) => {
 				this._s3.deleteObject(getParameters(bucket, filename), (e, data) => {
 					if (e) {
 						logger.error('S3 failed to delete object: ', e);

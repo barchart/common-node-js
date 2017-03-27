@@ -5,6 +5,7 @@ var assert = require('common/lang/assert');
 var Disposable = require('common/lang/Disposable');
 var is = require('common/lang/is');
 var object = require('common/lang/object');
+var promise = require('common/lang/promise');
 var RateLimiter = require('common/timing/RateLimiter');
 
 module.exports = (() => {
@@ -137,7 +138,7 @@ module.exports = (() => {
 			}
 
 			return this._rateLimiter.enqueue(() => {
-				return new Promise((resolveCallback, rejectCallback) => {
+				return promise.build((resolveCallback, rejectCallback) => {
 					logger.debug('Sending email to', recipientAddress);
 
 					this._ses.sendEmail(params, (error, data) => {

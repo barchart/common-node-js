@@ -5,6 +5,7 @@ var assert = require('common/lang/assert');
 var Disposable = require('common/lang/Disposable');
 var is = require('common/lang/is');
 var object = require('common/lang/object');
+var promise = require('common/lang/promise');
 var Scheduler = require('common/timing/Scheduler');
 
 module.exports = (() => {
@@ -81,7 +82,7 @@ module.exports = (() => {
 		getQueues(queueNamePrefix) {
 			assert.argumentIsOptional(queueNamePrefix, 'queueNamePrefix', String);
 
-			return new Promise((resolveCallback, rejectCallback) => {
+			return promise.build((resolveCallback, rejectCallback) => {
 				let queuePrefixToUse = this._configuration.prefix;
 
 				if (queueNamePrefix) {
@@ -145,7 +146,7 @@ module.exports = (() => {
 			if (!this._queueArnPromises.hasOwnProperty(qualifiedQueueName)) {
 				this._queueArnPromises[qualifiedQueueName] = this.getQueueUrl(queueName)
 					.then((queueUrl) => {
-						return new Promise(
+						return promise.build(
 							(resolveCallback, rejectCallback) => {
 								logger.debug('Getting SQS queue attributes:', qualifiedQueueName);
 
@@ -186,7 +187,7 @@ module.exports = (() => {
 
 			const qualifiedQueueName = getQualifiedQueueName(this._configuration.prefix, queueName);
 
-			return new Promise(
+			return promise.build(
 				(resolveCallback, rejectCallback) => {
 					logger.debug('Creating SQS queue:', qualifiedQueueName);
 
@@ -270,7 +271,7 @@ module.exports = (() => {
 
 			return this.getQueueUrl(queueName)
 				.then((queueUrl) => {
-					return new Promise(
+					return promise.build(
 						(resolveCallback, rejectCallback) => {
 							const counter = ++this._counter;
 
@@ -419,7 +420,7 @@ module.exports = (() => {
 					logger.debug('Updating SQS queue policy:', qualifiedQueueName);
 					logger.trace(policy);
 
-					return new Promise((resolveCallback, rejectCallback) => {
+					return promise.build((resolveCallback, rejectCallback) => {
 						this._sqs.setQueueAttributes({
 							QueueUrl: queueUrl,
 							Attributes: {
@@ -516,7 +517,7 @@ module.exports = (() => {
 
 		return this.getQueueUrl(queueName)
 			.then((queueUrl) => {
-				return new Promise(
+				return promise.build(
 					(resolveCallback, rejectCallback) => {
 						const qualifiedQueueName = getQualifiedQueueName(this._configuration.prefix, queueName);
 
@@ -577,7 +578,7 @@ module.exports = (() => {
 			return Promise.resolve();
 		}
 
-		return new Promise(
+		return promise.build(
 			(resolveCallback, rejectCallback) => {
 				logger.debug('Deleting', messageCount, 'message(s) from SQS queue:', qualifiedQueueName);
 
@@ -620,7 +621,7 @@ module.exports = (() => {
 	}
 
 	function executeQueueDelete(qualifiedQueueName, queueUrl) {
-		return new Promise(
+		return promise.build(
 			(resolveCallback, rejectCallback) => {
 				logger.debug('Deleting SQS queue:', qualifiedQueueName, 'at URL', queueUrl);
 

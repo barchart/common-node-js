@@ -4,6 +4,7 @@ var log4js = require('log4js');
 var assert = require('common/lang/assert');
 var Disposable = require('common/lang/Disposable');
 var object = require('common/lang/object');
+var promise = require('common/lang/promise');
 
 module.exports = (() => {
 	'use strict';
@@ -98,7 +99,7 @@ module.exports = (() => {
 				throw new Error('The SNS Provider has not been started.');
 			}
 
-			return new Promise(
+			return promise.build(
 				(resolveCallback, rejectCallback) => {
 					const qualifiedTopicName = getQualifiedTopicName(this._configuration.prefix, topicName);
 
@@ -154,7 +155,7 @@ module.exports = (() => {
 				throw new Error('The SNS Provider has not been started.');
 			}
 
-			return new Promise(
+			return promise.build(
 				(resolveCallback, rejectCallback) => {
 					logger.debug('Deleting SNS topic at ARN:', topicArn);
 
@@ -192,7 +193,7 @@ module.exports = (() => {
 				.then((topicArn) => {
 					const qualifiedTopicName = getQualifiedTopicName(this._configuration.prefix, topicName);
 
-					return new Promise(
+					return promise.build(
 						(resolveCallback, rejectCallback) => {
 							logger.debug('Publishing to SNS topic:', qualifiedTopicName);
 							logger.trace(payload);
@@ -233,7 +234,7 @@ module.exports = (() => {
 			if (!this._subscriptionPromises.hasOwnProperty(qualifiedTopicName)) {
 				this._subscriptionPromises[qualifiedTopicName] = this.getTopicArn(topicName)
 					.then((topicArn) => {
-						return new Promise(
+						return promise.build(
 							(resolveCallback, rejectCallback) => {
 								logger.debug('Subscribing SQS queue to SNS topic:', qualifiedTopicName);
 
@@ -292,7 +293,7 @@ module.exports = (() => {
 			}
 
 			const getTopicBatch = (token) => {
-				return new Promise(
+				return promise.build(
 					(resolveCallback, rejectCallback) => {
 						logger.debug('Requesting batch of SNS topics');
 
@@ -324,7 +325,7 @@ module.exports = (() => {
 				);
 			};
 
-			return new Promise((resolveCallback, rejectCallback) => {
+			return promise.build((resolveCallback, rejectCallback) => {
 				let topics = [ ];
 
 				let topicArnRegex = new RegExp(`^arn:aws:sns:.*:[0-9]*:${this._configuration.prefix}${(topicNamePrefix || '')}`);

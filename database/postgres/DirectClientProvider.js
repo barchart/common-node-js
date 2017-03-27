@@ -1,6 +1,8 @@
 var log4js = require('log4js');
 var pg = require('pg');
 
+var promise = require('common/lang/promise');
+
 var Client = require('./Client');
 var ClientProvider = require('./ClientProvider');
 
@@ -17,7 +19,7 @@ module.exports = (() => {
 		_getClient() {
 			logger.debug('Creating new connection.');
 
-			return new Promise((resolveCallback, rejectCallback) => {
+			return promise.build((resolveCallback, rejectCallback) => {
 				const pgClient = new pg.Client(this._getConfiguration());
 
 				pgClient.connect((err) => {

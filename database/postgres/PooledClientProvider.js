@@ -1,6 +1,8 @@
 var log4js = require('log4js');
 var pg = require('pg');
 
+var promise = require('common/lang/promise');
+
 var Client = require('./Client');
 var ClientProvider = require('./ClientProvider');
 
@@ -19,7 +21,7 @@ module.exports = (() => {
 		_getClient() {
 			logger.debug('Retrieving client from connection pool.');
 
-			return new Promise((resolveCallback, rejectCallback) => {
+			return promise.build((resolveCallback, rejectCallback) => {
 				pg.connect(this._getConfiguration(), (err, pgClient, releaseCallback) => {
 					if (err) {
 						rejectCallback(err);
