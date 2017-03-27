@@ -8,6 +8,7 @@ var ResultProcessor = require('./ResultProcessor');
 
 var AddResultProcessor = require('./processors/AddResultProcessor');
 var AverageResultProcessor = require('./processors/AverageResultProcessor');
+var CleanResultProcessor = require('./processors/CleanResultProcessor');
 var CompositeResultProcessor = require('./processors/CompositeResultProcessor');
 var ConcatenateArrayResultProcessor = require('./processors/ConcatenateArrayResultProcessor');
 var ConcatenateResultProcessor = require('./processors/ConcatenateResultProcessor');
@@ -87,6 +88,7 @@ module.exports = (() => {
 	const processorMap = {
 		AddResultProcessor: AddResultProcessor,
 		AverageResultProcessor: AverageResultProcessor,
+		CleanResultProcessor: CleanResultProcessor,
 		ConcatenateArrayResultProcessor: ConcatenateArrayResultProcessor,
 		ConcatenateResultProcessor: ConcatenateResultProcessor,
 		ConvertResultProcessor: ConvertResultProcessor,
