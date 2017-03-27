@@ -1,4 +1,4 @@
-var SocketRequestContainer = require('./specialized/SocketRequestContainer');
+const SocketRequestContainer = require('./specialized/SocketRequestContainer');
 
 module.exports = (() => {
 	'use strict';

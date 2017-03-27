@@ -1,5 +1,5 @@
-var Container = require('./../../Container');
-var SocketRequestEndpoint = require('./SocketRequestEndpoint');
+const Container = require('./../../Container'),
+	SocketRequestEndpoint = require('./SocketRequestEndpoint');
 
 module.exports = (() => {
 	'use strict';

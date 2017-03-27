@@ -1,9 +1,9 @@
-var log4js = require('log4js');
+const log4js = require('log4js');
 
 var assert = require('common/lang/assert');
 
-var QueryProvider = require('./QueryProvider');
-var ResultProcessor = require('./ResultProcessor');
+const QueryProvider = require('./QueryProvider'),
+	ResultProcessor = require('./ResultProcessor');
 
 module.exports = (() => {
 	'use strict';

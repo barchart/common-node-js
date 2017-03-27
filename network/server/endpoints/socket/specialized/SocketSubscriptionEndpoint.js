@@ -1,8 +1,8 @@
-var CommandHandler = require('common/commands/CommandHandler');
-var assert = require('common/lang/assert');
-var Event = require('common/messaging/Event');
+const CommandHandler = require('common/commands/CommandHandler'),
+	assert = require('common/lang/assert'),
+	Event = require('common/messaging/Event');
 
-var Endpoint = require('./../../Endpoint');
+const Endpoint = require('./../../Endpoint');
 
 module.exports = (() => {
 	'use strict';

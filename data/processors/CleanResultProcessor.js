@@ -1,9 +1,9 @@
-var log4js = require('log4js');
+const log4js = require('log4js');
 
-var attributes = require('common/lang/attributes');
-var is = require('common/lang/is');
+const attributes = require('common/lang/attributes'),
+	is = require('common/lang/is');
 
-var MutateResultProcessor = require('./MutateResultProcessor');
+const MutateResultProcessor = require('./MutateResultProcessor');
 
 /**
  * Delete properties that are null or undefined.

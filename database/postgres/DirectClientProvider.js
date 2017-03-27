@@ -1,10 +1,10 @@
-var log4js = require('log4js');
-var pg = require('pg');
+const log4js = require('log4js'),
+	pg = require('pg');
 
-var promise = require('common/lang/promise');
+const promise = require('common/lang/promise');
 
-var Client = require('./Client');
-var ClientProvider = require('./ClientProvider');
+const Client = require('./Client'),
+	ClientProvider = require('./ClientProvider');
 
 module.exports = (() => {
 	'use strict';

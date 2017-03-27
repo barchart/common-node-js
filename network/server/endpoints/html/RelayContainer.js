@@ -1,5 +1,5 @@
-var Container = require('./../Container');
-var RelayEndpoint = require('./RelayEndpoint');
+const Container = require('./../Container'),
+	RelayEndpoint = require('./RelayEndpoint');
 
 module.exports = (() => {
 	'use strict';

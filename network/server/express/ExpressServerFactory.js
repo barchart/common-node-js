@@ -1,36 +1,36 @@
-var bodyParser = require('body-parser');
-var clientSessions = require('client-sessions');
-var express = require('express');
-var expressHandlebars = require('express-handlebars');
-var http = require('http');
-var https = require('https');
-var log4js = require('log4js');
-var multer = require('multer');
-var path = require('path');
-var proxy = require('express-http-proxy');
-var querystring = require('querystring');
-var socketIO = require('socket.io');
-var url = require('url');
+const bodyParser = require('body-parser'),
+	clientSessions = require('client-sessions'),
+	express = require('express'),
+	expressHandlebars = require('express-handlebars'),
+	http = require('http'),
+	https = require('https'),
+	log4js = require('log4js'),
+	multer = require('multer'),
+	path = require('path'),
+	proxy = require('express-http-proxy'),
+	querystring = require('querystring'),
+	socketIO = require('socket.io'),
+	url = require('url');
 
-var assert = require('common/lang/assert');
-var CommandHandler = require('common/commands/CommandHandler');
-var Disposable = require('common/lang/Disposable');
-var DisposableStack = require('common/collections/specialized/DisposableStack');
-var Event = require('common/messaging/Event');
-var is = require('common/lang/is');
-var promise = require('common/lang/promise');
+const assert = require('common/lang/assert'),
+	CommandHandler = require('common/commands/CommandHandler'),
+	Disposable = require('common/lang/Disposable'),
+	DisposableStack = require('common/collections/specialized/DisposableStack'),
+	Event = require('common/messaging/Event'),
+	is = require('common/lang/is'),
+	promise = require('common/lang/promise');
 
-var Container = require('./../endpoints/Container');
-var PageContainer = require('./../endpoints/html/PageContainer');
-var RelayContainer = require('./../endpoints/html/RelayContainer');
-var RestContainer = require('./../endpoints/rest/RestContainer');
-var ServerFactory = require('./../ServerFactory');
-var SocketRequestContainer = require('./../endpoints/socket/specialized/SocketRequestContainer');
-var SocketEmitterContainer = require('./../endpoints/socket/specialized/SocketEmitterContainer');
-var SocketSubscriptionContainer = require('./../endpoints/socket/specialized/SocketSubscriptionContainer');
-var Verb = require('./../../http/Verb');
+const Container = require('./../endpoints/Container'),
+	PageContainer = require('./../endpoints/html/PageContainer'),
+	RelayContainer = require('./../endpoints/html/RelayContainer'),
+	RestContainer = require('./../endpoints/rest/RestContainer'),
+	ServerFactory = require('./../ServerFactory'),
+	SocketRequestContainer = require('./../endpoints/socket/specialized/SocketRequestContainer'),
+	SocketEmitterContainer = require('./../endpoints/socket/specialized/SocketEmitterContainer'),
+	SocketSubscriptionContainer = require('./../endpoints/socket/specialized/SocketSubscriptionContainer'),
+	Verb = require('./../../http/Verb');
 
-var S3Provider = require('./../../../aws/S3Provider');
+const S3Provider = require('./../../../aws/S3Provider');
 
 module.exports = (() => {
 	'use strict';

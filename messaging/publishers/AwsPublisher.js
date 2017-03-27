@@ -1,15 +1,15 @@
-var log4js = require('log4js');
-var uuid = require('uuid');
+const log4js = require('log4js'),
+	uuid = require('uuid');
 
-var assert = require('common/lang/assert');
-var Event = require('common/messaging/Event');
-var Disposable = require('common/lang/Disposable');
-var DisposableStack = require('common/collections/specialized/DisposableStack');
-var is = require('common/lang/is');
+const assert = require('common/lang/assert'),
+	Event = require('common/messaging/Event'),
+	Disposable = require('common/lang/Disposable'),
+	DisposableStack = require('common/collections/specialized/DisposableStack'),
+	is = require('common/lang/is');
 
-var Publisher = require('./Publisher');
-var SnsProvider = require('./../../aws/SnsProvider');
-var SqsProvider = require('./../../aws/SqsProvider');
+const Publisher = require('./Publisher'),
+	SnsProvider = require('./../../aws/SnsProvider'),
+	SqsProvider = require('./../../aws/SqsProvider');
 
 module.exports = (() => {
 	'use strict';

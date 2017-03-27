@@ -1,9 +1,9 @@
-var log4js = require('log4js');
+const log4js = require('log4js');
 
-var assert = require('common/lang/assert');
-var DisposableStack = require('common/collections/specialized/DisposableStack');
+const assert = require('common/lang/assert'),
+	DisposableStack = require('common/collections/specialized/DisposableStack');
 
-var Publisher = require('./Publisher');
+const Publisher = require('./Publisher');
 
 module.exports = (() => {
 	'use strict';

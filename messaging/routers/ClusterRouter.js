@@ -1,18 +1,18 @@
-var log4js = require('log4js');
-var cluster = require('cluster');
-var process = require('process');
-var uuid = require('uuid');
+const log4js = require('log4js'),
+	cluster = require('cluster'),
+	process = require('process'),
+	uuid = require('uuid');
 
-var assert = require('common/lang/assert');
-var Event = require('common/messaging/Event');
-var Disposable = require('common/lang/Disposable');
-var DisposableStack = require('common/collections/specialized/DisposableStack');
-var is = require('common/lang/is');
-var promise = require('common/lang/promise');
-var random = require('common/lang/random');
+const assert = require('common/lang/assert'),
+	Event = require('common/messaging/Event'),
+	Disposable = require('common/lang/Disposable'),
+	DisposableStack = require('common/collections/specialized/DisposableStack'),
+	is = require('common/lang/is'),
+	promise = require('common/lang/promise'),
+	random = require('common/lang/random');
 
-var MessageProvider = require('./../../cluster/MessageProvider');
-var Router = require('./Router');
+const MessageProvider = require('./../../cluster/MessageProvider'),
+	Router = require('./Router');
 
 module.exports = (() => {
 	'use strict';
@@ -44,7 +44,7 @@ module.exports = (() => {
 				.then(() => {
 					this._disposeStack.push(
 						this._messageProvider.registerPeerConnectedObserver((source) => {
-							var messageTypes = Object.keys(this._requestHandlers);
+							const messageTypes = Object.keys(this._requestHandlers);
 
 							if (messageTypes.length !== 0) {
 								logger.debug('Sending registrations to newly connected IPC peer', source);

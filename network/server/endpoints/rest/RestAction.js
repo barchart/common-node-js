@@ -1,6 +1,6 @@
-var assert = require('common/lang/assert');
+const assert = require('common/lang/assert');
 
-var Verb = require('./../../../http/Verb');
+const Verb = require('./../../../http/Verb');
 
 module.exports = (() => {
 	'use strict';

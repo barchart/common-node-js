@@ -1,11 +1,11 @@
-var attributes = require('common/lang/attributes');
-var log4js = require('log4js');
-var mysql = require('mysql');
+const attributes = require('common/lang/attributes'),
+	log4js = require('log4js'),
+	mysql = require('mysql');
 
-var is = require('common/lang/is');
-var promise = require('common/lang/promise');
+const is = require('common/lang/is'),
+	promise = require('common/lang/promise');
 
-var QueryProvider = require('./../QueryProvider');
+const QueryProvider = require('./../QueryProvider');
 
 module.exports = (() => {
 	'use strict';

@@ -1,10 +1,10 @@
-var log4js = require('log4js');
-var numeral = require('numeral');
+const log4js = require('log4js'),
+	numeral = require('numeral');
 
-var attributes = require('common/lang/attributes');
-var is = require('common/lang/is');
+const attributes = require('common/lang/attributes'),
+	is = require('common/lang/is');
 
-var MutateResultProcessor = require('./MutateResultProcessor');
+const MutateResultProcessor = require('./MutateResultProcessor');
 
 module.exports = (() => {
 	'use strict';

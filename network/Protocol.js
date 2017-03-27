@@ -1,4 +1,4 @@
-var assert = require('common/lang/assert');
+const assert = require('common/lang/assert');
 
 module.exports = (() => {
 	'use strict';

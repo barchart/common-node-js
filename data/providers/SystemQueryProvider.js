@@ -1,7 +1,7 @@
-var log4js = require('log4js');
+const log4js = require('log4js');
 
-var Environment = require('./../../environment/Environment');
-var QueryProvider = require('./../QueryProvider');
+const Environment = require('./../../environment/Environment'),
+	QueryProvider = require('./../QueryProvider');
 
 module.exports = (() => {
 	'use strict';

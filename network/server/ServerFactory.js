@@ -1,7 +1,7 @@
-var assert = require('common/lang/assert');
-var Disposable = require('common/lang/Disposable');
+const assert = require('common/lang/assert'),
+	Disposable = require('common/lang/Disposable');
 
-var ServerDefinition = require('./ServerDefinition');
+const ServerDefinition = require('./ServerDefinition');
 
 module.exports = (() => {
 	'use strict';

@@ -1,9 +1,9 @@
-var log4js = require('log4js');
+const log4js = require('log4js');
 
-var is = require('common/lang/is');
-var attributes = require('common/lang/attributes');
+const is = require('common/lang/is'),
+	attributes = require('common/lang/attributes');
 
-var RestQueryProvider = require('./RestQueryProvider');
+const RestQueryProvider = require('./RestQueryProvider');
 
 module.exports = (() => {
 	'use strict';

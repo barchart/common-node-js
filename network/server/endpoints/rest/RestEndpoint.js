@@ -1,7 +1,7 @@
-var assert = require('common/lang/assert');
+const assert = require('common/lang/assert');
 
-var Endpoint = require('./../Endpoint');
-var RestAction = require('./RestAction');
+const Endpoint = require('./../Endpoint'),
+	RestAction = require('./RestAction');
 
 module.exports = (() => {
 	'use strict';

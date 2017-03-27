@@ -1,7 +1,7 @@
-var assert = require('common/lang/assert');
+const assert = require('common/lang/assert');
 
-var Container = require('./../Container');
-var PageEndpoint = require('./PageEndpoint');
+const Container = require('./../Container'),
+	PageEndpoint = require('./PageEndpoint');
 
 module.exports = (() => {
 	'use strict';

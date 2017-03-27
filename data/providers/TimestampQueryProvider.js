@@ -1,9 +1,9 @@
-var log4js = require('log4js');
-var moment = require('moment');
+const log4js = require('log4js'),
+	moment = require('moment');
 
-var is = require('common/lang/is');
+const is = require('common/lang/is');
 
-var QueryProvider = require('./../QueryProvider');
+const QueryProvider = require('./../QueryProvider');
 
 module.exports = (() => {
 	'use strict';

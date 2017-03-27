@@ -1,8 +1,8 @@
-var log4js = require('log4js');
+const log4js = require('log4js');
 
-var assert = require('common/lang/assert');
-var Event = require('common/messaging/Event');
-var Disposable = require('common/lang/Disposable');
+const assert = require('common/lang/assert'),
+	Event = require('common/messaging/Event'),
+	Disposable = require('common/lang/Disposable');
 
 module.exports = (() => {
 	'use strict';

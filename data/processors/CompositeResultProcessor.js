@@ -1,9 +1,9 @@
-var log4js = require('log4js');
+const log4js = require('log4js');
 
-var assert = require('common/lang/assert');
-var promise = require('common/lang/promise');
+const assert = require('common/lang/assert'),
+	promise = require('common/lang/promise');
 
-var ResultProcessor = require('./../ResultProcessor');
+const ResultProcessor = require('./../ResultProcessor');
 
 module.exports = (() => {
 	'use strict';

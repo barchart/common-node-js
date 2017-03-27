@@ -1,13 +1,13 @@
-var log4js = require('log4js');
-var uuid = require('uuid');
+const log4js = require('log4js'),
+	uuid = require('uuid');
 
-var assert = require('common/lang/assert');
-var Disposable = require('common/lang/Disposable');
-var DisposableStack = require('common/collections/specialized/DisposableStack');
-var Event = require('common/messaging/Event');
+const assert = require('common/lang/assert'),
+	Disposable = require('common/lang/Disposable'),
+	DisposableStack = require('common/collections/specialized/DisposableStack'),
+	Event = require('common/messaging/Event');
 
-var MessageProvider = require('./../../cluster/MessageProvider');
-var Publisher = require('./Publisher');
+const MessageProvider = require('./../../cluster/MessageProvider'),
+	Publisher = require('./Publisher');
 
 module.exports = (() => {
 	'use strict';

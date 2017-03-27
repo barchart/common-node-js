@@ -1,9 +1,9 @@
-var log4js = require('log4js');
-var moment = require('moment');
+const log4js = require('log4js'),
+	moment = require('moment');
 
-var attributes = require('common/lang/attributes');
+const attributes = require('common/lang/attributes');
 
-var MutateResultProcessor = require('./MutateResultProcessor');
+const MutateResultProcessor = require('./MutateResultProcessor');
 
 module.exports = (() => {
 	'use strict';

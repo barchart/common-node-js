@@ -1,6 +1,6 @@
-var log4js = require('log4js');
+const log4js = require('log4js');
 
-var assert = require('common/lang/assert');
+const assert = require('common/lang/assert');
 
 module.exports = (() => {
 	'use strict';

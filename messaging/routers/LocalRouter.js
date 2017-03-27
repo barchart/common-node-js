@@ -1,9 +1,9 @@
-var log4js = require('log4js');
+const log4js = require('log4js');
 
-var Event = require('common/messaging/Event');
-var Disposable = require('common/lang/Disposable');
+const Event = require('common/messaging/Event'),
+	Disposable = require('common/lang/Disposable');
 
-var Router = require('./Router');
+const Router = require('./Router');
 
 module.exports = (() => {
 	'use strict';

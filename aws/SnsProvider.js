@@ -1,10 +1,10 @@
-var aws = require('aws-sdk');
-var log4js = require('log4js');
+const aws = require('aws-sdk'),
+	log4js = require('log4js');
 
-var assert = require('common/lang/assert');
-var Disposable = require('common/lang/Disposable');
-var object = require('common/lang/object');
-var promise = require('common/lang/promise');
+const assert = require('common/lang/assert'),
+	Disposable = require('common/lang/Disposable'),
+	object = require('common/lang/object'),
+	promise = require('common/lang/promise');
 
 module.exports = (() => {
 	'use strict';

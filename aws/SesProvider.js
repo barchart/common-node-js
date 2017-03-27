@@ -1,12 +1,12 @@
-var aws = require('aws-sdk');
-var log4js = require('log4js');
+const aws = require('aws-sdk'),
+	log4js = require('log4js');
 
-var assert = require('common/lang/assert');
-var Disposable = require('common/lang/Disposable');
-var is = require('common/lang/is');
-var object = require('common/lang/object');
-var promise = require('common/lang/promise');
-var RateLimiter = require('common/timing/RateLimiter');
+const assert = require('common/lang/assert'),
+	Disposable = require('common/lang/Disposable'),
+	is = require('common/lang/is'),
+	object = require('common/lang/object'),
+	promise = require('common/lang/promise'),
+	RateLimiter = require('common/timing/RateLimiter');
 
 module.exports = (() => {
 	'use strict';

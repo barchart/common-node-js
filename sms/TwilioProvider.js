@@ -1,11 +1,11 @@
-var log4js = require('log4js');
-var twilio = require('twilio');
+const log4js = require('log4js'),
+	twilio = require('twilio');
 
-var assert = require('common/lang/assert');
-var is = require('common/lang/is');
-var Disposable = require('common/lang/Disposable');
-var promise = require('common/lang/promise');
-var RateLimiter = require('common/timing/RateLimiter');
+const assert = require('common/lang/assert'),
+	is = require('common/lang/is'),
+	Disposable = require('common/lang/Disposable'),
+	promise = require('common/lang/promise'),
+	RateLimiter = require('common/timing/RateLimiter');
 
 module.exports = (() => {
 	'use strict';

@@ -1,9 +1,9 @@
-var log4js = require('log4js');
+const log4js = require('log4js');
 
-var Event = require('common/messaging/Event');
-var Disposable = require('common/lang/Disposable');
+const Event = require('common/messaging/Event'),
+	Disposable = require('common/lang/Disposable');
 
-var Publisher = require('./Publisher');
+const Publisher = require('./Publisher');
 
 module.exports = (() => {
 	'use strict';

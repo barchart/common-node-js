@@ -1,13 +1,13 @@
-var log4js = require('log4js');
-var attributes = require('common/lang/attributes');
-var is = require('common/lang/is');
+const log4js = require('log4js'),
+	attributes = require('common/lang/attributes'),
+	is = require('common/lang/is');
 
-var assert = require('common/lang/assert');
-var ComparatorBuilder = require('common/collections/sorting/ComparatorBuilder');
-var comparators = require('common/collections/sorting/comparators');
-var converters = require('common/lang/converters');
+const assert = require('common/lang/assert'),
+	ComparatorBuilder = require('common/collections/sorting/ComparatorBuilder'),
+	comparators = require('common/collections/sorting/comparators'),
+	converters = require('common/lang/converters');
 
-var ResultProcessor = require('./../ResultProcessor');
+const ResultProcessor = require('./../ResultProcessor');
 
 module.exports = (() => {
 	'use strict';

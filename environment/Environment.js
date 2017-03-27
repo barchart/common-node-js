@@ -1,9 +1,9 @@
-var configurator = require('node-yaml-config');
-var path = require('path');
+const configurator = require('node-yaml-config'),
+	path = require('path');
 
-var assert = require('common/lang/assert');
-var is = require('common/lang/is');
-var object = require('common/lang/object');
+const assert = require('common/lang/assert'),
+	 is = require('common/lang/is'),
+	 object = require('common/lang/object');
 
 module.exports = (() => {
 	'use strict';
@@ -11,7 +11,7 @@ module.exports = (() => {
 	let instance = null;
 
 	/**
-	 * An object that is used to store environment variables for the current process.
+	 * An object that is used to store environment 	iables for the current process.
 	 *
 	 * @public
 	 * @param {string} environmentName - The name of the environment mode (e.g. "development" or "production").

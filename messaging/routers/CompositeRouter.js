@@ -1,9 +1,9 @@
-var log4js = require('log4js');
+const log4js = require('log4js');
 
-var assert = require('common/lang/assert');
-var DisposableStack = require('common/collections/specialized/DisposableStack');
+const assert = require('common/lang/assert'),
+	DisposableStack = require('common/collections/specialized/DisposableStack');
 
-var Router = require('./Router');
+const Router = require('./Router');
 
 module.exports = (() => {
 	'use strict';

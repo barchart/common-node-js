@@ -1,12 +1,12 @@
-var log4js = require('log4js');
+const log4js = require('log4js');
 
-var convert = require('barchart-marketdata-utilities/lib/convert');
-var priceFormatterFactory = require('barchart-marketdata-utilities/lib/priceFormatter');
+const convert = require('barchart-marketdata-utilities/lib/convert'),
+	priceFormatterFactory = require('barchart-marketdata-utilities/lib/priceFormatter');
 
-var attributes = require('common/lang/attributes');
-var is = require('common/lang/is');
+const attributes = require('common/lang/attributes'),
+	is = require('common/lang/is');
 
-var MutateResultProcessor = require('./MutateResultProcessor');
+const MutateResultProcessor = require('./MutateResultProcessor');
 
 /**
  * Formats a numeric property using Barchart's price formatting rules and

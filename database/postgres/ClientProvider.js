@@ -1,5 +1,5 @@
-var assert = require('common/lang/assert');
-var Disposable = require('common/lang/Disposable');
+const assert = require('common/lang/assert'),
+	Disposable = require('common/lang/Disposable');
 
 module.exports = (() => {
 	'use strict';

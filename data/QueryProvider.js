@@ -1,4 +1,4 @@
-var log4js = require('log4js');
+const log4js = require('log4js');
 
 module.exports = (() => {
 	'use strict';

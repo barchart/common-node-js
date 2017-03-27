@@ -1,8 +1,8 @@
-var log4js = require('log4js');
+const log4js = require('log4js');
 
-var is = require('common/lang/is');
+const is = require('common/lang/is');
 
-var ResultProcessor = require('./../ResultProcessor');
+const ResultProcessor = require('./../ResultProcessor');
 
 module.exports = (() => {
 	'use strict';

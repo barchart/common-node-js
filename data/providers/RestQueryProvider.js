@@ -1,15 +1,15 @@
-var digest = require('http-digest-client');
-var http = require('http');
-var https = require('https');
-var log4js = require('log4js');
-var querystring = require('querystring');
-var xmlParser = require('xml2js').parseString;
-var attributes = require('common/lang/attributes');
+const digest = require('http-digest-client'),
+	http = require('http'),
+	https = require('https'),
+	log4js = require('log4js'),
+	querystring = require('querystring'),
+	xmlParser = require('xml2js').parseString,
+	attributes = require('common/lang/attributes');
 
-var is = require('common/lang/is');
-var promise = require('common/lang/promise');
+const is = require('common/lang/is'),
+	promise = require('common/lang/promise');
 
-var QueryProvider = require('./../QueryProvider');
+const QueryProvider = require('./../QueryProvider');
 
 module.exports = (() => {
 	'use strict';

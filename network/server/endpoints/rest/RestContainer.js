@@ -1,5 +1,5 @@
-var Container = require('./../Container');
-var RestEndpoint = require('./RestEndpoint');
+const Container = require('./../Container'),
+	RestEndpoint = require('./RestEndpoint');
 
 module.exports = (() => {
 	'use strict';

@@ -1,8 +1,8 @@
-var assert = require('common/lang/assert');
-var CommandHandler = require('common/commands/CommandHandler');
+const assert = require('common/lang/assert'),
+	CommandHandler = require('common/commands/CommandHandler');
 
-var Endpoint = require('./../Endpoint');
-var Verb = require('./../../../http/Verb');
+const Endpoint = require('./../Endpoint'),
+	Verb = require('./../../../http/Verb');
 
 module.exports = (() => {
 	'use strict';
