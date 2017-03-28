@@ -11,7 +11,7 @@ module.exports = (() => {
 	const logger = log4js.getLogger('data/processors/DefaultResultProcessor');
 
 	/**
-	 * If a property does not exist or is undefined, assigns a default value.
+	 * If a property does not exist, or is undefined, then a default value is assigned.
 	 *
 	 * @public
 	 * @extends MutateResultProcessor
