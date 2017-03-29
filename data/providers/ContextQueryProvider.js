@@ -37,6 +37,30 @@ module.exports = (() => {
 			return returnRef;
 		}
 
+		_getCriteriaIsValid(criteria) {
+			const configuration = this._getConfiguration();
+
+			let conditions;
+
+			if (is.object(configuration.condition)) {
+				conditions = [ configuration.condition ];
+			} else if (is.array(configuration.condition)) {
+				conditions = configuration.conditions;
+			} else {
+				conditions = null;
+			}
+
+			return conditions === null || conditions.every((condition) => {
+				const propertyName = condition.propertyName;
+				const propertyValue = condition.propertyValue;
+
+				const match = attributes.has(criteria, propertyName) && attributes.read(criteria, propertyName) === propertyValue;
+				const inverse = is.boolean(condition.inverse) && condition.inverse;
+
+				return match ^ inverse;
+			});
+		}
+
 		toString() {
 			return '[ContextQueryProvider]';
 		}

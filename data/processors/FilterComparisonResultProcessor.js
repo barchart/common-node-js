@@ -74,7 +74,7 @@ module.exports = (() => {
 
 							returnVal = predicate(propertyValue, valueToCompare);
 						} else {
-							returnVal = is.boolean(condition.relax) && condition.relax
+							returnVal = is.boolean(condition.relax) && condition.relax;
 						}
 
 						return returnVal;
