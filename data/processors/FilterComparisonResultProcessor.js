@@ -16,12 +16,13 @@ module.exports = (() => {
 	 * @public
 	 * @extends ResultProcessor
 	 * @param {object} configuration
-	 * @param {string} configuration.propertyName - The name of a property on the left-hand side of the comparison. If the property value is not numeric, the item is filtered.
-	 * @param {string=} configuration.valueRef - The name of the property on the right-hand side of the comparison If the property value is not numeric, the item is filtered.
+	 * @param {string} configuration.propertyName - The name of a property on the left-hand side of the comparison.
+	 * @param {string=} configuration.valueRef - The name of the property on the right-hand side of the comparison.
 	 * @param {number=} configuration.value - The numeric value to use on the right-hand side of the comparison.
 	 * @param {boolean=} configuration.greater - When true, the "greater than" operation is used for comparison.
 	 * @param {boolean=} configuration.less - When true, the "less than" operation is used for comparison.
-	 * @param {boolean=} configuration.inverse - When true, operation is reverse (i.e. the inverse of "greater than" is "less than or equal to")
+	 * @param {boolean=} configuration.inverse - When true, operation is reverse (i.e. the inverse of "greater than" is "less than or equal to").
+	 * @param {boolean=} configuration.relax - When true, the item will be added to the resulting collection, if either side of the comparison is not numeric.
 	 */
 	class FilterComparisonResultProcessor extends ResultProcessor {
 		constructor(configuration) {
@@ -56,19 +57,27 @@ module.exports = (() => {
 							valueToCompare = condition.value;
 						}
 
-						let predicate;
+						let returnVal;
 
-						const inverse = is.boolean(condition.inverse) && condition.inverse;
+						if (is.number(propertyValue) && is.number(valueToCompare)) {
+							let predicate;
 
-						if (is.boolean(condition.greater) && condition.greater) {
-							predicate = (a, b) => (a > b) ^ inverse;
-						} else if (is.boolean(condition.less) && condition.less) {
-							predicate = (a, b) => (a < b) ^ inverse;
+							const inverse = is.boolean(condition.inverse) && condition.inverse;
+
+							if (is.boolean(condition.greater) && condition.greater) {
+								predicate = (a, b) => (a > b) ^ inverse;
+							} else if (is.boolean(condition.less) && condition.less) {
+								predicate = (a, b) => (a < b) ^ inverse;
+							} else {
+								predicate = (a, b) => false;
+							}
+
+							returnVal = predicate(propertyValue, valueToCompare);
 						} else {
-							predicate = (a, b) => false;
+							returnVal = is.boolean(condition.relax) && condition.relax
 						}
 
-						return is.number(propertyValue) && is.number(valueToCompare) && predicate(propertyValue, valueToCompare);
+						return returnVal;
 					});
 				});
 			} else {
