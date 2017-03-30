@@ -1,9 +1,6 @@
 const log4js = require('log4js');
 
-const attributes = require('common/lang/attributes'),
-	is = require('common/lang/is');
-
-const MutateResultProcessor = require('./MutateResultProcessor');
+const MutateStringResultProcessor = require('./MutateStringResultProcessor');
 
 module.exports = (() => {
 	'use strict';
@@ -19,44 +16,18 @@ module.exports = (() => {
 	 * @param {object} configuration
 	 * @param {string} configuration.propertyName - The property to trim.
 	 */
-	class TrimResultProcessor extends MutateResultProcessor {
+	class TrimResultProcessor extends MutateStringResultProcessor {
 		constructor(configuration) {
 			super(configuration);
 		}
 
-		_processItem(resultItemToProcess, configurationToUse) {
-			const propertyName = configurationToUse.propertyName;
-
-			if (attributes.has(resultItemToProcess, propertyName)) {
-				const propertyValue = attributes.read(resultItemToProcess, propertyName);
-
-				let convertedValue;
-
-				if (is.array(propertyValue)) {
-					convertedValue = propertyValue.map(trim);
-				} else {
-					convertedValue = trim(propertyValue);
-				}
-
-				attributes.write(resultItemToProcess, propertyName, convertedValue);
-			}
+		_processString(value) {
+			return value.trim();
 		}
 
 		toString() {
 			return '[TrimResultProcessor]';
 		}
-	}
-
-	function trim(target) {
-		let returnRef;
-
-		if (is.string(target)) {
-			returnRef = target.trim();
-		} else {
-			returnRef = target;
-		}
-
-		return returnRef;
 	}
 
 	return TrimResultProcessor;
