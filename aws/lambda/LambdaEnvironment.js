@@ -45,7 +45,7 @@ module.exports = (() => {
 			if (instance === null) {
 				const matches = process.env.AWS_LAMBDA_FUNCTION_NAME.match(/^(.*)-(dev|stage|prod)$/);
 
-				if (Array.isArray(matches) && matches.length === 4) {
+				if (Array.isArray(matches) && matches.length === 3) {
 					instance = new LambdaEnvironment(matches[2], matches[1]);
 				} else {
 					instance = new LambdaEnvironment('dev');
@@ -56,7 +56,7 @@ module.exports = (() => {
 		}
 
 		toString() {
-			return `[LambdaEnvironment (group=${this.getGroup()}, name=${this.getName()}, mode=${this.getMode()}]`;
+			return `[LambdaEnvironment (name=${this.getName()}, mode=${this.getMode()}]`;
 		}
 	};
 })();
