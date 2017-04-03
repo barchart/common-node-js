@@ -52,7 +52,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Indicates if the criteria could be passed to the {@link runQuery} function
+		 * Indicates if the criteria could be passed to the {@link QueryProvider#runQuery} function
 		 * without causing an error to be thrown.
 		 *
 		 * @public
