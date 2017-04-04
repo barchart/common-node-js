@@ -2,7 +2,8 @@ const log4js = require('log4js');
 
 const array = require('common/lang/array'),
 	attributes = require('common/lang/attributes'),
-	is = require('common/lang/is');
+	is = require('common/lang/is'),
+	object = require('common/lang/object');
 
 const ResultProcessor = require('./../ResultProcessor');
 
@@ -18,7 +19,6 @@ module.exports = (() => {
 	 * @extends ResultProcessor
 	 * @param {object} configuration
 	 * @param {string=} configuration.pathPropertyName - The name of the item property that contains it's proper location in the tree structure (e.g. [ 'Animals', 'Mammals', 'Cat' ])
-	 * @param {Array<string>=} configuration.pathPropertyNames
 	 * @param {boolean=} configuration.itemizeInnerNodes - If true, each tree node will have an "items" array. Otherwise, only the leaf nodes will have an "items" array.
 	 */
 	class TreePathResultProcessor extends ResultProcessor {
@@ -60,7 +60,7 @@ module.exports = (() => {
 					names.reduce((parent, name, index) => {
 						const children = parent.children;
 
-						let child = children.find(group => group.name === name);
+						let child = children.find(group => object.equals(group.name, name));
 
 						if (!is.object(child)) {
 							child = {
