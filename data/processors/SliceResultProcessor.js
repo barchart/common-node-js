@@ -8,9 +8,9 @@ const ResultProcessor = require('./../ResultProcessor');
 module.exports = (() => {
 	'use strict';
 
-	const logger = log4js.getLogger('data/processors/SliceArrayProcessor');
+	const logger = log4js.getLogger('data/processors/SliceResultProcessor');
 
-	class SliceArrayProcessor extends ResultProcessor {
+	class SliceResultProcessor extends ResultProcessor {
 		constructor(configuration) {
 			super(configuration);
 		}
@@ -39,9 +39,9 @@ module.exports = (() => {
 		}
 
 		toString() {
-			return '[SliceArrayProcessor]';
+			return '[SliceResultProcessor]';
 		}
 	}
 
-	return SliceArrayProcessor;
+	return SliceResultProcessor;
 })();
