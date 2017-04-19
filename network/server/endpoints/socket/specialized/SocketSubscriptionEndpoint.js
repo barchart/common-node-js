@@ -7,9 +7,7 @@ const Endpoint = require('./../../Endpoint');
 module.exports = (() => {
 	'use strict';
 
-	const emptyCommand = CommandHandler.fromFunction(() => {
-		return null;
-	});
+	const emptyCommand = CommandHandler.fromFunction(() => null);
 
 	class SocketSubscriptionEndpoint extends Endpoint {
 		constructor(channel, roomsCommand, responseCommand, responseEventType) {
@@ -32,7 +30,7 @@ module.exports = (() => {
 		}
 
 		getRoomsCommand() {
-			return this._roomCommand;
+			return this._roomsCommand;
 		}
 
 		getResponseCommand() {
