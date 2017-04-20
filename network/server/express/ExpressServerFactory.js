@@ -502,7 +502,7 @@ module.exports = (() => {
 					});
 
 					socketSubscriptionKeys.forEach((channel) => {
-						const command = this._socketSubscriptionMap[channel];
+						const subscriptionInfo = this._socketSubscriptionMap[channel];
 
 						socket.on(channel, buildSocketSubscriptionHandler(channel, subscriptionInfo, socket));
 					});
