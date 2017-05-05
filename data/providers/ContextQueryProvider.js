@@ -54,8 +54,16 @@ module.exports = (() => {
 				const propertyName = condition.propertyName;
 				const propertyValue = condition.propertyValue;
 
-				const match = attributes.has(criteria, propertyName) && attributes.read(criteria, propertyName) === propertyValue;
+				const exists = attributes.has(criteria, propertyName);
 				const inverse = is.boolean(condition.inverse) && condition.inverse;
+
+				let match;
+
+				if (condition.greater) {
+					match = exists && attributes.read(criteria, propertyName) > propertyValue;
+				} else {
+					match = exists && attributes.read(criteria, propertyName) === propertyValue;
+				}
 
 				return match ^ inverse;
 			});
