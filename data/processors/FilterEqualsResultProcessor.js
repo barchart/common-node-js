@@ -16,7 +16,13 @@ module.exports = (() => {
 	 *
 	 * @public
 	 * @extends ResultProcessor
-	 * @param {object} configuration
+	 * @param {Object} configuration
+	 * @param {string=} configuration.sourceRef - The name of the array to filter. If not supplied, the context is used as the array to filter.
+	 * @param {Object[]} configuration.conditions
+	 * @param {string} configuration.conditions[].propertyName - The name of property (which must match).
+	 * @param {string} configuration.conditions[].value - The actual value which the property must match.
+	 * @param {string} configuration.conditions[].valueRef - The name of the property whose value must be matched.
+	 * @param {boolen=} configuration.conditions[].inverse - If true, items which are equal are filtered.
 	 */
 	class FilterEqualsResultProcessor extends ResultProcessor {
 		constructor(configuration) {

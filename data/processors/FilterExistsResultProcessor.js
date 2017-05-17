@@ -16,8 +16,12 @@ module.exports = (() => {
 	 *
 	 * @public
 	 * @extends ResultProcessor
-	 * @param {object} configuration
-	 * @param {object} configuration
+	 * @extends ResultProcessor
+	 * @param {Object} configuration
+	 * @param {string=} configuration.sourceRef - The name of the array to filter. If not supplied, the context is used as the array to filter.
+	 * @param {Object[]} configuration.conditions
+	 * @param {string} configuration.conditions[].propertyName - The name of property (which must exist).
+	 * @param {boolen=} configuration.conditions[].inverse - If true, items which are exist are filtered.
 	 */
 	class FilterExistsResultProcessor extends ResultProcessor {
 		constructor(configuration) {

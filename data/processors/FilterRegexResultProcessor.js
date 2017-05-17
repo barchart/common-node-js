@@ -16,7 +16,11 @@ module.exports = (() => {
 	 *
 	 * @public
 	 * @extends ResultProcessor
-	 * @param {object} configuration
+	 * @param {Object} configuration
+	 * @param {Object[]} configuration.conditions
+	 * @param {string} configuration.conditions[].propertyName - The name of property to test the regular expression on.
+	 * @param {string} configuration.conditions[].expression - The regular expression used to test the property's value.
+	 * @param {boolen=} configuration.conditions[].inverse - If true, items which match are filtered.
 	 */
 	class FilterRegexResultProcessor extends ResultProcessor {
 		constructor(configuration) {
