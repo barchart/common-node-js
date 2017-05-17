@@ -131,4 +131,32 @@ describe('When presented with some goods', function() {
 			expect(result[1]).toBe(gas);
 		});
 	});
+
+	describe('and then filtering for Tesla products that are also durable goods', function() {
+		var processor;
+		var result;
+
+		beforeEach(function(done) {
+			processor = new FilterOptionsResultProcessor({ sourceRef: 'things', conditions: [ { options: [ 'Tesla' ], propertyName: 'brand' }, { optionsRef: 'goods.durable', propertyName: 'type' } ] });
+
+			processor.process(context)
+				.then(function(r) {
+					result = r;
+
+					done();
+				});
+		});
+
+		it('an array should be returned', function() {
+			expect(result instanceof Array).toEqual(true);
+		});
+
+		it('the array should have one item', function() {
+			expect(result.length).toEqual(1);
+		});
+
+		it('the first item should be the car', function() {
+			expect(result[0]).toBe(car);
+		});
+	});
 });
