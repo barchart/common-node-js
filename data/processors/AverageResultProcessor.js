@@ -78,8 +78,16 @@ module.exports = (() => {
 		for (let i = 0; i < items.length; i++) {
 			const item = items[i];
 
-			const value = extractValue(item);
-			const weight = extractWeight(item);
+			let value = extractValue(item);
+			let weight = extractWeight(item);
+
+			if (is.string(value)) {
+				value = parseFloat(value);
+
+				if (is.nan(value)) {
+					value = null;
+				}
+			}
 
 			if (is.number(value)) {
 				returnVal = returnVal + value * weight;
