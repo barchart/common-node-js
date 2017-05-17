@@ -10,8 +10,6 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('data/processors/IndexResultProcessor');
 
-	const extractOne = item => 1;
-
 	/**
 	 * Converts an array to an object, assuming each item in the array has
 	 * a property with a unique value.
@@ -19,6 +17,7 @@ module.exports = (() => {
 	 * @public
 	 * @extends ResultProcessor
 	 * @param {object} configuration
+	 * @param {string} configuration.keyPropertyName - The name of the unique property of an item.
 	 */
 	class IndexResultProcessor extends ResultProcessor {
 		constructor(configuration) {
