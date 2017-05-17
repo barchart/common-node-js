@@ -20,9 +20,9 @@ module.exports = (() => {
 	 * @param {Object} configuration
 	 * @param {string=} configuration.sourceRef - The name of the array to filter. If not supplied, the context is used as the array to filter.
 	 * @param {Object[]} configuration.conditions
+	 * @param {string} configuration.conditions[].propertyName - The name of property (which must match one of the items in the "options" array).
 	 * @param {string} configuration.conditions[].optionsRef - The name of the array that contains acceptable values.
 	 * @param {Object[]} configuration.conditions[].options - The array of acceptable values.
-	 * @param {string} configuration.conditions[].propertyName - The name of property (which must match one of the items in the "options" array).
 	 * @param {boolen=} configuration.conditions[].inverse - If true, items which are included in the "options" array are filtered.
 	 */
 	class FilterOptionsResultProcessor extends ResultProcessor {
