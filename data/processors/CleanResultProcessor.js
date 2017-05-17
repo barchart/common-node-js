@@ -11,7 +11,7 @@ const MutateResultProcessor = require('./MutateResultProcessor');
  * @public
  * @extends ResultProcessor
  * @param {object} configuration
- * @param {object} configuration.propertyName
+ * @param {string=} configuration.propertyName - The name of the property to clean. If unspecified, the context will be cleaned.
  */
 module.exports = (() => {
 	'use strict';
