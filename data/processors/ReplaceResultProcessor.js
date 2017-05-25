@@ -35,8 +35,6 @@ module.exports = (() => {
 			const propertyValue = attributes.read(resultItemToProcess, propertyName);
 
 			if (is.string(propertyValue)) {
-
-
 				let selectExpression;
 
 				if (is.string(configurationToUse.selectExpression)) {
