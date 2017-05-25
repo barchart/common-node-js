@@ -20,6 +20,8 @@ module.exports = (() => {
 	 * @param {string} configuration.propertyName - Name of the property to apply the regular expression replacement to.
 	 * @param {string} configuration.selectExpression - The expression that defines the string to be replaced.
 	 * @param {string} configuration.replaceExpression - The expression that defines the replacement string.
+	 * @param {boolean=} configuration.global - True for global replacement (defaults to true).
+	 * @param {boolean=} configuration.insensitive - True for case insensitive replacement (defaults to false).
 	 */
 	class ReplaceResultProcessor extends MutateResultProcessor {
 		constructor(configuration) {
@@ -34,7 +36,17 @@ module.exports = (() => {
 				const selectExpression = configurationToUse.selectExpression;
 				const replaceExpression = configurationToUse.replaceExpression;
 
-				attributes.write(resultItemToProcess, propertyName, propertyValue.replace(new RegExp(selectExpression, 'g'), replaceExpression));
+				const options = [];
+
+				if (!is.boolean(configurationToUse.global) || configurationToUse.global) {
+					options.push('g');
+				}
+
+				if (is.boolean(configurationToUse.insensitive) && configurationToUse.insensitive) {
+					options.push('i');
+				}
+
+				attributes.write(resultItemToProcess, propertyName, propertyValue.replace(new RegExp(selectExpression, options.join('')), replaceExpression));
 			}
 		}
 
