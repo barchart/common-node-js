@@ -1,5 +1,36 @@
 var ReplaceResultProcessor = require('./../../../../data/processors/ReplaceResultProcessor');
 
+describe('When a ReplaceResultProcessor is created with select and replace references', function() {
+	'use strict';
+
+	var processor;
+
+	beforeEach(function() {
+		processor = new ReplaceResultProcessor({ propertyName: 'test', selectExpressionRef: 'select', replaceExpressionRef: 'replace'  });
+	});
+
+	describe('and an object with target property of "abcdef-ABCDEF-abcdef" is processed', function() {
+		var result;
+		var original;
+
+		beforeEach(function(done) {
+			processor.process(original = { test: 'abcdef-ABCDEF-abcdef', select: '(abc)', replace: 'def' })
+				.then(function(r) {
+					result = r;
+					done();
+				});
+		});
+
+		it('the original object should be returned', function() {
+			expect(result).toBe(original);
+		});
+
+		it('the "test" property should be mutated', function() {
+			expect(result.test).toEqual('defdef-ABCDEF-defdef');
+		});
+	});
+});
+
 describe('When a ReplaceResultProcessor is created to replace "abc" with "def"', function() {
 	'use strict';
 

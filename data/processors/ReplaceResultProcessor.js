@@ -18,8 +18,10 @@ module.exports = (() => {
 	 * @extends MutateResultProcessor
 	 * @param {object} configuration
 	 * @param {string} configuration.propertyName - Name of the property to apply the regular expression replacement to.
-	 * @param {string} configuration.selectExpression - The expression that defines the string to be replaced.
-	 * @param {string} configuration.replaceExpression - The expression that defines the replacement string.
+	 * @param {string=} configuration.selectExpression - The select expression.
+	 * @param {string=} configuration.selectExpressionRef - The name of the property which contains select expression.
+	 * @param {string=} configuration.replaceExpression - The expression that defines the replacement.
+	 * @param {string=} configuration.replaceExpressionRef - The name of the property which contains the replacement definition.
 	 * @param {boolean=} configuration.global - True for global replacement (defaults to true).
 	 * @param {boolean=} configuration.insensitive - True for case insensitive replacement (defaults to false).
 	 */
@@ -33,20 +35,41 @@ module.exports = (() => {
 			const propertyValue = attributes.read(resultItemToProcess, propertyName);
 
 			if (is.string(propertyValue)) {
-				const selectExpression = configurationToUse.selectExpression;
-				const replaceExpression = configurationToUse.replaceExpression;
 
-				const options = [];
 
-				if (!is.boolean(configurationToUse.global) || configurationToUse.global) {
-					options.push('g');
+				let selectExpression;
+
+				if (is.string(configurationToUse.selectExpression)) {
+					selectExpression = configurationToUse.selectExpression;
+				} else if (is.string(configurationToUse.selectExpressionRef)) {
+					selectExpression = attributes.read(resultItemToProcess, configurationToUse.selectExpressionRef);
+				} else {
+					selectExpression = null;
 				}
 
-				if (is.boolean(configurationToUse.insensitive) && configurationToUse.insensitive) {
-					options.push('i');
+				let replaceExpression;
+
+				if (is.string(configurationToUse.replaceExpression)) {
+					replaceExpression = configurationToUse.replaceExpression;
+				} else if (is.string(configurationToUse.replaceExpressionRef)) {
+					replaceExpression = attributes.read(resultItemToProcess, configurationToUse.replaceExpressionRef);
+				} else {
+					replaceExpression = null;
 				}
 
-				attributes.write(resultItemToProcess, propertyName, propertyValue.replace(new RegExp(selectExpression, options.join('')), replaceExpression));
+				if (is.string(selectExpression) && is.string(replaceExpression)) {
+					const options = [];
+
+					if (!is.boolean(configurationToUse.global) || configurationToUse.global) {
+						options.push('g');
+					}
+
+					if (is.boolean(configurationToUse.insensitive) && configurationToUse.insensitive) {
+						options.push('i');
+					}
+
+					attributes.write(resultItemToProcess, propertyName, propertyValue.replace(new RegExp(selectExpression, options.join('')), replaceExpression));
+				}
 			}
 		}
 
