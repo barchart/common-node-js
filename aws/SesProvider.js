@@ -13,6 +13,19 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('common-node/messaging/SesProvider');
 
+	/**
+	 * A facade for Amazon's Simple Email Service (SES). The constructor
+	 * accepts configuration options. The promise-based instance functions
+	 * abstract knowledge of the AWS API.
+	 *
+	 * @public
+	 * @extends Disposable
+	 * @param {object} configuration
+	 * @param {string} configuration.region - The AWS region (e.g. "us-east-1").
+	 * @param {string=} configuration.apiVersion - The SES version (defaults to "2010-12-01").
+	 * @param {string=} configuration.recipientOverride - If specified, all emails sent will be redirected to this email address, ignoring the specified recipient.
+	 * @param {string=} configuration.rateLimitPerSecond - The number of emails which will be sent to the AWS SDK within one second (defaults to 10).
+	 */
 	class SesProvider extends Disposable {
 		constructor(configuration) {
 			super();
@@ -74,7 +87,15 @@ module.exports = (() => {
 			return object.clone(this._configuration);
 		}
 
-		sendEmail(senderAddress, recipientAddress, subject, htmlBody, textBody) {
+		sendEmail(senderAddress, recipientAddress, subject, htmlBody, textBody, tags) {
+			if (this.getIsDisposed()) {
+				throw new Error('The SES Provider has been disposed.');
+			}
+
+			if (!this._started) {
+				throw new Error('The SES Provider has not been started.');
+			}
+
 			assert.argumentIsRequired(senderAddress, 'senderAddress', String);
 
 			if (is.array(recipientAddress)) {
