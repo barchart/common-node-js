@@ -52,6 +52,13 @@ module.exports = (() => {
 			this._rateLimiter = new RateLimiter(configuration.rateLimitPerSecond || 10, 1000);
 		}
 
+		/**
+		 * Initializes the Amazon SDK. Call this before inoking any other instance
+		 * functions.
+		 *
+		 * @public
+		 * @returns {Promise.<Boolean>}
+		 */
 		start() {
 			if (this.getIsDisposed()) {
 				throw new Error('The SES Provider has been disposed.');
@@ -79,6 +86,12 @@ module.exports = (() => {
 			return this._startPromise;
 		}
 
+		/**
+		 * Returns a clone of the configuration object originally passed
+		 * to the constructor.
+		 *
+		 * @returns {Object}
+		 */
 		getConfiguration() {
 			if (this.getIsDisposed()) {
 				throw new Error('The SES Provider has been disposed.');
@@ -87,6 +100,19 @@ module.exports = (() => {
 			return object.clone(this._configuration);
 		}
 
+		/**
+		 * Attempts to send an email.
+		 *
+		 * @param {string} senderAddress - The "from" email address.
+		 * @param {string} recipientAddress - The "to" email address.
+		 * @param {string=} subject - The email's subject.
+		 * @param {string=} htmlBody - The email's body.
+		 * @param {string=} textBody - The email's body.
+		 * @param {Object[]|undefined} tags - A set of key-value pairs to add to the emails header.
+		 * @param {string} tags[].name - The name of the tag.
+		 * @param {string} tags[].value - The value of the tag.
+		 * @returns {Promise}
+		 */
 		sendEmail(senderAddress, recipientAddress, subject, htmlBody, textBody, tags) {
 			if (this.getIsDisposed()) {
 				throw new Error('The SES Provider has been disposed.');
@@ -156,6 +182,18 @@ module.exports = (() => {
 				params.Message.Body.Text = {
 					Data: textBody
 				};
+			}
+
+			if (is.array(tags)) {
+				const keys = object.keys(tags);
+
+				params.Tags = keys.reduce((accumulator, tag) => {
+					if (is.string(tag.name) && is.string(tag.value)) {
+						accumulator.push({Name: tag.name, Value: tag.value});
+					}
+
+					return accumulator;
+				}, [ ]);
 			}
 
 			return this._rateLimiter.enqueue(() => {
