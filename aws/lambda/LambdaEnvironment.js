@@ -4,7 +4,7 @@ const configurator = require('node-yaml-config'),
 module.exports = (() => {
 	'use strict';
 
-	const logger = log4js.getLogger('lambda/LambdaProcessor');
+	const logger = log4js.getLogger('lambda/LambdaEnvironment');
 
 	let instance = null;
 
