@@ -1,7 +1,8 @@
 const aws = require('aws-sdk'),
 	log4js = require('log4js');
 
-const assert = require('common/lang/assert'),
+const array = require('common/lang/array'),
+	assert = require('common/lang/assert'),
 	Disposable = require('common/lang/Disposable'),
 	is = require('common/lang/is'),
 	object = require('common/lang/object'),
@@ -379,7 +380,8 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Reads from the queue and deletes any messages that are read.
+		 * Reads from the queue and deletes any messages that are read. After
+		 * the operation, the queue will not necessarily be empty.
 		 *
 		 * @param {string} queueName - The name of the queue to read.
 		 * @param {Number=} waitDuration - The maximum amount of time the server-side long-poll will wait for messages to become available.
@@ -407,6 +409,43 @@ module.exports = (() => {
 			}
 
 			return receiveMessages.call(this, queueName, waitDuration, maximumMessages);
+		}
+
+		/**
+		 * Reads all messages from queue (perhaps requiring multiple calls to the
+		 * AWS SDK) and returns an array of messages (use with caution).
+		 *
+		 * @param {string} queueName - The name of the queue to read.
+		 * @param {Function=} mapper - A function that can be used to map messages into something else.
+		 *
+		 * @returns {Promise.<Object[]>}
+		 */
+		drain(queueName, mapper) {
+			assert.argumentIsRequired(queueName, 'queueName', String);
+			assert.argumentIsOptional(mapper, 'mapper', Function);
+
+			const batches = [ ];
+			const batchSize = 10;
+
+			const mapperToUse = mapper || (m => m);
+
+			const executeDrain = () => {
+				return this.receive(queueName, 0, batchSize)
+					.then((messages) => {
+						batches.push(messages.map(mapper));
+
+						if (messages.length < batchSize) {
+							return batches;
+						} else {
+							return executeDrain();
+						}
+					});
+			};
+
+			return executeDrain()
+				.then(() => {
+					return array.flatten(batches);
+				});
 		}
 
 		/**
