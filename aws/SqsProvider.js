@@ -170,7 +170,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Given a queue's name, return the Amazon's unique identifier for the queue
+		 * Given a queue's name, return Amazon's unique identifier for the queue
 		 * (i.e. the ARN). If no queue with the given name exists, it will be created.
 		 *
 		 * @param {string} queueName - The name of the queue to find.
