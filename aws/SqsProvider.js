@@ -105,7 +105,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Returns a list of Queue URL's where the queue names start with a
+		 * Returns a list of queue URL's where the queue names start with a
 		 * given prefix.
 		 *
 		 * @param {string} queueNamePrefix - The prefix a queue name must have to be returned.
@@ -316,7 +316,7 @@ module.exports = (() => {
 		/**
 		 * Deletes a queue having the given URL.
 		 *
-		 * @param {string} queueUrl - The name of the URL of the queue to delete.
+		 * @param {string} queueUrl - The URL of the queue to delete.
 		 *
 		 * @returns {Promise}
 		 */

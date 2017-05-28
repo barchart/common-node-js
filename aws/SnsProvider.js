@@ -11,6 +11,18 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('common-node/aws/SnsProvider');
 
+	/**
+	 * A facade for Amazon's Notification Service (SNS). The constructor
+	 * accepts configuration options. The promise-based instance functions
+	 * abstract knowledge of the AWS API.
+	 *
+	 * @public
+	 * @extends Disposable
+	 * @param {object} configuration
+	 * @param {string} configuration.region - The AWS region (e.g. "us-east-1").
+	 * @param {string} configuration.prefix - The prefix that is prepended to any topic name.
+	 * @param {string=} configuration.apiVersion - The SES version (defaults to "2010-03-31").
+	 */
 	class SnsProvider extends Disposable {
 		constructor(configuration) {
 			super();
@@ -31,6 +43,13 @@ module.exports = (() => {
 			this._subscriptionPromises = {};
 		}
 
+		/**
+		 * Initializes the Amazon SDK. Call this before invoking any other instance
+		 * functions.
+		 *
+		 * @public
+		 * @returns {Promise.<Boolean>}
+		 */
 		start() {
 			if (this.getIsDisposed()) {
 				throw new Error('The SNS Provider has been disposed.');
@@ -58,6 +77,12 @@ module.exports = (() => {
 			return this._startPromise;
 		}
 
+		/**
+		 * Returns a clone of the configuration object originally passed
+		 * to the constructor.
+		 *
+		 * @returns {Object}
+		 */
 		getConfiguration() {
 			if (this.getIsDisposed()) {
 				throw new Error('The SNS Provider has been disposed.');
@@ -66,6 +91,13 @@ module.exports = (() => {
 			return object.clone(this._configuration);
 		}
 
+		/**
+		 * Given a topic's name, return Amazon's unique identifier for the topic
+		 * (i.e. the ARN). If no topc with the given name exists, it will be created.
+		 *
+		 * @param {string} topicName - The name of the topic to find.
+		 * @returns {Promise.<string>}
+		 */
 		getTopicArn(topicName) {
 			assert.argumentIsRequired(topicName, 'topicName', String);
 
@@ -88,6 +120,13 @@ module.exports = (() => {
 			return this._topicPromises[qualifiedTopicName];
 		}
 
+		/**
+		 * Creates a topic with the given name  and returns the topic's ARN. If the topic already
+		 * exists, the ARN of the existing topic is returned.
+		 *
+		 * @param {string} topicName - The name of the topic to create.
+		 * @returns {Promise.<string>}
+		 */
 		createTopic(topicName) {
 			assert.argumentIsRequired(topicName, 'topicName', String);
 
@@ -123,6 +162,13 @@ module.exports = (() => {
 			);
 		}
 
+		/**
+		 * Deletes a topic having the given name.
+		 *
+		 * @param {string} topicName - The name of the topic to delete.
+		 *
+		 * @returns {Promise}
+		 */
 		deleteTopic(topicName) {
 			assert.argumentIsRequired(topicName, 'topicName', String);
 
@@ -144,6 +190,13 @@ module.exports = (() => {
 				});
 		}
 
+		/**
+		 * Deletes a tiouc having the given URL.
+		 *
+		 * @param {string} topicArn - The ARN the topic to delete.
+		 *
+		 * @returns {Promise}
+		 */
 		deleteTopicArn(topicArn) {
 			assert.argumentIsRequired(topicArn, 'topicArn', String);
 
@@ -177,6 +230,14 @@ module.exports = (() => {
 			);
 		}
 
+		/**
+		 * Publishes a message to a topic. The message will be serialized as JSON.
+		 *
+		 * @param {string} topicName - The name of the topic to publish to.
+		 * @param {Object} payload - The message to publish (which will be serialized as JSON).
+		 *
+		 * @returns {Promise}
+		 */
 		publish(topicName, payload) {
 			assert.argumentIsRequired(topicName, 'topicName', String);
 			assert.argumentIsRequired(payload, 'payload', Object);
@@ -217,6 +278,19 @@ module.exports = (() => {
 				});
 		}
 
+		/**
+		 * Subscribes an SQS queue to an SNS topic. Once the subscription
+		 * has been established the queue can be monitored (see
+		 * {@link SqsProvider#receive} or {@link SqsProvider#observe}).
+		 *
+		 * The promise will return a Disposable instance. Call the
+		 * dispose method to delete the subscription.
+		 *
+		 * @param {string} topicName - The name of the topic to subscribe to.
+		 * @param {Object} queueArn - The ARN of the queue to receive notifications (see {@link SqsProvider#getQueueArn}).
+		 *
+		 * @returns {Promise.<Disposable>}
+		 */
 		subscribe(topicName, queueArn) {
 			assert.argumentIsRequired(topicName, 'topicName', String);
 			assert.argumentIsRequired(queueArn, 'queueArn', String);
@@ -281,6 +355,12 @@ module.exports = (() => {
 			return this._subscriptionPromises[qualifiedTopicName];
 		}
 
+		/**
+		 * Returns a list of topic ARN's that match a given prefix.
+		 *
+		 * @param {string} topicNamePrefix - The prefix a topic name must have to be returned.
+		 * @returns {Promise.<string[]>}
+		 */
 		getTopics(topicNamePrefix) {
 			assert.argumentIsOptional(topicNamePrefix, 'topicNamePrefix', String);
 
