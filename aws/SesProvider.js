@@ -53,7 +53,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Initializes the Amazon SDK. Call this before inoking any other instance
+		 * Initializes the Amazon SDK. Call this before invoking any other instance
 		 * functions.
 		 *
 		 * @public

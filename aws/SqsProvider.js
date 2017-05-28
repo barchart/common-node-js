@@ -13,6 +13,18 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('common-node/aws/SqsProvider');
 
+	/**
+	 * A facade for Amazon's Simple Queue Service (SQS). The constructor
+	 * accepts configuration options. The promise-based instance functions
+	 * abstract knowledge of the AWS API.
+	 *
+	 * @public
+	 * @extends Disposable
+	 * @param {object} configuration
+	 * @param {string} configuration.region - The AWS region (e.g. "us-east-1").
+	 * @param {string} configuration.prefix - The prefix that is prepended to any queue name.
+	 * @param {string=} configuration.apiVersion - The SES version (defaults to "2012-11-05").
+	 */
 	class SqsProvider extends Disposable {
 		constructor(configuration) {
 			super();
@@ -40,6 +52,13 @@ module.exports = (() => {
 			this._counter = 0;
 		}
 
+		/**
+		 * Initializes the Amazon SDK. Call this before invoking any other instance
+		 * functions.
+		 *
+		 * @public
+		 * @returns {Promise.<Boolean>}
+		 */
 		start() {
 			if (this.getIsDisposed()) {
 				throw new Error('The SQS Provider has been disposed.');
@@ -71,6 +90,12 @@ module.exports = (() => {
 			return this._startPromise;
 		}
 
+		/**
+		 * Returns a clone of the configuration object originally passed
+		 * to the constructor.
+		 *
+		 * @returns {Object}
+		 */
 		getConfiguration() {
 			if (this.getIsDisposed()) {
 				throw new Error('The SQS Provider has been disposed.');
@@ -79,6 +104,13 @@ module.exports = (() => {
 			return object.clone(this._configuration);
 		}
 
+		/**
+		 * Returns a list of Queue URL's where the queue names start with a
+		 * given prefix.
+		 *
+		 * @param {string} queueNamePrefix - The prefix a queue name must have to be returned.
+		 * @returns {Promise.<string[]>}
+		 */
 		getQueues(queueNamePrefix) {
 			assert.argumentIsOptional(queueNamePrefix, 'queueNamePrefix', String);
 
@@ -108,6 +140,13 @@ module.exports = (() => {
 			});
 		}
 
+		/**
+		 * Given a queue's name, return the queue's URL. If no queue with the given
+		 * name exists, it will be created.
+		 *
+		 * @param {string} queueName - The name of the queue to find.
+		 * @returns {Promise.<string>}
+		 */
 		getQueueUrl(queueName) {
 			assert.argumentIsRequired(queueName, 'queueName', String);
 
@@ -130,6 +169,13 @@ module.exports = (() => {
 			return this._queueUrlPromises[qualifiedQueueName];
 		}
 
+		/**
+		 * Given a queue's name, return the Amazon's unique identifier for the queue
+		 * (i.e. the ARN). If no queue with the given name exists, it will be created.
+		 *
+		 * @param {string} queueName - The name of the queue to find.
+		 * @returns {Promise.<string>}
+		 */
 		getQueueArn(queueName) {
 			assert.argumentIsRequired(queueName, 'queueName', String);
 
@@ -173,6 +219,15 @@ module.exports = (() => {
 			return this._queueArnPromises[qualifiedQueueName];
 		}
 
+		/**
+		 * Creates a queue having the given name (and other options) and returns
+		 * the queue's URL. If the queue already exists, the URL of the existing
+		 * queue is returned.
+		 *
+		 * @param {string} queueName - The name of the queue to create.
+		 * @param {Number=} retentionTime - The length of time a queue will retain a message.
+		 * @returns {Promise.<string>}
+		 */
 		createQueue(queueName, retentionTime) {
 			assert.argumentIsRequired(queueName, 'queueName', String);
 			assert.argumentIsOptional(retentionTime, 'retentionTime', Number);
@@ -224,6 +279,13 @@ module.exports = (() => {
 			);
 		}
 
+		/**
+		 * Deletes a queue having the given name.
+		 *
+		 * @param {string} queueName - The name of the queue to delete.
+		 *
+		 * @returns {Promise}
+		 */
 		deleteQueue(queueName) {
 			assert.argumentIsRequired(queueName, 'queueName', String);
 
@@ -251,12 +313,28 @@ module.exports = (() => {
 			return deletePromise;
 		}
 
+		/**
+		 * Deletes a queue having the given URL.
+		 *
+		 * @param {string} queueUrl - The name of the URL of the queue to delete.
+		 *
+		 * @returns {Promise}
+		 */
 		deleteQueueUrl(queueUrl) {
 			assert.argumentIsRequired(queueUrl, 'queueUrl', String);
 
 			return executeQueueDelete.call(this, 'unspecified', queueUrl);
 		}
 
+		/**
+		 * Enqueues a message in the queue. If the queue doesn't exist, it will
+		 * be created.
+		 *
+		 * @param {string} queueName - The name of the queue to add the message to.
+		 * @param {Object} payload - The message to enqueue (will be serialized to JSON).
+		 *
+		 * @returns {Promise}
+		 */
 		send(queueName, payload) {
 			assert.argumentIsRequired(queueName, 'queueName', String);
 			assert.argumentIsRequired(payload, 'payload', Object);
@@ -300,6 +378,15 @@ module.exports = (() => {
 				});
 		}
 
+		/**
+		 * Reads from the queue and deletes any messages that are read.
+		 *
+		 * @param {string} queueName - The name of the queue to read.
+		 * @param {Number=} waitDuration - The maximum amount of time the server-side long-poll will wait for messages to become available.
+		 * @param {Number=} maximumMessages - The maximum number of messages to read (cannot be more than 10).
+		 *
+		 * @returns {Promise.<Object[]>}
+		 */
 		receive(queueName, waitDuration, maximumMessages) {
 			assert.argumentIsRequired(queueName, 'queueName', String);
 			assert.argumentIsOptional(waitDuration, 'waitDuration', Number);
@@ -322,6 +409,18 @@ module.exports = (() => {
 			return receiveMessages.call(this, queueName, waitDuration, maximumMessages);
 		}
 
+		/**
+		 * Makes repeated reads from a queue until canceled and returns messages
+		 * using the callback provided.
+		 *
+		 * @param {string} queueName - The name of the queue to read.
+		 * @param {Function} callback - Invoked with a messages as they become available.
+		 * @param {Number=} pollInterval - The milliseconds to wait between polling the queue.
+		 * @param {Number=} pollDuration - The maximum amount of time the server-side long-poll will wait for messages to become available.
+		 * @param {Number=} maximumMessages - The maximum number of messages to read per request (cannot be more than 10).
+		 *
+		 * @returns {Promise}
+		 */
 		observe(queueName, callback, pollInterval, pollDuration, batchSize) {
 			assert.argumentIsRequired(queueName, 'queueName', String);
 			assert.argumentIsRequired(callback, 'callback', Function);
@@ -401,6 +500,13 @@ module.exports = (() => {
 			return this._queueObservers[qualifiedQueueName];
 		}
 
+		/**
+		 * Changes the policy on a Queue. The "policy" must conform to Amazon's schema.
+		 *
+		 * @param {string} queueName - The name of the queue to adjust.
+		 * @param {Object} policy - The Amazon schema-compliant policy.
+		 * @returns {Promise}
+		 */
 		setQueuePolicy(queueName, policy) {
 			assert.argumentIsRequired(queueName, 'queueName', String);
 			assert.argumentIsRequired(policy, 'policy', Object);
