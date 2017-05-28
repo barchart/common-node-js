@@ -6,6 +6,7 @@ const assert = require('common/lang/assert'),
 
 const HttpProvider = require('./../../network/http/HttpProvider'),
 	LambdaEnvironment = require('./LambdaEnvironment'),
+	S3Provider = require('./../S3Provider'),
 	SesProvider = require('./../SesProvider'),
 	SnsProvider = require('./../SnsProvider'),
 	SqsProvider = require('./../SqsProvider'),
@@ -160,7 +161,7 @@ module.exports = (() => {
 			const messageExtractor = this._messageExtractor || LambdaBuilder.getEmptyExtractor();
 			const messageProcessor = this._messageProcessor || LambdaBuilder.getEmptyProcessor();
 			const outputTransformer = this._outputTransformer || null;
-			
+
 			const componentInitializers = Array.from(this._componentInitializers);
 
 			return (event, context, callback) => {
@@ -230,7 +231,7 @@ module.exports = (() => {
 						Object.getOwnPropertyNames(components).forEach((key) => {
 							const component = components[key];
 
-							if (typeof component.dispose === 'function') {
+							if (is.fn(component.dispose)) {
 								logger.debug('disposing', key, 'component for run', run);
 
 								component.dispose();
@@ -240,7 +241,7 @@ module.exports = (() => {
 						return context;
 					}).then((context) => {
 						logger.info('processing completed normally for run', run);
-						
+
 						return context.results;
 					}).catch((e) => {
 						logger.error('processing failed for run', run);
@@ -342,6 +343,48 @@ module.exports = (() => {
 		}
 
 		/**
+		 * An initializer that generates a {@link S3Provider} (see
+		 * {@link LambdaBuilder#usingComponentInitializer}).
+		 *
+		 * @returns {function(*)}
+		 */
+		static getS3Initializer() {
+			return (environment) => {
+				return environment.getConfiguration()
+					.then((configuration) => {
+						if (!configuration || !configuration.aws || !configuration.aws.s3) {
+							throw new Error('Configuration data for Amazon S3 is missing.');
+						}
+
+						const s3 = new SesProvider(configuration.aws.s3);
+
+						return s3.start().then(() => s3);
+					});
+			};
+		}
+
+		/**
+		 * An initializer that generates a {@link SesProvider} (see
+		 * {@link LambdaBuilder#usingComponentInitializer}).
+		 *
+		 * @returns {function(*)}
+		 */
+		static getSesInitializer() {
+			return (environment) => {
+				return environment.getConfiguration()
+					.then((configuration) => {
+						if (!configuration || !configuration.aws || !configuration.aws.ses) {
+							throw new Error('Configuration data for Amazon SES is missing.');
+						}
+
+						const ses = new SesProvider(configuration.aws.ses);
+
+						return ses.start().then(() => ses);
+					});
+			};
+		}
+
+		/**
 		 * An initializer that generates a {@link SnsProvider} (see
 		 * {@link LambdaBuilder#usingComponentInitializer}).
 		 *
@@ -384,27 +427,6 @@ module.exports = (() => {
 		}
 
 		/**
-		 * An initializer that generates a {@link SesProvider} (see
-		 * {@link LambdaBuilder#usingComponentInitializer}).
-		 *
-		 * @returns {function(*)}
-		 */
-		static getSesInitializer() {
-			return (environment) => {
-				return environment.getConfiguration()
-					.then((configuration) => {
-						if (!configuration || !configuration.aws || !configuration.aws.ses) {
-							throw new Error('Configuration data for Amazon SES is missing.');
-						}
-
-						const ses = new SesProvider(configuration.aws.ses);
-
-						return ses.start().then(() => ses);
-					});
-			};
-		}
-
-		/**
 		 * An initializer that generates a {@link TwilioProvider} (see
 		 * {@link LambdaBuilder#usingComponentInitializer}).
 		 *
@@ -415,7 +437,7 @@ module.exports = (() => {
 				return environment.getConfiguration()
 					.then((configuration) => {
 						if (!configuration || !configuration.twilio) {
-							throw new Error('Configuration data for twilio is missing.');
+							throw new Error('Configuration data for Twilio is missing.');
 						}
 
 						const twilio = new TwilioProvider(configuration.twilio);
@@ -424,7 +446,7 @@ module.exports = (() => {
 					});
 			};
 		}
-		
+
 		static getEmptyProcessor() {
 			return (message, environment, components, logger) => {
 				logger.warn('Ignoring message');
