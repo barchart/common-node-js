@@ -11,21 +11,22 @@ Features include:
 * Asynchronous Publish-Subscribe Messaging (with Amazon SNS and SQS implementation)
 * More
 
-## Simple Setup
-
-1.	Clone the [repository](https://github.com/barchart/barchart-common-node-js).
-
-		git clone git@github.com:barchart/barchart-common-node-js.git
-
-2.	Download third-party dependencies
-
-		npm install
-
 ## Documentation
 
-Generate documentation as follows:
+The code is documented with [JSDoc](http://usejsdoc.org/). While the output hasn't been committed to source control, you can generate the documentation by using the following commands:
 
-	gulp document
+    > npm install
+    > gulp document
+
+## Development
+
+**Note: While the following is true, we're considering making this repository public, which will greatly simplify the consumer setup process.**
+
+Gulp is used to check "linting" and run unit tests, as follows:
+
+    > npm install
+    > gulp lint
+    > gulp test
 
 ## Consumers
 
@@ -70,4 +71,5 @@ Use gulp to test, package, and tag a new release as follows:
 
 ## License
 
-This software is proprietary and intended for internal use by Barchart.com only.
+This software is proprietary and intended for internal use by Barchart.com only (although, we are considering
+making this repository public, and changing the license -- there is no proprietary code here).
