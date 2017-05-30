@@ -46,6 +46,7 @@ module.exports = (() => {
 
 			this._queueObservers = {};
 			this._knownQueues = {};
+			this._retentionTimes = {};
 
 			this._startPromise = null;
 			this._started = false;
@@ -226,7 +227,7 @@ module.exports = (() => {
 		 * queue is returned.
 		 *
 		 * @param {string} queueName - The name of the queue to create.
-		 * @param {Number=} retentionTime - The length of time a queue will retain a message.
+		 * @param {Number=} retentionTime - The length of time a queue will retain a message in seconds.
 		 * @returns {Promise.<string>}
 		 */
 		createQueue(queueName, retentionTime) {
@@ -247,20 +248,17 @@ module.exports = (() => {
 				(resolveCallback, rejectCallback) => {
 					logger.debug('Creating SQS queue:', qualifiedQueueName);
 
-					let retentionTimeToUse;
+					const payload = {
+						QueueName: qualifiedQueueName,
+					};
 
 					if (is.number(retentionTime)) {
-						retentionTimeToUse = retentionTime;
-					} else {
-						retentionTimeToUse = 120;
+						payload.Attributes = {
+							MessageRetentionPeriod: retentionTime.toString()
+						};
 					}
 
-					this._sqs.createQueue({
-						QueueName: qualifiedQueueName,
-						Attributes: {
-							MessageRetentionPeriod: retentionTimeToUse.toString()
-						}
-					}, (error, data) => {
+					this._sqs.createQueue(payload, (error, data) => {
 						if (error === null) {
 							logger.info('SQS queue created:', qualifiedQueueName);
 
