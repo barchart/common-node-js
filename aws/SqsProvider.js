@@ -384,13 +384,15 @@ module.exports = (() => {
 		 * @param {string} queueName - The name of the queue to read.
 		 * @param {Number=} waitDuration - The maximum amount of time the server-side long-poll will wait for messages to become available.
 		 * @param {Number=} maximumMessages - The maximum number of messages to read (cannot be more than 10).
+		 * @param {Boolean=} synchronousDelete - If true, the promise won't resolve until new messages have been read *and deleted* from the queue.
 		 *
 		 * @returns {Promise.<Object[]>}
 		 */
-		receive(queueName, waitDuration, maximumMessages) {
+		receive(queueName, waitDuration, maximumMessages, synchronousDelete) {
 			assert.argumentIsRequired(queueName, 'queueName', String);
 			assert.argumentIsOptional(waitDuration, 'waitDuration', Number);
 			assert.argumentIsOptional(maximumMessages, 'maximumMessages', Number);
+			assert.argumentIsOptional(synchronousDelete, 'synchronousDelete', Boolean);
 
 			if (this.getIsDisposed()) {
 				throw new Error('The SQS Provider has been disposed.');
@@ -406,7 +408,7 @@ module.exports = (() => {
 				throw new Error('The SQS queue is being observed.');
 			}
 
-			return receiveMessages.call(this, queueName, waitDuration, maximumMessages);
+			return receiveMessages.call(this, queueName, waitDuration, maximumMessages, synchronousDelete);
 		}
 
 		/**
@@ -415,12 +417,14 @@ module.exports = (() => {
 		 *
 		 * @param {string} queueName - The name of the queue to read.
 		 * @param {Function=} mapper - A function that can be used to map messages into something else.
+		 * @param {Boolean=} synchronousDelete - If true, the promise won't resolve until new messages have been read *and deleted* from the queue.
 		 *
 		 * @returns {Promise.<Object[]>}
 		 */
-		drain(queueName, mapper) {
+		drain(queueName, mapper, synchronousDelete) {
 			assert.argumentIsRequired(queueName, 'queueName', String);
 			assert.argumentIsOptional(mapper, 'mapper', Function);
+			assert.argumentIsOptional(synchronousDelete, 'synchronousDelete', Boolean);
 
 			const batches = [ ];
 			const batchSize = 10;
@@ -428,11 +432,11 @@ module.exports = (() => {
 			const mapperToUse = mapper || (m => m);
 
 			const executeDrain = () => {
-				return this.receive(queueName, 0, batchSize)
+				return this.receive(queueName, 0, batchSize, synchronousDelete)
 					.then((messages) => {
 						batches.push(messages.map(mapper));
 
-						if (messages.length < batchSize) {
+						if (messages.length === 0) {
 							return batches;
 						} else {
 							return executeDrain();
@@ -498,7 +502,7 @@ module.exports = (() => {
 
 				let delay;
 
-				receiveMessages.call(this, queueName, pollDuration, batchSize)
+				receiveMessages.call(this, queueName, pollDuration, batchSize, false)
 					.then((messages) => {
 						return Promise.all(messages.map((message) => {
 							if (disposed) {
@@ -629,7 +633,7 @@ module.exports = (() => {
 		}
 	}
 
-	function receiveMessages(queueName, waitTime, maximumMessages) {
+	function receiveMessages(queueName, waitTime, maximumMessages, synchronousDelete) {
 		if (this.getIsDisposed()) {
 			throw new Error('The SQS Provider has been disposed.');
 		}
@@ -691,17 +695,27 @@ module.exports = (() => {
 									logger.error('Failed to parse message(s) received from SQS queue.', parseError);
 
 									messages = null;
-								} finally {
-									if (messagesExist) {
-										deleteMessages.call(this, qualifiedQueueName, queueUrl, data.Messages);
-									}
 								}
 
-								if (messages) {
-									resolveCallback(messages);
+								let deletePromise;
+
+								if (messagesExist) {
+									deletePromise = deleteMessages.call(this, qualifiedQueueName, queueUrl, data.Messages);
+
+									if (!synchronousDelete) {
+										deletePromise = Promise.resolve();
+									}
 								} else {
-									rejectCallback('Failed to parse message(s) received from SQS queue.');
+									deletePromise = Promise.resolve();
 								}
+
+								deletePromise.then(() => {
+									if (messages) {
+										resolveCallback(messages);
+									} else {
+										rejectCallback('Failed to parse message(s) received from SQS queue.');
+									}
+								});
 							} else {
 								logger.error('SQS receive messages failed:', qualifiedQueueName);
 								logger.error(error);
