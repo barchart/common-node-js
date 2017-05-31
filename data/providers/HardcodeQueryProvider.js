@@ -10,8 +10,7 @@ module.exports = (() => {
 	const logger = log4js.getLogger('data/providers/HardcodeQueryProvider');
 
 	/**
-	 * A {@link QueryProvider} query provider that returns a
-	 * clone of a configuration object.
+	 * A {@link QueryProvider} that returns a clone of a literal object.
 	 *
 	 * @public
 	 * @extends QueryProvider
