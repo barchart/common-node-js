@@ -69,6 +69,7 @@ const AddResultProcessor = require('./processors/AddResultProcessor'),
 	UppercaseResultProcessor = require('./processors/UppercaseResultProcessor'),
 	WrapResultProcessor = require('./processors/WrapResultProcessor'),
 
+	ApiQueryProvider = require('./providers/ApiQueryProvider'),
 	BackoffQueryProvider = require('./providers/BackoffQueryProvider'),
 	ContextQueryProvider = require('./providers/ContextQueryProvider'),
 	EnvironmentQueryProvider = require('./providers/EnvironmentQueryProvider'),
@@ -83,6 +84,7 @@ module.exports = (() => {
 	'use strict';
 
 	const providerMap = {
+		ApiQueryProvider: ApiQueryProvider,
 		BackoffQueryProvider: BackoffQueryProvider,
 		ContextQueryProvider: ContextQueryProvider,
 		EnvironmentQueryProvider: EnvironmentQueryProvider,

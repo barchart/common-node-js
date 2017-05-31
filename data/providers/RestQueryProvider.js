@@ -25,14 +25,15 @@ module.exports = (() => {
 
 		_runQuery(criteria) {
 			return promise.build((resolveCallback, rejectCallback) => {
-				const secure = this._getConfiguration().protocol === 'https';
+				const protocol = this._getProtocol().toUpperCase();
+				const secure = protocol === 'HTTPS';
 
 				const requestOptions = this._getRequestOptions(criteria);
 				const authenticationOptions = this._getAuthenticationOptions(criteria);
 
 				const queryId = ++counter;
 
-				logger.debug('Executing HTTP query', queryId);
+				logger.debug('Executing', protocol, 'query', queryId);
 				logger.trace(requestOptions);
 
 				const handleResponse = (response) => {
@@ -41,7 +42,7 @@ module.exports = (() => {
 					let responseText = '';
 
 					response.on('error', (e) => {
-						logger.error('Failed HTTP query', queryId, e);
+						logger.error('Failed', protocol, 'query', queryId, e);
 
 						rejectCallback(e);
 					});
@@ -51,7 +52,7 @@ module.exports = (() => {
 					});
 
 					response.on('end', () => {
-						logger.debug('Completed HTTP query', queryId);
+						logger.debug('Completed', protocol, 'query', queryId);
 
 						try {
 							const parsedResponse = this._parseResponse(responseText);
@@ -83,7 +84,7 @@ module.exports = (() => {
 					const request = connector.request(requestOptions, handleResponse);
 
 					request.on('error', (e) => {
-						logger.error('An error occurred while processing HTTP query', queryId, e);
+						logger.error('An error occurred while processing', protocol, 'query', queryId, e);
 
 						rejectCallback(e);
 					});
@@ -171,6 +172,12 @@ module.exports = (() => {
 			return returnRef;
 		}
 
+		_getProtocol() {
+			const configuration = this._getConfiguration();
+
+			return configuration.protocol || 'http';
+		}
+
 		_getHostname() {
 			const configuration = this._getConfiguration();
 
@@ -188,7 +195,7 @@ module.exports = (() => {
 
 			const hostname = this._getHostname();
 			const path = (configuration.path || '').replace(/:([^\/]*)/g, (fullString, match) => attributes.read(criteria, match));
-			const port = this._getPort() || 80;
+			const port = this._getPort();
 			const method = configuration.method || 'GET';
 			const auth = configuration.auth || '';
 			const headers = configuration.headers;
