@@ -69,6 +69,7 @@ const AddResultProcessor = require('./processors/AddResultProcessor'),
 	UppercaseResultProcessor = require('./processors/UppercaseResultProcessor'),
 	WrapResultProcessor = require('./processors/WrapResultProcessor'),
 
+	BackoffQueryProvider = require('./providers/BackoffQueryProvider'),
 	ContextQueryProvider = require('./providers/ContextQueryProvider'),
 	EnvironmentQueryProvider = require('./providers/EnvironmentQueryProvider'),
 	HardcodeQueryProvider = require('./providers/HardcodeQueryProvider'),
@@ -82,6 +83,7 @@ module.exports = (() => {
 	'use strict';
 
 	const providerMap = {
+		BackoffQueryProvider: BackoffQueryProvider,
 		ContextQueryProvider: ContextQueryProvider,
 		EnvironmentQueryProvider: EnvironmentQueryProvider,
 		HardcodeQueryProvider: HardcodeQueryProvider,
@@ -173,29 +175,20 @@ module.exports = (() => {
 			assert.argumentIsRequired(configuration.provider, 'configuration.provider', Object);
 			assert.argumentIsRequired(configuration.provider.type, 'configuration.provider.type', String);
 
-			const providerConfiguration = configuration.provider;
-			const providerTypeName = providerConfiguration.type;
-
-			if (!providerMap.hasOwnProperty(providerTypeName) && !this._customProviders.hasOwnProperty(providerTypeName)) {
-				throw new Error(`Unable to construct query provider (${providerTypeName})`);
-			}
-
-			const Constructor = providerMap[providerTypeName] || this._customProviders[providerTypeName];
-			const queryProvider = new Constructor(mergeConfigurations(this._providerDefaults[providerTypeName] || {}, providerConfiguration));
-
-			let processor;
+			let queryProvider = buildQueryProvider.call(this, configuration.provider);
+			let resultProcessor;
 
 			if (is.array(configuration.processors)) {
-				processor = new CompositeResultProcessor(configuration.processors.map((configuration) => {
+				resultProcessor = new CompositeResultProcessor(configuration.processors.map((configuration) => {
 					return buildResultProcessor.call(this, configuration);
 				}));
 			} else if (is.object(configuration.processor)) {
-				processor = buildResultProcessor.call(this, configuration.processor);
+				resultProcessor = buildResultProcessor.call(this, configuration.processor);
 			} else {
-				processor = buildResultProcessor.call(this);
+				resultProcessor = buildResultProcessor.call(this);
 			}
 
-			return new DataProvider(queryProvider, processor);
+			return new DataProvider(queryProvider, resultProcessor);
 		}
 
 		toString() {
@@ -221,6 +214,28 @@ module.exports = (() => {
 		const Constructor = processorMap[processorTypeName] || this._customProcessors[processorTypeName];
 
 		return new Constructor(mergeConfigurations(this._processorDefaults[processorTypeName] || {}, processorConfiguration));
+	}
+
+	function buildQueryProvider(configuration) {
+		const providerTypeName = configuration.type;
+
+		if (!providerMap.hasOwnProperty(providerTypeName) && !this._customProviders.hasOwnProperty(providerTypeName)) {
+			throw new Error(`Unable to construct query provider (${providerTypeName})`);
+		}
+
+		const nestedProviderConfiguration = configuration.nestedProvider;
+
+		let nestedProvider;
+
+		if (is.object(nestedProviderConfiguration) && is.string(nestedProviderConfiguration.type)) {
+			nestedProvider = buildQueryProvider.call(this, nestedProviderConfiguration);
+		} else {
+			nestedProvider = undefined;
+		}
+
+		const Constructor = providerMap[providerTypeName] || this._customProviders[providerTypeName];
+
+		return new Constructor(mergeConfigurations(this._providerDefaults[providerTypeName] || {}, configuration), nestedProvider);
 	}
 
 	function mergeConfigurations(defaultConfiguration, providerConfiguration) {
