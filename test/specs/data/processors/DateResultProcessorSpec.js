@@ -20,7 +20,7 @@ describe('When getting the start of the month (using references)', function() {
 				result = r;
 
 				done();
-			})
+			});
 		});
 
 		it('should return the a date instance', function() {
@@ -53,7 +53,7 @@ describe('When getting the end of the month (using references)', function() {
 				result = r;
 
 				done();
-			})
+			});
 		});
 
 		it('should return the a date instance', function() {
