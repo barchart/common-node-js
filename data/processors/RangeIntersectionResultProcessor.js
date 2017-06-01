@@ -88,7 +88,7 @@ module.exports = (() => {
 			returnRef = {
 				start: values[0],
 				end: values[1]
-			}
+			};
 		} else {
 			returnRef = null;
 		}
