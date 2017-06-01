@@ -18,7 +18,7 @@ module.exports = (() => {
 	 * @extends ResultProcessor
 	 * @param {object} configuration
 	 * @param {number=} configuration.year
-	 * @param {number=} configuration.yearRef
+	 * @param {string=} configuration.yearRef
 	 * @param {number} configuration.month
 	 * @param {string} configuration.monthRef
 	 * @param {number=} configuration.day
