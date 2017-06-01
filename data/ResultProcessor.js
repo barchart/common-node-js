@@ -61,7 +61,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {ResultProcessor} resultProcessor - The {@link ResultProcessor} to wrap.
-		 * @returns {Promise} The processed output, as a promise.
+		 * @returns {Function}
 		 */
 		static toFunction(resultProcessor) {
 			assert.argumentIsRequired(resultProcessor, 'resultProcessor', ResultProcessor, 'ResultProcessor');
