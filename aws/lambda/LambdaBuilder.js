@@ -356,7 +356,7 @@ module.exports = (() => {
 							throw new Error('Configuration data for Amazon S3 is missing.');
 						}
 
-						const s3 = new SesProvider(configuration.aws.s3);
+						const s3 = new S3Provider(configuration.aws.s3);
 
 						return s3.start().then(() => s3);
 					});
