@@ -1036,7 +1036,7 @@ module.exports = (() => {
 
 			return Promise.resolve()
 				.then(() => {
-					return subscriptionInfo.rooms.command.process(request);
+					return subscriptionInfo.room.command.process(request);
 				}).then((qualifiers) => {
 					let qualifiersToJoin;
 
@@ -1049,7 +1049,7 @@ module.exports = (() => {
 					}
 
 					const roomsToJoin = qualifiersToJoin.map((qualifierToJoin) => {
-						return subscriptionInfo.rooms.base + qualifierToJoin;
+						return subscriptionInfo.room.base + qualifierToJoin;
 					});
 
 					roomsToJoin.forEach((roomToJoin) => {
