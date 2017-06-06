@@ -1,6 +1,7 @@
 const log4js = require('log4js');
 
-const attributes = require('common/lang/attributes'),
+const array = require('common/lang/array'),
+	attributes = require('common/lang/attributes'),
 	is = require('common/lang/is');
 
 const ResultProcessor = require('./../ResultProcessor');
@@ -32,16 +33,7 @@ module.exports = (() => {
 				partitionSize = parseInt(partitionSize);
 			}
 
-			partitionSize = partitionSize || 10;
-
-			const original = results.slice(0);
-			const partitions = [ ];
-
-			while (original.length !== 0) {
-				partitions.push(original.splice(0, partitionSize));
-			}
-
-			return partitions;
+			return array.partition(results, partitionSize || 10);
 		}
 
 		toString() {
