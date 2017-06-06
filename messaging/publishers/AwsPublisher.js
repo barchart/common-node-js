@@ -3,6 +3,7 @@ const log4js = require('log4js'),
 
 const assert = require('common/lang/assert'),
 	Event = require('common/messaging/Event'),
+	EventMap = require('common/messaging/EventMap'),
 	Disposable = require('common/lang/Disposable'),
 	DisposableStack = require('common/collections/specialized/DisposableStack'),
 	is = require('common/lang/is');
@@ -49,84 +50,111 @@ module.exports = (() => {
 				payload: payload
 			};
 
-			logger.debug('Publishing message to AWS:', messageType);
+			const topic = getTopic(messageType);
+			const qualifier = getQualifier(messageType);
+
+			if (qualifier !== null) {
+				envelope.qualifier = qualifier;
+			}
+
+			logger.debug('Publishing message to AWS:', topic);
 			logger.trace(payload);
 
-			return this._snsProvider.publish(messageType, envelope);
+			return this._snsProvider.publish(topic, envelope);
 		}
 
 		_subscribe(messageType, handler) {
-			logger.debug('Subscribing to AWS messages:', messageType);
+			const topic = getTopic(messageType);
+			const qualifier = getQualifier(messageType);
 
-			if (!this._subscriptionPromises.hasOwnProperty(messageType)) {
+			logger.debug('Subscribing to AWS messages:', topic);
+
+			if (!this._subscriptionPromises.hasOwnProperty(topic)) {
 				const subscriptionStack = new DisposableStack();
 
 				const subscriptionEvent = new Event(this);
-				const subscriptionQueueName = getSubscriptionQueue.call(this, messageType);
+				const subscriptionEvents = new EventMap(this);
+
+				const subscriptionQueueName = getSubscriptionQueue.call(this, topic);
 
 				subscriptionStack.push(subscriptionEvent);
 
-				this._subscriptionPromises[messageType] = Promise.all([
-					this._snsProvider.getTopicArn(messageType),
-					this._sqsProvider.getQueueArn(subscriptionQueueName)])
-						.then((resultGroup) => {
-							const topicArn = resultGroup[0];
-							const queueArn = resultGroup[1];
+				this._subscriptionPromises[topic] = Promise.all([
+					this._snsProvider.getTopicArn(topic),
+					this._sqsProvider.getQueueArn(subscriptionQueueName)
+				]).then((resultGroup) => {
+					const topicArn = resultGroup[0];
+					const queueArn = resultGroup[1];
 
-							subscriptionStack.push(Disposable.fromAction(() => {
-								this._sqsProvider.deleteQueue(subscriptionQueueName);
-							}));
+					subscriptionStack.push(Disposable.fromAction(() => {
+						this._sqsProvider.deleteQueue(subscriptionQueueName);
+					}));
 
-							return this._sqsProvider.setQueuePolicy(subscriptionQueueName, SqsProvider.getPolicyForSnsDelivery(queueArn, topicArn))
-								.then(() => {
-									return this._snsProvider.subscribe(messageType, queueArn);
-								});
-						}).then((queueBinding) => {
-							subscriptionStack.push(queueBinding);
-
-							return this._sqsProvider.observe(subscriptionQueueName, (envelope) => {
-								if (!is.object(envelope) || !is.string(envelope.Message)) {
-									return;
-								}
-
-								const message = JSON.parse(envelope.Message);
-
-								let content;
-								let echo;
-
-								if (is.string(message.publisher) && is.object(message.payload)) {
-									content = message.payload;
-									echo = message.publisher === this._publisherId;
-								} else {
-									content = message;
-									echo = false;
-								}
-
-								if (!echo || !this._suppressEcho) {
-									subscriptionEvent.fire(content);
-								} else {
-									logger.debug('AWS publisher dropped an "echo" message for', messageType);
-								}
-							}, 100, 20000, 10);
-						}).then((queueObserver) => {
-							subscriptionStack.push(queueObserver);
-
-							subscriptionStack.push(Disposable.fromAction(() => {
-								delete this._subscriptionPromises[messageType];
-							}));
-
-							return {
-								binding: subscriptionStack,
-								event: subscriptionEvent
-							};
+					return this._sqsProvider.setQueuePolicy(subscriptionQueueName, SqsProvider.getPolicyForSnsDelivery(queueArn, topicArn))
+						.then(() => {
+							return this._snsProvider.subscribe(topic, queueArn);
 						});
+				}).then((queueBinding) => {
+					subscriptionStack.push(queueBinding);
+
+					return this._sqsProvider.observe(subscriptionQueueName, (envelope) => {
+						if (!is.object(envelope) || !is.string(envelope.Message)) {
+							return;
+						}
+
+						const message = JSON.parse(envelope.Message);
+
+						let content;
+						let echo;
+
+						if (is.string(message.publisher) && is.object(message.payload)) {
+							content = message.payload;
+							echo = message.publisher === this._publisherId;
+						} else {
+							content = message;
+							echo = false;
+						}
+
+						if (!echo || !this._suppressEcho) {
+							subscriptionEvent.fire(content);
+
+							if (is.string(message.qualifier)) {
+								subscriptionEvents.fire(message.qualifier, content);
+							}
+						} else {
+							logger.debug('AWS publisher dropped an "echo" message for', topic);
+						}
+					}, 100, 20000, 10);
+				}).then((queueObserver) => {
+					subscriptionStack.push(queueObserver);
+
+					subscriptionStack.push(Disposable.fromAction(() => {
+						delete this._subscriptionPromises[topic];
+					}));
+
+					return {
+						binding: subscriptionStack,
+						event: subscriptionEvent,
+						events: subscriptionEvents
+					};
+				});
 			}
 
-			return this._subscriptionPromises[messageType]
+			return this._subscriptionPromises[topic]
 				.then((subscriberData) => {
-					return subscriberData.event.register((data, ignored) => {
+					const h = (data, ignored) => {
 						handler(data);
-					});
+					};
+
+					let binding;
+
+					if (qualifier) {
+						binding = subscriberData.events.register(qualifier, h);
+					} else {
+						binding = subscriberData.event.register(h);
+					}
+
+					return binding;
 				});
 		}
 
@@ -150,8 +178,30 @@ module.exports = (() => {
 		}
 	}
 
-	function getSubscriptionQueue(messageType) {
-		return messageType + '-' + this._publisherId;
+	const messageTypeRegex = /(.*)#(.*)$/;
+
+	function getSubscriptionQueue(topic) {
+		return topic + '-' + this._publisherId;
+	}
+
+	function getTopic(messageType) {
+		const matches = messageType.match(messageTypeRegex);
+
+		if (matches !== null) {
+			return matches[1];
+		} else {
+			return messageType;
+		}
+	}
+
+	function getQualifier(messageType) {
+		const matches = messageType.match(messageTypeRegex);
+
+		if (matches !== null) {
+			return matches[2];
+		} else {
+			return null;
+		}
 	}
 
 	return AwsPublisher;
