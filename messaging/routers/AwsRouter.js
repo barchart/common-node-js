@@ -43,12 +43,14 @@ module.exports = (() => {
 
 					const responseObserver = this._sqsProvider.observe(responseQueueName, (message) => {
 						if (is.string(message.id) && this._pendingRequests.hasOwnProperty(message.id)) {
-							const resolveCallback = this._pendingRequests[message.id];
+							const callbacks = this._pendingRequests[message.id];
 
 							delete this._pendingRequests[message.id];
 
-							if (is.object(message.payload)) {
-								resolveCallback(message.payload);
+							if (is.boolean(message.success) && !message.success) {
+								callbacks.reject('Request failed');
+							} else if (is.object(message.payload)) {
+								callbacks.resolve(message.payload);
 							}
 						}
 					}, 100, 20000, 10);
@@ -80,8 +82,11 @@ module.exports = (() => {
 				payload: payload
 			};
 
-			const routePromise = promise.build((resolveCallback, rejectedCallback) => {
-				this._pendingRequests[messageId] = resolveCallback;
+			const routePromise = promise.build((resolveCallback, rejectCallback) => {
+				this._pendingRequests[messageId] = {
+					resolve: resolveCallback,
+					reject: rejectCallback
+				};
 			});
 
 			return this._sqsProvider.send(messageType, envelope)
@@ -105,7 +110,7 @@ module.exports = (() => {
 					});
 
 				if (message.sender !== null) {
-					handlerPromise = handlerPromise.then((response) => {
+					const respond = (success, response) => {
 						const responseQueueName = getResponseChannel(message.sender);
 
 						const envelope = {
@@ -115,14 +120,23 @@ module.exports = (() => {
 						};
 
 						return this._sqsProvider.send(responseQueueName, envelope);
+					};
+
+					handlerPromise = handlerPromise.then((response) => {
+						return respond(true, response);
+					}).catch((e) => {
+						logger.error('Request processing failed. Sending failure message.', e);
+
+						return respond(false);
+					});
+				} else {
+					handlerPromise = handlerPromise.catch((e) => {
+						logger.error('Request processing failed.', e);
 					});
 				}
 
-				handlerPromise = handlerPromise.catch((e) => {
-					logger.error('Request processing failed. Unable to respond.', e);
-				});
 				return handlerPromise;
-			}, 100, 20000, 4);
+			}, 100, 20000, 10);
 
 			this._requestHandlers[messageType] = registerObserver;
 
