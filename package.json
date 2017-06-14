@@ -28,7 +28,9 @@
     "SQS"
   ],
   "dependencies": {
+    "@google-cloud/pubsub": "^0.13.0",
     "aws-sdk": "2.7.19",
+    "barchart-marketdata-utilities": "1.0.60",
     "body-parser": "1.15.2",
     "client-sessions": "0.7.0",
     "common": "git+ssh://github.com/barchart/barchart-common-js#2.1.80",
@@ -37,7 +39,6 @@
     "express-http-proxy": "0.10.1",
     "http-digest-client": "0.0.3",
     "log4js": "1.1.1",
-    "barchart-marketdata-utilities": "1.0.60",
     "moment-timezone": "0.5.11",
     "multer": "1.2.1",
     "mysql": "2.12.0",
