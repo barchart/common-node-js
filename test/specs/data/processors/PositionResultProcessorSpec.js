@@ -1,12 +1,12 @@
-var LabelResultProcessor = require('./../../../../data/processors/LabelResultProcessor');
+var PositionResultProcessor = require('./../../../../data/processors/PositionResultProcessor');
 
-describe('When a LabelResultProcessor on an array', function() {
+describe('When a PositionResultProcessor on an array', function() {
 	'use strict';
 
 	var processor;
 
 	beforeEach(function () {
-		processor = new LabelResultProcessor({propertyName: 'counter'});
+		processor = new PositionResultProcessor({propertyName: 'counter'});
 	});
 
 	describe('with two items', function () {

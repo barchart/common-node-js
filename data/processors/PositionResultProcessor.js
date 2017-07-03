@@ -8,7 +8,7 @@ const ResultProcessor = require('./../ResultProcessor');
 module.exports = (() => {
 	'use strict';
 
-	const logger = log4js.getLogger('data/processors/LabelResultProcessor');
+	const logger = log4js.getLogger('data/processors/PositionResultProcessor');
 
 	/**
 	 * For an array, creates a new property on each of the array's items;
@@ -20,7 +20,7 @@ module.exports = (() => {
 	 * @param {Object} configuration
 	 * @param {string=} configuration.propertyName - The name of the property to create on each item.
 	 */
-	class LabelResultProcessor extends ResultProcessor {
+	class PositionResultProcessor extends ResultProcessor {
 		constructor(configuration) {
 			super(configuration);
 		}
@@ -45,9 +45,9 @@ module.exports = (() => {
 		}
 
 		toString() {
-			return '[LabelResultProcessor]';
+			return '[PositionResultProcessor]';
 		}
 	}
 
-	return LabelResultProcessor;
+	return PositionResultProcessor;
 })();
