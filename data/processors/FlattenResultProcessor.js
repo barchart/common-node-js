@@ -1,6 +1,7 @@
 const log4js = require('log4js');
 
-const is = require('common/lang/is');
+const is = require('common/lang/is'),
+	array = require('common/lang/array');
 
 const ResultProcessor = require('./../ResultProcessor');
 
@@ -14,7 +15,8 @@ module.exports = (() => {
 	 *
 	 * @public
 	 * @extends ResultProcessor
-	 * @param {object} configuration - Not used.
+	 * @param {object} configuration
+	 * @param {Boolean} configuration.recursive - If true, flattening will occur beyond the first level.
 	 */
 	class FlattenResultProcessor extends ResultProcessor {
 		constructor(configuration) {
@@ -30,9 +32,11 @@ module.exports = (() => {
 				throw new Error('Unable to aggregate results, input must be an array.');
 			}
 
-			let aggregate = [ ];
 
-			return aggregate.concat.apply(aggregate, results);
+			const configuration = this._getConfiguration();
+			const recursive = is.boolean(configuration.recursive) && configuration.recursive;
+
+			return array.flatten(results, recursive);
 		}
 
 		toString() {
