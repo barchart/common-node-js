@@ -1,6 +1,6 @@
 {
   "name": "common-node",
-  "version": "2.1.84",
+  "version": "2.1.85",
   "description": "Common classes, utilities, and functions for building Node.js servers",
   "author": {
     "name": "Bryan Ingle",
@@ -33,7 +33,7 @@
     "barchart-marketdata-utilities": "1.0.60",
     "body-parser": "1.15.2",
     "client-sessions": "0.7.0",
-    "common": "git+ssh://github.com/barchart/barchart-common-js#2.1.85",
+    "common": "git+ssh://github.com/barchart/barchart-common-js#2.1.86",
     "express": "4.14.0",
     "express-handlebars": "3.0.0",
     "express-http-proxy": "0.10.1",
