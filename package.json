@@ -1,6 +1,6 @@
 {
   "name": "common-node",
-  "version": "2.1.87",
+  "version": "2.2.0",
   "description": "Common classes, utilities, and functions for building Node.js servers",
   "author": {
     "name": "Bryan Ingle",
@@ -38,7 +38,7 @@
     "express-handlebars": "3.0.0",
     "express-http-proxy": "0.10.1",
     "http-digest-client": "0.0.3",
-    "log4js": "1.1.1",
+    "log4js": "2.0.1",
     "moment-timezone": "0.5.11",
     "multer": "1.2.1",
     "mysql": "2.12.0",
