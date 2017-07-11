@@ -118,6 +118,33 @@ module.exports = (() => {
 
 			return instance;
 		}
+
+		/**
+		 * Parses the process arguments, looking for key/value pairs. Each
+		 * key must be have a dash prefix, and each value cannot use a dash
+		 * prefix. For the following invocation -- "node app.js -a 1 -b 2" --
+		 * a map with keys, "a" and "b" would be returned having values 1 and 2,
+		 * respectively.
+		 *
+		 * returns {object}
+		 */
+		static parseProcessArguments() {
+			const a = process.argv;
+
+			return process.argv.reduce((map, key, i) => {
+				const j = i + 1;
+
+				if (is.string(key) && key.startsWith('-') && i > 0 && a.length > j) {
+					const value = a[j];
+
+					if (is.string(value) && !value.startsWith('-')) {
+						map[key] = value;
+					}
+				}
+
+				return map;
+			}, { });
+		}
 	}
 
 	function readConfigurationFile(applicationPath, filePath, name) {
