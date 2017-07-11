@@ -90,44 +90,49 @@ module.exports = (() => {
 		}
 
 		getTables() {
-			if (this.getIsDisposed()) {
-				throw new Error('The Dynamo Provider has been disposed.');
-			}
-
-			if (!this._started) {
-				throw new Error('The Dynamo Provider has not been started.');
-			}
-
-			const getTablesRecursive = (previous) => {
-				return promise.build((resolveCallback, rejectCallback) => {
-					const options = { };
-
-					if (previous && is.string(previous)) {
-						options.ExclusiveStartTableName = previous;
+			return Promise.resolve()
+				.then(() => {
+					if (this.getIsDisposed()) {
+						throw new Error('The Dynamo Provider has been disposed.');
 					}
 
-					this._dynamo.listTables(options, (error, data) => {
-						if (error !== null) {
-							logger.info('Retrieved', data.TableNames.length, 'DynamoDB tables.');
+					if (!this._started) {
+						throw new Error('The Dynamo Provider has not been started.');
+					}
 
-							if (is.string(data.LastEvaluatedTableName)) {
-								getTablesRecursive(data.LastEvaluatedTableName)
-									.then((tableNames) => {
-										resolveCallback(data.TableNames.concat(tableNames));
-									});
-							} else {
-								resolveCallback(data.TableNames);
+					const getTablesRecursive = (previous) => {
+						return promise.build((resolveCallback, rejectCallback) => {
+							const options = { };
+
+							if (previous && is.string(previous)) {
+								options.ExclusiveStartTableName = previous;
 							}
-						} else {
-							logger.error(error);
 
-							rejectCallback('Failed to retrieve DynamoDB tables', error);
-						}
-					});
+							this._dynamo.listTables(options, (error, data) => {
+								if (error) {
+									logger.error(error);
+
+									rejectCallback('Failed to retrieve DynamoDB tables', error);
+								} else {
+									const matches = data.TableNames.filter((name) => name.startsWith(this._configuration.prefix));
+
+									logger.info('Retrieved', matches.length, 'matching DynamoDB tables.');
+
+									if (is.string(data.LastEvaluatedTableName)) {
+										getTablesRecursive(data.LastEvaluatedTableName)
+											.then((more) => {
+												resolveCallback(matches.concat(more));
+											});
+									} else {
+										resolveCallback(matches);
+									}
+								}
+							});
+						});
+					};
+
+					return getTablesRecursive();
 				});
-			};
-
-			return getTablesRecursive();
 		}
 
 		_onDispose() {
