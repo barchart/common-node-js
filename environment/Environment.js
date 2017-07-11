@@ -131,7 +131,7 @@ module.exports = (() => {
 		static parseProcessArguments() {
 			const a = process.argv;
 
-			return process.argv.reduce((map, key, i) => {
+			return a.reduce((map, key, i) => {
 				const j = i + 1;
 
 				if (is.string(key) && key.startsWith('-') && i > 0 && a.length > j) {
