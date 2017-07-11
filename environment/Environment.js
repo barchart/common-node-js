@@ -138,7 +138,7 @@ module.exports = (() => {
 					const value = a[j];
 
 					if (is.string(value) && !value.startsWith('-')) {
-						map[key] = value;
+						map[key.substr(1)] = value;
 					}
 				}
 
