@@ -123,7 +123,7 @@ module.exports = (() => {
 
 							rejectCallback('Failed to retrieve DynamoDB tables', error);
 						}
-					})
+					});
 				});
 			};
 
