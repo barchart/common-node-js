@@ -10,7 +10,7 @@ const assert = require('common/lang/assert'),
 module.exports = (() => {
 	'use strict';
 
-	const logger = log4js.getLogger('common-node/messaging/DynamoProvider');
+	const logger = log4js.getLogger('common-node/aws/DynamoProvider');
 
 	/**
 	 * A facade for Amazon's DynamoDB service. The constructor accepts
@@ -141,6 +141,34 @@ module.exports = (() => {
 
 		toString() {
 			return '[DynamoProvider]';
+		}
+	}
+
+	class Key {
+		constructor(name, dataType, keyType) {
+			assert.argumentIsRequired(name, 'name', String);
+			assert.argumentIsRequired(dataType, 'dataType', DataType, 'DataType');
+			assert.argumentIsRequired(keyType, 'keyType', KeyType, 'KeyType');
+
+			this._name = name;
+			this._dataType = dataType;
+			this._keyType = keyType;
+		}
+
+		get name() {
+			return this._name;
+		}
+
+		get dataType() {
+			return this._dataType;
+		}
+
+		get keyType() {
+			return this._keyType;
+		}
+
+		toString() {
+			return `[Key (name=${this._name})]`;
 		}
 	}
 
