@@ -46,7 +46,6 @@ module.exports = (() => {
 
 			this._queueObservers = {};
 			this._knownQueues = {};
-			this._retentionTimes = {};
 
 			this._startPromise = null;
 			this._started = false;
