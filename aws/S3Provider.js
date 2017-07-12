@@ -11,7 +11,7 @@ const assert = require('common/lang/assert'),
 module.exports = (() => {
 	'use strict';
 
-	const logger = log4js.getLogger('common-node/messaging/S3Provider');
+	const logger = log4js.getLogger('common-node/aws/S3Provider');
 
 	const mimeTypes = {
 		text: 'text/plain',

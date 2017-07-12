@@ -11,7 +11,7 @@ const assert = require('common/lang/assert'),
 module.exports = (() => {
 	'use strict';
 
-	const logger = log4js.getLogger('common-node/messaging/SesProvider');
+	const logger = log4js.getLogger('common-node/aws/SesProvider');
 
 	/**
 	 * A facade for Amazon's Simple Email Service (SES). The constructor
