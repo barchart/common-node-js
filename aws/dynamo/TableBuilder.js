@@ -47,15 +47,17 @@ module.exports = (() => {
 		}
 
 		withProvisionedThroughput(readUnits, writeUnits) {
-			const capacityBuilder = new CapacityUnitsBuilder(readUnits, writeUnits);
+			const provisionedThroughputBuilder = new CapacityUnitsBuilder(readUnits, writeUnits);
 
-			return this.withProvisionedThroughputBuilder(capacityBuilder);
+			return this.withProvisionedThroughputBuilder(provisionedThroughputBuilder);
 		}
 
-		withProvisionedThroughputBuilder(capacityBuilder) {
-			assert.argumentIsRequired(capacityBuilder, 'capacityBuilder', capacityBuilder, 'capacityBuilder');
+		withProvisionedThroughputBuilder(provisionedThroughputBuilder) {
+			assert.argumentIsRequired(provisionedThroughputBuilder, 'provisionedThroughputBuilder', provisionedThroughputBuilder, 'provisionedThroughputBuilder');
 
-			return this._provisionedThroughputBuilder = capacityBuilder;
+			this._provisionedThroughputBuilder = provisionedThroughputBuilder;
+			
+			return this;
 		}
 
 		validate() {
