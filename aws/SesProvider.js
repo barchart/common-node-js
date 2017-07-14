@@ -114,100 +114,103 @@ module.exports = (() => {
 		 * @returns {Promise}
 		 */
 		sendEmail(senderAddress, recipientAddress, subject, htmlBody, textBody, tags) {
-			assert.argumentIsRequired(senderAddress, 'senderAddress', String);
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsRequired(senderAddress, 'senderAddress', String);
 
-			checkReady.call(this);
+					checkReady.call(this);
 
-			if (is.array(recipientAddress)) {
-				assert.argumentIsArray(recipientAddress, 'recipientAddress', String);
-			} else {
-				assert.argumentIsRequired(recipientAddress, 'recipientAddress', String);
-			}
-
-			assert.argumentIsOptional(subject, 'subject', String);
-			assert.argumentIsOptional(htmlBody, 'htmlBody', String);
-			assert.argumentIsOptional(textBody, 'textBody', String);
-
-			if (this.getIsDisposed()) {
-				throw new Error('The SES Provider has been disposed.');
-			}
-
-			if (!this._started) {
-				throw new Error('The SES Provider has not been started.');
-			}
-
-			if (this._configuration.recipientOverride) {
-				logger.warn('Overriding email recipient for testing purposes.');
-
-				recipientAddress = this._configuration.recipientOverride;
-			}
-
-			let recipientAddressesToUse;
-
-			if (is.array(recipientAddress)) {
-				recipientAddressesToUse = recipientAddress;
-			} else {
-				recipientAddressesToUse = [recipientAddress];
-			}
-
-			const params = {
-				Destination: {
-					ToAddresses: recipientAddressesToUse
-				},
-				Message: {
-					Body: {}
-				},
-				Source: senderAddress
-			};
-
-			if (is.string(subject) && subject.length > 0) {
-				params.Message.Subject = {
-					Data: subject
-				};
-			}
-
-			if (is.string(htmlBody) && htmlBody.length > 0) {
-				params.Message.Body.Html = {
-					Data: htmlBody
-				};
-			}
-
-			if (is.string(textBody) && textBody.length > 0) {
-				params.Message.Body.Text = {
-					Data: textBody
-				};
-			}
-
-			if (is.array(tags)) {
-				const keys = object.keys(tags);
-
-				params.Tags = keys.reduce((accumulator, tag) => {
-					if (is.string(tag.name) && is.string(tag.value)) {
-						accumulator.push({Name: tag.name, Value: tag.value});
+					if (is.array(recipientAddress)) {
+						assert.argumentIsArray(recipientAddress, 'recipientAddress', String);
+					} else {
+						assert.argumentIsRequired(recipientAddress, 'recipientAddress', String);
 					}
 
-					return accumulator;
-				}, [ ]);
-			}
+					assert.argumentIsOptional(subject, 'subject', String);
+					assert.argumentIsOptional(htmlBody, 'htmlBody', String);
+					assert.argumentIsOptional(textBody, 'textBody', String);
 
-			return this._rateLimiter.enqueue(() => {
-				return promise.build((resolveCallback, rejectCallback) => {
-					logger.debug('Sending email to', recipientAddress);
+					if (this.getIsDisposed()) {
+						throw new Error('The SES Provider has been disposed.');
+					}
 
-					this._ses.sendEmail(params, (error, data) => {
-						if (error) {
-							logger.error('SES Email Provider failed to send email message', params);
-							logger.error(error);
+					if (!this._started) {
+						throw new Error('The SES Provider has not been started.');
+					}
 
-							rejectCallback(error);
-						} else {
-							logger.debug('Sent email to', recipientAddress);
+					if (this._configuration.recipientOverride) {
+						logger.warn('Overriding email recipient for testing purposes.');
 
-							resolveCallback();
-						}
+						recipientAddress = this._configuration.recipientOverride;
+					}
+
+					let recipientAddressesToUse;
+
+					if (is.array(recipientAddress)) {
+						recipientAddressesToUse = recipientAddress;
+					} else {
+						recipientAddressesToUse = [recipientAddress];
+					}
+
+					const params = {
+						Destination: {
+							ToAddresses: recipientAddressesToUse
+						},
+						Message: {
+							Body: {}
+						},
+						Source: senderAddress
+					};
+
+					if (is.string(subject) && subject.length > 0) {
+						params.Message.Subject = {
+							Data: subject
+						};
+					}
+
+					if (is.string(htmlBody) && htmlBody.length > 0) {
+						params.Message.Body.Html = {
+							Data: htmlBody
+						};
+					}
+
+					if (is.string(textBody) && textBody.length > 0) {
+						params.Message.Body.Text = {
+							Data: textBody
+						};
+					}
+
+					if (is.array(tags)) {
+						const keys = object.keys(tags);
+
+						params.Tags = keys.reduce((accumulator, tag) => {
+							if (is.string(tag.name) && is.string(tag.value)) {
+								accumulator.push({Name: tag.name, Value: tag.value});
+							}
+
+							return accumulator;
+						}, [ ]);
+					}
+
+					return this._rateLimiter.enqueue(() => {
+						return promise.build((resolveCallback, rejectCallback) => {
+							logger.debug('Sending email to', recipientAddress);
+
+							this._ses.sendEmail(params, (error, data) => {
+								if (error) {
+									logger.error('SES Email Provider failed to send email message', params);
+									logger.error(error);
+
+									rejectCallback(error);
+								} else {
+									logger.debug('Sent email to', recipientAddress);
+
+									resolveCallback();
+								}
+							});
+						});
 					});
 				});
-			});
 		}
 
 		_onDispose() {
