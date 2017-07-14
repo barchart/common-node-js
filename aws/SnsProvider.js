@@ -101,13 +101,7 @@ module.exports = (() => {
 		getTopicArn(topicName) {
 			assert.argumentIsRequired(topicName, 'topicName', String);
 
-			if (this.getIsDisposed()) {
-				throw new Error('The SNS Provider has been disposed.');
-			}
-
-			if (!this._started) {
-				throw new Error('The SNS Provider has not been started.');
-			}
+			checkReady.call(this);
 
 			const qualifiedTopicName = getQualifiedTopicName(this._configuration.prefix, topicName);
 
@@ -130,13 +124,7 @@ module.exports = (() => {
 		createTopic(topicName) {
 			assert.argumentIsRequired(topicName, 'topicName', String);
 
-			if (this.getIsDisposed()) {
-				throw new Error('The SNS Provider has been disposed.');
-			}
-
-			if (!this._started) {
-				throw new Error('The SNS Provider has not been started.');
-			}
+			checkReady.call(this);
 
 			return promise.build(
 				(resolveCallback, rejectCallback) => {
@@ -172,13 +160,7 @@ module.exports = (() => {
 		deleteTopic(topicName) {
 			assert.argumentIsRequired(topicName, 'topicName', String);
 
-			if (this.getIsDisposed()) {
-				throw new Error('The SNS Provider has been disposed.');
-			}
-
-			if (!this._started) {
-				throw new Error('The SNS Provider has not been started.');
-			}
+			checkReady.call(this);
 
 			return this.getTopicArn(topicName)
 				.then((topicArn) => {
@@ -200,13 +182,7 @@ module.exports = (() => {
 		deleteTopicArn(topicArn) {
 			assert.argumentIsRequired(topicArn, 'topicArn', String);
 
-			if (this.getIsDisposed()) {
-				throw new Error('The SNS Provider has been disposed.');
-			}
-
-			if (!this._started) {
-				throw new Error('The SNS Provider has not been started.');
-			}
+			checkReady.call(this);
 
 			return promise.build(
 				(resolveCallback, rejectCallback) => {
@@ -242,13 +218,7 @@ module.exports = (() => {
 			assert.argumentIsRequired(topicName, 'topicName', String);
 			assert.argumentIsRequired(payload, 'payload', Object);
 
-			if (this.getIsDisposed()) {
-				throw new Error('The SNS Provider has been disposed.');
-			}
-
-			if (!this._started) {
-				throw new Error('The SNS Provider has not been started.');
-			}
+			checkReady.call(this);
 
 			return this.getTopicArn(topicName)
 				.then((topicArn) => {
@@ -295,13 +265,7 @@ module.exports = (() => {
 			assert.argumentIsRequired(topicName, 'topicName', String);
 			assert.argumentIsRequired(queueArn, 'queueArn', String);
 
-			if (this.getIsDisposed()) {
-				throw new Error('The SNS Provider has been disposed.');
-			}
-
-			if (!this._started) {
-				throw new Error('The SNS Provider has not been started.');
-			}
+			checkReady.call(this);
 
 			const qualifiedTopicName = getQualifiedTopicName(this._configuration.prefix, topicName);
 
@@ -364,13 +328,7 @@ module.exports = (() => {
 		getTopics(topicNamePrefix) {
 			assert.argumentIsOptional(topicNamePrefix, 'topicNamePrefix', String);
 
-			if (this.getIsDisposed()) {
-				throw new Error('The SNS Provider has been disposed.');
-			}
-
-			if (!this._started) {
-				throw new Error('The SNS Provider has not been started.');
-			}
+			checkReady.call(this);
 
 			const getTopicBatch = (token) => {
 				return promise.build(
@@ -454,6 +412,16 @@ module.exports = (() => {
 
 		toString() {
 			return '[SnsProvider]';
+		}
+	}
+
+	function checkReady() {
+		if (this.getIsDisposed()) {
+			throw new Error('The Dynamo Provider has been disposed.');
+		}
+
+		if (!this._started) {
+			throw new Error('The Dynamo Provider has not been started.');
 		}
 	}
 

@@ -99,13 +99,7 @@ module.exports = (() => {
 		 * @returns {Promise.<object>}
 		 */
 		getBucketContents(bucket) {
-			if (this.getIsDisposed()) {
-				throw new Error('The S3 Provider has been disposed.');
-			}
-
-			if (!this._started) {
-				throw new Error('The S3 Provider has not been started.');
-			}
+			checkReady.call(this);
 
 			return promise.build((resolveCallback, rejectCallback) => {
 				this._s3.listObjects({Bucket: bucket}, (e, data) => {
@@ -148,13 +142,7 @@ module.exports = (() => {
 		 * @returns {Promise.<object>}
 		 */
 		uploadObject(bucket, filename, content, mimeType, secure) {
-			if (this.getIsDisposed()) {
-				throw new Error('The S3 Provider has been disposed.');
-			}
-
-			if (!this._started) {
-				throw new Error('The S3 Provider has not been started.');
-			}
+			checkReady.call(this);
 
 			return promise.build((resolveCallback, rejectCallback) => {
 				let acl;
@@ -223,13 +211,7 @@ module.exports = (() => {
 		 * @returns {Promise.<object>}
 		 */
 		downloadObject(bucket, filename) {
-			if (this.getIsDisposed()) {
-				throw new Error('The S3 Provider has been disposed.');
-			}
-
-			if (!this._started) {
-				throw new Error('The S3 Provider has not been started.');
-			}
+			checkReady.call(this);
 
 			return promise.build((resolveCallback, rejectCallback) => {
 				this._s3.getObject(getParameters(bucket, filename), (e, data) => {
@@ -252,13 +234,7 @@ module.exports = (() => {
 		 * @returns {Promise.<object>}
 		 */
 		deleteObject(bucket, filename) {
-			if (this.getIsDisposed()) {
-				throw new Error('The S3 Provider has been disposed.');
-			}
-
-			if (!this._started) {
-				throw new Error('The S3 Provider has not been started.');
-			}
+			checkReady.call(this);
 
 			return promise.build((resolveCallback, rejectCallback) => {
 				this._s3.deleteObject(getParameters(bucket, filename), (e, data) => {
@@ -311,6 +287,16 @@ module.exports = (() => {
 
 		toString() {
 			return '[S3Provider]';
+		}
+	}
+
+	function checkReady() {
+		if (this.getIsDisposed()) {
+			throw new Error('The Dynamo Provider has been disposed.');
+		}
+
+		if (!this._started) {
+			throw new Error('The Dynamo Provider has not been started.');
 		}
 	}
 

@@ -114,15 +114,9 @@ module.exports = (() => {
 		 * @returns {Promise}
 		 */
 		sendEmail(senderAddress, recipientAddress, subject, htmlBody, textBody, tags) {
-			if (this.getIsDisposed()) {
-				throw new Error('The SES Provider has been disposed.');
-			}
-
-			if (!this._started) {
-				throw new Error('The SES Provider has not been started.');
-			}
-
 			assert.argumentIsRequired(senderAddress, 'senderAddress', String);
+
+			checkReady.call(this);
 
 			if (is.array(recipientAddress)) {
 				assert.argumentIsArray(recipientAddress, 'recipientAddress', String);
@@ -224,6 +218,16 @@ module.exports = (() => {
 
 		toString() {
 			return '[SesProvider]';
+		}
+	}
+
+	function checkReady() {
+		if (this.getIsDisposed()) {
+			throw new Error('The Dynamo Provider has been disposed.');
+		}
+
+		if (!this._started) {
+			throw new Error('The Dynamo Provider has not been started.');
 		}
 	}
 
