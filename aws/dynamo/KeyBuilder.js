@@ -1,6 +1,8 @@
-const assert = require('common/lang/assert');
+const assert = require('common/lang/assert'),
+	is = require('common/lang/is');
 
-const DataType = require('./DataType'),
+const AttributeBuilder = require('./AttributeBuilder'),
+	DataType = require('./DataType'),
 	KeyType = require('./KeyType');
 
 module.exports = (() => {
@@ -12,9 +14,16 @@ module.exports = (() => {
 		constructor(name) {
 			assert.argumentIsRequired(name, 'name', String);
 
-			this._name = name;
+			this._attributeBuilder = AttributeBuilder.withName(name);
 			this._keyType = null;
-			this._dataType = null;
+		}
+
+		get attributeBuilder() {
+			return this._attributeBuilder;
+		}
+
+		get keyType() {
+			return this._keyType;
 		}
 
 		withKeyType(keyType) {
@@ -25,28 +34,48 @@ module.exports = (() => {
 			return this;
 		}
 
-		withDataType(keyType) {
-			assert.argumentIsRequired(keyType, 'keyType', KeyType, 'KeyType');
-
-			this._dataType = dataType;
+		withDataType(dataType) {
+			this._attributeBuilder.withDataType(dataType);
 
 			return this;
 		}
 
-		get name() {
-			return this._name;
+		withAttributeBuilder(attributeBuilder) {
+			assert.argumentIsRequired(attributeBuilder, 'attributeBuilder', AttributeBuilder, 'AttributeBuilder');
+
+			this._attributeBuilder = attributeBuilder;
+
+			return this;
 		}
 
-		get keyType() {
-			return this._keyType;
+		validate() {
+			if (!is.string(this._name) && this._name.length > 1) {
+				throw new Error('Key name is invalid.');
+			}
+
+			if (!(this._keyType instanceof KeyType)) {
+				throw new Error('Key type is invalid.');
+			}
+
+			this._attributeBuilder.validate();
 		}
 
-		get dataType() {
-			return this._dataType;
+		toAttributeSchema() {
+			this.validate();
+
+			return {
+				AttributeName: this._name,
+				AttributeType: this._attributeBuilder.dataType.code
+			};
 		}
 
-		getIsValid() {
-			return is.string(this._name) && this._keyType instanceof KeyType && this._dataType instanceof DataType;
+		toKeySchema() {
+			this.validate();
+
+			return {
+				AttributeName: this._name,
+				KeyType: this._keyType.dataType.code
+			};
 		}
 
 		static withName(name) {

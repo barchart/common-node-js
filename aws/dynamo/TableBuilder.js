@@ -1,7 +1,7 @@
 const assert = require('common/lang/assert'),
 	is = require('common/lang/is');
 
-const CapacityUnitsBuilder = require('./CapacityUnitsBuilder'),
+const CapacityUnitsBuilder = require('./ProvisionedThroughputBuilder'),
 	KeyBuilder = require('./KeyBuilder'),
 	KeyType = requrie('./KeyType');
 
@@ -14,14 +14,24 @@ module.exports = (() => {
 		constructor(name) {
 			assert.argumentIsRequired(name, 'name', String);
 
+			this._name = name;
+
 			this._keyBuilders = [ ];
-			this._capacityUnitsBuilder = null;
+			this._indexBuilders = [ ];
+
+			this._provisionedThroughputBuilder = new CapacityUnitsBuilder.fromDefaults();
 		}
 
 		withKey(name, dataType, keyType) {
-			const proposed = KeyBuilder.withName(name)
+			const keyBuilder = KeyBuilder.withName(name)
 				.withDataType(dataType)
 				.withKeyType(keyType);
+
+			return this.withKeyBuilder(keyBuilder);
+		}
+
+		withKeyBuilder(keyBuilder) {
+			assert.argumentIsRequired(keyBuilder, 'keyBuilder', KeyBuilder, 'KeyBuilder');
 
 			if (this._keyBuilders.some(k => k.name === proposed.name)) {
 				throw new Error(`Unable to add key, another key definition exists for the same [${proposed.name}]`);
@@ -31,31 +41,46 @@ module.exports = (() => {
 				throw new Error(`Unable to add key, another key definition exists for the same key type [${proposed.keyType.code}]`);
 			}
 
-			this._keyBuilders.push(proposed);
+			this._keyBuilders.push(keyBuilder);
 
 			return this;
 		}
 
-		withReadCapacityUnits(value) {
-			assert.argumentIsRequired(value, 'value', Number);
+		withProvisionedThroughput(readUnits, writeUnits) {
+			const capacityBuilder = new CapacityUnitsBuilder(readUnits, writeUnits);
 
-			this._readCapacityUnits = value;
-
-			return this;
+			return this.withProvisionedThroughputBuilder(capacityBuilder);
 		}
 
-		withWriteCapacityUnits(value) {
-			assert.argumentIsRequired(value, 'value', Number);
+		withProvisionedThroughputBuilder(capacityBuilder) {
+			assert.argumentIsRequired(capacityBuilder, 'capacityBuilder', capacityBuilder, 'capacityBuilder');
 
-			this._writeCapacityUnits = value;
-
-			return this;
+			return this._provisionedThroughputBuilder = capacityBuilder;
 		}
 
+		validate() {
+			if (!is.string(name) && name.length > 1) {
+				throw new Error('Table name is invalid.')
+			}
 
+			if (this._keyBuilders.filter(k => k.keyType === KeyType.HASH).length !== 1) {
+				throw new Error('Table must have at least one hash key.');
+			}
 
-		getIsValid() {
-			return is.string(this._name) && this._keyBuilders.filter(k => k.keyType === KeyType.HASH).length === 1;
+			this._keyBuilders.forEach((kb) => kb.validate());
+
+			this._provisionedThroughputBuilder.validate();
+		}
+
+		toTableSchema() {
+			this.validate();
+
+			const schema = {
+				TableName: this._name
+			};
+
+			schema.AttributeDefinitions = this._keyBuilders.map(kb => kb.toAttributeSchema());
+			schema.KeySchema = this._keyBuilders.map(kb => kb.toKeySchema());
 		}
 
 		static withName(name) {

@@ -7,6 +7,8 @@ const assert = require('common/lang/assert'),
 	object = require('common/lang/object'),
 	promise = require('common/lang/promise');
 
+const TableBuilder = require('./dynamo/TableBuilder');
+
 module.exports = (() => {
 	'use strict';
 
@@ -92,13 +94,7 @@ module.exports = (() => {
 		getTables() {
 			return Promise.resolve()
 				.then(() => {
-					if (this.getIsDisposed()) {
-						throw new Error('The Dynamo Provider has been disposed.');
-					}
-
-					if (!this._started) {
-						throw new Error('The Dynamo Provider has not been started.');
-					}
+					checkReady.call(this);
 
 					const getTablesRecursive = (previous) => {
 						return promise.build((resolveCallback, rejectCallback) => {
@@ -135,12 +131,49 @@ module.exports = (() => {
 				});
 		}
 
+		createTable(tableBuilder) {
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsRequired(tableBuilder, 'tableBuilder', TableBuilder, 'TableBuilder');
+
+					checkReady.call(this);
+
+					return promise.build((resolveCallback, rejectCallback) => {
+						this._dynamo.createTable(tableBuilder.toTableSchema(), (error, data) => {
+							if (error) {
+								logger.error(error);
+
+								rejectCallback('Failed to retrieve DynamoDB tables', error);
+							} else {
+								resolveCallback();
+							}
+						});
+					});
+				});
+		}
+
+		getTableBuilder(name) {
+			assert.argumentIsRequired(name, 'name', String);
+
+			return TableBuilder.withName(`{this._configuration.prefix}-${name}`);
+		}
+
 		_onDispose() {
 			logger.debug('Dynamo Provider disposed');
 		}
 
 		toString() {
 			return '[DynamoProvider]';
+		}
+	}
+
+	function checkReady() {
+		if (this.getIsDisposed()) {
+			throw new Error('The Dynamo Provider has been disposed.');
+		}
+
+		if (!this._started) {
+			throw new Error('The Dynamo Provider has not been started.');
 		}
 	}
 
