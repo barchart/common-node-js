@@ -52,7 +52,7 @@ module.exports = (() => {
 		 */
 		start() {
 			if (this.getIsDisposed()) {
-				throw new Error('The SNS Provider has been disposed.');
+				return Promise.reject('The SNS Provider has been disposed.');
 			}
 
 			if (this._startPromise === null) {

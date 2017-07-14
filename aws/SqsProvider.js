@@ -62,11 +62,7 @@ module.exports = (() => {
 		 */
 		start() {
 			if (this.getIsDisposed()) {
-				throw new Error('The SQS Provider has been disposed.');
-			}
-
-			if (this._started) {
-				throw new Error('The AWS SQS Provider has already been started.');
+				return Promise.reject('The SQS Provider has been disposed.');
 			}
 
 			if (this._startPromise === null) {

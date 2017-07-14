@@ -61,7 +61,7 @@ module.exports = (() => {
 		 */
 		start() {
 			if (this.getIsDisposed()) {
-				throw new Error('The SES Provider has been disposed.');
+				return Promise.reject('The SES Provider has been disposed.');
 			}
 
 			if (this._startPromise === null) {
