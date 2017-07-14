@@ -62,7 +62,7 @@ module.exports = (() => {
 
 		validate() {
 			if (!is.string(name) && name.length > 1) {
-				throw new Error('Table name is invalid.')
+				throw new Error('Table name is invalid.');
 			}
 
 			if (this._keyBuilders.filter(k => k.keyType === KeyType.HASH).length !== 1) {
