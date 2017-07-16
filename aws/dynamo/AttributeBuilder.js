@@ -6,8 +6,6 @@ const DataType = require('./DataType');
 module.exports = (() => {
 	'use strict';
 
-	const logger = log4js.getLogger('common-node/aws/dynamo/AttributeBuilder');
-
 	class AttributeBuilder {
 		constructor(name) {
 			assert.argumentIsRequired(name, 'name', String);
@@ -24,8 +22,8 @@ module.exports = (() => {
 			return this._dataType;
 		}
 
-		withDataType(keyType) {
-			assert.argumentIsRequired(keyType, 'keyType', DataType, 'DataType');
+		withDataType(dataType) {
+			assert.argumentIsRequired(dataType, 'dataType', DataType, 'DataType');
 
 			this._dataType = dataType;
 
@@ -33,7 +31,7 @@ module.exports = (() => {
 		}
 
 		validate() {
-			if (!is.string(name) && name.length > 1) {
+			if (!is.string(this._name) || this._name.length < 1) {
 				throw new Error('Attribute name is invalid.');
 			}
 

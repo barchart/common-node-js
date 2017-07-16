@@ -1,4 +1,5 @@
-const assert = require('common/lang/assert');
+const assert = require('common/lang/assert'),
+	is = require('common/lang/is');
 
 const DataType = require('./DataType'),
 	KeyType = require('./KeyType');
@@ -6,9 +7,7 @@ const DataType = require('./DataType'),
 module.exports = (() => {
 	'use strict';
 
-	const logger = log4js.getLogger('common-node/aws/dynamo/ProvisionedThroughput');
-
-	class ProvisionedThroughput {
+	class ProvisionedThroughputBuilder {
 		constructor(read, write) {
 			assert.argumentIsOptional(read, 'read', Number);
 			assert.argumentIsOptional(write, 'write', Number);
@@ -59,14 +58,21 @@ module.exports = (() => {
 			}
 		}
 
+		toProvisionedThroughputSchema() {
+			return {
+				ReadCapacityUnits: this._read,
+				WriteCapacityUnits: this._write
+			};
+		}
+
 		static fromDefaults() {
-			return new ProvisionedThroughput(1, 1);
+			return new ProvisionedThroughputBuilder(1, 1);
 		}
 
 		toString() {
-			return '[ProvisionedThroughput]';
+			return '[ProvisionedThroughputBuilder]';
 		}
 	}
 
-	return ProvisionedThroughput;
+	return ProvisionedThroughputBuilder;
 })();

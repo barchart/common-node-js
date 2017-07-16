@@ -3,8 +3,6 @@ const assert = require('common/lang/assert');
 module.exports = (() => {
 	'use strict';
 
-	const logger = log4js.getLogger('common-node/aws/dynamo/DataType');
-
 	class DataType {
 		constructor(code, description) {
 			assert.argumentIsRequired(code, 'code', String);

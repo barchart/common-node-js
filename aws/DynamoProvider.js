@@ -91,6 +91,30 @@ module.exports = (() => {
 			return object.clone(this._configuration);
 		}
 
+		getTable(name) {
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
+
+					return promise.build((rejectCallback, resolveCallback) => {
+						this._dynamo.describeTable(getQualifiedTableName(this._configuration.prefix, name), (error, data) => {
+							if (error) {
+								logger.error(error);
+
+								rejectCallback('Failed to retrieve DynamoDB table', error);
+							} else {
+								resolveCallback(data);
+							}
+						});
+					});
+				});
+		}
+
+		/**
+		 * Gets a list of all tables.
+		 *
+		 * @returns {Promise.<string>}
+		 */
 		getTables() {
 			return Promise.resolve()
 				.then(() => {
@@ -131,6 +155,14 @@ module.exports = (() => {
 				});
 		}
 
+		/**
+		 * Creates a new table, if it does not already exist, and returns the table's
+		 * metadata.
+		 *
+		 * @param {TableBuilder} tableBuilder - Describes the schema of the table to create.
+		 *
+		 * @returns {Promise.<TResult>}
+		 */
 		createTable(tableBuilder) {
 			return Promise.resolve()
 				.then(() => {
@@ -152,10 +184,17 @@ module.exports = (() => {
 				});
 		}
 
+		/**
+		 * Returns a new {@link TableBuilder} instance, suitable for use by the
+		 * {@link DynamoProvider#createTable} function.
+		 *
+		 * @param {string} name - The name of the table.
+		 * @returns {TableBuilder}
+		 */
 		getTableBuilder(name) {
 			assert.argumentIsRequired(name, 'name', String);
 
-			return TableBuilder.withName(`{this._configuration.prefix}-${name}`);
+			return TableBuilder.withName(getQualifiedTableName(this._configuration.prefix, name));
 		}
 
 		_onDispose() {
@@ -177,32 +216,8 @@ module.exports = (() => {
 		}
 	}
 
-	class Key {
-		constructor(name, dataType, keyType) {
-			assert.argumentIsRequired(name, 'name', String);
-			assert.argumentIsRequired(dataType, 'dataType', DataType, 'DataType');
-			assert.argumentIsRequired(keyType, 'keyType', KeyType, 'KeyType');
-
-			this._name = name;
-			this._dataType = dataType;
-			this._keyType = keyType;
-		}
-
-		get name() {
-			return this._name;
-		}
-
-		get dataType() {
-			return this._dataType;
-		}
-
-		get keyType() {
-			return this._keyType;
-		}
-
-		toString() {
-			return `[Key (name=${this._name})]`;
-		}
+	function getQualifiedTableName(prefix, name) {
+		return `${prefix}-${name}`;
 	}
 
 	return DynamoProvider;

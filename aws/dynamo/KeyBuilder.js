@@ -8,8 +8,6 @@ const AttributeBuilder = require('./AttributeBuilder'),
 module.exports = (() => {
 	'use strict';
 
-	const logger = log4js.getLogger('common-node/aws/dynamo/KeyBuilder');
-
 	class KeyBuilder {
 		constructor(name) {
 			assert.argumentIsRequired(name, 'name', String);
@@ -49,10 +47,6 @@ module.exports = (() => {
 		}
 
 		validate() {
-			if (!is.string(this._name) && this._name.length > 1) {
-				throw new Error('Key name is invalid.');
-			}
-
 			if (!(this._keyType instanceof KeyType)) {
 				throw new Error('Key type is invalid.');
 			}
@@ -61,20 +55,15 @@ module.exports = (() => {
 		}
 
 		toAttributeSchema() {
-			this.validate();
-
-			return {
-				AttributeName: this._name,
-				AttributeType: this._attributeBuilder.dataType.code
-			};
+			return this._attributeBuilder.toAttributeSchema();
 		}
 
 		toKeySchema() {
 			this.validate();
 
 			return {
-				AttributeName: this._name,
-				KeyType: this._keyType.dataType.code
+				AttributeName: this._attributeBuilder.name,
+				KeyType: this._keyType.code
 			};
 		}
 

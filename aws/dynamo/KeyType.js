@@ -3,8 +3,6 @@ const assert = require('common/lang/assert');
 module.exports = (() => {
 	'use strict';
 
-	const logger = log4js.getLogger('common-node/aws/dynamo/KeyType');
-
 	class KeyType {
 		constructor(code, description) {
 			assert.argumentIsRequired(code, 'code', String);
@@ -35,8 +33,8 @@ module.exports = (() => {
 		}
 	}
 
-	const keyTypeHash = new DataType('HASH', 'Hash');
-	const keyTypeRange = new DataType('RANGE', 'Range');
+	const keyTypeHash = new KeyType('HASH', 'Hash');
+	const keyTypeRange = new KeyType('RANGE', 'Range');
 
 	return KeyType;
 })();

@@ -1,14 +1,12 @@
 const assert = require('common/lang/assert'),
 	is = require('common/lang/is');
 
-const CapacityUnitsBuilder = require('./ProvisionedThroughputBuilder'),
+const ProvisionedThroughputBuilder = require('./ProvisionedThroughputBuilder'),
 	KeyBuilder = require('./KeyBuilder'),
-	KeyType = requrie('./KeyType');
+	KeyType = require('./KeyType');
 
 module.exports = (() => {
 	'use strict';
-
-	const logger = log4js.getLogger('common-node/aws/dynamo/TableBuilder');
 
 	class TableBuilder {
 		constructor(name) {
@@ -19,7 +17,7 @@ module.exports = (() => {
 			this._keyBuilders = [ ];
 			this._indexBuilders = [ ];
 
-			this._provisionedThroughputBuilder = new CapacityUnitsBuilder.fromDefaults();
+			this._provisionedThroughputBuilder = ProvisionedThroughputBuilder.fromDefaults();
 		}
 
 		withKey(name, dataType, keyType) {
@@ -47,21 +45,21 @@ module.exports = (() => {
 		}
 
 		withProvisionedThroughput(readUnits, writeUnits) {
-			const provisionedThroughputBuilder = new CapacityUnitsBuilder(readUnits, writeUnits);
+			const provisionedThroughputBuilder = new ProvisionedThroughputBuilder(readUnits, writeUnits);
 
 			return this.withProvisionedThroughputBuilder(provisionedThroughputBuilder);
 		}
 
 		withProvisionedThroughputBuilder(provisionedThroughputBuilder) {
-			assert.argumentIsRequired(provisionedThroughputBuilder, 'provisionedThroughputBuilder', provisionedThroughputBuilder, 'provisionedThroughputBuilder');
+			assert.argumentIsRequired(provisionedThroughputBuilder, 'provisionedThroughputBuilder', ProvisionedThroughputBuilder, 'ProvisionedThroughputBuilder');
 
 			this._provisionedThroughputBuilder = provisionedThroughputBuilder;
-			
+
 			return this;
 		}
 
 		validate() {
-			if (!is.string(name) && name.length > 1) {
+			if (!is.string(this._name) || this._name.length < 1) {
 				throw new Error('Table name is invalid.');
 			}
 
@@ -83,6 +81,9 @@ module.exports = (() => {
 
 			schema.AttributeDefinitions = this._keyBuilders.map(kb => kb.toAttributeSchema());
 			schema.KeySchema = this._keyBuilders.map(kb => kb.toKeySchema());
+			schema.ProvisionedThroughput = this._provisionedThroughputBuilder.toProvisionedThroughputSchema();
+
+			return schema;
 		}
 
 		static withName(name) {
