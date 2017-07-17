@@ -34,7 +34,7 @@ module.exports = (() => {
 			assert.argumentIsRequired(keyBuilder, 'keyBuilder', KeyBuilder, 'KeyBuilder');
 
 			const key = keyBuilder.key;
-			const keys = this._index.keys.filter(k => k.name !== key.name).concat(key);
+			const keys = this._index.keys.filter(k => k.attribute.name !== key.attribute.name).concat(key);
 
 			this._index = new LocalSecondaryIndex(this._index.name, keys, this._index.projection);
 

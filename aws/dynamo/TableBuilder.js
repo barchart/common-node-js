@@ -34,7 +34,7 @@ module.exports = (() => {
 			assert.argumentIsRequired(keyBuilder, 'keyBuilder', KeyBuilder, 'KeyBuilder');
 
 			const key = keyBuilder.key;
-			const keys = this._table.keys.filter(k => k.name !== key.name).concat(key);
+			const keys = this._table.keys.filter(k => k.attribute.name !== key.attribute.name).concat(key);
 
 			this._table = new Table(this._table.name, keys, this._table.indicies, this._table.provisionedThroughput);
 
