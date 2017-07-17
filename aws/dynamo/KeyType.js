@@ -28,6 +28,12 @@ module.exports = (() => {
 			return keyTypeRange;
 		}
 
+		static fromCode(code) {
+			assert.argumentIsRequired(code, 'code', String);
+
+			return keyTypes.find(kt => kt.code === code);
+		}
+
 		toString() {
 			return `[KeyType (code=${this._code}, description=${this._description})]`;
 		}
@@ -35,6 +41,8 @@ module.exports = (() => {
 
 	const keyTypeHash = new KeyType('HASH', 'Hash');
 	const keyTypeRange = new KeyType('RANGE', 'Range');
+
+	const keyTypes = [ keyTypeHash, keyTypeRange ];
 
 	return KeyType;
 })();

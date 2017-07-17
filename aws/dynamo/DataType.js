@@ -28,6 +28,12 @@ module.exports = (() => {
 			return dataTypeNumber;
 		}
 
+		static fromCode(code) {
+			assert.argumentIsRequired(code, 'code', String);
+
+			return dataTypes.find(dt => dt.code === code);
+		}
+
 		toString() {
 			return `[DataType (code=${this._code}, description=${this._description})]`;
 		}
@@ -35,6 +41,8 @@ module.exports = (() => {
 
 	const dataTypeString = new DataType('S', 'String');
 	const dataTypeNumber = new DataType('N', 'Number');
+
+	const dataTypes = [ dataTypeString, dataTypeNumber ];
 
 	return DataType;
 })();

@@ -97,12 +97,22 @@ module.exports = (() => {
 			return object.clone(this._configuration);
 		}
 
+		/**
+		 * Gets the definition of a table. If no matching table exists; then
+		 * the promise is rejected.
+		 *
+		 * @public
+		 * @returns {Promise.<Table>}
+		 */
 		getTable(name) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
 
-					return getTable.call(this, getQualifiedTableName(this._configuration.prefix, name));
+					return getTable.call(this, getQualifiedTableName(this._configuration.prefix, name))
+						.then((tableDefinition) => {
+							return TableBuilder.fromDefinition(tableDefinition);
+						});
 				});
 		}
 
@@ -154,11 +164,11 @@ module.exports = (() => {
 
 		/**
 		 * Creates a new table, if it does not already exist, and returns the table's
-		 * metadata.
+		 * metadata once the table becomes ready.
 		 *
 		 * @public
 		 * @param {Table} definition - Describes the schema of the table to create.
-		 * @returns {Promise.<TResult>}
+		 * @returns {Promise.<Table>}
 		 */
 		createTable(definition) {
 			return Promise.resolve()
@@ -175,7 +185,7 @@ module.exports = (() => {
 								if (tableDefinition.TableStatus === 'ACTIVE') {
 									logger.debug('Table ready [', qualifiedTableName, ']');
 
-									return tableDefinition;
+									return TableBuilder.fromDefinition(tableDefinition);
 								} else {
 									logger.debug('Table not yet ready [', qualifiedTableName, ']');
 
@@ -193,8 +203,10 @@ module.exports = (() => {
 									logger.debug('Unable to create table [', qualifiedTableName, '], table already exists');
 
 									getTableForCreate.call(this, qualifiedTableName)
-										.then((tableDefinition) => {
-											resolveCallback(tableDefinition);
+										.then((table) => {
+											resolveCallback(table);
+										}).catch((e) => {
+											rejectCallback(e);
 										});
 								} else {
 									logger.error(error);
@@ -205,8 +217,10 @@ module.exports = (() => {
 								logger.debug('Created table [', qualifiedTableName, '], waiting for table to become ready');
 
 								return this._scheduler.backoff(() => getTableForCreate.call(this, qualifiedTableName), 2000)
-									.then((tableDefinition) => {
-										resolveCallback(tableDefinition);
+									.then((table) => {
+										resolveCallback(table);
+									}).catch((e) => {
+										rejectCallback(e);
 									});
 							}
 						});

@@ -1,7 +1,9 @@
 const assert = require('common/lang/assert'),
 	is = require('common/lang/is');
 
-const KeyBuilder = require('./KeyBuilder'),
+const DataType = require('./DataType'),
+	KeyBuilder = require('./KeyBuilder'),
+	KeyType = require('./KeyType'),
 	ProvisionedThroughput = require('./ProvisionedThroughput'),
 	ProvisionedThroughputBuilder = require('./ProvisionedThroughputBuilder'),
 	Table = require('./Table');
@@ -55,6 +57,17 @@ module.exports = (() => {
 
 		static withName(name) {
 			return new TableBuilder(name);
+		}
+
+		static fromDefinition(definition) {
+			let tableBuilder = new TableBuilder(definition.TableName)
+				.withProvisionedThroughput(definition.ProvisionedThroughput.ReadCapacityUnits, definition.ProvisionedThroughput.WriteCapacityUnits);
+
+			definition.KeySchema.forEach((ks) => {
+				tableBuilder = tableBuilder.withKey(ks.AttributeName, DataType.fromCode(definition.AttributeDefinitions.find(ad => ad.AttributeName === ks.AttributeName).AttributeType), KeyType.fromCode(ks.KeyType));
+			});
+
+			return tableBuilder.table;
 		}
 
 		toString() {
