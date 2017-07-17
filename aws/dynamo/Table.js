@@ -3,7 +3,6 @@ const array = require('common/lang/array'),
 	is = require('common/lang/is');
 
 const Key = require('./Key'),
-	KeyBuilder = require('./KeyBuilder'),
 	KeyType = require('./KeyType'),
 	Index = require('./Index');
 
@@ -46,7 +45,7 @@ module.exports = (() => {
 			}
 
 			if (!this._keys.every(k => k instanceof Key)) {
-				throw new Error('The key array can only contain Key instances.');
+				throw new Error('Table key array can only contain Key instances.');
 			}
 
 			if (this._keys.filter(k => k.keyType === KeyType.HASH).length !== 1) {
@@ -57,20 +56,16 @@ module.exports = (() => {
 				throw new Error('Table key names must be unique (only one key with a given name).');
 			}
 
-			if (!array.unique(this._keys.map(k => k.keyType))) {
-				throw new Error('Table key types must be unique (only one key with a given key type).');
-			}
-
 			if (!is.array(this._indices)) {
 				throw new Error('Table must have an array of indicies.');
 			}
 
 			if (!this._indices.every(i => i instanceof Index)) {
-				throw new Error('The indicies array can only contain Index instances.');
+				throw new Error('Table indicies array can only contain Index instances.');
 			}
 
-			this._keys.forEach((k) => k.validate());
-			this._indices.forEach((i) => i.validate());
+			this._keys.forEach(k => k.validate());
+			this._indices.forEach(i => i.validate());
 
 			this._provisionedThroughput.validate();
 		}
@@ -90,7 +85,7 @@ module.exports = (() => {
 		}
 
 		toString() {
-			return '[Table]';
+			return `[Table (name=${this._name})]`;
 		}
 	}
 

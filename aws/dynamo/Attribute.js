@@ -40,7 +40,7 @@ module.exports = (() => {
 		}
 
 		toString() {
-			return '[Attribute]';
+			return `[Attribute (name=${this._name})]`;
 		}
 	}
 

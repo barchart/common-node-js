@@ -41,7 +41,7 @@ module.exports = (() => {
 		}
 
 		toString() {
-			return '[Key]';
+			return `[Key (name=${this._attribute.name}, type=${this._keyType.code})]`;
 		}
 	}
 

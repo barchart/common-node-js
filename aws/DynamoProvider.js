@@ -141,7 +141,7 @@ module.exports = (() => {
 
 									rejectCallback('Failed to retrieve DynamoDB tables', error);
 								} else {
-									const matches = data.TableNames.filter((name) => name.startsWith(this._configuration.prefix));
+									const matches = data.TableNames.filter(name => name.startsWith(this._configuration.prefix));
 
 									logger.info('Retrieved', matches.length, 'matching DynamoDB tables.');
 
@@ -278,7 +278,7 @@ module.exports = (() => {
 
 					rejectCallback('Failed to retrieve DynamoDB table', error);
 				} else if (!is.object(data.Table)) {
-					rejectCallback('Unexpected response from DynamoDB SDK.')
+					rejectCallback('Unexpected response from DynamoDB SDK.');
 				} else {
 					if (logger.isTraceEnabled()) {
 						logger.trace(JSON.stringify(data, null, 2));
