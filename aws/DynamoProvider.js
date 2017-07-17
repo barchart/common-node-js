@@ -5,9 +5,11 @@ const assert = require('common/lang/assert'),
 	Disposable = require('common/lang/Disposable'),
 	is = require('common/lang/is'),
 	object = require('common/lang/object'),
-	promise = require('common/lang/promise');
+	promise = require('common/lang/promise'),
+	Scheduler = require('common/timing/Scheduler');
 
-const TableBuilder = require('./dynamo/TableBuilder');
+const Table = require('./dynamo/Table'),
+	TableBuilder = require('./dynamo/TableBuilder');
 
 module.exports = (() => {
 	'use strict';
@@ -41,6 +43,7 @@ module.exports = (() => {
 			this._started = false;
 
 			this._dynamo = null;
+			this._scheduler = null;
 		}
 
 		/**
@@ -58,6 +61,8 @@ module.exports = (() => {
 			if (this._startPromise === null) {
 				this._startPromise = Promise.resolve()
 					.then(() => {
+						this._scheduler = new Scheduler();
+					}).then(() => {
 						aws.config.update({region: this._configuration.region});
 
 						this._dynamo = new aws.DynamoDB({apiVersion: this._configuration.apiVersion || '2012-08-10'});
@@ -81,6 +86,7 @@ module.exports = (() => {
 		 * Returns a clone of the configuration object originally passed
 		 * to the constructor.
 		 *
+		 * @public
 		 * @returns {Object}
 		 */
 		getConfiguration() {
@@ -96,23 +102,14 @@ module.exports = (() => {
 				.then(() => {
 					checkReady.call(this);
 
-					return promise.build((rejectCallback, resolveCallback) => {
-						this._dynamo.describeTable(getQualifiedTableName(this._configuration.prefix, name), (error, data) => {
-							if (error) {
-								logger.error(error);
-
-								rejectCallback('Failed to retrieve DynamoDB table', error);
-							} else {
-								resolveCallback(data);
-							}
-						});
-					});
+					return getTable.call(this, getQualifiedTableName(this._configuration.prefix, name));
 				});
 		}
 
 		/**
 		 * Gets a list of all tables.
 		 *
+		 * @public
 		 * @returns {Promise.<string>}
 		 */
 		getTables() {
@@ -159,25 +156,58 @@ module.exports = (() => {
 		 * Creates a new table, if it does not already exist, and returns the table's
 		 * metadata.
 		 *
-		 * @param {TableBuilder} tableBuilder - Describes the schema of the table to create.
-		 *
+		 * @public
+		 * @param {Table} definition - Describes the schema of the table to create.
 		 * @returns {Promise.<TResult>}
 		 */
-		createTable(tableBuilder) {
+		createTable(definition) {
 			return Promise.resolve()
 				.then(() => {
-					assert.argumentIsRequired(tableBuilder, 'tableBuilder', TableBuilder, 'TableBuilder');
+					assert.argumentIsRequired(definition, 'definition', Table, 'Table');
 
 					checkReady.call(this);
 
-					return promise.build((resolveCallback, rejectCallback) => {
-						this._dynamo.createTable(tableBuilder.toTableSchema(), (error, data) => {
-							if (error) {
-								logger.error(error);
+					const qualifiedTableName = definition.name;
 
-								rejectCallback('Failed to retrieve DynamoDB tables', error);
+					const getTableForCreate = () => {
+						return getTable.call(this, qualifiedTableName)
+							.then((tableDefinition) => {
+								if (tableDefinition.TableStatus === 'ACTIVE') {
+									logger.debug('Table ready [', qualifiedTableName, ']');
+
+									return tableDefinition;
+								} else {
+									logger.debug('Table not yet ready [', qualifiedTableName, ']');
+
+									return null;
+								}
+							});
+					};
+
+					return promise.build((resolveCallback, rejectCallback) => {
+						logger.debug('Creating table [', qualifiedTableName, ']');
+
+						this._dynamo.createTable(definition.toTableSchema(), (error, data) => {
+							if (error) {
+								if (is.string(error.message) && error.message === `Table already exists: ${qualifiedTableName}`) {
+									logger.debug('Unable to create table [', qualifiedTableName, '], table already exists');
+
+									getTableForCreate.call(this, qualifiedTableName)
+										.then((tableDefinition) => {
+											resolveCallback(tableDefinition);
+										});
+								} else {
+									logger.error(error);
+
+									rejectCallback('Failed to create DynamoDB tables', error);
+								}
 							} else {
-								resolveCallback();
+								logger.debug('Created table [', qualifiedTableName, '], waiting for table to become ready');
+
+								return this._scheduler.backoff(() => getTableForCreate.call(this, qualifiedTableName), 2000)
+									.then((tableDefinition) => {
+										resolveCallback(tableDefinition);
+									});
 							}
 						});
 					});
@@ -188,6 +218,7 @@ module.exports = (() => {
 		 * Returns a new {@link TableBuilder} instance, suitable for use by the
 		 * {@link DynamoProvider#createTable} function.
 		 *
+		 * @public
 		 * @param {string} name - The name of the table.
 		 * @returns {TableBuilder}
 		 */
@@ -199,6 +230,11 @@ module.exports = (() => {
 
 		_onDispose() {
 			logger.debug('Dynamo Provider disposed');
+
+			if (this._scheduler !== null) {
+				this._scheduler.dispose();
+				this._scheduler = null;
+			}
 		}
 
 		toString() {
@@ -218,6 +254,26 @@ module.exports = (() => {
 
 	function getQualifiedTableName(prefix, name) {
 		return `${prefix}-${name}`;
+	}
+
+	function getTable(qualifiedTableName) {
+		return promise.build((resolveCallback, rejectCallback) => {
+			this._dynamo.describeTable({ TableName: qualifiedTableName }, (error, data) => {
+				if (error) {
+					logger.error(error);
+
+					rejectCallback('Failed to retrieve DynamoDB table', error);
+				} else if (!is.object(data.Table)) {
+					rejectCallback('Unexpected response from DynamoDB SDK.')
+				} else {
+					if (logger.isTraceEnabled()) {
+						logger.trace(JSON.stringify(data, null, 2));
+					}
+
+					resolveCallback(data.Table);
+				}
+			});
+		});
 	}
 
 	return DynamoProvider;

@@ -1,8 +1,8 @@
 const assert = require('common/lang/assert'),
 	is = require('common/lang/is');
 
-const AttributeBuilder = require('./AttributeBuilder'),
-	DataType = require('./DataType'),
+const DataType = require('./DataType'),
+	Key = require('./Key'),
 	KeyType = require('./KeyType');
 
 module.exports = (() => {
@@ -12,59 +12,27 @@ module.exports = (() => {
 		constructor(name) {
 			assert.argumentIsRequired(name, 'name', String);
 
-			this._attributeBuilder = AttributeBuilder.withName(name);
-			this._keyType = null;
+			this._key = new Key(name, null, null);
 		}
 
-		get attributeBuilder() {
-			return this._attributeBuilder;
-		}
-
-		get keyType() {
-			return this._keyType;
+		get key() {
+			return this._key;
 		}
 
 		withKeyType(keyType) {
 			assert.argumentIsRequired(keyType, 'keyType', KeyType, 'KeyType');
 
-			this._keyType = keyType;
+			this._key = new Key(this._key.attribute.name, this._key.attribute.dataType, keyType);
 
 			return this;
 		}
 
 		withDataType(dataType) {
-			this._attributeBuilder.withDataType(dataType);
+			assert.argumentIsRequired(dataType, 'dataType', DataType, 'DataType');
+
+			this._key = new Key(this._key.attribute.name, dataType, this._key.keyType);
 
 			return this;
-		}
-
-		withAttributeBuilder(attributeBuilder) {
-			assert.argumentIsRequired(attributeBuilder, 'attributeBuilder', AttributeBuilder, 'AttributeBuilder');
-
-			this._attributeBuilder = attributeBuilder;
-
-			return this;
-		}
-
-		validate() {
-			if (!(this._keyType instanceof KeyType)) {
-				throw new Error('Key type is invalid.');
-			}
-
-			this._attributeBuilder.validate();
-		}
-
-		toAttributeSchema() {
-			return this._attributeBuilder.toAttributeSchema();
-		}
-
-		toKeySchema() {
-			this.validate();
-
-			return {
-				AttributeName: this._attributeBuilder.name,
-				KeyType: this._keyType.code
-			};
 		}
 
 		static withName(name) {

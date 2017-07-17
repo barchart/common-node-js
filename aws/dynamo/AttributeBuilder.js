@@ -1,7 +1,8 @@
 const assert = require('common/lang/assert'),
 	is = require('common/lang/is');
 
-const DataType = require('./DataType');
+const Attribute = require('Attribute'),
+	DataType = require('./DataType');
 
 module.exports = (() => {
 	'use strict';
@@ -10,43 +11,19 @@ module.exports = (() => {
 		constructor(name) {
 			assert.argumentIsRequired(name, 'name', String);
 
-			this._name = name;
-			this._dataType = null;
+			this._attribute = new Attribute(name, null);
 		}
 
-		get name() {
-			return this._name;
-		}
-
-		get dataType() {
-			return this._dataType;
+		get attribute() {
+			return this._attribute;
 		}
 
 		withDataType(dataType) {
 			assert.argumentIsRequired(dataType, 'dataType', DataType, 'DataType');
 
-			this._dataType = dataType;
+			this._attribute = new Attribute(this._attribute.name, dataType);
 
 			return this;
-		}
-
-		validate() {
-			if (!is.string(this._name) || this._name.length < 1) {
-				throw new Error('Attribute name is invalid.');
-			}
-
-			if (!(this._dataType instanceof DataType)) {
-				throw new Error('Attribute data type is invalid.');
-			}
-		}
-
-		toAttributeSchema() {
-			this.validate();
-
-			return {
-				AttributeName: this._name,
-				AttributeType: this._dataType.code
-			};
 		}
 
 		static withName(name) {
