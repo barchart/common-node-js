@@ -54,17 +54,9 @@ module.exports = (() => {
 		withProjection(type, attributes) {
 			assert.argumentIsRequired(type, 'type', ProjectionType, 'ProjectionType');
 
-			let attributesToUse;
-
-			if (attributes) {
-				assert.argumentIsArray(attributes, 'attributes', Attribute, 'Attribute');
-
-				attributesToUse = attributes;
-			} else {
-				attributesToUse = [ ];
-			}
-
 			let projectionBuilder = ProjectionBuilder.withType(type);
+
+			let attributesToUse = attributes || [ ];
 
 			attributesToUse.forEach((a) => {
 				projectionBuilder = projectionBuilder.withAttribute(a.name, a.dataType);

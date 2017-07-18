@@ -21,7 +21,8 @@ module.exports = (() => {
 		}
 
 		withAttribute(name, dataType) {
-			const attributeBuilder = new AttributeBuilder(name, dataType);
+			const attributeBuilder = new AttributeBuilder(name)
+				.withDataType(dataType);
 
 			return this.withAttributeBuilder(attributeBuilder);
 		}

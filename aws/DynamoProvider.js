@@ -185,7 +185,7 @@ module.exports = (() => {
 								if (tableDefinition.TableStatus === 'ACTIVE') {
 									logger.debug('Table ready [', qualifiedTableName, ']');
 
-									return TableBuilder.fromDefinition(tableDefinition);
+									return tableDefinition;
 								} else {
 									logger.debug('Table not yet ready [', qualifiedTableName, ']');
 
@@ -203,8 +203,8 @@ module.exports = (() => {
 									logger.debug('Unable to create table [', qualifiedTableName, '], table already exists');
 
 									getTableForCreate.call(this, qualifiedTableName)
-										.then((table) => {
-											resolveCallback(table);
+										.then((tableDefinition) => {
+											resolveCallback(TableBuilder.fromDefinition(tableDefinition));
 										}).catch((e) => {
 											rejectCallback(e);
 										});
@@ -217,8 +217,8 @@ module.exports = (() => {
 								logger.debug('Created table [', qualifiedTableName, '], waiting for table to become ready');
 
 								return this._scheduler.backoff(() => getTableForCreate.call(this, qualifiedTableName), 2000)
-									.then((table) => {
-										resolveCallback(table);
+									.then((tableDefinition) => {
+										resolveCallback(TableBuilder.fromDefinition(tableDefinition));
 									}).catch((e) => {
 										rejectCallback(e);
 									});

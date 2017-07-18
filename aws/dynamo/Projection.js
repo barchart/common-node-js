@@ -9,13 +9,13 @@ module.exports = (() => {
 	'use strict';
 
 	class Projection {
-		constructor(projectionType, attributes) {
-			this._projectionType = projectionType;
+		constructor(type, attributes) {
+			this._type = type;
 			this._attributes = attributes || [ ];
 		}
 
-		get projectionType() {
-			return this._projectionType;
+		get type() {
+			return this._type;
 		}
 
 		get attributes() {
@@ -23,7 +23,7 @@ module.exports = (() => {
 		}
 
 		validate() {
-			if (!(this._projectionType instanceof ProjectionType)) {
+			if (!(this._type instanceof ProjectionType)) {
 				throw new Error('Projection type is invalid.');
 			}
 
@@ -35,19 +35,19 @@ module.exports = (() => {
 				throw new Error('Projection attributes array can only contain Attribute instances.');
 			}
 
-			if (!array.unique(this._attributes.map(a => a.attribute.name))) {
+			if (!array.unique(this._attributes.map(a => a.name))) {
 				throw new Error('Projection attribute names must be unique (only one attribute with a given name).');
 			}
 
-			if (this._projectionType === ProjectionType.CUSTOM && this._attributes.length === 0) {
+			if (this._type === ProjectionType.CUSTOM && this._attributes.length === 0) {
 				throw new Error('Projection (custom) must have at least one attribute.');
 			}
 
-			if (this._projectionType === ProjectionType.KEYS && this._attributes.length !== 0) {
+			if (this._type === ProjectionType.KEYS && this._attributes.length !== 0) {
 				throw new Error('Projection (keys) cannot define any attributes.');
 			}
 
-			if (this._projectionType === ProjectionType.ALL && this._attributes.length !== 0) {
+			if (this._type === ProjectionType.ALL && this._attributes.length !== 0) {
 				throw new Error('Projection (all) cannot define any attributes.');
 			}
 
@@ -58,7 +58,7 @@ module.exports = (() => {
 			this.validate();
 
 			const schema = {
-				ProjectionType: this._projectionType.code
+				ProjectionType: this._type.code
 			};
 
 			if (this._attributes.length > 0) {

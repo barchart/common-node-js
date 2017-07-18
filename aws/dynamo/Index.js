@@ -73,9 +73,11 @@ module.exports = (() => {
 				throw new Error('Index must have a projection definition.');
 			}
 
+			/*
 			if (this._projection.attributes.some(a => this.keys.some(k => k.attribute.name === a.name))) {
 				throw new Error('Index cannot use the same attribute for a key and a projection.');
 			}
+			*/
 
 			this._projection.validate();
 

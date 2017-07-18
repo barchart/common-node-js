@@ -2,7 +2,8 @@ const array = require('common/lang/array'),
 	assert = require('common/lang/assert'),
 	is = require('common/lang/is');
 
-const Key = require('./Key'),
+const Attribute = require('./Attribute'),
+	Key = require('./Key'),
 	KeyType = require('./KeyType'),
 	Index = require('./Index'),
 	IndexType = require('./IndexType');
@@ -82,7 +83,6 @@ module.exports = (() => {
 				TableName: this._name
 			};
 
-			schema.AttributeDefinitions = this._keys.map(k => k.attribute.toAttributeSchema());
 			schema.KeySchema = this._keys.map(k => k.toKeySchema());
 			schema.ProvisionedThroughput = this._provisionedThroughput.toProvisionedThroughputSchema();
 
@@ -96,6 +96,10 @@ module.exports = (() => {
 			if (localIndicies.length !== 0) {
 				schema.LocalSecondaryIndexes = localIndicies.map(i => i.toIndexSchema());
 			}
+
+			let keys = array.uniqueBy(array.flatten(this._indices.map(i => i.keys)).concat([...this._keys]), k => k.attribute.name);
+
+			schema.AttributeDefinitions = keys.map(k => k.attribute.toAttributeSchema());
 
 			return schema;
 		}

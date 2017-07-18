@@ -1,7 +1,8 @@
 const assert = require('common/lang/assert'),
 	is = require('common/lang/is');
 
-const DataType = require('./DataType'),
+const AttributeBuilder = require('./AttributeBuilder'),
+	DataType = require('./DataType'),
 	IndexBuilder = require('./IndexBuilder'),
 	IndexType = require('./IndexType'),
 	KeyBuilder = require('./KeyBuilder'),
