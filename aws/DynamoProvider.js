@@ -206,8 +206,8 @@ module.exports = (() => {
 										.then((tableDefinition) => {
 											resolveCallback(TableBuilder.fromDefinition(tableDefinition));
 										}).catch((e) => {
-											rejectCallback(e);
-										});
+										rejectCallback(e);
+									});
 								} else {
 									logger.error(error);
 
@@ -224,6 +224,78 @@ module.exports = (() => {
 									});
 							}
 						});
+					});
+				});
+		}
+
+		/**
+		 * Adds a new item to a table.
+		 *
+		 * @public
+		 * @param {Table} definition - Describes the schema of the table to create.
+		 * @param {Object} item - The item to write.
+		 * @returns {Promise}
+		 */
+		createItem(table, item) {
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsRequired(table, 'table', Table, 'Table');
+					assert.argumentIsRequired(item, 'item', Object);
+
+					checkReady.call(this);
+
+					const qualifiedTableName = table.name;
+
+					return promise.build((resolveCallback, rejectCallback) => {
+
+					});
+				});
+		}
+
+		/**
+		 * Adds a new item to a table; or overwrites the item if it already exists.
+		 *
+		 * @public
+		 * @param {Table} definition - Describes the schema of the table to create.
+		 * @param {Object} item - The item to write.
+		 * @returns {Promise}
+		 */
+		saveItem(table, item) {
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsRequired(table, 'table', Table, 'Table');
+					assert.argumentIsRequired(item, 'item', Object);
+
+					checkReady.call(this);
+
+					const qualifiedTableName = table.name;
+
+					return promise.build((resolveCallback, rejectCallback) => {
+
+					});
+				});
+		}
+
+		/**
+		 * Adds multiple items to a table.
+		 *
+		 * @public
+		 * @param {Table} definition - Describes the schema of the table to create.
+		 * @param {Array<Object>} item - The items to write.
+		 * @returns {Promise}
+		 */
+		createItems(table, items) {
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsRequired(table, 'table', Table, 'Table');
+					assert.argumentIsArray(items, 'items');
+
+					checkReady.call(this);
+
+					const qualifiedTableName = table.name;
+
+					return promise.build((resolveCallback, rejectCallback) => {
+
 					});
 				});
 		}
