@@ -1,7 +1,7 @@
 const assert = require('common/lang/assert'),
 	is = require('common/lang/is');
 
-const Attribute = require('Attribute'),
+const Attribute = require('./Attribute'),
 	DataType = require('./DataType');
 
 module.exports = (() => {

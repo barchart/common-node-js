@@ -2,7 +2,8 @@ const array = require('common/lang/array'),
 	assert = require('common/lang/assert'),
 	is = require('common/lang/is');
 
-const Key = require('./Key'),
+const IndexType = require('./IndexType'),
+	Key = require('./Key'),
 	KeyType = require('./KeyType'),
 	Projection = require('./Projection');
 
@@ -11,17 +12,16 @@ module.exports = (() => {
 
 	/**
 	 * The definition for a DynamoDB index.
-	 *
-	 * @interface
 	 */
 	class Index {
-		constructor(name, type, keys, projection) {
+		constructor(name, type, keys, projection, provisionedThroughput) {
 			this._name = name;
-			this._type = type;
+			this._type = type || null;
 
 			this._keys = keys || [ ];
 
-			this._projection = projection;
+			this._projection = projection || null;
+			this._provisionedThroughput = provisionedThroughput || null;
 		}
 
 		get name() {
@@ -40,9 +40,17 @@ module.exports = (() => {
 			return this._projection;
 		}
 
+		get provisionedThroughput() {
+			return this._provisionedThroughput;
+		}
+
 		validate() {
 			if (!is.string(this._name) || this._name.length < 1) {
 				throw new Error('Index name is invalid.');
+			}
+
+			if (!(this._type instanceof IndexType)) {
+				throw new Error('Index type is invalid.');
 			}
 
 			if (!is.array(this._keys)) {
@@ -70,6 +78,12 @@ module.exports = (() => {
 			}
 
 			this._projection.validate();
+
+			if (this._type.separateProvisioning) {
+				this._provisionedThroughput.validate();
+			} else if (this._provisionedThroughput !== null) {
+				throw new Error('Index type does not require separate throughput provisioning');
+			}
 		}
 
 		toIndexSchema() {
@@ -81,6 +95,10 @@ module.exports = (() => {
 
 			schema.KeySchema = this._keys.map(k => k.toKeySchema());
 			schema.Projection = this._projection.toProjectionSchema();
+
+			if (this.type.separateProvisioning) {
+				schema.ProvisionedThroughput = this._provisionedThroughput.toProvisionedThroughputSchema();
+			}
 
 			return schema;
 		}

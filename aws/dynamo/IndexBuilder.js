@@ -2,26 +2,34 @@ const assert = require('common/lang/assert'),
 	is = require('common/lang/is');
 
 const Attribute = require('./Attribute'),
+	Index = require('./Index'),
+	IndexType = require('./IndexType'),
 	KeyBuilder = require('./KeyBuilder'),
-	GlobalSecondaryIndex = require('./GlobalSecondaryIndex'),
 	Projection = require('./Projection'),
 	ProjectionBuilder = require('./ProjectionBuilder'),
 	ProjectionType = require('./ProjectionType'),
-	ProvisionedThroughput = require('./ProvisionedThroughput'),
 	ProvisionedThroughputBuilder = require('./ProvisionedThroughputBuilder');
 
 module.exports = (() => {
 	'use strict';
 
-	class GlobalSecondaryIndexBuilder {
+	class IndexBuilder {
 		constructor(name) {
 			assert.argumentIsRequired(name, 'name', String);
 
-			this._index = new GlobalSecondaryIndex(name, [ ], null);
+			this._index = new Index(name, null, [ ], null, null);
 		}
 
 		get index() {
 			return this._index;
+		}
+
+		withType(type) {
+			assert.argumentIsRequired(type, 'type', IndexType, 'IndexType');
+
+			this._index = new Index(this._index.name, type, this._index.keys, this._index.projection, this._index.provisionedThroughput);
+
+			return this;
 		}
 
 		withKey(name, dataType, keyType) {
@@ -38,18 +46,27 @@ module.exports = (() => {
 			const key = keyBuilder.key;
 			const keys = this._index.keys.filter(k => k.attribute.name !== key.attribute.name).concat(key);
 
-			this._index = new GlobalSecondaryIndex(this._index.name, keys, this._index.projection, this._index.provisionedThroughput);
+			this._index = new Index(this._index.name, this._index.type, keys, this._index.projection, this._index.provisionedThroughput);
 
 			return this;
 		}
 
 		withProjection(type, attributes) {
 			assert.argumentIsRequired(type, 'type', ProjectionType, 'ProjectionType');
-			assert.argumentIsArray(attributes, 'attributes', Attribute, 'Attribute');
+
+			let attributesToUse;
+
+			if (attributes) {
+				assert.argumentIsArray(attributes, 'attributes', Attribute, 'Attribute');
+
+				attributesToUse = attributes;
+			} else {
+				attributesToUse = [ ];
+			}
 
 			let projectionBuilder = ProjectionBuilder.withType(type);
 
-			attributes.forEach((a) => {
+			attributesToUse.forEach((a) => {
 				projectionBuilder = projectionBuilder.withAttribute(a.name, a.dataType);
 			});
 
@@ -59,7 +76,7 @@ module.exports = (() => {
 		withProjectionBuilder(projectionBuilder) {
 			assert.argumentIsRequired(projectionBuilder, 'projectionBuilder', ProjectionBuilder, 'ProjectionBuilder');
 
-			this._index = new GlobalSecondaryIndex(this._index.name, this._index.keys, projectionBuilder.projection, this._index.provisionedThroughput);
+			this._index = new Index(this._index.name, this._index.type, this._index.keys, projectionBuilder.projection, this._index.provisionedThroughput);
 
 			return this;
 		}
@@ -73,19 +90,19 @@ module.exports = (() => {
 		withProvisionedThroughputBuilder(provisionedThroughputBuilder) {
 			assert.argumentIsRequired(provisionedThroughputBuilder, 'provisionedThroughputBuilder', ProvisionedThroughputBuilder, 'ProvisionedThroughputBuilder');
 
-			this._index = new GlobalSecondaryIndex(this._index.name, this._index.keys, this._index.projection, provisionedThroughputBuilder.provisionedThroughput);
+			this._index = new Index(this._index.name, this._index.type, this._index.keys, this._index.projection, provisionedThroughputBuilder.provisionedThroughput);
 
 			return this;
 		}
 
 		static withName(name) {
-			return new GlobalSecondaryIndexBuilder(name);
+			return new IndexBuilder(name);
 		}
 
 		toString() {
-			return '[GlobalSecondaryIndexBuilder]';
+			return '[IndexBuilder]';
 		}
 	}
 
-	return GlobalSecondaryIndexBuilder;
+	return IndexBuilder;
 })();

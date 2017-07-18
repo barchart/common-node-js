@@ -4,7 +4,8 @@ const array = require('common/lang/array'),
 
 const Key = require('./Key'),
 	KeyType = require('./KeyType'),
-	Index = require('./Index');
+	Index = require('./Index'),
+	IndexType = require('./IndexType');
 
 module.exports = (() => {
 	'use strict';
@@ -64,6 +65,10 @@ module.exports = (() => {
 				throw new Error('Table indicies array can only contain Index instances.');
 			}
 
+			if (!array.unique(this._indices.map(i => i.name))) {
+				throw new Error('Table index names must be unique (only one index with a given name).');
+			}
+
 			this._keys.forEach(k => k.validate());
 			this._indices.forEach(i => i.validate());
 
@@ -80,6 +85,17 @@ module.exports = (() => {
 			schema.AttributeDefinitions = this._keys.map(k => k.attribute.toAttributeSchema());
 			schema.KeySchema = this._keys.map(k => k.toKeySchema());
 			schema.ProvisionedThroughput = this._provisionedThroughput.toProvisionedThroughputSchema();
+
+			const globalIndicies = this._indices.filter(i => i.type === IndexType.GLOBAL_SECONDARY);
+			const localIndicies = this._indices.filter(i => i.type === IndexType.LOCAL_SECONDARY);
+
+			if (globalIndicies.length !== 0) {
+				schema.GlobalSecondaryIndexes = globalIndicies.map(i => i.toIndexSchema());
+			}
+
+			if (localIndicies.length !== 0) {
+				schema.LocalSecondaryIndexes = localIndicies.map(i => i.toIndexSchema());
+			}
 
 			return schema;
 		}
