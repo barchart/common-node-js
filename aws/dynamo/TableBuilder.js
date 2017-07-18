@@ -76,7 +76,7 @@ module.exports = (() => {
 
 		static fromDefinition(definition) {
 			const getDataTypeForAttribute = (attributeName) => {
-				return DataType.fromCode(definition.AttributeDefinitions.find(ad => ad.AttributeName === attributeName).AttributeType)
+				return DataType.fromCode(definition.AttributeDefinitions.find(ad => ad.AttributeName === attributeName).AttributeType);
 			};
 
 			const getIndexBuilder = (indexDefinition, indexType) => {
@@ -84,7 +84,7 @@ module.exports = (() => {
 					.withType(indexType);
 
 				indexDefinition.KeySchema.forEach((ks) => {
-					indexBuilder = indexBuilder.withKey(ks.AttributeName, getDataTypeForAttribute(ks.AttributeName), KeyType.fromCode(ks.KeyType))
+					indexBuilder = indexBuilder.withKey(ks.AttributeName, getDataTypeForAttribute(ks.AttributeName), KeyType.fromCode(ks.KeyType));
 				});
 
 				let projectionBuilder = ProjectionBuilder.withType(ProjectionType.fromCode(indexDefinition.Projection.ProjectionType));
