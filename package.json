@@ -30,7 +30,7 @@
   "dependencies": {
     "@google-cloud/pubsub": "^0.13.0",
     "aws-sdk": "2.7.19",
-    "barchart-marketdata-utilities": "1.0.60",
+    "barchart-marketdata-utilities": "2.0.3",
     "body-parser": "1.15.2",
     "client-sessions": "0.7.0",
     "common": "git+ssh://github.com/barchart/barchart-common-js#2.2.3",
