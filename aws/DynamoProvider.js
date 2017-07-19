@@ -8,8 +8,8 @@ const assert = require('common/lang/assert'),
 	promise = require('common/lang/promise'),
 	Scheduler = require('common/timing/Scheduler');
 
-const Table = require('./dynamo/Table'),
-	TableBuilder = require('./dynamo/TableBuilder');
+const Table = require('./dynamo/schema/definitions/Table'),
+	TableBuilder = require('./dynamo/schema/builders/TableBuilder');
 
 module.exports = (() => {
 	'use strict';

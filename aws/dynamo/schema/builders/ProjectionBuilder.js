@@ -4,15 +4,12 @@ const Attribute = require('./../definitions/Attribute'),
 	Projection = require('./../definitions/Projection'),
 	ProjectionType = require('./../definitions/ProjectionType');
 
-const TableBuilder = require('./TableBuilder');
-
 module.exports = (() => {
 	'use strict';
 
 	class ProjectionBuilder {
 		constructor(type, parent) {
 			assert.argumentIsRequired(type, 'type', ProjectionType, 'ProjectionType');
-			assert.argumentIsRequired(parent, 'parent', TableBuilder, 'TableBuilder');
 
 			this._projection = new Projection(type, [ ]);
 			this._parent = parent;
@@ -39,9 +36,8 @@ module.exports = (() => {
 	}
 
 	function getAttribute(name, parent) {
-		const attributes = parent.table.attributes.find(a => a.name === name) || null;
+		return parent.table.attributes.find(a => a.name === name) || null;
 	}
-
 
 	return ProjectionBuilder;
 })();

@@ -7,8 +7,7 @@ const Index = require('./../definitions/Index'),
 
 const KeyBuilder = require('./KeyBuilder'),
 	ProjectionBuilder = require('./ProjectionBuilder'),
-	ProvisionedThroughputBuilder = require('./ProvisionedThroughputBuilder'),
-	TableBuilder = require('./ProvisionedThroughputBuilder');
+	ProvisionedThroughputBuilder = require('./ProvisionedThroughputBuilder');
 
 module.exports = (() => {
 	'use strict';
@@ -16,7 +15,6 @@ module.exports = (() => {
 	class IndexBuilder {
 		constructor(name, parent) {
 			assert.argumentIsRequired(name, 'name', String);
-			assert.argumentIsRequired(parent, 'parent', TableBuilder, 'TableBuilder');
 
 			this._index = new Index(name, null, [ ], null, null);
 			this._parent = parent;

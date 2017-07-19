@@ -21,7 +21,7 @@ module.exports = (() => {
 		constructor(name) {
 			assert.argumentIsRequired(name, 'name', String);
 
-			this._table = new Table(name, [ ], [ ], ProvisionedThroughput.getDefault());
+			this._table = new Table(name, [ ], [ ], [ ], null);
 		}
 
 		get table() {
@@ -67,13 +67,13 @@ module.exports = (() => {
 		}
 
 		withProvisionedThroughput(readUnits, writeUnits) {
-			return this.withProvisionedThroughputBuilder(name, ptb => ptb.withRead(readUnits).withWrite(writeUnits));
+			return this.withProvisionedThroughputBuilder(ptb => ptb.withRead(readUnits).withWrite(writeUnits));
 		}
 
 		withProvisionedThroughputBuilder(callback) {
 			assert.argumentIsRequired(callback, 'callback', Function);
 
-			const provisionedThroughputBuilder = new ProvisionedThroughputBuilder(name, this);
+			const provisionedThroughputBuilder = new ProvisionedThroughputBuilder();
 
 			callback(provisionedThroughputBuilder);
 
@@ -143,7 +143,7 @@ module.exports = (() => {
 
 	function addAttributeBuilder(attributeBuilder) {
 		const attribute = attributeBuilder.attribute;
-		const attributes = this._table.attributes.filter(a => a.attribute.name !== attribute.name).concat(attribute);
+		const attributes = this._table.attributes.filter(a => a.name !== attribute.name).concat(attribute);
 
 		this._table = new Table(this._table.name, this._table.keys, this._table.indicies, attributes, this._table.provisionedThroughput);
 
@@ -169,7 +169,7 @@ module.exports = (() => {
 	}
 
 	function addProvisionedThroughputBuilder(provisionedThroughputBuilder) {
-		this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, this._table.provisionedThroughput.provisionedThroughput);
+		this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, provisionedThroughputBuilder.provisionedThroughput);
 
 		return this;
 	}

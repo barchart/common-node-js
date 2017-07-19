@@ -4,15 +4,12 @@ const Attribute = require('./../definitions/Attribute'),
 	Key = require('./../definitions/Key'),
 	KeyType = require('./../definitions/KeyType');
 
-const TableBuilder = require('./TableBuilder');
-
 module.exports = (() => {
 	'use strict';
 
 	class KeyBuilder {
 		constructor(name, parent) {
-			assert.argumentIsRequired(attribute, 'attribute', Attribute, 'Attribute');
-			assert.argumentIsRequired(parent, 'parent', TableBuilder, 'TableBuilder');
+			assert.argumentIsRequired(name, 'name', String);
 
 			this._key = new Key(getAttribute(name, parent), null);
 			this._parent = parent;
@@ -36,7 +33,7 @@ module.exports = (() => {
 	}
 
 	function getAttribute(name, parent) {
-		const attributes = parent.table.attributes.find(a => a.name === name) || null;
+		return parent.table.attributes.find(a => a.name === name) || null;
 	}
 
 	return KeyBuilder;
