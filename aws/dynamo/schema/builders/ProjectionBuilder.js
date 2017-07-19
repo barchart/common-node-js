@@ -19,10 +19,10 @@ module.exports = (() => {
 			return this._projection;
 		}
 
-		withAttribute(name) {
+		withAttribute(name, allowMissing) {
 			assert.argumentIsRequired(name, 'name', String);
 
-			const attribute = getAttribute(name, this._parent);
+			const attribute = getAttribute(name, this._parent, allowMissing);
 			const attributes = this._projection.attributes.filter(a => a.name !== attribute.name).concat(attribute);
 
 			this._projection = new Projection(this._projection.type, attributes);
@@ -35,8 +35,14 @@ module.exports = (() => {
 		}
 	}
 
-	function getAttribute(name, parent) {
-		return parent.table.attributes.find(a => a.name === name) || null;
+	function getAttribute(name, parent, allowMissing) {
+		let attribute = parent.table.attributes.find(a => a.name === name) || null;
+
+		if (attribute === null && allowMissing) {
+			attribute = new Attribute(name, null);
+		}
+
+		return attribute;
 	}
 
 	return ProjectionBuilder;

@@ -85,52 +85,31 @@ module.exports = (() => {
 		}
 
 		static fromDefinition(definition) {
-			const getDataTypeForAttribute = (attributeName) => {
-				return DataType.fromCode(definition.AttributeDefinitions.find(ad => ad.AttributeName === attributeName).AttributeType);
-			};
-
-			const getIndexBuilder = (indexDefinition, indexType) => {
-				let indexBuilder = new IndexBuilder(indexDefinition.IndexName)
-					.withType(indexType);
-
-				indexDefinition.KeySchema.forEach((ks) => {
-					indexBuilder = indexBuilder.withKey(ks.AttributeName, getDataTypeForAttribute(ks.AttributeName), KeyType.fromCode(ks.KeyType));
-				});
-
-				let projectionBuilder = ProjectionBuilder.withType(ProjectionType.fromCode(indexDefinition.Projection.ProjectionType));
-
-				if (is.array(indexDefinition.Projection.NonKeyAttributes)) {
-					indexDefinition.Projection.NonKeyAttributes.forEach((attributeName) => {
-						projectionBuilder = projectionBuilder.withAttribute(attributeName, getDataTypeForAttribute(attributeName));
-					});
-				}
-
-				indexBuilder = indexBuilder.withProjectionBuilder(projectionBuilder);
-
-				if (is.object(indexDefinition.ProvisionedThroughput)) {
-					indexBuilder = indexBuilder.withProvisionedThroughput(indexDefinition.ProvisionedThroughput.ReadCapacityUnits, indexDefinition.ProvisionedThroughput.WriteCapacityUnits);
-				}
-
-				return indexBuilder;
-			};
-
-			let tableBuilder = new TableBuilder(definition.TableName)
+			let tableBuilder = TableBuilder.withName(definition.TableName)
 				.withProvisionedThroughput(definition.ProvisionedThroughput.ReadCapacityUnits, definition.ProvisionedThroughput.WriteCapacityUnits);
 
-			definition.KeySchema.forEach((ks) => {
-				tableBuilder = tableBuilder.withKey(ks.AttributeName, getDataTypeForAttribute(ks.AttributeName), KeyType.fromCode(ks.KeyType));
-			});
+			definition.AttributeDefinitions.reduce((tb, ad) => tb.withAttribute(ad.AttributeName, DataType.fromCode(ad.AttributeType)), tableBuilder);
+			definition.KeySchema.reduce((tb, ks) => tb.withKey(ks.AttributeName, KeyType.fromCode(ks.KeyType)), tableBuilder);
 
-			if (is.array(definition.GlobalSecondaryIndexes)) {
-				definition.GlobalSecondaryIndexes.forEach((gsi) => {
-					tableBuilder = tableBuilder.withIndexBuilder(getIndexBuilder(gsi, IndexType.GLOBAL_SECONDARY));
+			const processIndex = (indexType, indexDefinition) => {
+				return tableBuilder.withIndexBuilder(indexDefinition.IndexName, (indexBuilder) => {
+					indexDefinition.KeySchema.reduce((ib, ks) => ib.withKey(ks.AttributeName, KeyType.fromCode(ks.KeyType)), indexBuilder);
+
+					indexBuilder.withType(indexType)
+						.withProjectionBuilder(ProjectionType.fromCode(indexDefinition.Projection.ProjectionType), (projectionBuilder) => {
+							if (is.array(indexDefinition.Projection.NonKeyAttributes)) {
+								indexDefinition.Projection.NonKeyAttributes.reduce((pb, nka) => pb.withAttribute(nka, true), projectionBuilder);
+							}
+						});
 				});
-			}
+			};
 
 			if (is.array(definition.LocalSecondaryIndexes)) {
-				definition.LocalSecondaryIndexes.forEach((lsi) => {
-					tableBuilder = tableBuilder.withIndexBuilder(getIndexBuilder(lsi, IndexType.LOCAL_SECONDARY));
-				});
+				definition.LocalSecondaryIndexes.reduce((tb, lsi) => processIndex(IndexType.LOCAL_SECONDARY, lsi), tableBuilder);
+			}
+
+			if (is.array(definition.GlobalSecondaryIndexes)) {
+				definition.GlobalSecondaryIndexes.reduce((tb, gsi) => processIndex(IndexType.GLOBAL_SECONDARY, gsi), tableBuilder);
 			}
 
 			return tableBuilder.table;
