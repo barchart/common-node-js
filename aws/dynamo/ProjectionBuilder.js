@@ -20,18 +20,10 @@ module.exports = (() => {
 			return this._projection;
 		}
 
-		withAttribute(name, dataType) {
-			const attributeBuilder = new AttributeBuilder(name)
-				.withDataType(dataType);
+		withAttributeName(attributeName) {
+			assert.argumentIsRequired(attributeName, 'attributeName', String);
 
-			return this.withAttributeBuilder(attributeBuilder);
-		}
-
-		withAttributeBuilder(attributeBuilder) {
-			assert.argumentIsRequired(attributeBuilder, 'attributeBuilder', AttributeBuilder, 'AttributeBuilder');
-
-			const attribute = attributeBuilder.attribute;
-			const attributes = this._projection.attributes.filter(a => a.name !== attribute.name).concat(attribute);
+			const attributes = this._projection.attributes.filter(a => a !== attributeName).concat(attributeName).sort();
 
 			this._projection = new Projection(this._projection.type, attributes);
 

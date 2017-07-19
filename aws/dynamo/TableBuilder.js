@@ -27,6 +27,24 @@ module.exports = (() => {
 			return this._table;
 		}
 
+		withAttribute(name, dataType) {
+			const attributeBuilder = AttributeBuilder.withName(name)
+				.withDataType(dataType);
+
+			return this.withAttributeBuilder(attributeBuilder);
+		}
+
+		withAttributeBuilder(attributeBuilder) {
+			assert.argumentIsRequired(attributeBuilder, 'attributeBuilder', AttributeBuilder, 'AttributeBuilder');
+
+			const attribute = attributeBuilder.attribute;
+			const attributes = this._table.attributes.filter(a => a.attribute.name !== attribute.name).concat(attribute);
+
+			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, attributes, this._table.provisionedThroughput);
+
+			return this;
+		}
+
 		withKey(name, dataType, keyType) {
 			const keyBuilder = KeyBuilder.withName(name)
 				.withDataType(dataType)
@@ -41,7 +59,7 @@ module.exports = (() => {
 			const key = keyBuilder.key;
 			const keys = this._table.keys.filter(k => k.attribute.name !== key.attribute.name).concat(key);
 
-			this._table = new Table(this._table.name, keys, this._table.indicies, this._table.provisionedThroughput);
+			this._table = new Table(this._table.name, keys, this._table.indicies, this._table.attributes, this._table.provisionedThroughput);
 
 			return this;
 		}
@@ -52,7 +70,7 @@ module.exports = (() => {
 			const index = indexBuilder.index;
 			const indicies = this._table._indices.filter(i => i.name !== index.name).concat(index);
 
-			this._table = new Table(this._table.name, this._table.keys, indicies, this._table.provisionedThroughput);
+			this._table = new Table(this._table.name, this._table.keys, indicies, this._table.attributes, this._table.provisionedThroughput);
 
 			return this;
 		}
@@ -66,7 +84,7 @@ module.exports = (() => {
 		withProvisionedThroughputBuilder(provisionedThroughputBuilder) {
 			assert.argumentIsRequired(provisionedThroughputBuilder, 'provisionedThroughputBuilder', ProvisionedThroughputBuilder, 'ProvisionedThroughputBuilder');
 
-			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, provisionedThroughputBuilder.provisionedThroughput);
+			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, this._table.provisionedThroughput._provisionedThroughput);
 
 			return this;
 		}

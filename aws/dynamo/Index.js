@@ -65,6 +65,10 @@ module.exports = (() => {
 				throw new Error('Index must have one hash key.');
 			}
 
+			if (this._keys.filter(k => k.keyType === KeyType.RANGE).length > 1) {
+				throw new Error('Table must not have more than one range key.');
+			}
+
 			if (!array.unique(this._keys.map(k => k.attribute.name))) {
 				throw new Error('Index key names must be unique (only one key with a given name).');
 			}
@@ -72,12 +76,6 @@ module.exports = (() => {
 			if (!(this._projection instanceof Projection)) {
 				throw new Error('Index must have a projection definition.');
 			}
-
-			/*
-			if (this._projection.attributes.some(a => this.keys.some(k => k.attribute.name === a.name))) {
-				throw new Error('Index cannot use the same attribute for a key and a projection.');
-			}
-			*/
 
 			this._projection.validate();
 

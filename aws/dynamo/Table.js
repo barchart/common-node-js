@@ -12,11 +12,12 @@ module.exports = (() => {
 	'use strict';
 
 	class Table {
-		constructor(name, keys, indicies, provisionedThroughput) {
+		constructor(name, keys, indicies, attributes, provisionedThroughput) {
 			this._name = name;
 
 			this._keys = keys || [ ];
 			this._indices = indicies || [ ];
+			this._attributes = attributes || [ ];
 
 			this._provisionedThroughput = provisionedThroughput;
 		}
@@ -31,6 +32,10 @@ module.exports = (() => {
 
 		get indicies() {
 			return [...this._indices];
+		}
+
+		get attributes() {
+			return [...this._attributes];
 		}
 
 		get provisionedThroughput() {
@@ -52,6 +57,10 @@ module.exports = (() => {
 
 			if (this._keys.filter(k => k.keyType === KeyType.HASH).length !== 1) {
 				throw new Error('Table must have one hash key.');
+			}
+
+			if (this._keys.filter(k => k.keyType === KeyType.RANGE).length > 1) {
+				throw new Error('Table must not have more than one range key.');
 			}
 
 			if (!array.unique(this._keys.map(k => k.attribute.name))) {
