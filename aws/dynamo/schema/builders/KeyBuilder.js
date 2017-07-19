@@ -1,18 +1,21 @@
-const assert = require('common/lang/assert'),
-	is = require('common/lang/is');
+const assert = require('common/lang/assert');
 
-const DataType = require('./DataType'),
-	Key = require('./Key'),
-	KeyType = require('./KeyType');
+const Attribute = require('./../definitions/Attribute'),
+	Key = require('./../definitions/Key'),
+	KeyType = require('./../definitions/KeyType');
+
+const TableBuilder = require('./TableBuilder');
 
 module.exports = (() => {
 	'use strict';
 
 	class KeyBuilder {
-		constructor(name) {
-			assert.argumentIsRequired(name, 'name', String);
+		constructor(name, parent) {
+			assert.argumentIsRequired(attribute, 'attribute', Attribute, 'Attribute');
+			assert.argumentIsRequired(parent, 'parent', TableBuilder, 'TableBuilder');
 
-			this._key = new Key(name, null, null);
+			this._key = new Key(getAttribute(name, parent), null);
+			this._parent = parent;
 		}
 
 		get key() {
@@ -22,26 +25,18 @@ module.exports = (() => {
 		withKeyType(keyType) {
 			assert.argumentIsRequired(keyType, 'keyType', KeyType, 'KeyType');
 
-			this._key = new Key(this._key.attribute.name, this._key.attribute.dataType, keyType);
+			this._key = new Key(this._key.attribute, keyType);
 
 			return this;
-		}
-
-		withDataType(dataType) {
-			assert.argumentIsRequired(dataType, 'dataType', DataType, 'DataType');
-
-			this._key = new Key(this._key.attribute.name, dataType, this._key.keyType);
-
-			return this;
-		}
-
-		static withName(name) {
-			return new KeyBuilder(name);
 		}
 
 		toString() {
 			return '[KeyBuilder]';
 		}
+	}
+
+	function getAttribute(name, parent) {
+		const attributes = parent.table.attributes.find(a => a.name === name) || null;
 	}
 
 	return KeyBuilder;

@@ -2,16 +2,14 @@ const assert = require('common/lang/assert'),
 	is = require('common/lang/is');
 
 const Attribute = require('./Attribute'),
-	DataType = require('./DataType'),
-	Key = require('./Key'),
 	KeyType = require('./KeyType');
 
 module.exports = (() => {
 	'use strict';
 
 	class Key {
-		constructor(name, dataType, keyType) {
-			this._attribute = new Attribute(name, dataType);
+		constructor(attribute, keyType) {
+			this._attribute = attribute;
 			this._keyType = keyType;
 		}
 
@@ -24,6 +22,10 @@ module.exports = (() => {
 		}
 
 		validate() {
+			if (!(this._attribute instanceof Attribute)) {
+				throw new Error('Key attribute is invalid.');
+			}
+
 			if (!(this._keyType instanceof KeyType)) {
 				throw new Error('Key type is invalid.');
 			}

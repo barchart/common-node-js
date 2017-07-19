@@ -1,9 +1,8 @@
-const assert = require('common/lang/assert'),
-	is = require('common/lang/is');
+const assert = require('common/lang/assert');
 
-const DataType = require('./DataType'),
-	KeyType = require('./KeyType'),
-	ProvisionedThroughput = require('./ProvisionedThroughput');
+const DataType = require('./../definitions/DataType'),
+	KeyType = require('./../definitions/KeyType'),
+	ProvisionedThroughput = require('./../definitions/ProvisionedThroughput');
 
 module.exports = (() => {
 	'use strict';
@@ -34,10 +33,6 @@ module.exports = (() => {
 			this._provisionedThroughput = new ProvisionedThroughput(this._provisionedThroughput.read, value);
 
 			return this;
-		}
-
-		static fromDefaults() {
-			return new ProvisionedThroughputBuilder(1, 1);
 		}
 
 		toString() {

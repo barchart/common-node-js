@@ -1,43 +1,47 @@
-const assert = require('common/lang/assert'),
-	is = require('common/lang/is');
+const assert = require('common/lang/assert');
 
-const Attribute = require('./Attribute'),
-	AttributeBuilder = require('./AttributeBuilder'),
-	Projection = require('./Projection'),
-	ProjectionType = require('./ProjectionType');
+const Attribute = require('./../definitions/Attribute'),
+	Projection = require('./../definitions/Projection'),
+	ProjectionType = require('./../definitions/ProjectionType');
+
+const TableBuilder = require('./TableBuilder');
 
 module.exports = (() => {
 	'use strict';
 
 	class ProjectionBuilder {
-		constructor(type) {
+		constructor(type, parent) {
 			assert.argumentIsRequired(type, 'type', ProjectionType, 'ProjectionType');
+			assert.argumentIsRequired(parent, 'parent', TableBuilder, 'TableBuilder');
 
 			this._projection = new Projection(type, [ ]);
+			this._parent = parent;
 		}
 
 		get projection() {
 			return this._projection;
 		}
 
-		withAttributeName(attributeName) {
-			assert.argumentIsRequired(attributeName, 'attributeName', String);
+		withAttribute(name) {
+			assert.argumentIsRequired(name, 'name', String);
 
-			const attributes = this._projection.attributes.filter(a => a !== attributeName).concat(attributeName).sort();
+			const attribute = getAttribute(name, this._parent);
+			const attributes = this._projection.attributes.filter(a => a.name !== attribute.name).concat(attribute);
 
 			this._projection = new Projection(this._projection.type, attributes);
 
 			return this;
 		}
 
-		static withType(type) {
-			return new ProjectionBuilder(type);
-		}
-
 		toString() {
 			return '[ProjectionBuilder]';
 		}
 	}
+
+	function getAttribute(name, parent) {
+		const attributes = parent.table.attributes.find(a => a.name === name) || null;
+	}
+
 
 	return ProjectionBuilder;
 })();

@@ -31,11 +31,11 @@ module.exports = (() => {
 				throw new Error('Projection must have an array of attributes.');
 			}
 
-			if (!this._attributes.every(a => is.string(a))) {
-				throw new Error('Projection attributes array can only contain strings (attribute names).');
+			if (!this._attributes.every(a => a instanceof Attribute)) {
+				throw new Error('Projection attributes array can only contain attribute instances).');
 			}
 
-			if (!array.unique(this._attributes)) {
+			if (!array.uniqueBy(this._attributes, a => a.name)) {
 				throw new Error('Projection attributes must be unique.');
 			}
 
@@ -62,7 +62,7 @@ module.exports = (() => {
 			};
 
 			if (this._attributes.length > 0) {
-				schema.NonKeyAttributes = [...this._attributes];
+				schema.NonKeyAttributes = this._attributes.map(a => a.name);
 			}
 
 			return schema;

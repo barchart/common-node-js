@@ -1,23 +1,25 @@
-const assert = require('common/lang/assert'),
-	is = require('common/lang/is');
+const assert = require('common/lang/assert');
 
-const Attribute = require('./Attribute'),
-	Index = require('./Index'),
-	IndexType = require('./IndexType'),
-	KeyBuilder = require('./KeyBuilder'),
-	Projection = require('./Projection'),
+const Index = require('./../definitions/Index'),
+	IndexType = require('./../definitions/IndexType'),
+	Projection = require('./../definitions/Projection'),
+	ProjectionType = require('./../definitions/ProjectionType');
+
+const KeyBuilder = require('./KeyBuilder'),
 	ProjectionBuilder = require('./ProjectionBuilder'),
-	ProjectionType = require('./ProjectionType'),
-	ProvisionedThroughputBuilder = require('./ProvisionedThroughputBuilder');
+	ProvisionedThroughputBuilder = require('./ProvisionedThroughputBuilder'),
+	TableBuilder = require('./ProvisionedThroughputBuilder');
 
 module.exports = (() => {
 	'use strict';
 
 	class IndexBuilder {
-		constructor(name) {
+		constructor(name, parent) {
 			assert.argumentIsRequired(name, 'name', String);
+			assert.argumentIsRequired(parent, 'parent', TableBuilder, 'TableBuilder');
 
 			this._index = new Index(name, null, [ ], null, null);
+			this._parent = parent;
 		}
 
 		get index() {
@@ -32,46 +34,34 @@ module.exports = (() => {
 			return this;
 		}
 
-		withKey(name, dataType, keyType) {
-			const keyBuilder = KeyBuilder.withName(name)
-				.withDataType(dataType)
-				.withKeyType(keyType);
-
-			return this.withKeyBuilder(keyBuilder);
+		withKey(name, keyType) {
+			return this.withKeyBuilder(name, kb => kb.withKeyType(keyType));
 		}
 
-		withKeyBuilder(keyBuilder) {
-			assert.argumentIsRequired(keyBuilder, 'keyBuilder', KeyBuilder, 'KeyBuilder');
+		withKeyBuilder(name, callback) {
+			assert.argumentIsRequired(callback, 'callback', Function);
 
-			const key = keyBuilder.key;
-			const keys = this._index.keys.filter(k => k.attribute.name !== key.attribute.name).concat(key);
+			const keyBuilder = new KeyBuilder(name, this._parent);
 
-			this._index = new Index(this._index.name, this._index.type, keys, this._index.projection, this._index.provisionedThroughput);
+			callback(keyBuilder);
 
-			return this;
+			return addKeyBuilder.call(this, keyBuilder);
 		}
 
-		withProjection(type, attributeNames) {
-			assert.argumentIsRequired(type, 'type', ProjectionType, 'ProjectionType');
-			assert.argumentIsArray(attributeNames, 'attributeNames', String);
+		withProjection(type, names) {
+			const namesToUse = names || [ ];
 
-			let projectionBuilder = ProjectionBuilder.withType(type);
-
-			let attributesNamesToUse = attributeNames || [ ];
-
-			attributesNamesToUse.forEach((an) => {
-				projectionBuilder = projectionBuilder.withAttributeName(an);
-			});
-
-			return this.withProjectionBuilder(projectionBuilder);
+			return this.withKeyBuilder(type, pb => namesToUse.forEach(n => pb.withAttribute(n)));
 		}
 
-		withProjectionBuilder(projectionBuilder) {
-			assert.argumentIsRequired(projectionBuilder, 'projectionBuilder', ProjectionBuilder, 'ProjectionBuilder');
+		withProjectionBuilder(type, callback) {
+			assert.argumentIsRequired(callback, 'callback', Function);
 
-			this._index = new Index(this._index.name, this._index.type, this._index.keys, projectionBuilder.projection, this._index.provisionedThroughput);
+			const projectionBuilder = new ProjectionBuilder(type, this._parent);
 
-			return this;
+			callback(projectionBuilder);
+
+			return addProjectionBuilder.call(this, projectionBuilder);
 		}
 
 		withProvisionedThroughput(readUnits, writeUnits) {
@@ -88,13 +78,24 @@ module.exports = (() => {
 			return this;
 		}
 
-		static withName(name) {
-			return new IndexBuilder(name);
-		}
-
 		toString() {
 			return '[IndexBuilder]';
 		}
+	}
+
+	function addKeyBuilder(keyBuilder) {
+		const key = keyBuilder.key;
+		const keys = this._index.keys.filter(k => k.attribute.name !== key.attribute.name).concat(key);
+
+		this._index = new Index(this._index.name, this._index.type, keys, this._index.projection, this._index.provisionedThroughput);
+
+		return this;
+	}
+
+	function addProjectionBuilder(projectionBuilder) {
+		this._index = new Index(this._index.name, this._index.type, this._index.keys, projectionBuilder.projection, this._index.provisionedThroughput);
+
+		return this;
 	}
 
 	return IndexBuilder;

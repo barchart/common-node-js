@@ -1,17 +1,18 @@
 const assert = require('common/lang/assert'),
 	is = require('common/lang/is');
 
+const DataType = require('./../definitions/DataType'),
+	IndexType = require('./../definitions/IndexType'),
+	KeyType = require('./../definitions/KeyType'),
+	ProjectionType = require('./../definitions/ProjectionType'),
+	ProvisionedThroughput = require('./../definitions/ProvisionedThroughput'),
+	Table = require('./../definitions/Table');
+
 const AttributeBuilder = require('./AttributeBuilder'),
-	DataType = require('./DataType'),
 	IndexBuilder = require('./IndexBuilder'),
-	IndexType = require('./IndexType'),
 	KeyBuilder = require('./KeyBuilder'),
-	KeyType = require('./KeyType'),
 	ProjectionBuilder = require('./ProjectionBuilder'),
-	ProjectionType = require('./ProjectionType'),
-	ProvisionedThroughput = require('./ProvisionedThroughput'),
-	ProvisionedThroughputBuilder = require('./ProvisionedThroughputBuilder'),
-	Table = require('./Table');
+	ProvisionedThroughputBuilder = require('./ProvisionedThroughputBuilder');
 
 module.exports = (() => {
 	'use strict';
@@ -28,65 +29,55 @@ module.exports = (() => {
 		}
 
 		withAttribute(name, dataType) {
-			const attributeBuilder = AttributeBuilder.withName(name)
-				.withDataType(dataType);
-
-			return this.withAttributeBuilder(attributeBuilder);
+			return this.withAttributeBuilder(name, ab => ab.withDataType(dataType));
 		}
 
-		withAttributeBuilder(attributeBuilder) {
-			assert.argumentIsRequired(attributeBuilder, 'attributeBuilder', AttributeBuilder, 'AttributeBuilder');
+		withAttributeBuilder(name, callback) {
+			assert.argumentIsRequired(callback, 'callback', Function);
 
-			const attribute = attributeBuilder.attribute;
-			const attributes = this._table.attributes.filter(a => a.attribute.name !== attribute.name).concat(attribute);
+			const attributeBuilder = new AttributeBuilder(name, this);
 
-			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, attributes, this._table.provisionedThroughput);
+			callback(attributeBuilder);
 
-			return this;
+			return addAttributeBuilder.call(this, attributeBuilder);
 		}
 
-		withKey(name, dataType, keyType) {
-			const keyBuilder = KeyBuilder.withName(name)
-				.withDataType(dataType)
-				.withKeyType(keyType);
-
-			return this.withKeyBuilder(keyBuilder);
+		withKey(name, keyType) {
+			return this.withKeyBuilder(name, kb => kb.withKeyType(keyType));
 		}
 
-		withKeyBuilder(keyBuilder) {
-			assert.argumentIsRequired(keyBuilder, 'keyBuilder', KeyBuilder, 'KeyBuilder');
+		withKeyBuilder(name, callback) {
+			assert.argumentIsRequired(callback, 'callback', Function);
 
-			const key = keyBuilder.key;
-			const keys = this._table.keys.filter(k => k.attribute.name !== key.attribute.name).concat(key);
+			const keyBuilder = new KeyBuilder(name, this);
 
-			this._table = new Table(this._table.name, keys, this._table.indicies, this._table.attributes, this._table.provisionedThroughput);
+			callback(keyBuilder);
 
-			return this;
+			return addKeyBuilder.call(this, keyBuilder);
 		}
 
-		withIndexBuilder(indexBuilder) {
-			assert.argumentIsRequired(indexBuilder, 'indexBuilder', IndexBuilder, 'IndexBuilder');
+		withIndexBuilder(name, callback) {
+			assert.argumentIsRequired(callback, 'callback', Function);
 
-			const index = indexBuilder.index;
-			const indicies = this._table._indices.filter(i => i.name !== index.name).concat(index);
+			const indexBuilder = new IndexBuilder(name, this);
 
-			this._table = new Table(this._table.name, this._table.keys, indicies, this._table.attributes, this._table.provisionedThroughput);
+			callback(indexBuilder);
 
-			return this;
+			return addIndexBuilder.call(this, indexBuilder);
 		}
 
 		withProvisionedThroughput(readUnits, writeUnits) {
-			const provisionedThroughputBuilder = new ProvisionedThroughputBuilder(readUnits, writeUnits);
-
-			return this.withProvisionedThroughputBuilder(provisionedThroughputBuilder);
+			return this.withProvisionedThroughputBuilder(name, ptb => ptb.withRead(readUnits).withWrite(writeUnits));
 		}
 
-		withProvisionedThroughputBuilder(provisionedThroughputBuilder) {
-			assert.argumentIsRequired(provisionedThroughputBuilder, 'provisionedThroughputBuilder', ProvisionedThroughputBuilder, 'ProvisionedThroughputBuilder');
+		withProvisionedThroughputBuilder(callback) {
+			assert.argumentIsRequired(callback, 'callback', Function);
 
-			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, this._table.provisionedThroughput._provisionedThroughput);
+			const provisionedThroughputBuilder = new ProvisionedThroughputBuilder(name, this);
 
-			return this;
+			callback(provisionedThroughputBuilder);
+
+			return addProvisionedThroughputBuilder.call(this, provisionedThroughputBuilder);
 		}
 
 		static withName(name) {
@@ -148,6 +139,39 @@ module.exports = (() => {
 		toString() {
 			return '[TableBuilder]';
 		}
+	}
+
+	function addAttributeBuilder(attributeBuilder) {
+		const attribute = attributeBuilder.attribute;
+		const attributes = this._table.attributes.filter(a => a.attribute.name !== attribute.name).concat(attribute);
+
+		this._table = new Table(this._table.name, this._table.keys, this._table.indicies, attributes, this._table.provisionedThroughput);
+
+		return this;
+	}
+
+	function addKeyBuilder(keyBuilder) {
+		const key = keyBuilder.key;
+		const keys = this._table.keys.filter(k => k.attribute.name !== key.attribute.name).concat(key);
+
+		this._table = new Table(this._table.name, keys, this._table.indicies, this._table.attributes, this._table.provisionedThroughput);
+
+		return this;
+	}
+
+	function addIndexBuilder(indexBuilder) {
+		const index = indexBuilder.index;
+		const indicies = this._table._indices.filter(i => i.name !== index.name).concat(index);
+
+		this._table = new Table(this._table.name, this._table.keys, indicies, this._table.attributes, this._table.provisionedThroughput);
+
+		return this;
+	}
+
+	function addProvisionedThroughputBuilder(provisionedThroughputBuilder) {
+		this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, this._table.provisionedThroughput.provisionedThroughput);
+
+		return this;
 	}
 
 	return TableBuilder;

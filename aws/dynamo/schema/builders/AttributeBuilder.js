@@ -1,8 +1,7 @@
-const assert = require('common/lang/assert'),
-	is = require('common/lang/is');
+const assert = require('common/lang/assert');
 
-const Attribute = require('./Attribute'),
-	DataType = require('./DataType');
+const Attribute = require('./../definitions/Attribute'),
+	DataType = require('./../definitions/DataType');
 
 module.exports = (() => {
 	'use strict';
