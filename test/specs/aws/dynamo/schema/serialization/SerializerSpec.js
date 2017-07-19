@@ -25,12 +25,28 @@ describe('When a Serializer with a table that has "firstName" and "age" attribut
 			serialized = Serializer.serialize({ firstName: 'Imogen', age: 3}, table);
 		});
 
-		it('should have an "Item.firstName.S" property with a value of "Imogen"', function() {
+		it('the result should have an "Item.firstName.S" property with a value of "Imogen"', function() {
 			expect(serialized.Item && serialized.Item.firstName && serialized.Item.firstName.S).toEqual("Imogen");
 		});
 
-		it('should have an "Item.age.N" property with a value of "3"', function() {
+		it('the result should have an "Item.age.N" property with a value of "3"', function() {
 			expect(serialized.Item && serialized.Item.age && serialized.Item.age.N).toEqual("3");
+		});
+	});
+
+	describe('and { firstName: { S: "Imogen" }, age: { N: "3" } } is deserialized', function() {
+		var deserialized;
+
+		beforeEach(function() {
+			deserialized = Serializer.deserialize({ firstName: { S: 'Imogen' }, age: { N: '3' } }, table);
+		});
+
+		it('the result "firstName" property with a value of "Imogen"', function() {
+			expect(deserialized && deserialized.firstName).toEqual("Imogen");
+		});
+
+		it('the result an "age" property with a value of 3', function() {
+			expect(deserialized && deserialized.age).toEqual(3);
 		});
 	});
 });

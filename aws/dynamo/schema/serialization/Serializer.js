@@ -1,7 +1,8 @@
 const assert = require('common/lang/assert'),
 	is = require('common/lang/is');
 
-const DataType = require('./../../schema/definitions/DataType');
+const DataType = require('./../../schema/definitions/DataType'),
+	Table = require('./../../schema/definitions/Table');
 
 const NumberSerializer = require('./attributes/NumberSerializer'),
 	StringSerializer = require('./attributes/StringSerializer');
@@ -19,6 +20,7 @@ module.exports = (() => {
 
 		static serialize(item, table) {
 			assert.argumentIsRequired(item, 'item', Object);
+			assert.argumentIsRequired(table, 'table', Table, 'Table');
 
 			return {
 				Item: table.attributes.reduce((serialized, attribute) => {
@@ -31,6 +33,21 @@ module.exports = (() => {
 					return serialized;
 				}, { })
 			};
+		}
+
+		static deserialize(item, table) {
+			assert.argumentIsRequired(item, 'item', Object);
+			assert.argumentIsRequired(table, 'table', Table, 'Table');
+
+			return table.attributes.reduce((deserialized, attribute) => {
+				const name = attribute.name;
+
+				if (item.hasOwnProperty(name)) {
+					deserialized[name] = serializers.get(attribute.dataType).deserialize(item[name]);
+				}
+
+				return deserialized;
+			}, { });
 		}
 
 		toString() {
