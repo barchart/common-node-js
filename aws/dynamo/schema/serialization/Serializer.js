@@ -22,17 +22,15 @@ module.exports = (() => {
 			assert.argumentIsRequired(item, 'item', Object);
 			assert.argumentIsRequired(table, 'table', Table, 'Table');
 
-			return {
-				Item: table.attributes.reduce((serialized, attribute) => {
-					const name = attribute.name;
+			return table.attributes.reduce((serialized, attribute) => {
+				const name = attribute.name;
 
-					if (item.hasOwnProperty(name) && !is.undefined(item[name])) {
-						serialized[name] = serializers.get(attribute.dataType).serialize(item[name]);
-					}
+				if (item.hasOwnProperty(name) && !is.undefined(item[name])) {
+					serialized[name] = serializers.get(attribute.dataType).serialize(item[name]);
+				}
 
-					return serialized;
-				}, { })
-			};
+				return serialized;
+			}, { });
 		}
 
 		static deserialize(item, table) {

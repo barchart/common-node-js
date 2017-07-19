@@ -9,7 +9,8 @@ const assert = require('common/lang/assert'),
 	Scheduler = require('common/timing/Scheduler');
 
 const Table = require('./dynamo/schema/definitions/Table'),
-	TableBuilder = require('./dynamo/schema/builders/TableBuilder');
+	TableBuilder = require('./dynamo/schema/builders/TableBuilder'),
+	Serializer = require('./dynamo/schema/serialization/Serializer');
 
 module.exports = (() => {
 	'use strict';
@@ -206,8 +207,8 @@ module.exports = (() => {
 										.then((tableDefinition) => {
 											resolveCallback(TableBuilder.fromDefinition(tableDefinition));
 										}).catch((e) => {
-										rejectCallback(e);
-									});
+											rejectCallback(e);
+										});
 								} else {
 									logger.error(error);
 
@@ -229,14 +230,14 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Adds a new item to a table.
+		 * Adds a new item to a table. If the item already exists, it is overwritten.
 		 *
 		 * @public
 		 * @param {Table} definition - Describes the schema of the table to create.
 		 * @param {Object} item - The item to write.
 		 * @returns {Promise}
 		 */
-		createItem(table, item) {
+		saveItem(item, table) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(table, 'table', Table, 'Table');
@@ -246,33 +247,21 @@ module.exports = (() => {
 
 					const qualifiedTableName = table.name;
 
-					return promise.build((resolveCallback, rejectCallback) => {
+					const payload = { TableName: table.name, Item: Serializer.serialize(item, table) };
 
-					});
-				});
-		}
+					const putItem = () => {
+						return promise.build((resolveCallback, rejectCallback) => {
+							this._dynamo.putItem(payload, (error, data) => {
+								if (error) {
+									rejectCallback(error);
+								} else {
+									resolveCallback(true);
+								}
+							});
+						});
+					};
 
-		/**
-		 * Adds a new item to a table; or overwrites the item if it already exists.
-		 *
-		 * @public
-		 * @param {Table} definition - Describes the schema of the table to create.
-		 * @param {Object} item - The item to write.
-		 * @returns {Promise}
-		 */
-		saveItem(table, item) {
-			return Promise.resolve()
-				.then(() => {
-					assert.argumentIsRequired(table, 'table', Table, 'Table');
-					assert.argumentIsRequired(item, 'item', Object);
-
-					checkReady.call(this);
-
-					const qualifiedTableName = table.name;
-
-					return promise.build((resolveCallback, rejectCallback) => {
-
-					});
+					return this._scheduler.backoff(putItem);
 				});
 		}
 
@@ -284,7 +273,7 @@ module.exports = (() => {
 		 * @param {Array<Object>} item - The items to write.
 		 * @returns {Promise}
 		 */
-		createItems(table, items) {
+		createItems(items, table) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(table, 'table', Table, 'Table');

@@ -25,12 +25,12 @@ describe('When a Serializer with a table that has "firstName" and "age" attribut
 			serialized = Serializer.serialize({ firstName: 'Imogen', age: 3}, table);
 		});
 
-		it('the result should have an "Item.firstName.S" property with a value of "Imogen"', function() {
-			expect(serialized.Item && serialized.Item.firstName && serialized.Item.firstName.S).toEqual("Imogen");
+		it('the result should have an "firstName.S" property with a value of "Imogen"', function() {
+			expect(serialized.firstName && serialized.firstName.S).toEqual("Imogen");
 		});
 
-		it('the result should have an "Item.age.N" property with a value of "3"', function() {
-			expect(serialized.Item && serialized.Item.age && serialized.Item.age.N).toEqual("3");
+		it('the result should have an "age.N" property with a value of "3"', function() {
+			expect(serialized.age && serialized.age.N).toEqual("3");
 		});
 	});
 
