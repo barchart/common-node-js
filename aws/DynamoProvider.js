@@ -362,5 +362,13 @@ module.exports = (() => {
 		});
 	}
 
+	function serializeItem() {
+
+	}
+
+	function deserializeItem() {
+
+	}
+
 	return DynamoProvider;
 })();
