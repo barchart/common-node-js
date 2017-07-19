@@ -16,16 +16,18 @@ module.exports = (() => {
 	'use strict';
 
 	log4js.configure({
-		levels: {
-			'[all]': 'INFO'
+		"categories": {
+			"default": { "appenders": [ "console" ], "level": "info" },
 		},
-		appenders: [ {
-			type: 'console',
-			layout: {
-				type: 'pattern',
-				pattern: '[%d] [%p] %c - %m%'
+		"appenders": {
+			"console": {
+				"type": "console",
+					"layout": {
+					"type": "pattern",
+						"pattern": "[%d] [%p] %c - %m%"
+				}
 			}
-		} ]
+		}
 	});
 
 	const logger = log4js.getLogger('lambda/LambdaBuilder');
