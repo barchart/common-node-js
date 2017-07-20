@@ -6,6 +6,7 @@ const assert = require('common/lang/assert'),
 	is = require('common/lang/is'),
 	object = require('common/lang/object'),
 	promise = require('common/lang/promise'),
+	WorkQueue = require('common/timing/Serializer'),
 	Scheduler = require('common/timing/Scheduler');
 
 const Table = require('./dynamo/schema/definitions/Table'),
@@ -45,6 +46,7 @@ module.exports = (() => {
 
 			this._dynamo = null;
 			this._scheduler = null;
+			this._batches = new Map();
 		}
 
 		/**
@@ -110,15 +112,19 @@ module.exports = (() => {
 				.then(() => {
 					checkReady.call(this);
 
-					return getTable.call(this, getQualifiedTableName(this._configuration.prefix, name))
+					const qualifiedTableName = getQualifiedTableName(this._configuration.prefix, name);
+
+					return getTable.call(this, qualifiedTableName)
 						.then((tableDefinition) => {
+							logger.debug('Table definition retrieved for [', qualifiedTableName,']');
+
 							return TableBuilder.fromDefinition(tableDefinition);
 						});
 				});
 		}
 
 		/**
-		 * Gets a list of all tables.
+		 * Gets a list of all table names.
 		 *
 		 * @public
 		 * @returns {Promise.<string>}
@@ -233,8 +239,8 @@ module.exports = (() => {
 		 * Adds a new item to a table. If the item already exists, it is overwritten.
 		 *
 		 * @public
-		 * @param {Table} definition - Describes the schema of the table to create.
 		 * @param {Object} item - The item to write.
+		 * @param {Table} table - Describes the schema of the table to write to.
 		 * @returns {Promise}
 		 */
 		saveItem(item, table) {
@@ -246,7 +252,6 @@ module.exports = (() => {
 					checkReady.call(this);
 
 					const qualifiedTableName = table.name;
-
 					const payload = { TableName: table.name, Item: Serializer.serialize(item, table) };
 
 					const putItem = () => {
@@ -256,7 +261,7 @@ module.exports = (() => {
 									const dynamoError = DynamoError.fromCode(error.code);
 
 									if (dynamoError !== null && dynamoError.retryable) {
-										logger.warn('Encountered retryable error [', error.code, '] while putting an item into [', qualifiedTableName, ']');
+										logger.debug('Encountered retryable error [', error.code, '] while putting an item into [', qualifiedTableName, ']');
 
 										rejectCallback(error);
 									} else {
@@ -281,11 +286,13 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Adds multiple items to a table.
+		 * Adds multiple items to a table. Unlike the {@link DynamoProvider#saveItem} function,
+		 * batches are processed serially; that is, writes from a batch must complete before
+		 * writes from a subsequent batch are started.
 		 *
 		 * @public
-		 * @param {Table} definition - Describes the schema of the table to create.
 		 * @param {Array<Object>} item - The items to write.
+		 * @param {Table} table - Describes the schema of the table to write to.
 		 * @returns {Promise}
 		 */
 		createItems(items, table) {
@@ -296,10 +303,84 @@ module.exports = (() => {
 
 					checkReady.call(this);
 
+					if (items.length === 0) {
+						return;
+					}
+
 					const qualifiedTableName = table.name;
 
-					return promise.build((resolveCallback, rejectCallback) => {
+					if (!this._batches.has(qualifiedTableName)) {
+						this._batches.set(qualifiedTableName, new WorkQueue());
+					}
 
+					const workQueue = this._batches.get(qualifiedTableName);
+
+					return workQueue.enqueue(() => {
+						const batchNumber =  workQueue.getCurrent();
+
+						logger.debug('Starting batch insert into [', qualifiedTableName, '] for batch number [', batchNumber,'] with [', items.length, '] items');
+
+						const putBatch = (currentPayload) => {
+							return promise.build((resolveCallback, rejectCallback) => {
+								this._dynamo.batchWriteItem(currentPayload, (error, data) => {
+									if (error) {
+										const dynamoError = DynamoError.fromCode(error.code);
+
+										if (dynamoError !== null && dynamoError.retryable) {
+											logger.debug('Encountered retryable error [', error.code, '] while putting an item into [', qualifiedTableName, ']');
+
+											rejectCallback(error);
+										} else {
+											resolveCallback({ code: DYNAMO_RESULT.FAILURE, error: error });
+										}
+									} else {
+										let unprocessedItems;
+
+										if (is.object(data.UnprocessedItems) && is.array(data.UnprocessedItems[qualifiedTableName])) {
+											unprocessedItems = data.UnprocessedItems[qualifiedTableName];
+										} else {
+											unprocessedItems = [ ];
+										}
+
+										if (unprocessedItems.length === 0) {
+											resolveCallback({ code: DYNAMO_RESULT.SUCCESS });
+										} else {
+											logger.debug('Continuing batch insert into [', qualifiedTableName, '] for batch number [', batchNumber,'] with [', unprocessedItems.length, '] unprocessed items');
+
+											const continuePayload = getBatchPayload(qualifiedTableName, unprocessedItems);
+
+											this._scheduler.backoff(() => putBatch(continuePayload))
+												.then((continueResult) => {
+													resolveCallback(continueResult);
+												});
+										}
+									}
+								});
+							});
+						};
+
+						const originalPayload = getBatchPayload(qualifiedTableName,
+							items.map((item) => {
+								return {
+									PutRequest: {
+										Item: Serializer.serialize(item, table)
+									}
+								};
+							})
+						);
+
+						return this._scheduler.backoff(() => putBatch(originalPayload))
+							.then((result) =>{
+								if (result.code === DYNAMO_RESULT.FAILURE) {
+									logger.error('Failed batch insert into [', qualifiedTableName, '] for batch number [', batchNumber,'] with [', items.length, '] items');
+
+									throw result.error;
+								}
+
+								logger.debug('Finished batch insert into [', qualifiedTableName, '] for batch number [', batchNumber,'] with [', items.length, '] items');
+
+								return true;
+							});
 					});
 				});
 		}
@@ -324,6 +405,11 @@ module.exports = (() => {
 			if (this._scheduler !== null) {
 				this._scheduler.dispose();
 				this._scheduler = null;
+			}
+
+			if (this._batches !== null) {
+				this._batches.forEach((k, v) => v.dispose());
+				this._batches = null;
 			}
 		}
 
@@ -364,6 +450,16 @@ module.exports = (() => {
 				}
 			});
 		});
+	}
+
+	function getBatchPayload(tableName, serializedItems) {
+		const payload = {
+			RequestItems: { }
+		};
+
+		payload.RequestItems[tableName] = serializedItems;
+
+		return payload;
 	}
 
 	const DYNAMO_RESULT = {
