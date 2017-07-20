@@ -24,46 +24,49 @@ module.exports = (() => {
 		}
 
 		query(query, parameters, name) {
-			assert.argumentIsRequired(query, 'query', String);
-			assert.argumentIsOptional(name, 'name', String);
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsRequired(query, 'query', String);
+					assert.argumentIsOptional(name, 'name', String);
 
-			return promise.build((resolveCallback, rejectCallback) => {
-				const queryObject = {
-					values: parameters || []
-				};
+					return promise.build((resolveCallback, rejectCallback) => {
+						const queryObject = {
+							values: parameters || []
+						};
 
-				if (is.string(name)) {
-					queryObject.name = name;
+						if (is.string(name)) {
+							queryObject.name = name;
 
-					if (!this._preparedStatementMap.hasOwnProperty(name)) {
-						this._preparedStatementMap[name] = query;
+							if (!this._preparedStatementMap.hasOwnProperty(name)) {
+								this._preparedStatementMap[name] = query;
 
-					}
+							}
 
-					queryObject.text = this._preparedStatementMap[name];
-				} else {
-					queryObject.text = query;
-				}
+							queryObject.text = this._preparedStatementMap[name];
+						} else {
+							queryObject.text = query;
+						}
 
-				queryCounter = queryCounter + 1;
+						queryCounter = queryCounter + 1;
 
-				const queryCount = queryCounter;
+						const queryCount = queryCounter;
 
-				logger.debug('Executing query', queryCount);
-				logger.trace('Executing query', queryCount, 'with:', queryObject);
+						logger.debug('Executing query', queryCount);
+						logger.trace('Executing query', queryCount, 'with:', queryObject);
 
-				this._pgClient.query(queryObject, (err, result) => {
-					if (err) {
-						logger.debug('Query', queryCount, 'failed');
+						this._pgClient.query(queryObject, (err, result) => {
+							if (err) {
+								logger.debug('Query', queryCount, 'failed');
 
-						rejectCallback(err);
-					} else {
-						logger.debug('Query', queryCount, 'finished');
+								rejectCallback(err);
+							} else {
+								logger.debug('Query', queryCount, 'finished');
 
-						resolveCallback(result);
-					}
+								resolveCallback(result);
+							}
+						});
+					});
 				});
-			});
 		}
 
 		toString() {
