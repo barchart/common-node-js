@@ -253,15 +253,30 @@ module.exports = (() => {
 						return promise.build((resolveCallback, rejectCallback) => {
 							this._dynamo.putItem(payload, (error, data) => {
 								if (error) {
-									rejectCallback(error);
+									const dynamoError = DynamoError.fromCode(error.code);
+
+									if (dynamoError !== null && dynamoError.retryable) {
+										logger.warn('Encountered retryable error [', error.code, '] while putting an item into [', qualifiedTableName, ']');
+
+										rejectCallback(error);
+									} else {
+										resolveCallback({ code: DYNAMO_RESULT.FAILURE, error: error });
+									}
 								} else {
-									resolveCallback(true);
+									resolveCallback({ code: DYNAMO_RESULT.SUCCESS });
 								}
 							});
 						});
 					};
 
-					return this._scheduler.backoff(putItem);
+					return this._scheduler.backoff(putItem)
+						.then((result) =>{
+							if (result.code === DYNAMO_RESULT.FAILURE) {
+								throw result.error;
+							}
+
+							return true;
+						});
 				});
 		}
 
@@ -351,13 +366,43 @@ module.exports = (() => {
 		});
 	}
 
-	function serializeItem() {
+	const DYNAMO_RESULT = {
+		SUCCESS: 'SUCCESS',
+		FAILURE: 'FAILURE'
+	};
 
+	class DynamoError {
+		constructor(code, description, retryable) {
+			this._code = code;
+			this._description = description;
+			this._retryable = retryable;
+		}
+
+		get code() {
+			return this._code;
+		}
+
+		get description() {
+			return this._description;
+		}
+
+		get retryable() {
+			return this._retryable;
+		}
+
+		static fromCode(code) {
+			return dynamoErrors.find(de => de.code === code) || null;
+		}
+
+		toString() {
+			return `[DynamoError (code=${this._code})]`;
+		}
 	}
 
-	function deserializeItem() {
-
-	}
+	const dynamoErrors = [
+		new DynamoError('ThrottlingException', 'Throttling Exception', true),
+		new DynamoError('ProvisionedThroughputExceededException', 'Provisioned Throughput Exceeded Exception', true)
+	];
 
 	return DynamoProvider;
 })();
