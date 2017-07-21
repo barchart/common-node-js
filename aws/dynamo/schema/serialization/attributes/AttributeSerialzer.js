@@ -52,7 +52,8 @@ module.exports = (() => {
 		/**
 		 * Coerces a value into the type of value which would be accepted by the
 		 * {@link AttributeSerializer#serialize} function and returned by the
-		 * {@link AttributeSerializer#deserialize} function.
+		 * {@link AttributeSerializer#deserialize} function. This function may
+		 * throw an error.
 		 *
 		 * @protected
 		 * @param {Object} value - The value to coerce.

@@ -50,7 +50,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {string} code - The code of the {@link DataType} instance to find.
-		 * @returns {DataType || null}
+		 * @returns {DataType|null}
 		 */
 		static fromCode(code) {
 			assert.argumentIsRequired(code, 'code', String);
