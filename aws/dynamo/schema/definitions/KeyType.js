@@ -3,6 +3,12 @@ const assert = require('common/lang/assert');
 module.exports = (() => {
 	'use strict';
 
+	/**
+	 * Defines a category of {@link Key}. Currently, there are two types;
+	 * a "hash" key and a "range" key.
+	 *
+	 * @public
+	 */
 	class KeyType {
 		constructor(code, description) {
 			assert.argumentIsRequired(code, 'code', String);

@@ -3,6 +3,12 @@ const assert = require('common/lang/assert');
 module.exports = (() => {
 	'use strict';
 
+	/**
+	 * Defines a category of {@link Index}. Currently, there are two types;
+	 * a "local" secondary index, and a "global" secondary index.
+	 *
+	 * @public
+	 */
 	class IndexType {
 		constructor(description, schemaName, separateProvisioning) {
 			assert.argumentIsRequired(description, 'description', String);

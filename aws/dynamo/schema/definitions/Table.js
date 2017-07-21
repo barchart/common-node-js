@@ -11,6 +11,11 @@ const Attribute = require('./Attribute'),
 module.exports = (() => {
 	'use strict';
 
+	/**
+	 * The schema for a DynamoDB table, including attributes, keys, indicies, etc.
+	 *
+	 * @public
+	 */
 	class Table {
 		constructor(name, keys, indicies, attributes, provisionedThroughput) {
 			this._name = name;
@@ -22,26 +27,61 @@ module.exports = (() => {
 			this._provisionedThroughput = provisionedThroughput;
 		}
 
+		/**
+		 * Name of the table.
+		 *
+		 * @public
+		 * @returns {String}
+		 */
 		get name() {
 			return this._name;
 		}
 
+		/**
+		 * The keys of the table.
+		 *
+		 * @public
+		 * @returns {Array<Key>}
+		 */
 		get keys() {
 			return [...this._keys];
 		}
 
+		/**
+		 * The indicies of the table.
+		 *
+		 * @public
+		 * @returns {Array<Index>}
+		 */
 		get indicies() {
 			return [...this._indices];
 		}
 
+		/**
+		 * The attributes of the table.
+		 *
+		 * @public
+		 * @returns {Array<Attributes>}
+		 */
 		get attributes() {
 			return [...this._attributes];
 		}
 
+		/**
+		 * The provisioned throughput of the table
+		 *
+		 * @public
+		 * @returns {Array<ProvisionedThroughput>}
+		 */
 		get provisionedThroughput() {
 			return this._provisionedThroughput;
 		}
 
+		/**
+		 * Throws an {@link Error} if the instance is invalid.
+		 *
+		 * @public
+		 */
 		validate() {
 			if (!is.string(this._name) || this._name.length < 1) {
 				throw new Error('Table name is invalid.');
@@ -85,6 +125,12 @@ module.exports = (() => {
 			this._provisionedThroughput.validate();
 		}
 
+		/**
+		 * Generates an object which is suitable for use by the AWS SDK.
+		 *
+		 * @public
+		 * @returns {Object}
+		 */
 		toTableSchema() {
 			this.validate();
 

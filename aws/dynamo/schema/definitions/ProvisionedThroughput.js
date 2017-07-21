@@ -21,6 +21,11 @@ module.exports = (() => {
 			return this._write;
 		}
 
+		/**
+		 * Throws an {@link Error} if the instance is invalid.
+		 *
+		 * @public
+		 */
 		validate() {
 			if (!is.integer(this._read)) {
 				throw new Error('Read capacity must be an integer.');

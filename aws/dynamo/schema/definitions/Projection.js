@@ -8,20 +8,43 @@ const Attribute = require('./Attribute'),
 module.exports = (() => {
 	'use strict';
 
+	/**
+	 * The {@link Attribute} definitions that are included (i.e. projected) onto
+	 * an {@link Index}.
+	 *
+	 * @public
+	 */
 	class Projection {
 		constructor(type, attributes) {
 			this._type = type;
 			this._attributes = attributes || [ ];
 		}
 
+		/**
+		 * The projection type.
+		 *
+		 * @public
+		 * @returns {ProjectionType}
+		 */
 		get type() {
 			return this._type;
 		}
 
+		/**
+		 * The attributes that are "projected" (i.e. included) with an {@link Index}.
+		 *
+		 * @public
+		 * @returns {Array<Attribute>}
+		 */
 		get attributes() {
 			return [...this._attributes];
 		}
 
+		/**
+		 * Throws an {@link Error} if the instance is invalid.
+		 *
+		 * @public
+		 */
 		validate() {
 			if (!(this._type instanceof ProjectionType)) {
 				throw new Error('Projection type is invalid.');
@@ -54,6 +77,12 @@ module.exports = (() => {
 			this._attributes.forEach(a => a.validate());
 		}
 
+		/**
+		 * Generates an object which is suitable for use by the AWS SDK.
+		 *
+		 * @public
+		 * @returns {Object}
+		 */
 		toProjectionSchema() {
 			this.validate();
 

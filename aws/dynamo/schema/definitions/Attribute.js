@@ -6,20 +6,42 @@ const DataType = require('./DataType');
 module.exports = (() => {
 	'use strict';
 
+	/**
+	 * An explicitly defined field of a DynamoDB record.
+	 *
+	 * @public
+	 */
 	class Attribute {
 		constructor(name, dataType) {
 			this._name = name;
 			this._dataType = dataType;
 		}
 
+		/**
+		 * Name of the field.
+		 *
+		 * @public
+		 * @returns {String}
+		 */
 		get name() {
 			return this._name;
 		}
 
+		/**
+		 * Type of the field.
+		 *
+		 * @public
+		 * @returns {DataType}
+		 */
 		get dataType() {
 			return this._dataType;
 		}
 
+		/**
+		 * Throws an {@link Error} if the instance is invalid.
+		 *
+		 * @public
+		 */
 		validate() {
 			if (!is.string(this._name) || this._name.length < 1) {
 				throw new Error('Attribute name is invalid.');
@@ -30,6 +52,12 @@ module.exports = (() => {
 			}
 		}
 
+		/**
+		 * Generates an object which is suitable for use by the AWS SDK.
+		 *
+		 * @public
+		 * @returns {Object}
+		 */
 		toAttributeSchema() {
 			this.validate();
 

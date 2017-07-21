@@ -12,6 +12,8 @@ module.exports = (() => {
 
 	/**
 	 * The definition for a DynamoDB index.
+	 *
+	 * @public
 	 */
 	class Index {
 		constructor(name, type, keys, projection, provisionedThroughput) {
@@ -24,26 +26,61 @@ module.exports = (() => {
 			this._provisionedThroughput = provisionedThroughput || null;
 		}
 
+		/**
+		 * Name of the index.
+		 *
+		 * @public
+		 * @returns {String}
+		 */
 		get name() {
 			return this._name;
 		}
 
+		/**
+		 * Type of the index.
+		 *
+		 * @public
+		 * @returns {IndexType}
+		 */
 		get type() {
 			return this._type;
 		}
 
+		/**
+		 * The index's keys.
+		 *
+		 * @public
+		 * @returns {Array<Key>}
+		 */
 		get keys() {
 			return [...this._keys];
 		}
 
+		/**
+		 * The index's {@link Projection}.
+		 *
+		 * @public
+		 * @returns {Projection}
+		 */
 		get projection() {
 			return this._projection;
 		}
 
+		/**
+		 * The index's {@link ProvisionedThroughput}, if applicable to the {@link IndexType}.
+		 *
+		 * @public
+		 * @returns {ProvisionedThroughput|null}
+		 */
 		get provisionedThroughput() {
 			return this._provisionedThroughput;
 		}
 
+		/**
+		 * Throws an {@link Error} if the instance is invalid.
+		 *
+		 * @public
+		 */
 		validate() {
 			if (!is.string(this._name) || this._name.length < 1) {
 				throw new Error('Index name is invalid.');
@@ -86,6 +123,12 @@ module.exports = (() => {
 			}
 		}
 
+		/**
+		 * Generates an object which is suitable for use by the AWS SDK.
+		 *
+		 * @public
+		 * @returns {Object}
+		 */
 		toIndexSchema() {
 			this.validate();
 

@@ -3,6 +3,13 @@ const assert = require('common/lang/assert');
 module.exports = (() => {
 	'use strict';
 
+	/**
+	 * Defines a category of {@link Projection}. Currently, there are three types;
+	 * projecting all table's attributes, projecting only the table's keys, and
+	 * projecting a custom subset of the table's attributes.
+	 *
+	 * @public
+	 */
 	class ProjectionType {
 		constructor(code, description) {
 			assert.argumentIsRequired(code, 'code', String);
