@@ -26,7 +26,12 @@ module.exports = (() => {
 		_write(chunk, encoding, callback) {
 			logger.info(chunk.toString());
 
-			setTimeout(callback, 1000);
+			this._provider.createItems(chunk, this._table)
+				.then(() => {
+					callback(null);
+				}).catch((e) => {
+					callback(e);
+				});
 		}
 
 		toString() {
