@@ -65,6 +65,12 @@ module.exports = (() => {
 			}, { });
 		}
 
+		static coerce(value, dataType) {
+			assert.argumentIsRequired(dataType, 'dataType', DataType, 'DataType');
+
+			return serializers.get(dataType).coerce(value);
+		}
+
 		toString() {
 			return '[Serializer]';
 		}
