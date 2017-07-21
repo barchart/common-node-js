@@ -108,9 +108,6 @@ module.exports = (() => {
 		 * @param {string=} subject - The email's subject.
 		 * @param {string=} htmlBody - The email's body.
 		 * @param {string=} textBody - The email's body.
-		 * @param {Object[]|undefined} tags - A set of key-value pairs to add to the emails header.
-		 * @param {string} tags[].name - The name of the tag.
-		 * @param {string} tags[].value - The value of the tag.
 		 * @returns {Promise}
 		 */
 		sendEmail(senderAddress, recipientAddress, subject, htmlBody, textBody, tags) {
@@ -178,18 +175,6 @@ module.exports = (() => {
 						params.Message.Body.Text = {
 							Data: textBody
 						};
-					}
-
-					if (is.array(tags)) {
-						const keys = object.keys(tags);
-
-						params.Tags = keys.reduce((accumulator, tag) => {
-							if (is.string(tag.name) && is.string(tag.value)) {
-								accumulator.push({Name: tag.name, Value: tag.value});
-							}
-
-							return accumulator;
-						}, [ ]);
 					}
 
 					return this._rateLimiter.enqueue(() => {
