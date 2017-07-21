@@ -18,6 +18,15 @@ module.exports = (() => {
 
 		}
 
+		/**
+		 * Converts a simple object into one suitable for use with the
+		 * AWS SDK for DynamoDB. This operation is the inverse of
+		 * {@link Serializer.deserialize}.
+		 *
+		 * @param {Object} item - The object to serialize (for DynamoDB).
+		 * @param {Table} table - The schema that controls serialization of the object.
+		 * @returns {Object} - The serialized object.
+		 */
 		static serialize(item, table) {
 			assert.argumentIsRequired(item, 'item', Object);
 			assert.argumentIsRequired(table, 'table', Table, 'Table');
@@ -33,6 +42,14 @@ module.exports = (() => {
 			}, { });
 		}
 
+		/**
+		 * Converts a DynamoDB object into a simple JavaScript object. This
+		 * operation is the inverse of {@link Serializer.serialize}.
+		 *
+		 * @param {Object} item - The DynamoDB formatted object to deserialize.
+		 * @param {Table} table - The schema that controls serialization of the object.
+		 * @returns {Object} - The deserialized object.
+		 */
 		static deserialize(item, table) {
 			assert.argumentIsRequired(item, 'item', Object);
 			assert.argumentIsRequired(table, 'table', Table, 'Table');
