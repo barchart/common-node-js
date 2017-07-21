@@ -22,7 +22,6 @@ module.exports = (() => {
 			return wrapper;
 		}
 
-
 		toString() {
 			return '[AttributeSerializer]';
 		}
