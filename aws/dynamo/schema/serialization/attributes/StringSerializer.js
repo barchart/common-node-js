@@ -31,6 +31,10 @@ module.exports = (() => {
 			return wrapper[DataType.STRING.code];
 		}
 
+		coerce(value) {
+			return value.toString();
+		}
+
 		toString() {
 			return '[StringSerializer]';
 		}

@@ -31,6 +31,10 @@ module.exports = (() => {
 			return parseFloat(wrapper[DataType.NUMBER.code]);
 		}
 
+		coerce(value) {
+			return parseFloat(value);
+		}
+
 		toString() {
 			return '[NumberSerializer]';
 		}
