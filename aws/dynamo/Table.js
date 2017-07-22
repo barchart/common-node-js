@@ -4,7 +4,6 @@ const aws = require('aws-sdk'),
 const assert = require('common/lang/assert'),
 	Disposable = require('common/lang/Disposable'),
 	is = require('common/lang/is'),
-	object = require('common/lang/object'),
 	promise = require('common/lang/promise');
 
 const Definition = require('./dynamo/schema/definitions/Table'),
@@ -27,6 +26,10 @@ module.exports = (() => {
 
 			this._startPromise = null;
 			this._started = false;
+		}
+
+		get definition() {
+			return this._definition;
 		}
 
 		/**
@@ -61,7 +64,7 @@ module.exports = (() => {
 			return this._startPromise;
 		}
 
-		scan(definition) {
+		scan(scan) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
@@ -69,7 +72,7 @@ module.exports = (() => {
 				});
 		}
 
-		query(definition) {
+		query(query) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
@@ -88,11 +91,11 @@ module.exports = (() => {
 
 	function checkReady() {
 		if (this.getIsDisposed()) {
-			throw new Error('The Dynamo Provider has been disposed.');
+			throw new Error('The Table has been disposed.');
 		}
 
 		if (!this._started) {
-			throw new Error('The Dynamo Provider has not been started.');
+			throw new Error('The Table has not been started.');
 		}
 	}
 
