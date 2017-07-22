@@ -22,13 +22,13 @@ module.exports = (() => {
 
 			const wrapper = { };
 
-			wrapper[DataType.NUMBER.code] = value.toString();
+			wrapper[DataType.NUMBER.code] = this.coerce(value).toString();
 
 			return wrapper;
 		}
 
 		deserialize(wrapper) {
-			return parseFloat(wrapper[DataType.NUMBER.code]);
+			return this.coerce(wrapper[DataType.NUMBER.code]);
 		}
 
 		coerce(value) {

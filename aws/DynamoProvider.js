@@ -115,10 +115,10 @@ module.exports = (() => {
 					const qualifiedTableName = getQualifiedTableName(this._configuration.prefix, name);
 
 					return getTable.call(this, qualifiedTableName)
-						.then((tableDefinition) => {
+						.then((tableData) => {
 							logger.debug('Table definition retrieved for [', qualifiedTableName,']');
 
-							return TableBuilder.fromDefinition(tableDefinition);
+							return TableBuilder.fromDefinition(tableData);
 						});
 				});
 		}
@@ -188,11 +188,11 @@ module.exports = (() => {
 
 					const getTableForCreate = () => {
 						return getTable.call(this, qualifiedTableName)
-							.then((tableDefinition) => {
-								if (tableDefinition.TableStatus === 'ACTIVE') {
+							.then((tableData) => {
+								if (tableData.TableStatus === 'ACTIVE') {
 									logger.debug('Table ready [', qualifiedTableName, ']');
 
-									return tableDefinition;
+									return tableData;
 								} else {
 									logger.debug('Table not yet ready [', qualifiedTableName, ']');
 
@@ -210,8 +210,14 @@ module.exports = (() => {
 									logger.debug('Unable to create table [', qualifiedTableName, '], table already exists');
 
 									getTableForCreate.call(this, qualifiedTableName)
-										.then((tableDefinition) => {
-											resolveCallback(TableBuilder.fromDefinition(tableDefinition));
+										.then((tableData) => {
+											const serverDefinition = TableBuilder.fromDefinition(tableData);
+
+											if (definition.equals(serverDefinition, true)) {
+												resolveCallback(serverDefinition)
+											} else {
+												rejectCallback(new Error(`The server definition of the table [ ${qualifiedTableName} ] does not match the expected definition.`));
+											}
 										}).catch((e) => {
 											rejectCallback(e);
 										});
@@ -224,8 +230,8 @@ module.exports = (() => {
 								logger.debug('Created table [', qualifiedTableName, '], waiting for table to become ready');
 
 								return this._scheduler.backoff(() => getTableForCreate.call(this, qualifiedTableName), 2000)
-									.then((tableDefinition) => {
-										resolveCallback(TableBuilder.fromDefinition(tableDefinition));
+									.then((tableData) => {
+										resolveCallback(TableBuilder.fromDefinition(tableData));
 									}).catch((e) => {
 										rejectCallback(e);
 									});

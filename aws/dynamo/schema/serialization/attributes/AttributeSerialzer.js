@@ -15,13 +15,9 @@ module.exports = (() => {
 		}
 
 		/**
-		 * <p>
-		 *     Wraps up a value as the DynamoDB representation.
-		 * </p>
-		 * <p>
-		 *     For example, a numeric value of 19 is serialized as the
-		 *     following object: { "N": "19" }.
-	 	 * </p>
+		 * Wraps up a value as the DynamoDB representation. For example,
+		 * an implementation for numbers should serialize 19 as the
+		 * following object: { "N": "19" }.
 		 *
 		 * @protected
 		 * @param {*} value - The value to serialize.
@@ -32,14 +28,10 @@ module.exports = (() => {
 		}
 
 		/**
-		 * <p>
-		 *     Unwraps the DynamoDB representation and returns a single value.
-		 *     This operation is the inverse of {@link AttributeSerializer#serialize}.
-		 * </p>
-		 * <p>
-		 *     For example, given the following DynamoDB representation object,
-		 *     { "N": "19" }, the number 19 would be returned.
-		 * </p>
+		 * Unwraps the DynamoDB representation and returns a single value. For
+		 * example, an implementation for numbers should deserialize the object
+		 * { "N": "19" } to the number 19. This operation is the inverse of
+		 * {@link AttributeSerializer#serialize}.
 		 *
 		 * @protected
 		 * @param {Object} wrapper - The DynamoDB wrapper to extract a value from.
@@ -47,6 +39,27 @@ module.exports = (() => {
 		 */
 		deserialize(wrapper) {
 			return wrapper;
+		}
+
+		/**
+		 * Returns true if the value can be coerced without an error
+		 * occurring.
+		 *
+		 * @param {*} value - The value to check.
+		 * @returns {boolean}
+		 */
+		canCoerce(value) {
+			let returnVal;
+
+			try {
+				this.canCoerce(value);
+
+				returnVal = true;
+			} catch (e) {
+				returnVal = false;
+			}
+
+			return returnVal;
 		}
 
 		/**

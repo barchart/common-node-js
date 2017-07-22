@@ -21,6 +21,33 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Returns true if the item can be serialized; otherwise false.
+		 *
+		 * @public
+		 * @param {Object} item - The serialization candidate.
+		 * @param {Table} table - The schema to check the candidate against.
+		 * @param {Boolean=} relaxed - If true, only key attributes will be checked.
+		 * @returns {Boolean}
+		 */
+		static validate(item, table, relaxed) {
+			assert.argumentIsRequired(table, 'table', Table, 'Table');
+
+			let returnVal = is.object(item);
+
+			if (returnVal) {
+				const validateAttribute = (a) => item.hasOwnProperty(a.name) && serializers.has(a.name) && serializers.get(a.name).canCoerce(item[a.name]);
+
+				if (is.boolean(relaxed) && relaxed) {
+					returnVal = table.keys.every(k => validateAttribute(k.attribute));
+				} else {
+					returnVal = table.attributes.every(validateAttribute);
+				}
+			}
+
+			return returnVal;
+		}
+
+		/**
 		 * Converts a simple object into one suitable for use with the
 		 * AWS SDK for DynamoDB. This operation is the inverse of
 		 * {@link Serializer.deserialize}.

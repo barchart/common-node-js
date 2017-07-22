@@ -33,8 +33,10 @@ module.exports = (() => {
 		 * @public
 		 * @param {Table} table - The table schema used to coerce property values.
 		 * @param {Object} map - A map of incoming attribute name's to {@link Attribute} names (from the {@link Table} argument).
+		 * @param {Boolean=} validate - If true, a check will be made to ensure all keys are present and valid.
+		 * @param {Boolean=} silent - If true, errors will be suppressed.
 		 */
-		constructor(table, map) {
+		constructor(table, map, validate, silent) {
 			super({ objectMode: true });
 
 			assert.argumentIsRequired(table, 'table', Table, 'Table');
@@ -50,6 +52,20 @@ module.exports = (() => {
 					attribute: attributes.find(a => a.name === outgoing)
 				};
 			});
+
+			this._silent = is.boolean(silent) && silent;
+
+			let validator;
+
+			if (is.boolean(validate) && validate) {
+				validator = () => {
+
+				}
+			} else {
+
+			}
+
+			this._validator;
 		}
 
 		_transform(chunk, encoding, callback) {

@@ -67,6 +67,29 @@ module.exports = (() => {
 			};
 		}
 
+		/**
+		 * Returns true of this attribute shares the same property values
+		 * as the other attribute.
+		 *
+		 * @public
+		 * @param {Attribute} other - The attribute to compare.
+		 * @param {Boolean=} relaxed - If true, the dataType is not compared.
+		 * @returns {Boolean}
+		 */
+		equals(other, relaxed) {
+			let returnVal = other instanceof Attribute;
+
+			if (returnVal) {
+				returnVal = returnVal = this._name === other.name;
+
+				if (!(is.boolean(relaxed) && relaxed)) {
+					returnVal = returnVal && this._dataType === other.dataType;
+				}
+			}
+
+			return returnVal;
+		}
+
 		toString() {
 			return `[Attribute (name=${this._name})]`;
 		}

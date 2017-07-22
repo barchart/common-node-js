@@ -7,16 +7,31 @@ const DataType = require('./DataType'),
 module.exports = (() => {
 	'use strict';
 
+	/**
+	 * The throughput of a {@link Table} or {@link Index}.
+	 */
 	class ProvisionedThroughput {
 		constructor(read, write) {
 			this._read = read;
 			this._write = write;
 		}
 
+		/**
+		 * Read capacity units.
+		 *
+		 * @public
+		 * @returns {Number}
+		 */
 		get read() {
 			return this._read;
 		}
 
+		/**
+		 * Write capacity units.
+		 *
+		 * @public
+		 * @returns {Number}
+		 */
 		get write() {
 			return this._write;
 		}
@@ -44,6 +59,12 @@ module.exports = (() => {
 			}
 		}
 
+		/**
+		 * Generates an object which is suitable for use by the AWS SDK.
+		 *
+		 * @public
+		 * @returns {Object}
+		 */
 		toProvisionedThroughputSchema() {
 			return {
 				ReadCapacityUnits: this._read,
@@ -51,8 +72,16 @@ module.exports = (() => {
 			};
 		}
 
-		static getDefault() {
-			return new ProvisionedThroughput(1, 1);
+		/**
+		 * Returns true of this provisioned throughput level shares the same
+		 * property values as the other provisioned throughput level.
+		 *
+		 * @public
+		 * @param {ProvisionedThroughput} other - The provisioned throughput level to compare.
+		 * @returns {Boolean}
+		 */
+		equals(other) {
+			return other === this || (other instanceof ProvisionedThroughput && this._read === other.read && this._write === other.write);
 		}
 
 		toString() {

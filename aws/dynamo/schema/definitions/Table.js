@@ -159,6 +159,40 @@ module.exports = (() => {
 			return schema;
 		}
 
+		/**
+		 * Returns true of the other table shares the same name, keys, indicies, and
+		 * attributes.
+		 *
+		 * @param {Table} other - The table to compare.
+		 * @param {Boolean} relaxed - If true, certain aspects of the data structures are ignored. This is because a definition received from the AWS SDK omits some information (e.g. non-key attributes, etc).
+		 */
+		equals(other, relaxed) {
+			if (other === this) {
+				return true;
+			}
+
+			let returnVal = other instanceof Table;
+
+			if (returnVal) {
+				returnVal = returnVal && this._name === other.name;
+
+				returnVal = returnVal && this._keys.length === other.keys.length;
+				returnVal = returnVal && this._keys.every(k => other.keys.some(ok => ok.equals(k)));
+
+				returnVal = returnVal && this._indices.length === other.indicies.length;
+				returnVal = returnVal && this._indices.every(i => other.indicies.some(oi => oi.equals(i, relaxed)));
+
+				if (!(is.boolean(relaxed) && relaxed)) {
+					returnVal = returnVal && this._attributes.length === other.attributes.length;
+					returnVal = returnVal && this._attributes.every(a => other.attributes.some(oa => oa.equals(a, relaxed)));
+
+					returnVal = returnVal && this._provisionedThroughput.compareTo(other.provisionedThroughput);
+				}
+			}
+
+			return returnVal;
+		}
+
 		toString() {
 			return `[Table (name=${this._name})]`;
 		}

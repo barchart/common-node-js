@@ -146,6 +146,38 @@ module.exports = (() => {
 			return schema;
 		}
 
+		/**
+		 * Returns true of this index shares the same property values as the other index.
+		 *
+		 * @public
+		 * @param {Index} other - The index to compare.
+		 * @param {Boolean} relaxed - If true, provisioned throughput is not compared.
+		 * @returns {Boolean}
+		 */
+		equals(other, relaxed) {
+			if (other === this) {
+				return true;
+			}
+
+			let returnVal = other instanceof Index;
+
+			if (returnVal) {
+				returnVal = returnVal = this._name === other.name;
+				returnVal = returnVal = this._type === other.type;
+
+				returnVal = returnVal && this._keys.length === other.keys.length;
+				returnVal = returnVal && this._keys.every(k => other.keys.some(ok => ok.equals(k)));
+
+				returnVal = returnVal && this._projection.equals(other.projection, relaxed);
+
+				if (!(is.boolean(relaxed) && relaxed) && this.type.separateProvisioning) {
+					returnVal = returnVal && this._provisionedThroughput.equals(other.provisionedThroughput);
+				}
+			}
+
+			return returnVal;
+		}
+
 		toString() {
 			return `[Index (name=${this._name})]`;
 		}

@@ -97,6 +97,32 @@ module.exports = (() => {
 			return schema;
 		}
 
+
+		/**
+		 * Returns true of this projection shares the same property values as the other projection.
+		 *
+		 * @public
+		 * @param {Projection} other - The index to compare.
+		 * @param {Boolean=} relaxed - If true, the attributes are compared in "relaxed" mode.
+		 * @returns {Boolean}
+		 */
+		equals(other, relaxed) {
+			if (other === this) {
+				return true;
+			}
+
+			let returnVal = other instanceof Projection;
+
+			if (returnVal) {
+				returnVal = returnVal = this._type === other.type;
+
+				returnVal = returnVal && this._attributes.length === other.attributes.length;
+				returnVal = returnVal && this._attributes.every(a => other.attributes.some(oa => oa.equals(a, relaxed)));
+			}
+
+			return returnVal;
+		}
+
 		toString() {
 			return '[Projection]';
 		}

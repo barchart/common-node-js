@@ -28,7 +28,7 @@ module.exports = (() => {
 		}
 
 		deserialize(wrapper) {
-			return wrapper[DataType.STRING.code];
+			return this.coerce(wrapper[DataType.STRING.code]);
 		}
 
 		coerce(value) {

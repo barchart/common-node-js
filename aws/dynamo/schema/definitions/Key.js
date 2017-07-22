@@ -71,6 +71,18 @@ module.exports = (() => {
 			};
 		}
 
+		/**
+		 * Returns true of this key shares the same property values
+		 * as the other key.
+		 *
+		 * @public
+		 * @param {Key} other - The attribute to compare.
+		 * @returns {Boolean}
+		 */
+		equals(other) {
+			return other === this || (other instanceof Key && this._attribute.equals(other.attribute) && this._keyType === other.keyType);
+		}
+
 		toString() {
 			return `[Key (name=${this._attribute.name}, type=${this._keyType.code})]`;
 		}
