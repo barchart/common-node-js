@@ -12,6 +12,8 @@ module.exports = (() => {
 
 	/**
 	 * Converts an object to (and from) a DynamoDB representation.
+	 *
+	 * @public
 	 */
 	class Serializer {
 		constructor() {
@@ -23,6 +25,7 @@ module.exports = (() => {
 		 * AWS SDK for DynamoDB. This operation is the inverse of
 		 * {@link Serializer.deserialize}.
 		 *
+		 * @public
 		 * @param {Object} item - The object to serialize (for DynamoDB).
 		 * @param {Table} table - The schema that controls serialization of the object.
 		 * @returns {Object} - The serialized object.
@@ -46,6 +49,7 @@ module.exports = (() => {
 		 * Converts a DynamoDB object into a simple JavaScript object. This
 		 * operation is the inverse of {@link Serializer.serialize}.
 		 *
+		 * @public
 		 * @param {Object} item - The DynamoDB formatted object to deserialize.
 		 * @param {Table} table - The schema that controls serialization of the object.
 		 * @returns {Object} - The deserialized object.
@@ -65,6 +69,15 @@ module.exports = (() => {
 			}, { });
 		}
 
+		/**
+		 * Accepts a value (of any type) and attempts to coerce it to the
+		 * simple type used by the appropriate {@link DataType}.
+		 *
+		 * @public
+		 * @param {*|Object} value - The value to coerce.
+		 * @param {DataType} dataType - The {@link DataType} which describes the desired output type.
+		 * @returns {*|Object} - The coerced value.
+		 */
 		static coerce(value, dataType) {
 			assert.argumentIsRequired(dataType, 'dataType', DataType, 'DataType');
 

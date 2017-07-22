@@ -5,6 +5,7 @@ const assert = require('common/lang/assert'),
 	is = require('common/lang/is');
 
 const DataType = require('./../schema/definitions/DataType'),
+	Serializer = require('./../schema/serialization/Serializer'),
 	Table = require('./../schema/definitions/Table');
 
 module.exports = (() => {
@@ -67,21 +68,13 @@ module.exports = (() => {
 						throw new Error(`Unable to transform to object to DynamoDB schema, expected property missing [ ${incoming} ]`);
 					}
 
-					let value = chunk[incoming];
+					const value = chunk[incoming];
 
-					if (type === DataType.STRING) {
-						if (!is.string(value)) {
-							value = value.toString();
-						}
-					} else if (type === DataType.NUMBER) {
-						if (!is.number(value)) {
-							value = parseFloat(value);
-						}
-					} else {
-						throw new Error(`Unable to transform to object to DynamoDB schema, unexpected property type ${type.toString()}`);
+					try {
+						transformed[outgoing] = Serializer.coerce(value, type);
+					} catch (e) {
+						error = e;
 					}
-
-					transformed[outgoing] = value;
 
 					return error === null;
 				}, { });
