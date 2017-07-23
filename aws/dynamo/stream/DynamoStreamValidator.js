@@ -48,7 +48,18 @@ module.exports = (() => {
 			});
 
 			this._silent = is.boolean(silent) && silent;
+
 			this._counter = 0;
+			this._failures = 0;
+		}
+
+		/**
+		 * The number of validation failures processed.
+		 *
+		 * @returns {number}
+		 */
+		get failureCount() {
+			return this._failures;
 		}
 
 		_transform(chunk, encoding, callback) {
@@ -84,6 +95,8 @@ module.exports = (() => {
 			if (message === null) {
 				callback(null, chunk);
 			} else {
+				this._failures = this._failures + 1;
+
 				if (this._silent) {
 					logger.warn(message);
 
