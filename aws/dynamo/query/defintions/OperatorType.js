@@ -86,6 +86,10 @@ module.exports = (() => {
 			return operatorTypeLessThanOrEqualTo;
 		}
 
+		static get BETWEEN() {
+			return operatorTypeBetween;
+		}
+
 		toString() {
 			return `[OperatorType (description=${this._description})]`;
 		}
@@ -96,7 +100,7 @@ module.exports = (() => {
 	const operatorTypeLessThan = new OperatorType('Less Than', (f, o) => `${f} < ${o}`, false, [ KeyType.RANGE ]);
 	const operatorTypeGreaterThanOrEqualTo = new OperatorType('Greater Than Or Equal To', (f, o) => `${f} >= ${o}`, false, [ KeyType.RANGE ]);
 	const operatorTypeLessThanOrEqualTo = new OperatorType('Less Than Or Equal To', (f, o) => `${f} <= ${o}`, false, [ KeyType.RANGE ]);
-	const operatorTypeBetween = new OperatorType('Betweeb', (f, o) => `${f} BETWEEN ${o[0]} AND ${o[1]}`, true, [ KeyType.RANGE ]);
+	const operatorTypeBetween = new OperatorType('Between', (f, o) => `${f} BETWEEN ${o[0]} AND ${o[1]}`, true, [ KeyType.RANGE ]);
 
 	return OperatorType;
 })();
