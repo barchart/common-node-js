@@ -11,40 +11,13 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * Converts an object to (and from) a DynamoDB representation.
+	 * Utilities for converting objects to (and from) a DynamoDB representation.
 	 *
 	 * @public
 	 */
 	class Serializer {
 		constructor() {
 
-		}
-
-		/**
-		 * Returns true if the item can be serialized; otherwise false.
-		 *
-		 * @public
-		 * @param {Object} item - The serialization candidate.
-		 * @param {Table} table - The schema to check the candidate against.
-		 * @param {Boolean=} relaxed - If true, only key attributes will be checked.
-		 * @returns {Boolean}
-		 */
-		static validate(item, table, relaxed) {
-			assert.argumentIsRequired(table, 'table', Table, 'Table');
-
-			let returnVal = is.object(item);
-
-			if (returnVal) {
-				const validateAttribute = (a) => item.hasOwnProperty(a.name) && serializers.has(a.name) && serializers.get(a.name).canCoerce(item[a.name]);
-
-				if (is.boolean(relaxed) && relaxed) {
-					returnVal = table.keys.every(k => validateAttribute(k.attribute));
-				} else {
-					returnVal = table.attributes.every(validateAttribute);
-				}
-			}
-
-			return returnVal;
 		}
 
 		/**
@@ -94,6 +67,17 @@ module.exports = (() => {
 
 				return deserialized;
 			}, { });
+		}
+
+		/**
+		 * Returns true if the value can be coerced to the specified {@link DataType}
+		 * without an error occurring.
+		 *
+		 * @param {*} value - The value to check.
+		 * @returns {boolean}
+		 */
+		static canCoerce(value, dataType) {
+			return serializers.has(dataType) && serializers.get(dataType).canCoerce(value);
 		}
 
 		/**

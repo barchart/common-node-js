@@ -13,22 +13,16 @@ module.exports = (() => {
 	const logger = log4js.getLogger('common-node/aws/dynamo/stream/DynamoStreamWriter');
 
 	/**
-	 * <p>
-	 *     A Node.js stream {@link Writable} which accepts single records
-	 *     (or an array or records) and writes them to a DynamoDB table using
-	 *     {@link DynamoProvider#saveItem} (or {@link DynamoProvider#createItems}).
-	 * </p>
-	 * <p>
-	 *     The consumer cannot control stream options and object-mode is hardcoded to
-	 *     true.
-	 * </p>
+	 * A Node.js stream writable which accepts single records (or
+	 * arrays of records) and writes them to a DynamoDB table using the
+	 * {@link DynamoProvider#saveItem} (or {@link DynamoProvider#createItems}).
 	 *
 	 * @public
 	 */
 	class DynamoStreamWriter extends Stream.Writable {
 		/**
 		 * @public
-		 * @param {Table} table - The table schema the items conform to.
+		 * @param {Table} table - The table schema which the items conform to.
 		 * @param {DynamoProvider} provider - The provider used to write records.
 		 */
 		constructor(table, provider) {

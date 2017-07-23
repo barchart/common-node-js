@@ -46,7 +46,7 @@ module.exports = (() => {
 		 * occurring.
 		 *
 		 * @param {*} value - The value to check.
-		 * @returns {boolean}
+		 * @returns {Boolean}
 		 */
 		canCoerce(value) {
 			let returnVal;
