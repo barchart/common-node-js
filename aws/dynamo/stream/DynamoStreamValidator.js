@@ -59,7 +59,7 @@ module.exports = (() => {
 			if (is.object(chunk)) {
 				this._transforms.every((transform) => {
 					const incoming = transform.incoming;
-					const type = transform.attribute.dataType;
+					const type = transform.type;
 
 					if (chunk.hasOwnProperty(incoming)) {
 						try {
