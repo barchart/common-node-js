@@ -24,7 +24,7 @@ module.exports = (() => {
 		/**
 		 * @public
 		 * @param {Table} table - The desired schema.
-		 * @param {Object} map - A map of property names to {@link Attribute} names.
+		 * @param {Object} map - A map of property names to {@link Attribute} names (attributes not included in the map will be ignored).
 		 * @param {Boolean=} silent - If true, errors will be suppressed, instead warnings will be written to the logs.
 		 */
 		constructor(table, map, silent) {
@@ -36,15 +36,29 @@ module.exports = (() => {
 
 			this._table = table;
 
-			const attributes = table.attributes;
+			const attributes = this._table.attributes;
 
 			this._transforms = Object.keys(map).map((incoming) => {
 				const outgoing = map[incoming];
 
 				return {
 					incoming: incoming,
-					type: attributes.find(a => a.name === outgoing).dataType
+					attribute: attributes.find(a => a.name === outgoing)
 				};
+			});
+
+			const ensureKeys = (keys, source) => {
+				keys.forEach((k) => {
+					if (!this._transforms.some(t => t.attribute.name == k.attribute.name)) {
+						throw new Error(`Unable to construct validator, the "map" is missing a ${source} Key property [ ${k.attribute.name} ]`);
+					}
+				});
+			};
+
+			ensureKeys(this._table.keys, 'table');
+
+			this._table.indicies.forEach((i) => {
+				ensureKeys(i.keys, `[ ${i.name} ] index`);
 			});
 
 			this._silent = is.boolean(silent) && silent;
@@ -70,11 +84,10 @@ module.exports = (() => {
 			if (is.object(chunk)) {
 				this._transforms.every((transform) => {
 					const incoming = transform.incoming;
-					const type = transform.type;
 
 					if (chunk.hasOwnProperty(incoming)) {
 						try {
-							if (!Serializer.canCoerce(chunk[incoming], type)) {
+							if (!Serializer.canCoerce(chunk[incoming], transform.attribute.dataType)) {
 								message = `Validation [ ${this._counter} ] for [ ${this._table.name} ] failed unable to coerce [ ${incoming} ] property.`;
 							}
 						} catch(e) {

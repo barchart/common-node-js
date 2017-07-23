@@ -25,7 +25,7 @@ module.exports = (() => {
 		/**
 		 * @public
 		 * @param {Table} table - The desired schema.
-		 * @param {Object} map - A map of property names to {@link Attribute} names.
+		 * @param {Object} map - A map of property names to {@link Attribute} names (attributes not included in the map will be ignored).
 		 * @param {Boolean=} silent - If true, errors will be suppressed, instead warnings will be written to the logs.
 		 */
 		constructor(table, map, silent) {
@@ -48,6 +48,20 @@ module.exports = (() => {
 				};
 			});
 
+			const ensureKeys = (keys, source) => {
+				keys.forEach((k) => {
+					if (!this._transforms.some(t => t.attribute.name == k.attribute.name)) {
+						throw new Error(`Unable to construct validator, the "map" is missing a ${source} Key property [ ${k.attribute.name} ]`);
+					}
+				});
+			};
+
+			ensureKeys(this._table.keys, 'table');
+
+			this._table.indicies.forEach((i) => {
+				ensureKeys(i.keys, `[ ${i.name} ] index`);
+			});
+
 			this._silent = is.boolean(silent) && silent;
 			this._counter = 0;
 		}
@@ -62,11 +76,10 @@ module.exports = (() => {
 				this._transforms.every((transform) => {
 					const incoming = transform.incoming;
 					const outgoing = transform.attribute.name;
-					const type = transform.attribute.dataType;
 
 					if (chunk.hasOwnProperty(incoming)) {
 						try {
-							transformed[outgoing] = Serializer.coerce(chunk[incoming], type);
+							transformed[outgoing] = Serializer.coerce(chunk[incoming], transform.attribute.dataType);
 						} catch (e) {
 							error = e;
 						}
