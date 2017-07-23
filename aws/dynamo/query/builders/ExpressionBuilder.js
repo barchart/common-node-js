@@ -13,10 +13,10 @@ module.exports = (() => {
 	 * @public
 	 */
 	class ExpressionBuilder {
-		constructor(attribute) {
-			assert.argumentIsRequired(attribute, 'attribute', Attribute, 'Attribute');
+		constructor(attributeName, parent) {
+			assert.argumentIsRequired(attributeName, 'attributeName', String);
 
-			this._expression = new Expression(attribute, null, null);
+			this._expression = new Expression(getAttribute(attributeName, parent), null, null);
 		}
 
 		/**
@@ -70,6 +70,10 @@ module.exports = (() => {
 		toString() {
 			return '[ExpressionBuilder]';
 		}
+	}
+
+	function getAttribute(name, parent) {
+		return parent.table.attributes.find(a => a.name === name) || null;
 	}
 
 	return ExpressionBuilder;

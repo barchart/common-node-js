@@ -8,7 +8,7 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * An explicitly defined field of a DynamoDB record.
+	 * An expression that can be used as part of a {@link Filter}.
 	 *
 	 * @public
 	 */
