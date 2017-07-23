@@ -8,7 +8,7 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * Fluent interface for building an {@link Filter}.
+	 * Fluent interface for building a {@link Filter}.
 	 *
 	 * @public
 	 */
