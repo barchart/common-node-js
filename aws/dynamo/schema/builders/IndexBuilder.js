@@ -12,6 +12,11 @@ const KeyBuilder = require('./KeyBuilder'),
 module.exports = (() => {
 	'use strict';
 
+	/**
+	 * Fluent interface for building an {@link Index}.
+	 *
+	 * @public
+	 */
 	class IndexBuilder {
 		constructor(name, parent) {
 			assert.argumentIsRequired(name, 'name', String);
@@ -20,6 +25,11 @@ module.exports = (() => {
 			this._parent = parent;
 		}
 
+		/**
+		 * The {@link Index}, given all the information provided thus far.
+		 *
+		 * @public
+		 */
 		get index() {
 			return this._index;
 		}

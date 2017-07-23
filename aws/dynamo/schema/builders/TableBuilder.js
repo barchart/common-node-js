@@ -17,6 +17,11 @@ const AttributeBuilder = require('./AttributeBuilder'),
 module.exports = (() => {
 	'use strict';
 
+	/**
+	 * Fluent interface for building a {@link Table}.
+	 *
+	 * @public
+	 */
 	class TableBuilder {
 		constructor(name) {
 			assert.argumentIsRequired(name, 'name', String);
@@ -24,6 +29,11 @@ module.exports = (() => {
 			this._table = new Table(name, [ ], [ ], [ ], null);
 		}
 
+		/**
+		 * The {@link Table}, given all the information provided thus far.
+		 *
+		 * @public
+		 */
 		get table() {
 			return this._table;
 		}

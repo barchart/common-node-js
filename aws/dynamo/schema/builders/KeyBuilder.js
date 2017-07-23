@@ -7,6 +7,11 @@ const Attribute = require('./../definitions/Attribute'),
 module.exports = (() => {
 	'use strict';
 
+	/**
+	 * Fluent interface for building a {@link Key}.
+	 *
+	 * @public
+	 */
 	class KeyBuilder {
 		constructor(name, parent) {
 			assert.argumentIsRequired(name, 'name', String);
@@ -15,6 +20,11 @@ module.exports = (() => {
 			this._parent = parent;
 		}
 
+		/**
+		 * The {@link Key}, given all the information provided thus far.
+		 *
+		 * @public
+		 */
 		get key() {
 			return this._key;
 		}

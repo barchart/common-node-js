@@ -7,6 +7,11 @@ const DataType = require('./../definitions/DataType'),
 module.exports = (() => {
 	'use strict';
 
+	/**
+	 * Fluent interface for building a {@link ProvisionedThroughput} instance.
+	 *
+	 * @public
+	 */
 	class ProvisionedThroughputBuilder {
 		constructor(read, write) {
 			assert.argumentIsOptional(read, 'read', Number);
@@ -15,6 +20,11 @@ module.exports = (() => {
 			this._provisionedThroughput = new ProvisionedThroughput(read, write);
 		}
 
+		/**
+		 * The {@link ProvisionedThroughput}, given all the information provided thus far.
+		 *
+		 * @public
+		 */
 		get provisionedThroughput() {
 			return this._provisionedThroughput;
 		}

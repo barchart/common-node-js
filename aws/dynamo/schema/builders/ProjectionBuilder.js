@@ -7,6 +7,11 @@ const Attribute = require('./../definitions/Attribute'),
 module.exports = (() => {
 	'use strict';
 
+	/**
+	 * Fluent interface for building a {@link Projection}.
+	 *
+	 * @public
+	 */
 	class ProjectionBuilder {
 		constructor(type, parent) {
 			assert.argumentIsRequired(type, 'type', ProjectionType, 'ProjectionType');
@@ -15,6 +20,11 @@ module.exports = (() => {
 			this._parent = parent;
 		}
 
+		/**
+		 * The {@link Projection}, given all the information provided thus far.
+		 *
+		 * @public
+		 */
 		get projection() {
 			return this._projection;
 		}

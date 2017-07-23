@@ -6,6 +6,11 @@ const Attribute = require('./../definitions/Attribute'),
 module.exports = (() => {
 	'use strict';
 
+	/**
+	 * Fluent interface for building an {@link Attribute}.
+	 *
+	 * @public
+	 */
 	class AttributeBuilder {
 		constructor(name) {
 			assert.argumentIsRequired(name, 'name', String);
@@ -13,6 +18,11 @@ module.exports = (() => {
 			this._attribute = new Attribute(name, null);
 		}
 
+		/**
+		 * The {@link Attribute}, given all the information provided thus far.
+		 *
+		 * @public
+		 */
 		get attribute() {
 			return this._attribute;
 		}
