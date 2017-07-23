@@ -214,7 +214,7 @@ module.exports = (() => {
 											const serverDefinition = TableBuilder.fromDefinition(tableData);
 
 											if (definition.equals(serverDefinition, true)) {
-												resolveCallback(serverDefinition)
+												resolveCallback(serverDefinition);
 											} else {
 												rejectCallback(new Error(`The server definition of the table [ ${qualifiedTableName} ] does not match the expected definition.`));
 											}
