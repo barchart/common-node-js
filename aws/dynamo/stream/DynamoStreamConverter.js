@@ -89,9 +89,11 @@ module.exports = (() => {
 					if (logger.isTraceEnabled() && chunk) {
 						logger.trace(chunk);
 					}
-				} else {
-					callback(error);
+
+					error = null;
 				}
+
+				callback(error, null);
 			}
 		}
 

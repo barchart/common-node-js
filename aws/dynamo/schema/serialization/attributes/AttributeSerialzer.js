@@ -52,7 +52,7 @@ module.exports = (() => {
 			let returnVal;
 
 			try {
-				this.canCoerce(value);
+				this.coerce(value);
 
 				returnVal = true;
 			} catch (e) {

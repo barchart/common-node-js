@@ -27,7 +27,7 @@ module.exports = (() => {
 		 * @param {Object} map - A map of property names to {@link Attribute} names.
 		 * @param {Boolean=} silent - If true, errors will be suppressed, instead warnings will be written to the logs.
 		 */
-		constructor(table, map, validate, silent) {
+		constructor(table, map, silent) {
 			super({ objectMode: true });
 
 			assert.argumentIsRequired(table, 'table', Table, 'Table');
@@ -66,7 +66,7 @@ module.exports = (() => {
 							if (!Serializer.canCoerce(chunk[incoming], type)) {
 								message = `Validation [ ${this._counter} ] for [ ${this._table.name} ] failed unable to coerce [ ${incoming} ] property.`;
 							}
-						} catch (e) {
+						} catch(e) {
 							logger.error(e);
 
 							message = `Validation [ ${this._counter} ] for [ ${this._table.name} ] failed, unexpected error thrown.`;
@@ -90,9 +90,19 @@ module.exports = (() => {
 					if (logger.isTraceEnabled() && chunk) {
 						logger.trace(chunk);
 					}
-				} else {
-					callback(error);
+
+					message = null;
 				}
+
+				let error;
+
+				if (message === null) {
+					error = null;
+				} else {
+					error = new Error(message);
+				}
+
+				callback(error, null);
 			}
 		}
 
