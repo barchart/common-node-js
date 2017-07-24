@@ -11,7 +11,7 @@ const assert = require('common/lang/assert'),
 
 const Table = require('./dynamo/schema/definitions/Table'),
 	TableBuilder = require('./dynamo/schema/builders/TableBuilder'),
-	Scan = require('./dynamo/query/defintions/Scan'),
+	Scan = require('./dynamo/query/definitions/Scan'),
 	Serializer = require('./dynamo/schema/serialization/Serializer');
 
 module.exports = (() => {
