@@ -18,9 +18,9 @@ module.exports = (() => {
 		 * @param {TableBuilder} parent
 		 */
 		constructor(projectionType, parent) {
-			assert.argumentIsRequired(type, 'type', ProjectionType, 'ProjectionType');
+			assert.argumentIsRequired(projectionType, 'projectionType', ProjectionType, 'ProjectionType');
 
-			this._projection = new Projection(type, [ ]);
+			this._projection = new Projection(projectionType, [ ]);
 			this._parent = parent;
 		}
 
