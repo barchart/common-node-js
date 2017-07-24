@@ -101,7 +101,7 @@ module.exports = (() => {
 		 * @param {String} name - Name of the table.
 		 * @returns {ScanBuilder}
 		 */
-		static targetingTable(table) {
+		static targeting(table) {
 			assert.argumentIsRequired(table, 'table', Table, 'Table');
 
 			return new ScanBuilder(table);
