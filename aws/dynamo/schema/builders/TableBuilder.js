@@ -23,6 +23,9 @@ module.exports = (() => {
 	 * @public
 	 */
 	class TableBuilder {
+		/**
+		 * @param {String} name - Name of the table.
+		 */
 		constructor(name) {
 			assert.argumentIsRequired(name, 'name', String);
 
@@ -38,24 +41,60 @@ module.exports = (() => {
 			return this._table;
 		}
 
-		withAttribute(name, dataType) {
-			return this.withAttributeBuilder(name, ab => ab.withDataType(dataType));
+		/**
+		 * Adds an {@link Attribute} and returns the current instance.
+		 *
+		 * @public
+		 * @param {String} attributeName
+		 * @param {DataType} dataType
+		 * @returns {TableBuilder}
+		 */
+		withAttribute(attributeName, dataType) {
+			return this.withAttributeBuilder(attributeName, ab => ab.withDataType(dataType));
 		}
 
-		withAttributeBuilder(name, callback) {
+		/**
+		 * Adds an {@link Attribute} to the filter, using a callback that
+		 * provides the consumer with an {@AttributeBuilder}, then returns
+		 * the current instance.
+		 *
+		 * @public
+		 * @param {Attribute} attributeName
+		 * @param {Function} callback - Synchronously called, providing a {@link AttributeBuilder} tied to the current instance.
+		 * @returns {TableBuilder}
+		 */
+		withAttributeBuilder(attributeName, callback) {
 			assert.argumentIsRequired(callback, 'callback', Function);
 
-			const attributeBuilder = new AttributeBuilder(name, this);
+			const attributeBuilder = new AttributeBuilder(attributeName, this);
 
 			callback(attributeBuilder);
 
 			return addAttributeBuilder.call(this, attributeBuilder);
 		}
 
-		withKey(name, keyType) {
-			return this.withKeyBuilder(name, kb => kb.withKeyType(keyType));
+		/**
+		 * Adds a {@link Key} and returns the current instance.
+		 *
+		 * @public
+		 * @param {String} keyName
+		 * @param {KeyType} keyType
+		 * @returns {TableBuilder}
+		 */
+		withKey(keyName, keyType) {
+			return this.withKeyBuilder(keyName, kb => kb.withKeyType(keyType));
 		}
 
+		/**
+		 * Adds an {@link Key} to the filter, using a callback that
+		 * provides the consumer with an {@KeyBuilder}, then returns
+		 * the current instance.
+		 *
+		 * @public
+		 * @param {String} keyName
+		 * @param {Function} callback - Synchronously called, providing a {@link KeyBuilder} tied to the current instance.
+		 * @returns {TableBuilder}
+		 */
 		withKeyBuilder(name, callback) {
 			assert.argumentIsRequired(callback, 'callback', Function);
 
@@ -66,20 +105,48 @@ module.exports = (() => {
 			return addKeyBuilder.call(this, keyBuilder);
 		}
 
-		withIndexBuilder(name, callback) {
+		/**
+		 * Adds an {@link Index} to the filter, using a callback that
+		 * provides the consumer with an {@IndexBuilder}, then returns
+		 * the current instance.
+		 *
+		 * @public
+		 * @param {String} indexName
+		 * @param {Function} callback - Synchronously called, providing a {@link IndexBuilder} tied to the current instance.
+		 * @returns {TableBuilder}
+		 */
+		withIndexBuilder(indexName, callback) {
 			assert.argumentIsRequired(callback, 'callback', Function);
 
-			const indexBuilder = new IndexBuilder(name, this);
+			const indexBuilder = new IndexBuilder(indexName, this);
 
 			callback(indexBuilder);
 
 			return addIndexBuilder.call(this, indexBuilder);
 		}
 
+		/**
+		 * Adds a {@link ProvisionedThroughpu} specification and returns the
+		 * current instance.
+		 *
+		 * @public
+		 * @param {Number} readUnits
+		 * @param {Number} writeUnits
+		 * @returns {TableBuilder}
+		 */
 		withProvisionedThroughput(readUnits, writeUnits) {
 			return this.withProvisionedThroughputBuilder(ptb => ptb.withRead(readUnits).withWrite(writeUnits));
 		}
 
+		/**
+		 * Adds an {@link ProvisionedThroughpu} specification to the
+		 * filter, using a callback that provides the consumer with a
+		 * {@ProvisionedThroughputBuilder}, then returns the current instance.
+		 *
+		 * @public
+		 * @param {Function} callback - Synchronously called, providing a {@link ProvisionedThroughputBuilder} tied to the current instance.
+		 * @returns {TableBuilder}
+		 */
 		withProvisionedThroughputBuilder(callback) {
 			assert.argumentIsRequired(callback, 'callback', Function);
 
@@ -90,6 +157,12 @@ module.exports = (() => {
 			return addProvisionedThroughputBuilder.call(this, provisionedThroughputBuilder);
 		}
 
+		/**
+		 * Creates a new {@link TableBuilder}.
+		 *
+		 * @param {String} name - Name of the table.
+		 * @returns {TableBuilder}
+		 */
 		static withName(name) {
 			return new TableBuilder(name);
 		}
