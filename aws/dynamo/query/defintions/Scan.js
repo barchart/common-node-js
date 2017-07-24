@@ -13,18 +13,19 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * The collection of {@link Expression} objects that compose a filter.
+	 * The definition of a table (or index) scan.
 	 *
 	 * @public
 	 */
 	class Scan extends Lookup {
-		constructor(table, index, filter) {
+		constructor(table, index, filter, description) {
 			super();
 
 			this._table = table;
 			this._index = index || null;
 
 			this._filter = filter;
+			this._description = description || '[Unnamed Scan]';
 		}
 
 		/**
@@ -55,6 +56,16 @@ module.exports = (() => {
 		 */
 		get filter() {
 			return this._filter;
+		}
+
+		/**
+		 * A description of the scan (for logging purposes).
+		 *
+		 * @public
+		 * @returns {String}
+		 */
+		get description() {
+			return this._description;
 		}
 
 		/**

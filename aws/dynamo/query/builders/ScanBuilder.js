@@ -58,14 +58,14 @@ module.exports = (() => {
 
 			callback(filterBuilder);
 
-			this._scan = new Scan(this._scan.table, this._scan.index, filterBuilder.filter);
+			this._scan = new Scan(this._scan.table, this._scan.index, filterBuilder.filter, this._scan.description);
 
 			return this;
 		}
 
 		/**
 		 * Changes the lookup target to an index of the table (instead of the
-		 * table itself).
+		 * table itself) and returns the current instance.
 		 *
 		 * @public
 		 * @param {String} indexName - The {@link Index} to target.
@@ -74,7 +74,22 @@ module.exports = (() => {
 		withIndex(indexName) {
 			assert.argumentIsRequired(indexName, 'indexName', String);
 
-			this._scan = new Scan(this._scan.table, getIndex(indexName, this._scan.table), this._scan.filter);
+			this._scan = new Scan(this._scan.table, getIndex(indexName, this._scan.table), this._scan.filter, this._scan.description);
+
+			return this;
+		}
+
+		/**
+		 * Adds a description to the scan and returns the current instance.
+		 *
+		 * @public
+		 * @param {String} description
+		 * @returns {ScanBuilder}
+		 */
+		withDescription(description) {
+			assert.argumentIsRequired(indexName, 'indexName', String);
+
+			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, description);
 
 			return this;
 		}

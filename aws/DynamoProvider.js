@@ -11,6 +11,7 @@ const assert = require('common/lang/assert'),
 
 const Table = require('./dynamo/schema/definitions/Table'),
 	TableBuilder = require('./dynamo/schema/builders/TableBuilder'),
+	Scan = require('./dynamo/query/defintions/Scan'),
 	Serializer = require('./dynamo/schema/serialization/Serializer');
 
 module.exports = (() => {
@@ -388,6 +389,58 @@ module.exports = (() => {
 								return true;
 							});
 					});
+				});
+		}
+
+		/***
+		 * Runs a scan against a DynamoDB table (or index).
+		 *
+		 * @param {Scan} scan
+		 * @returns {Promise<Array<Object>>}
+		 */
+		scan(scan) {
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsRequired(scan, 'scan', Scan, 'Scan');
+
+					checkReady.call(this);
+
+					const options = scan.toScanSchema();
+
+					const runScanRecursive = (previous) => {
+						return this._scheduler.backoff(() => {
+							return promise.build((resolveCallback, rejectCallback) => {
+								if (previous && is.string(previous)) {
+									options.ExclusiveStartKey = previous;
+								}
+
+								this._dynamo.scan(options, (error, data) => {
+									if (error) {
+										logger.error(error);
+
+										rejectCallback('Failed to retrieve DynamoDB tables', error);
+									} else {
+										const results = data.Items.map(i => Serializer.deserialize(i, scan.table));
+
+										if (data.LastEvaluatedKey) {
+											runScanRecursive(data.LastEvaluatedKey)
+												.then((more) => {
+													resolveCallback(results.concat(more));
+												});
+										} else {
+											resolveCallback(results);
+										}
+									}
+								});
+							});
+						});
+					};
+
+					return runScanRecursive();
+				}).then((results) => {
+					logger.debug('Ran [', scan.description, '] on [', scan.table.name, (scan.index ? '/ ' + scan.index.name : ''), '] and matched [', results.length ,'] results.');
+
+					return results;
 				});
 		}
 
