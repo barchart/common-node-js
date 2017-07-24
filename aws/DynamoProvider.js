@@ -11,6 +11,7 @@ const assert = require('common/lang/assert'),
 
 const Table = require('./dynamo/schema/definitions/Table'),
 	TableBuilder = require('./dynamo/schema/builders/TableBuilder'),
+	Query = require('./dynamo/query/definitions/Query'),
 	Scan = require('./dynamo/query/definitions/Scan'),
 	Serializer = require('./dynamo/schema/serialization/Serializer');
 
@@ -393,7 +394,8 @@ module.exports = (() => {
 		}
 
 		/***
-		 * Runs a scan against a DynamoDB table (or index).
+		 * Runs a scan against a DynamoDB table (or index) and returns
+		 * all the items matching the scan.
 		 *
 		 * @param {Scan} scan
 		 * @returns {Promise<Array<Object>>}
@@ -418,7 +420,7 @@ module.exports = (() => {
 									if (error) {
 										logger.error(error);
 
-										rejectCallback('Failed to retrieve DynamoDB tables', error);
+										rejectCallback('Failed to scan DynamoDB table', error);
 									} else {
 										const results = data.Items.map(i => Serializer.deserialize(i, scan.table));
 
@@ -439,6 +441,59 @@ module.exports = (() => {
 					return runScanRecursive();
 				}).then((results) => {
 					logger.debug('Ran [', scan.description, '] on [', scan.table.name, (scan.index ? '/ ' + scan.index.name : ''), '] and matched [', results.length ,'] results.');
+
+					return results;
+				});
+		}
+
+		/***
+		 * Runs a query against a DynamoDB table (or index) and returns
+		 * all the items matching the query.
+		 *
+		 * @param {Query} query
+		 * @returns {Promise<Array<Object>>}
+		 */
+		query(query) {
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsRequired(query, 'query', Query, 'Query');
+
+					checkReady.call(this);
+
+					const options = query.toQuerySchema();
+
+					const runQueryRecursive = (previous) => {
+						return this._scheduler.backoff(() => {
+							return promise.build((resolveCallback, rejectCallback) => {
+								if (previous && is.string(previous)) {
+									options.ExclusiveStartKey = previous;
+								}
+
+								this._dynamo.query(options, (error, data) => {
+									if (error) {
+										logger.error(error);
+
+										rejectCallback('Failed to query DynamoDB table', error);
+									} else {
+										const results = data.Items.map(i => Serializer.deserialize(i, query.table));
+
+										if (data.LastEvaluatedKey) {
+											runQueryRecursive(data.LastEvaluatedKey)
+												.then((more) => {
+													resolveCallback(results.concat(more));
+												});
+										} else {
+											resolveCallback(results);
+										}
+									}
+								});
+							});
+						});
+					};
+
+					return runQueryRecursive();
+				}).then((results) => {
+					logger.debug('Ran [', query.description, '] on [', query.table.name, (query.index ? '/ ' + query.index.name : ''), '] and matched [', results.length ,'] results.');
 
 					return results;
 				});

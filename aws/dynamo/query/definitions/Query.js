@@ -28,9 +28,8 @@ module.exports = (() => {
 		constructor(table, index, keyFilter, resultsFilter, description) {
 			super(table, index, (description || '[Unnamed Query]'));
 
-			this._filter = filter;
-			this._keyFilter = keyFilter;
-			this._resultsFilter = resultsFilter;
+			this._keyFilter = keyFilter || null;
+			this._resultsFilter = resultsFilter || null;
 		}
 
 		/**

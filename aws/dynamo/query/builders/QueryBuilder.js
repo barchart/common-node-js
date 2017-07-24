@@ -18,10 +18,10 @@ module.exports = (() => {
 		/**
 		 * @param {Table} table - The table targeted.
 		 */
-		constructor(table, indexName) {
+		constructor(table) {
 			super();
 
-			this._query = new Query(table, getIndex(indexName, table));
+			this._query = new Query(table);
 		}
 
 		/**
@@ -43,9 +43,24 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Adds a {@link Filter} to the query which target's the table (or indexes)
-		 * key, using a callback that provides the consumer with a {@link FilterBuilder},
-		 * then returns the current instance.
+		 * Changes the lookup target to an index of the table (instead of the
+		 * table itself) and returns the current instance.
+		 *
+		 * @public
+		 * @param {String} indexName - The {@link Index} to target.
+		 * @returns {QueryBuilder}
+		 */
+		withIndex(indexName) {
+			assert.argumentIsRequired(indexName, 'indexName', String);
+
+			this._query = new Query(this._query.table, getIndex(indexName, this._query.table), this._query.keyFilter, this._query.resultsFilter, this._query.description);
+
+			return this;
+		}
+
+		/**
+		 * Adds a {@link Filter} targeting the table's (or indexes) key. Uses a callback
+		 * to provides the consumer with a {@link FilterBuilder}.
 		 *
 		 * @public
 		 * @param {Function} callback - Synchronously called, providing a {@link FilterBuilder} tied to the current instance.
@@ -64,15 +79,14 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Adds a {@link Filter} to the query which target's results after the key filter
-		 * has been evaluated. A callback provides the consumer with a {@link FilterBuilder},
-		 * then returns the current instance.
+		 * Adds a {@link Filter} to the query which results after the key filter has
+		 * been evaluated.  Uses a callback to provides the consumer with a {@link FilterBuilder}.
 		 *
 		 * @public
 		 * @param {Function} callback - Synchronously called, providing a {@link FilterBuilder} tied to the current instance.
 		 * @returns {QueryBuilder}
 		 */
-		withKeyFilterBuilder(callback) {
+		withResultsFilterBuilder(callback) {
 			assert.argumentIsRequired(callback, 'callback', Function);
 
 			const filterBuilder = new FilterBuilder(this);
@@ -103,15 +117,14 @@ module.exports = (() => {
 		 * Creates a new {@link TableBuilder}.
 		 *
 		 * @public
-		 * @param {String} indexName - Name of the index.
+		 * @param {Table} table
 		 * @param {String} indexName - Name of the index.
 		 * @returns {QueryBuilder}
 		 */
-		static targeting(table, indexName) {
+		static targeting(table) {
 			assert.argumentIsRequired(table, 'table', Table, 'Table');
-			assert.argumentIsRequired(indexName, 'indexName', String);
 
-			return new QueryBuilder(table, indexName);
+			return new QueryBuilder(table);
 		}
 
 		toString() {
