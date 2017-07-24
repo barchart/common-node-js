@@ -1,7 +1,7 @@
 const assert = require('common/lang/assert');
 
 const Expression = require('./../definitions/Expression'),
-	OperatorType = require('./OperatorType');
+	OperatorType = require('./../definitions/OperatorType');
 
 module.exports = (() => {
 	'use strict';
