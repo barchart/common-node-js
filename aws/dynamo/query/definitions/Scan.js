@@ -82,7 +82,7 @@ module.exports = (() => {
 				throw new Error('Index data type is invalid.');
 			}
 
-			if (!this._table.indicies.some(i => i.equals(this._index, true))) {
+			if (this._index !== null && !this._table.indicies.some(i => i.equals(this._index, true))) {
 				throw new Error('The index must belong to the table.');
 			}
 
@@ -111,17 +111,33 @@ module.exports = (() => {
 				const repeatCount = 1 + Math.floor(index / 26);
 				const letterCode = 97 + (index % 26);
 
-				let aliases;
+				const addAlias = (aliasName, aliasValue) => {
+					accumulator.aliases[aliasName] = aliasValue;
+				};
+
+				let operandsToFormat;
 
 				if (operatorType.operandIsArray) {
-					aliases = operand.map((o, i) => `:${String.fromCharCode(letterCode).repeat(repeatCount)}${i}`);
+					operandsToFormat = operand.map((o, i) => {
+						const aliasName = `:${String.fromCharCode(letterCode).repeat(repeatCount)}${i}`;
+						const aliasValue = Serializer.serializeValue(operand[i], e.attribute.dataType);
+
+						addAlias(aliasName, aliasValue);
+
+						return aliasName;
+					});
 				} else {
-					aliases = `:${String.fromCharCode(letterCode).repeat(repeatCount)}`;
+					const aliasName = `:${String.fromCharCode(letterCode).repeat(repeatCount)}`;
+					const aliasValue = Serializer.serializeValue(operand, e.attribute.dataType);
+
+					addAlias(aliasName, aliasValue);
+
+					operandsToFormat = aliasName;
 				}
 
-				accumulator.aliases[alias] = aliases;
-				accumulator.components.push(operatorType.format(e.attribute.name, aliases));
+				accumulator.components.push(operatorType.format(e.attribute.name, operandsToFormat));
 
+				return accumulator;
 			}, { components: [ ], aliases: { } });
 
 			schema.FilterExpression = expressionData.components.join(' and ');

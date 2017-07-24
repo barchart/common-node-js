@@ -22,7 +22,6 @@ module.exports = (() => {
 			super();
 
 			this._scan = new Scan(table);
-			this._parent = parent;
 		}
 
 		/**
@@ -88,7 +87,7 @@ module.exports = (() => {
 		 * @returns {ScanBuilder}
 		 */
 		withDescription(description) {
-			assert.argumentIsRequired(indexName, 'indexName', String);
+			assert.argumentIsRequired(description, 'description', String);
 
 			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, description);
 
