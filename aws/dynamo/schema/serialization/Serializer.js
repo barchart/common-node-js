@@ -81,7 +81,7 @@ module.exports = (() => {
 		static serializeValue(value, dataType) {
 			assert.argumentIsRequired(dataType, 'dataType', DataType, 'DataType');
 
-			return serializers.get(dataType).serialize(item[name]);
+			return serializers.get(dataType).serialize(value);
 		}
 
 		/**
