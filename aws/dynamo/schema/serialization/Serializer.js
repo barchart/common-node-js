@@ -38,7 +38,7 @@ module.exports = (() => {
 				const name = attribute.name;
 
 				if (item.hasOwnProperty(name) && !is.undefined(item[name])) {
-					serialized[name] = serializers.get(attribute.dataType).serialize(item[name]);
+					serialized[name] = Serializer.serializeValue(item[name], attribute.dataType);
 				}
 
 				return serialized;
@@ -67,6 +67,21 @@ module.exports = (() => {
 
 				return deserialized;
 			}, { });
+		}
+
+		/**
+		 * Converts a simple value into an object suitable for use with the
+		 * AWS SDK for DynamoDB.
+		 *
+		 * @public
+		 * @param {Object} item - The value to serialize (for DynamoDB).
+		 * @param {DataType} dataType - The value's data type.
+		 * @returns {Object} - The serialized object.
+		 */
+		static serializeValue(value, dataType) {
+			assert.argumentIsRequired(dataType, 'dataType', DataType, 'DataType');
+
+			return serializers.get(dataType).serialize(item[name]);
 		}
 
 		/**

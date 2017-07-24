@@ -36,6 +36,15 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Returns true, if the operand must be an array of values.
+		 *
+		 * @returns {Boolean}
+		 */
+		get operandIsArray() {
+			return this._operandIsArray;
+		}
+
+		/**
 		 * Returns true, if the operator an be used with the {@link KeyType}.
 		 *
 		 * @param {KeyType} keyType - The type of key to check.

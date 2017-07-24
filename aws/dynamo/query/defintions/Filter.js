@@ -44,6 +44,8 @@ module.exports = (() => {
 			if (!array.uniqueBy(this._expressions, e => e.attribute.name)) {
 				throw new Error('Filter expression array can only contain Expression instances.');
 			}
+
+			this._expressions.forEach(e => e.validate());
 		}
 
 		toString() {

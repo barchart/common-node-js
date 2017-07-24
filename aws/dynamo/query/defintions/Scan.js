@@ -7,6 +7,8 @@ const Filter = require('./Filter'),
 	Lookup = require('./Lookup'),
 	Table = require('./../../schema/definitions/Table');
 
+const Serializer = require('./../../schema/serialization/Serializer');
+
 module.exports = (() => {
 	'use strict';
 
@@ -78,6 +80,43 @@ module.exports = (() => {
 			}
 
 			this._filter.validate();
+		}
+
+		toScanSchema() {
+			this.validate();
+
+			const schema = {
+				TableName: this._table.name
+			};
+
+			if (this._index !== null) {
+				schema.IndexName = this._index.name;
+			}
+
+			const expressionData = this._filter.expressions.reduce((accumulator, e, index) => {
+				const operatorType = e.operatorType;
+				const operand = e.operand;
+
+				const repeatCount = 1 + Math.floor(index / 26);
+				const letterCode = 97 + (index % 26);
+
+				let aliases;
+
+				if (operatorType.operandIsArray) {
+					aliases = operand.map((o, i) => `:${String.fromCharCode(letterCode).repeat(repeatCount)}${i}`);
+				} else {
+					aliases = `:${String.fromCharCode(letterCode).repeat(repeatCount)}`;
+				}
+
+				accumulator.aliases[alias] = aliases;
+				accumulator.components.push(operatorType.format(e.attribute.name, aliases));
+
+			}, { components: [ ], aliases: { } });
+
+			schema.FilterExpression = expressionData.components.join(' and ');
+			schema.ExpressionAttributeValues = expressionData.aliases;
+
+			return schema;
 		}
 
 		toString() {
