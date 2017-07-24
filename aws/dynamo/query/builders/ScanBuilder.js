@@ -1,6 +1,7 @@
 const assert = require('common/lang/assert');
 
-const Scan = require('./../definitions/Scan');
+const Scan = require('./../definitions/Scan'),
+	Table = require('./../../schema/definitions/Table');
 
 const FilterBuilder = require('./FilterBuilder'),
 	LookupBuilder = require('./LookupBuilder');
@@ -93,6 +94,19 @@ module.exports = (() => {
 
 			return this;
 		}
+
+		/**
+		 * Creates a new {@link TableBuilder}.
+		 *
+		 * @param {String} name - Name of the table.
+		 * @returns {ScanBuilder}
+		 */
+		static targetingTable(table) {
+			assert.argumentIsRequired(table, 'table', Table, 'Table');
+
+			return new ScanBuilder(table);
+		}
+
 
 		toString() {
 			return '[ScanBuilder]';
