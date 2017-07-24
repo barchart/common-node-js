@@ -16,6 +16,12 @@ module.exports = (() => {
 	 * @public
 	 */
 	class Scan extends Lookup {
+		/**
+		 * @param {Table} table
+		 * @param {Index} index
+		 * @param {Filter} filter
+		 * @param {String=} description
+		 */
 		constructor(table, index, filter, description) {
 			super(table, index, (description || '[Unnamed Scan]'));
 
@@ -57,6 +63,12 @@ module.exports = (() => {
 			this._filter.validate();
 		}
 
+		/**
+		 * Outputs an object suitable for running a "scan" operation using
+		 * the DynamoDB SDK.
+		 *
+		 * @returns {Object}
+		 */
 		toScanSchema() {
 			this.validate();
 

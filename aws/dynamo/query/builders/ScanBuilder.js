@@ -106,7 +106,6 @@ module.exports = (() => {
 			return new ScanBuilder(table);
 		}
 
-
 		toString() {
 			return '[ScanBuilder]';
 		}
