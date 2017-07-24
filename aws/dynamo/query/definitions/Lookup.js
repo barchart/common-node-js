@@ -1,3 +1,8 @@
+const assert = require('common/lang/assert');
+
+const Filter = require('./Filter'),
+	Serializer = require('./../../schema/serialization/Serializer');
+
 module.exports = (() => {
 	'use strict';
 
@@ -20,6 +25,58 @@ module.exports = (() => {
 		 */
 		get table() {
 			return null;
+		}
+
+		/**
+		 * Used to convert {@link Filter} definitions into data suitable for
+		 * passing to the AWS SDK. This function is for internal use only.
+		 *
+		 * @protected
+		 * @param {Filter} filter
+		 * @param {Number} offset
+		 * @returns {Object}
+		 */
+		static getExpressionData(filter, offset) {
+			assert.argumentIsRequired(filter, 'filter', Filter, 'Filter');
+			assert.argumentIsOptional(offset, 'offset', Number);
+
+			const offsetToUse = offset || 0;
+
+			return filter.expressions.reduce((accumulator, e, index) => {
+				const operatorType = e.operatorType;
+				const operand = e.operand;
+
+				const repeatCount = 1 + Math.floor(index / 26);
+				const letterCode = 97 + (index % 26);
+
+				const addAlias = (aliasName, aliasValue) => {
+					accumulator.aliases[aliasName] = aliasValue;
+				};
+
+				let operandsToFormat;
+
+				if (operatorType.operandIsArray) {
+					operandsToFormat = operand.map((o, i) => {
+						const aliasName = `:${String.fromCharCode(letterCode).repeat(repeatCount)}${i}`;
+						const aliasValue = Serializer.serializeValue(operand[i], e.attribute.dataType);
+
+						addAlias(aliasName, aliasValue);
+
+						return aliasName;
+					});
+				} else {
+					const aliasName = `:${String.fromCharCode(letterCode).repeat(repeatCount)}`;
+					const aliasValue = Serializer.serializeValue(operand, e.attribute.dataType);
+
+					addAlias(aliasName, aliasValue);
+
+					operandsToFormat = aliasName;
+				}
+
+				accumulator.components.push(operatorType.format(e.attribute.name, operandsToFormat));
+
+				return accumulator;
+			}, { components: [ ], aliases: { }, offset: offsetToUse + filter.expressions.length });
 		}
 
 		toString() {

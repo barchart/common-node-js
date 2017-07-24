@@ -7,8 +7,6 @@ const Filter = require('./Filter'),
 	Lookup = require('./Lookup'),
 	Table = require('./../../schema/definitions/Table');
 
-const Serializer = require('./../../schema/serialization/Serializer');
-
 module.exports = (() => {
 	'use strict';
 
@@ -104,41 +102,7 @@ module.exports = (() => {
 				schema.IndexName = this._index.name;
 			}
 
-			const expressionData = this._filter.expressions.reduce((accumulator, e, index) => {
-				const operatorType = e.operatorType;
-				const operand = e.operand;
-
-				const repeatCount = 1 + Math.floor(index / 26);
-				const letterCode = 97 + (index % 26);
-
-				const addAlias = (aliasName, aliasValue) => {
-					accumulator.aliases[aliasName] = aliasValue;
-				};
-
-				let operandsToFormat;
-
-				if (operatorType.operandIsArray) {
-					operandsToFormat = operand.map((o, i) => {
-						const aliasName = `:${String.fromCharCode(letterCode).repeat(repeatCount)}${i}`;
-						const aliasValue = Serializer.serializeValue(operand[i], e.attribute.dataType);
-
-						addAlias(aliasName, aliasValue);
-
-						return aliasName;
-					});
-				} else {
-					const aliasName = `:${String.fromCharCode(letterCode).repeat(repeatCount)}`;
-					const aliasValue = Serializer.serializeValue(operand, e.attribute.dataType);
-
-					addAlias(aliasName, aliasValue);
-
-					operandsToFormat = aliasName;
-				}
-
-				accumulator.components.push(operatorType.format(e.attribute.name, operandsToFormat));
-
-				return accumulator;
-			}, { components: [ ], aliases: { } });
+			const expressionData = Lookup.getExpressionData(this._filter);
 
 			schema.FilterExpression = expressionData.components.join(' and ');
 			schema.ExpressionAttributeValues = expressionData.aliases;
