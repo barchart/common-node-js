@@ -1,7 +1,6 @@
 const assert = require('common/lang/assert');
 
-const Attribute = require('./../../schema/definitions/Attribute'),
-	Expression = require('./../defintions/Expression'),
+const Expression = require('./../defintions/Expression'),
 	OperatorType = require('./OperatorType');
 
 module.exports = (() => {
@@ -13,6 +12,10 @@ module.exports = (() => {
 	 * @public
 	 */
 	class ExpressionBuilder {
+		/**
+		 * @param {string} attributeName
+		 * @param {LookupBuilder} parent
+		 */
 		constructor(attributeName, parent) {
 			assert.argumentIsRequired(attributeName, 'attributeName', String);
 
@@ -73,7 +76,7 @@ module.exports = (() => {
 	}
 
 	function getAttribute(name, parent) {
-		return parent.table.attributes.find(a => a.name === name) || null;
+		return parent.lookup.table.attributes.find(a => a.name === name) || null;
 	}
 
 	return ExpressionBuilder;

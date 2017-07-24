@@ -13,7 +13,11 @@ module.exports = (() => {
 	 * @public
 	 */
 	class ProjectionBuilder {
-		constructor(type, parent) {
+		/**
+		 * @param {ProjectionType} projectionType
+		 * @param {TableBuilder} parent
+		 */
+		constructor(projectionType, parent) {
 			assert.argumentIsRequired(type, 'type', ProjectionType, 'ProjectionType');
 
 			this._projection = new Projection(type, [ ]);
@@ -29,10 +33,18 @@ module.exports = (() => {
 			return this._projection;
 		}
 
-		withAttribute(name, allowMissing) {
-			assert.argumentIsRequired(name, 'name', String);
+		/**
+		 * Adds an {@link Attribute} to the projection and returns current instance.
+		 *
+		 * @public
+		 * @param {String} attributeName
+		 * @param {Boolean} allowMissing
+		 * @returns {ProjectionBuilder}
+		 */
+		withAttribute(attributeName, allowMissing) {
+			assert.argumentIsRequired(attributeName, 'name', String);
 
-			const attribute = getAttribute(name, this._parent, allowMissing);
+			const attribute = getAttribute(attributeName, this._parent, allowMissing);
 			const attributes = this._projection.attributes.filter(a => a.name !== attribute.name).concat(attribute);
 
 			this._projection = new Projection(this._projection.type, attributes);

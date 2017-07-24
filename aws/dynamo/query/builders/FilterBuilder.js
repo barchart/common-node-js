@@ -13,6 +13,9 @@ module.exports = (() => {
 	 * @public
 	 */
 	class FilterBuilder {
+		/**
+		 * @param {LookupBuilder} parent
+		 */
 		constructor(parent) {
 			this._filter = new Filter([ ]);
 			this._parent = parent;
@@ -42,14 +45,13 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Adds an {@link Expression} to the filter, using callback that
-		 * provides the consumer with an {@ExpressionBuilder} instance,
-		 * then returns the current instance.
+		 * Adds an {@link Expression} to the filter, using a callback that
+		 * provides the consumer with an {@ExpressionBuilder}, then returns
+		 * the current instance.
 		 *
 		 * @public
-		 * @param {Attribute} attributeName
-		 * @param {Function} callback
-		 * @param {*} operand
+		 * @param {Attribute} attributeName - The {@link Attribute} to target.
+		 * @param {Function} callback - Synchronously called, providing a {@link ExpressionBuilder} tied to the current instance.
 		 * @returns {FilterBuilder}
 		 */
 		withExpressionBuilder(attributeName, callback) {

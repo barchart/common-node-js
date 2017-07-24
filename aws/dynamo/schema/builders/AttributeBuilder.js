@@ -12,6 +12,9 @@ module.exports = (() => {
 	 * @public
 	 */
 	class AttributeBuilder {
+		/**
+		 * @param {string} name
+		 */
 		constructor(name) {
 			assert.argumentIsRequired(name, 'name', String);
 
@@ -27,16 +30,19 @@ module.exports = (() => {
 			return this._attribute;
 		}
 
+		/**
+		 * Set the {@link DataType} and returns the current instance.
+		 *
+		 * @public
+		 * @param {DataType} dataType
+		 * @returns {AttributeBuilder}
+		 */
 		withDataType(dataType) {
 			assert.argumentIsRequired(dataType, 'dataType', DataType, 'DataType');
 
 			this._attribute = new Attribute(this._attribute.name, dataType);
 
 			return this;
-		}
-
-		static withName(name) {
-			return new AttributeBuilder(name);
 		}
 
 		toString() {

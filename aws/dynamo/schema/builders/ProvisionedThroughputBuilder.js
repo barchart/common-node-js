@@ -29,6 +29,13 @@ module.exports = (() => {
 			return this._provisionedThroughput;
 		}
 
+		/**
+		 * Sets the read capacity units and returns the current instance.
+		 *
+		 * @public
+		 * @param {Number} value
+		 * @returns {ProvisionedThroughputBuilder}
+		 */
 		withRead(value) {
 			assert.argumentIsRequired(value, 'value', Number);
 
@@ -37,6 +44,13 @@ module.exports = (() => {
 			return this;
 		}
 
+		/**
+		 * Sets the write capacity units and returns the current instance.
+		 *
+		 * @public
+		 * @param {Number} value
+		 * @returns {ProvisionedThroughputBuilder}
+		 */
 		withWrite(value) {
 			assert.argumentIsRequired(value, 'value', Number);
 

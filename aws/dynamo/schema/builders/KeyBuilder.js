@@ -13,6 +13,10 @@ module.exports = (() => {
 	 * @public
 	 */
 	class KeyBuilder {
+		/**
+		 * @param {string} name
+		 * @param {TableBuilder} parent
+		 */
 		constructor(name, parent) {
 			assert.argumentIsRequired(name, 'name', String);
 
@@ -29,6 +33,13 @@ module.exports = (() => {
 			return this._key;
 		}
 
+		/**
+		 * Set the {@link KeyType} and returns the current instance.
+		 *
+		 * @public
+		 * @param {KeyType} keyType
+		 * @returns {KeyBuilder}
+		 */
 		withKeyType(keyType) {
 			assert.argumentIsRequired(keyType, 'keyType', KeyType, 'KeyType');
 
