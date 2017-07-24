@@ -11,20 +11,44 @@ module.exports = (() => {
 	 * data in a DynamoDB table.
 	 *
 	 * @public
-	 * @interface
+	 * @abstract
 	 */
 	class Lookup {
-		constructor() {
+		constructor(table, index, description) {
+			this._table = table;
+			this._index = index || null;
 
+			this._description = description;
 		}
 
 		/**
-		 * The targeted {@Table}.
+		 * A {@link Table} to target.
 		 *
-		 * @returns {null}
+		 * @public
+		 * @returns {Table}
 		 */
 		get table() {
-			return null;
+			return this._table;
+		}
+
+		/**
+		 * An {@Index} of the table to target (optional).
+		 *
+		 * @public
+		 * @returns {Index}
+		 */
+		get index() {
+			return this._index;
+		}
+
+		/**
+		 * A description of the scan (for logging purposes).
+		 *
+		 * @public
+		 * @returns {String}
+		 */
+		get description() {
+			return this._description;
 		}
 
 		/**

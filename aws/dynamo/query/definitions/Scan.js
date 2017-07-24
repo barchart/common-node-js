@@ -17,33 +17,9 @@ module.exports = (() => {
 	 */
 	class Scan extends Lookup {
 		constructor(table, index, filter, description) {
-			super();
-
-			this._table = table;
-			this._index = index || null;
+			super(table, index, (description || '[Unnamed Scan]'));
 
 			this._filter = filter;
-			this._description = description || '[Unnamed Scan]';
-		}
-
-		/**
-		 * A {@link Table} to scan.
-		 *
-		 * @public
-		 * @returns {Table}
-		 */
-		get table() {
-			return this._table;
-		}
-
-		/**
-		 * An {@Index} of the table to scan (optional).
-		 *
-		 * @public
-		 * @returns {Index}
-		 */
-		get index() {
-			return this._index;
 		}
 
 		/**
@@ -57,30 +33,20 @@ module.exports = (() => {
 		}
 
 		/**
-		 * A description of the scan (for logging purposes).
-		 *
-		 * @public
-		 * @returns {String}
-		 */
-		get description() {
-			return this._description;
-		}
-
-		/**
 		 * Throws an {@link Error} if the instance is invalid.
 		 *
 		 * @public
 		 */
 		validate() {
-			if (!(this._table instanceof Table)) {
+			if (!(this.table instanceof Table)) {
 				throw new Error('Table data type is invalid.');
 			}
 
-			if (this._index !== null && !(this._index instanceof Index)) {
+			if (this.index !== null && !(this.index instanceof Index)) {
 				throw new Error('Index data type is invalid.');
 			}
 
-			if (this._index !== null && !this._table.indicies.some(i => i.equals(this._index, true))) {
+			if (this.index !== null && !this.table.indicies.some(i => i.equals(this.index, true))) {
 				throw new Error('The index must belong to the table.');
 			}
 
@@ -95,11 +61,11 @@ module.exports = (() => {
 			this.validate();
 
 			const schema = {
-				TableName: this._table.name
+				TableName: this.table.name
 			};
 
-			if (this._index !== null) {
-				schema.IndexName = this._index.name;
+			if (this.index !== null) {
+				schema.IndexName = this.index.name;
 			}
 
 			const expressionData = Lookup.getExpressionData(this._filter);
