@@ -81,7 +81,7 @@ module.exports = (() => {
 			if (this.index === null) {
 				keys = this.table.keys;
 			} else {
-				keys = this.index.keys
+				keys = this.index.keys;
 			}
 
 			if (this._keyFilter.expressions.filter(e => e.attribute.name === (keys.find(k => k.keyType === KeyType.HASH)).attribute.name).length !== 1) {
@@ -127,7 +127,7 @@ module.exports = (() => {
 
 				aliases = object.merge(keyExpressionData.aliases, resultsExpressionData.aliases);
 			} else {
-				aliases = keyExpressionData.aliases
+				aliases = keyExpressionData.aliases;
 			}
 
 			schema.ExpressionAttributeValues = aliases;
