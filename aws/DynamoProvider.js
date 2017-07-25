@@ -504,7 +504,7 @@ module.exports = (() => {
 		 * {@link DynamoProvider#createTable} function.
 		 *
 		 * @public
-		 * @param {string} name - The name of the table.
+		 * @param {string} name - The (unqualified) name of the table.
 		 * @returns {TableBuilder}
 		 */
 		getTableBuilder(name) {

@@ -6,28 +6,43 @@ const assert = require('common/lang/assert'),
 	is = require('common/lang/is'),
 	promise = require('common/lang/promise');
 
-const Definition = require('./dynamo/schema/definitions/Table'),
+const Definition = require('./schema/definitions/Table'),
 	DynamoProvider = require('./../DynamoProvider');
 
 module.exports = (() => {
 	'use strict';
 
-	const logger = log4js.getLogger('common-node/aws/dynamo/Table');
+	const logger = log4js.getLogger('common-node/aws/dynamo/TableContainer');
 
-	class Table extends Disposable {
-		constructor(definition, provider) {
+	/**
+	 * A container that houses functions for implementing with a
+	 * single DynamoDB table. In other words, this is the base
+	 * class for a DynamoDB based repository pattern.
+	 *
+	 * @abstract
+	 */
+	class TableContainer extends Disposable {
+		/**
+		 * @param {Table} definition
+		 * @param {DynamoProvider} provider
+		 */
+		constructor(provider, definition) {
 			super();
 
-			assert.argumentIsRequired(definition, 'definition', Definition, 'Definition');
 			assert.argumentIsRequired(provider, 'provider', DynamoProvider, 'DynamoProvider');
+			assert.argumentIsRequired(definition, 'definition', Definition, 'Definition');
 
-			this._definition = definition;
 			this._provider = provider;
+			this._definition = definition;
 
 			this._startPromise = null;
 			this._started = false;
 		}
 
+		/**
+		 * @public
+		 * @returns {Table}
+		 */
 		get definition() {
 			return this._definition;
 		}
@@ -64,19 +79,37 @@ module.exports = (() => {
 			return this._startPromise;
 		}
 
-		scan(scan) {
+		/**
+		 * Runs a scan on the table.
+		 *
+		 * @protected
+		 * @ignore
+		 * @param {Scan} scan
+		 * @returns {Promise.<Array<Object>>}
+		 */
+		_scan(scan) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
 
+					return this._provider.scan(scan);
 				});
 		}
 
+		/**
+		 * Runs a query on the table.
+		 *
+		 * @protected
+		 * @ignore
+		 * @param {Scan} scan
+		 * @returns {Promise.<Array<Object>>}
+		 */
 		query(query) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
 
+					return this._provider.query(query);
 				});
 		}
 
@@ -99,5 +132,5 @@ module.exports = (() => {
 		}
 	}
 
-	return Table;
+	return TableContainer;
 })();
