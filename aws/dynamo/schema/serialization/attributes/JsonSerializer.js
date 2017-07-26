@@ -22,7 +22,7 @@ module.exports = (() => {
 		}
 
 		deserialize(wrapper) {
-			return JSON.parse(this.super(wrapper));
+			return JSON.parse(super.deserialize(wrapper));
 		}
 
 		coerce(value) {
