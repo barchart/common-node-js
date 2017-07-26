@@ -7,16 +7,19 @@ module.exports = (() => {
 	'use strict';
 
 	class PropertyTransformation extends Transformation {
-		constructor(property, descripription) {
+		constructor(inputPropertyName, outputPropertyName, descripription) {
 			super(descripription);
 
-			assert.argumentIsRequired(property, 'property', String);
+			assert.argumentIsRequired(inputPropertyName, 'inputPropertyName', String);
+			assert.argumentIsOptional(outputPropertyName, 'inputPropertyName', String);
+			assert.argumentIsOptional(descripription, 'descripription', String);
 
-			this._propertyName = property;
+			this._inputPropertyName = inputPropertyName;
+			this._outputPropertyName = outputPropertyName || inputPropertyName;
 		}
 
 		_canTransform(input) {
-			return attributes.has(input, this._propertyName) && this._canTransformValue(attributes.read(input, this._propertyName));
+			return attributes.has(input, this._inputPropertyName) && this._canTransformValue(attributes.read(input, this._inputPropertyName));
 		}
 
 		_canTransformValue(value) {
@@ -24,7 +27,7 @@ module.exports = (() => {
 		}
 
 		_transform(input) {
-			attributes.write(input, this._propertyName, this._transformValue(attributes.read(input, this._propertyName)));
+			attributes.write(input, this._outputPropertyName, this._transformValue(attributes.read(input, this._inputPropertyName)));
 
 			return input;
 		}

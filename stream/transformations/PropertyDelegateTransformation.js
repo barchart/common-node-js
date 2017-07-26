@@ -8,8 +8,8 @@ module.exports = (() => {
 	'use strict';
 
 	class PropertyDelegateTransformation extends PropertyTransformation {
-		constructor(property, transformDelegate, asynchronous, canTransformDelegate, description) {
-			super(property, (description || 'Delegated Property Transformation'));
+		constructor(inputPropertyName, transformDelegate, outputPropertyName, asynchronous, canTransformDelegate, description) {
+			super(inputPropertyName, outputPropertyName, (description || 'Delegated Property Transformation'));
 
 			this._delegateTransformation = new DelegateTransformation(transformDelegate, asynchronous, canTransformDelegate);
 		}

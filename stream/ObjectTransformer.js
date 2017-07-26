@@ -5,35 +5,61 @@ const assert = require('common/lang/assert'),
 	is = require('common/lang/is'),
 	promise = require('common/lang/promise');
 
+const Transformation = require('./transformations/Transformation');
+
 module.exports = (() => {
 	'use strict';
 
 	const logger = log4js.getLogger('common-node/stream/ObjectTransformer');
 
 	class ObjectTransformer extends Stream.Transform {
+		/***
+		 * @param {Array<Transformation>} transformations
+		 * @param {String=} description
+		 * @param {Boolean=} silent
+		 */
 		constructor(transformations, description, silent) {
 			super({ objectMode: true });
 
-			this._tranformations = transformations;
-			this._description = description;
 
+			assert.argumentIsArray(transformations, 'transformations', Transformation);
+			assert.argumentIsOptional(description, 'description', String);
+			assert.argumentIsOptional(silent, 'silent', Boolean);
+
+			this._tranformations = transformations;
+
+			this._description = description || 'Object Transformer';
 			this._silent = is.boolean(silent) && silent;
 
-			let processor;
+			let delegate;
 
 			if (transformations.every(t => t.synchronous)) {
-				processor = processSynchronous.bind(this);
+				delegate = processSynchronous.bind(this);
 			} else {
-				processor = processSynchronous.bind(this);
+				delegate = processSynchronous.bind(this);
 			}
 
-			this._processor = processor;
+			this._delegate = delegate;
 
 			this._counter = 0;
 		}
 
 		_transform(chunk, encoding, callback) {
-			this._processor(chunk, callback);
+			this._delegate(chunk, callback);
+		}
+
+		/**
+		 * @param {Transformation}
+		 * @returns {ObjectTransformer}
+		 */
+		addTransformation(transformation) {
+			assert.argumentIsRequired(transformation, 'transformation', Transformation, 'Transformation');
+
+			return new ObjectTransformer(this._tranformations.concat([ transformation ]), this._description, this._silent);
+		}
+		
+		static define(description, silent) {
+			return new ObjectTransformer([ ], description, silent);
 		}
 
 		toString() {
@@ -48,9 +74,9 @@ module.exports = (() => {
 		let transformed = chunk;
 
 		if (is.object(chunk)) {
-			this._transforms.every((chunk, transformation) => {
+			this._tranformations.every((t) => {
 				try {
-					transformed = transformation(transformed);
+					transformed = t.transform(chunk);
 				} catch (e) {
 					error = e;
 				}
