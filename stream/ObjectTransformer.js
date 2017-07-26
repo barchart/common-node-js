@@ -19,13 +19,15 @@ module.exports = (() => {
 
 			this._silent = is.boolean(silent) && silent;
 
-			this._processor;
+			let processor;
 
 			if (transformations.every(t => t.synchronous)) {
-				this._processor = processSynchronous.bind(this);
+				processor = processSynchronous.bind(this);
 			} else {
-				this._processor = processSynchronous.bind(this);
+				processor = processSynchronous.bind(this);
 			}
+
+			this._processor = processor;
 
 			this._counter = 0;
 		}
