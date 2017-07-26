@@ -1,6 +1,6 @@
 const assert = require('common/lang/assert');
 
-const StringSerializer = require('./AttributeSerialzer'),
+const StringSerializer = require('./StringSerializer'),
 	DataType = require('./../../definitions/DataType');
 
 module.exports = (() => {

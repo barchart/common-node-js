@@ -4,7 +4,8 @@ const assert = require('common/lang/assert'),
 const DataType = require('./../../schema/definitions/DataType'),
 	Table = require('./../../schema/definitions/Table');
 
-const NumberSerializer = require('./attributes/NumberSerializer'),
+const JsonSerializer = require('./attributes/JsonSerializer'),
+	NumberSerializer = require('./attributes/NumberSerializer'),
 	StringSerializer = require('./attributes/StringSerializer');
 
 module.exports = (() => {
@@ -119,6 +120,7 @@ module.exports = (() => {
 
 	serializers.set(DataType.NUMBER, new NumberSerializer());
 	serializers.set(DataType.STRING, new StringSerializer());
+	serializers.set(DataType.JSON, new JsonSerializer());
 
 	return Serializer;
 })();

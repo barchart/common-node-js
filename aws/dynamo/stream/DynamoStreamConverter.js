@@ -84,7 +84,7 @@ module.exports = (() => {
 							error = e;
 						}
 					} else {
-						error = new Error(`Transformation [ ${this._counter} ] for [ ${this._table.name} ] failed, expected property missing.`);
+						error = new Error(`Transformation [ ${this._counter} ] for [ ${this._table.name} ] failed, expected property missing [ ${incoming} ].`);
 					}
 
 					return error === null;
