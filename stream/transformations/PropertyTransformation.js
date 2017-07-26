@@ -1,12 +1,12 @@
 const assert = require('common/lang/assert'),
 	attributes = require('common/lang/attributes');
 
-const SynchronousTransformation = require('./SynchronousTransformation');
+const Transformation = require('./Transformation');
 
 module.exports = (() => {
 	'use strict';
 
-	class PropertyTransformation extends SynchronousTransformation {
+	class PropertyTransformation extends Transformation {
 		constructor(property) {
 			super();
 

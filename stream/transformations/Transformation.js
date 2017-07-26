@@ -3,9 +3,13 @@ const Disposable = require('common/lang/Disposable');
 module.exports = (() => {
 	'use strict';
 
-	class SynchronousTransformation extends Disposable {
+	class Transformation extends Disposable {
 		constructor() {
 			super();
+		}
+
+		get synchronous() {
+			return true;
 		}
 
 		canTransform(input) {
@@ -21,9 +25,9 @@ module.exports = (() => {
 		}
 
 		toString() {
-			return '[SynchronousTransformation]';
+			return '[Transformation]';
 		}
 	}
 
-	return SynchronousTransformation;
+	return Transformation;
 })();
