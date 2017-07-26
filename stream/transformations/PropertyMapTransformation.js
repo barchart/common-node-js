@@ -7,8 +7,8 @@ module.exports = (() => {
 	'use strict';
 
 	class PropertyMapTransformation extends PropertyTransformation {
-		constructor(property, map) {
-			super(property);
+		constructor(property, map, description) {
+			super(property, (description || 'Property Map Transformation'));
 
 			assert.argumentIsRequired(map, 'map', Map, 'Map');
 
