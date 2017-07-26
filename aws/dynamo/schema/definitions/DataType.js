@@ -45,6 +45,10 @@ module.exports = (() => {
 			return dataTypeNumber;
 		}
 
+		static get JSON() {
+			return dataTypeJson;
+		}
+
 		/**
 		 * Description of the data type (or null, if no known {@link DataType} can be found).
 		 *
@@ -65,8 +69,9 @@ module.exports = (() => {
 
 	const dataTypeString = new DataType('S', 'String');
 	const dataTypeNumber = new DataType('N', 'Number');
+	const dataTypeJson = new DataType('S', 'Json');
 
-	const dataTypes = [ dataTypeString, dataTypeNumber ];
+	const dataTypes = [ dataTypeString, dataTypeNumber, dataTypeJson ];
 
 	return DataType;
 })();
