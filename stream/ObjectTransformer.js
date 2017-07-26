@@ -44,6 +44,10 @@ module.exports = (() => {
 			this._counter = 0;
 		}
 
+		get transformerCount() {
+			return this._tranformations.length;
+		}
+
 		_transform(chunk, encoding, callback) {
 			this._delegate(chunk, callback);
 		}
