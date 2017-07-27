@@ -177,7 +177,7 @@ module.exports = (() => {
 				schema.StreamSpecification = {
 					StreamEnabled: true,
 					StreamViewType: this._streamViewType.schemaName
-				}
+				};
 			}
 
 			return schema;
