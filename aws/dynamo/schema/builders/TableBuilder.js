@@ -6,6 +6,7 @@ const DataType = require('./../definitions/DataType'),
 	KeyType = require('./../definitions/KeyType'),
 	ProjectionType = require('./../definitions/ProjectionType'),
 	ProvisionedThroughput = require('./../definitions/ProvisionedThroughput'),
+	StreamViewType = require('./../definitions/StreamViewType'),
 	Table = require('./../definitions/Table');
 
 const AttributeBuilder = require('./AttributeBuilder'),
@@ -29,7 +30,7 @@ module.exports = (() => {
 		constructor(name) {
 			assert.argumentIsRequired(name, 'name', String);
 
-			this._table = new Table(name, [ ], [ ], [ ], null);
+			this._table = new Table(name, [ ], [ ], [ ], null, null);
 		}
 
 		/**
@@ -158,6 +159,15 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Defines a streaming behavior for the table.
+		 *
+		 * @param {StreamViewType} streamViewType
+		 */
+		withStreamViewType(streamViewType) {
+			addStreamViewType.call(this, streamViewType);
+		}
+
+		/**
 		 * Creates a new {@link TableBuilder}.
 		 *
 		 * @param {String} name - Name of the table.
@@ -195,6 +205,10 @@ module.exports = (() => {
 				definition.GlobalSecondaryIndexes.reduce((tb, gsi) => processIndex(IndexType.GLOBAL_SECONDARY, gsi), tableBuilder);
 			}
 
+			if (is.object(definition.StreamSpecification) && is.boolean(definition.StreamSpecification.StreamEnabled) && definition.StreamSpecification.StreamEnabled) {
+				tableBuilder.withStreamViewType(StreamViewType.fromCode(definition.StreamSpecification.StreamViewType));
+			}
+
 			return tableBuilder.table;
 		}
 
@@ -207,7 +221,7 @@ module.exports = (() => {
 		const attribute = attributeBuilder.attribute;
 		const attributes = this._table.attributes.filter(a => a.name !== attribute.name).concat(attribute);
 
-		this._table = new Table(this._table.name, this._table.keys, this._table.indicies, attributes, this._table.provisionedThroughput);
+		this._table = new Table(this._table.name, this._table.keys, this._table.indicies, attributes, this._table.provisionedThroughput, this._table.streamViewType);
 
 		return this;
 	}
@@ -216,7 +230,7 @@ module.exports = (() => {
 		const key = keyBuilder.key;
 		const keys = this._table.keys.filter(k => k.attribute.name !== key.attribute.name).concat(key);
 
-		this._table = new Table(this._table.name, keys, this._table.indicies, this._table.attributes, this._table.provisionedThroughput);
+		this._table = new Table(this._table.name, keys, this._table.indicies, this._table.attributes, this._table.provisionedThroughput, this._table.streamViewType);
 
 		return this;
 	}
@@ -225,13 +239,19 @@ module.exports = (() => {
 		const index = indexBuilder.index;
 		const indicies = this._table._indices.filter(i => i.name !== index.name).concat(index);
 
-		this._table = new Table(this._table.name, this._table.keys, indicies, this._table.attributes, this._table.provisionedThroughput);
+		this._table = new Table(this._table.name, this._table.keys, indicies, this._table.attributes, this._table.provisionedThroughput, this._table.streamViewType);
 
 		return this;
 	}
 
 	function addProvisionedThroughputBuilder(provisionedThroughputBuilder) {
-		this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, provisionedThroughputBuilder.provisionedThroughput);
+		this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, provisionedThroughputBuilder.provisionedThroughput, this._table.streamViewType);
+
+		return this;
+	}
+
+	function addStreamViewType(streamViewType) {
+		this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, this._table.provisionedThroughput, streamViewType);
 
 		return this;
 	}

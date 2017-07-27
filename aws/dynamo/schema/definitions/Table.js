@@ -6,7 +6,8 @@ const Attribute = require('./Attribute'),
 	Key = require('./Key'),
 	KeyType = require('./KeyType'),
 	Index = require('./Index'),
-	IndexType = require('./IndexType');
+	IndexType = require('./IndexType'),
+	StreamViewType = require('./StreamViewType');
 
 module.exports = (() => {
 	'use strict';
@@ -17,7 +18,7 @@ module.exports = (() => {
 	 * @public
 	 */
 	class Table {
-		constructor(name, keys, indicies, attributes, provisionedThroughput) {
+		constructor(name, keys, indicies, attributes, provisionedThroughput, streamViewType) {
 			this._name = name;
 
 			this._keys = keys || [ ];
@@ -25,6 +26,8 @@ module.exports = (() => {
 			this._attributes = attributes || [ ];
 
 			this._provisionedThroughput = provisionedThroughput;
+
+			this._streamViewType = streamViewType || null;
 		}
 
 		/**
@@ -78,6 +81,16 @@ module.exports = (() => {
 		}
 
 		/**
+		 * The streaming behavior of the table. If this property returns
+		 * null; then the table does not stream.
+		 *
+		 * @returns {StreamViewType|null}
+		 */
+		get streamViewType() {
+			return this._streamViewType;
+		}
+
+		/**
 		 * Throws an {@link Error} if the instance is invalid.
 		 *
 		 * @public
@@ -119,6 +132,10 @@ module.exports = (() => {
 				throw new Error('Table index names must be unique (only one index with a given name).');
 			}
 
+			if (this._streamViewType !== null && !(this._streamViewType instanceof StreamViewType)) {
+				throw new Error('Table steaming type is invalid.');
+			}
+
 			this._keys.forEach(k => k.validate());
 			this._indices.forEach(i => i.validate());
 
@@ -155,6 +172,13 @@ module.exports = (() => {
 			let keys = array.uniqueBy(array.flatten(this._indices.map(i => i.keys)).concat([...this._keys]), k => k.attribute.name);
 
 			schema.AttributeDefinitions = keys.map(k => k.attribute.toAttributeSchema());
+
+			if (this._streamViewType) {
+				schema.StreamSpecification = {
+					StreamEnabled: true,
+					StreamViewType: this._streamViewType.schemaName
+				}
+			}
 
 			return schema;
 		}

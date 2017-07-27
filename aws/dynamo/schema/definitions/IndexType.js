@@ -48,7 +48,5 @@ module.exports = (() => {
 	const indexTypeGlobal = new IndexType('GlobalSecondaryIndex', 'GlobalSecondaryIndexes', true);
 	const indexTypeLocal = new IndexType('LocalSecondaryIndex', 'LocalSecondaryIndexes', false);
 
-	const indexTypes = [ indexTypeGlobal, indexTypeLocal ];
-
 	return IndexType;
 })();
