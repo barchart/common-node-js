@@ -1,5 +1,6 @@
 const aws = require('aws-sdk'),
-	log4js = require('log4js');
+	log4js = require('log4js'),
+	nodemailer = require('nodemailer');
 
 const assert = require('common/lang/assert'),
 	Disposable = require('common/lang/Disposable'),
@@ -43,6 +44,7 @@ module.exports = (() => {
 			assert.argumentIsOptional(configuration.rateLimitPerSecond, 'configuration.rateLimitPerSecond', Number);
 
 			this._ses = null;
+			this._transport = null;
 
 			this._configuration = configuration;
 
@@ -68,6 +70,12 @@ module.exports = (() => {
 				this._startPromise = Promise.resolve()
 					.then(() => {
 						aws.config.update({region: this._configuration.region});
+
+						this.transport = nodemailer.createTransport({
+							SES: new aws.SES({
+								apiVersion: '2010-12-01'
+							})
+						});
 
 						this._ses = new aws.SES({apiVersion: this._configuration.apiVersion || '2010-12-01'});
 					}).then(() => {
@@ -100,6 +108,44 @@ module.exports = (() => {
 			return object.clone(this._configuration);
 		}
 
+		send(options) {
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsRequired(options.senderAddress, 'senderAddress', String);
+					assert.argumentIsRequired(options.recipientAddress, 'recipientAddress', String);
+					assert.argumentIsRequired(options.subject, 'subject', String);
+					assert.argumentIsRequired(options.recipientAddress, 'senderAddress', String);
+
+					assert.argumentIsOptional(options.headers, 'headers', Object);
+				}).then(() => {
+					return this._rateLimiter.enqueue(() => {
+						return promise.build((resolve, reject) => {
+							logger.debug('Sending email to', options.recipientAddress);
+
+							this.transport.sendMail({
+								from: options.senderAddress,
+								to: options.recipientAddress,
+								subject: options.subject,
+								html: options.htmlBody,
+								text: options.textBody,
+								headers: options.headers
+							}, (error, result) => {
+								if (error) {
+									logger.error('SES Email Provider failed to send email message', options);
+									logger.error(error);
+
+									reject(error);
+								} else {
+									logger.debug('Sent email to', options.recipientAddress);
+
+									resolve(result);
+								}
+							});
+						});
+					});
+				});
+		}
+
 		/**
 		 * Attempts to send an email.
 		 *
@@ -110,7 +156,7 @@ module.exports = (() => {
 		 * @param {string=} textBody - The email's body.
 		 * @returns {Promise}
 		 */
-		sendEmail(senderAddress, recipientAddress, subject, htmlBody, textBody, tags) {
+		sendEmail(senderAddress, recipientAddress, subject, htmlBody, textBody) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(senderAddress, 'senderAddress', String);
