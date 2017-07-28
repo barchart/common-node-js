@@ -6,7 +6,19 @@ const PropertyTransformation = require('./PropertyTransformation');
 module.exports = (() => {
 	'use strict';
 
+	/**
+	 * Reads a property value, does a key lookup in a map, and writes
+	 * the key's value to a property.
+	 *
+	 * @public
+	 */
 	class PropertyMapTransformation extends PropertyTransformation {
+		/**
+		 * @param {String} inputPropertyName - The name of the property to read from.
+		 * @param {Map} map - The map of translations.
+		 * @param {String=} outputPropertyName - The name of the property to write to.
+		 * @param {String=} description - Describes the transformation, intended for logging purposes.
+		 */
 		constructor(inputPropertyName, map, outputPropertyName, description) {
 			super(inputPropertyName, outputPropertyName, (description || 'Property Map Transformation'));
 
