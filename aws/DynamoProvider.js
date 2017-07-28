@@ -192,7 +192,7 @@ module.exports = (() => {
 						return getTable.call(this, qualifiedTableName)
 							.then((tableData) => {
 								if (tableData.TableStatus === 'ACTIVE') {
-									logger.debug('Table ready [', qualifiedTableName, ']');
+									logger.info('Table ready [', qualifiedTableName, ']');
 
 									return tableData;
 								} else {
@@ -204,12 +204,12 @@ module.exports = (() => {
 					};
 
 					return promise.build((resolveCallback, rejectCallback) => {
-						logger.debug('Creating table [', qualifiedTableName, ']');
+						logger.info('Creating table [', qualifiedTableName, ']');
 
 						this._dynamo.createTable(definition.toTableSchema(), (error, data) => {
 							if (error) {
 								if (is.string(error.message) && error.message === `Table already exists: ${qualifiedTableName}`) {
-									logger.debug('Unable to create table [', qualifiedTableName, '], table already exists');
+									logger.info('Unable to create table [', qualifiedTableName, '], table already exists');
 
 									getTableForCreate.call(this, qualifiedTableName)
 										.then((tableData) => {
@@ -229,7 +229,7 @@ module.exports = (() => {
 									rejectCallback('Failed to create DynamoDB tables', error);
 								}
 							} else {
-								logger.debug('Created table [', qualifiedTableName, '], waiting for table to become ready');
+								logger.info('Created table [', qualifiedTableName, '], waiting for table to become ready');
 
 								return this._scheduler.backoff(() => getTableForCreate.call(this, qualifiedTableName), 2000)
 									.then((tableData) => {
