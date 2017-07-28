@@ -21,7 +21,6 @@ module.exports = (() => {
 		constructor(transformations, description, silent) {
 			super({ objectMode: true });
 
-
 			assert.argumentIsArray(transformations, 'transformations', Transformation);
 			assert.argumentIsOptional(description, 'description', String);
 			assert.argumentIsOptional(silent, 'silent', Boolean);
