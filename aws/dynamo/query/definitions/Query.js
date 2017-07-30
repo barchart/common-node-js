@@ -13,7 +13,7 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * The definition of a table (or index) scan.
+	 * The definition of a table (or index) query.
 	 *
 	 * @public
 	 */

@@ -7,8 +7,8 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * An operator type that can be used with a DynamoDB scan
-	 * or query.
+	 * An operator type that can be used in an {@link Expression} as
+	 * part of a {@link Scan} or {@link Query}.
 	 *
 	 * @public
 	 */
