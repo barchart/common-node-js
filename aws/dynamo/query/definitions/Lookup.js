@@ -7,17 +7,21 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * The base class for a object which defines how to lookup
-	 * data in a DynamoDB table.
+	 * The base class for a object which defines some sort of conditional
+	 * operation that targets a {@link Table}.
 	 *
 	 * @public
 	 * @abstract
 	 */
 	class Lookup {
+		/**
+		 * @param {Table} table
+		 * @param {Index=} index
+		 * @param {String=} description
+		 */
 		constructor(table, index, description) {
 			this._table = table;
 			this._index = index || null;
-
 			this._description = description;
 		}
 
@@ -35,7 +39,7 @@ module.exports = (() => {
 		 * An {@Index} of the table to target (optional).
 		 *
 		 * @public
-		 * @returns {Index}
+		 * @returns {Index|null}
 		 */
 		get index() {
 			return this._index;
