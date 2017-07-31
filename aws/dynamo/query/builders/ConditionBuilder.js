@@ -1,6 +1,6 @@
 const assert = require('common/lang/assert');
 
-const Scan = require('./../definitions/Scan'),
+const Condition = require('./../definitions/Condition'),
 	Table = require('./../../schema/definitions/Table');
 
 const FilterBuilder = require('./FilterBuilder'),
@@ -10,18 +10,18 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * Fluent interface for building a {@link Scan}.
+	 * Fluent interface for building a {@link Condition}.
 	 *
 	 * @public
 	 */
-	class ScanBuilder extends LookupBuilder {
+	class ConditionBuilder extends LookupBuilder {
 		/**
 		 * @param {Table} table - The table targeted.
 		 */
 		constructor(table) {
 			super();
 
-			this._scan = new Scan(table);
+			this._condition = new Condition(table);
 		}
 
 		/**
@@ -30,16 +30,16 @@ module.exports = (() => {
 		 * @public
 		 */
 		get lookup() {
-			return this._scan;
+			return this._condition;
 		}
 
 		/**
-		 * The {@link Scan}, given all the information provided thus far.
+		 * The {@link Condition}, given all the information provided thus far.
 		 *
 		 * @public
 		 */
-		get scan() {
-			return this._scan;
+		get condition() {
+			return this._condition;
 		}
 
 		/**
@@ -49,7 +49,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Function} callback - Synchronously called, providing a {@link FilterBuilder} tied to the current instance.
-		 * @returns {ScanBuilder}
+		 * @returns {ConditionBuilder}
 		 */
 		withFilterBuilder(callback) {
 			assert.argumentIsRequired(callback, 'callback', Function);
@@ -58,23 +58,7 @@ module.exports = (() => {
 
 			callback(filterBuilder);
 
-			this._scan = new Scan(this._scan.table, this._scan.index, filterBuilder.filter, this._scan.description);
-
-			return this;
-		}
-
-		/**
-		 * Changes the lookup target to an index of the table (instead of the
-		 * table itself) and returns the current instance.
-		 *
-		 * @public
-		 * @param {String} indexName - The {@link Index} to target.
-		 * @returns {ScanBuilder}
-		 */
-		withIndex(indexName) {
-			assert.argumentIsRequired(indexName, 'indexName', String);
-
-			this._scan = new Scan(this._scan.table, getIndex(indexName, this._scan.table), this._scan.filter, this._scan.description);
+			this._condition = new Condition(this._condition.table, filterBuilder.filter, this._condition.description);
 
 			return this;
 		}
@@ -84,36 +68,32 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {String} description
-		 * @returns {ScanBuilder}
+		 * @returns {ConditionBuilder}
 		 */
 		withDescription(description) {
 			assert.argumentIsRequired(description, 'description', String);
 
-			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, description);
+			this._condition = new Condition(this._condition.table, this._condition.filter, description);
 
 			return this;
 		}
 
 		/**
-		 * Creates a new {@link ScanBuilder}.
+		 * Creates a new {@link ConditionBuilder}.
 		 *
 		 * @param {String} name - Name of the table.
-		 * @returns {ScanBuilder}
+		 * @returns {ConditionBuilder}
 		 */
 		static targeting(table) {
 			assert.argumentIsRequired(table, 'table', Table, 'Table');
 
-			return new ScanBuilder(table);
+			return new ConditionBuilder(table);
 		}
 
 		toString() {
-			return '[ScanBuilder]';
+			return '[ConditionBuilder]';
 		}
 	}
 
-	function getIndex(name, table) {
-		return table.indicies.find(i => i.name === name) || null;
-	}
-
-	return ScanBuilder;
+	return ConditionBuilder;
 })();

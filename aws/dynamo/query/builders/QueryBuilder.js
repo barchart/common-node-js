@@ -114,7 +114,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Creates a new {@link TableBuilder}.
+		 * Creates a new {@link QueryBuilder}.
 		 *
 		 * @public
 		 * @param {Table} table

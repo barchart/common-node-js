@@ -4,6 +4,7 @@ const aws = require('aws-sdk'),
 const assert = require('common/lang/assert'),
 	Disposable = require('common/lang/Disposable'),
 	is = require('common/lang/is'),
+	memoize = require('common/lang/memoize'),
 	object = require('common/lang/object'),
 	promise = require('common/lang/promise'),
 	WorkQueue = require('common/timing/Serializer'),
@@ -249,9 +250,10 @@ module.exports = (() => {
 		 * @public
 		 * @param {Object} item - The item to write.
 		 * @param {Table} table - Describes the schema of the table to write to.
+		 * @param {Table} preventOverwrite - If true, the resulting promise will reject if another item shares the same key.
 		 * @returns {Promise}
 		 */
-		saveItem(item, table) {
+		saveItem(item, table, preventOverwrite) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(table, 'table', Table, 'Table');
@@ -261,6 +263,10 @@ module.exports = (() => {
 
 					const qualifiedTableName = table.name;
 					const payload = { TableName: table.name, Item: Serializer.serialize(item, table) };
+
+					if (is.boolean(preventOverwrite) && preventOverwrite) {
+
+					}
 
 					const putItem = () => {
 						return promise.build((resolveCallback, rejectCallback) => {
