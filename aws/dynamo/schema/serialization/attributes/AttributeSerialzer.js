@@ -4,7 +4,7 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * Converts a value into (and back from) the representation used
+	 * Converts a simple value into (and back from) the representation used
 	 * on a DynamoDB record.
 	 *
 	 * @interface
@@ -15,11 +15,22 @@ module.exports = (() => {
 		}
 
 		/**
+		 * The {@link DataType} the serializer is related to.
+		 *
+		 * @public
+		 * @abstract
+		 * @returns {DataType}
+		 */
+		get dataType() {
+			return null;
+		}
+
+		/**
 		 * Wraps up a value as the DynamoDB representation. For example,
 		 * an implementation for numbers should serialize 19 as the
 		 * following object: { "N": "19" }.
 		 *
-		 * @protected
+		 * @abstract
 		 * @param {*} value - The value to serialize.
 		 * @returns {Object}
 		 */
@@ -33,7 +44,7 @@ module.exports = (() => {
 		 * { "N": "19" } to the number 19. This operation is the inverse of
 		 * {@link AttributeSerializer#serialize}.
 		 *
-		 * @protected
+		 * @abstract
 		 * @param {Object} wrapper - The DynamoDB wrapper to extract a value from.
 		 * @returns {Object}
 		 */
@@ -45,6 +56,7 @@ module.exports = (() => {
 		 * Returns true if the value can be coerced without an error
 		 * occurring.
 		 *
+		 * @abstract
 		 * @param {*} value - The value to check.
 		 * @returns {Boolean}
 		 */
@@ -68,7 +80,7 @@ module.exports = (() => {
 		 * {@link AttributeSerializer#deserialize} function. This function may
 		 * throw an error.
 		 *
-		 * @protected
+		 * @abstract
 		 * @param {Object} value - The value to coerce.
 		 * @returns {Object} - The coerced value.
 		 */

@@ -16,8 +16,6 @@ module.exports = (() => {
 		}
 
 		serialize(value) {
-			assert.argumentIsRequired(value, 'value', Number);
-
 			const wrapper = { };
 
 			wrapper[DataType.NUMBER.code] = this.coerce(value).toString();

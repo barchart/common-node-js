@@ -15,6 +15,10 @@ module.exports = (() => {
 			super();
 		}
 
+		get dataType() {
+			return DataType.STRING;
+		}
+
 		serialize(value) {
 			assert.argumentIsRequired(value, 'value', String);
 
@@ -26,7 +30,7 @@ module.exports = (() => {
 		}
 
 		deserialize(wrapper) {
-			return this.coerce(wrapper[DataType.STRING.code]);
+			return wrapper[DataType.STRING.code];
 		}
 
 		coerce(value) {

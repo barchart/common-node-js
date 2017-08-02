@@ -1,12 +1,15 @@
 const assert = require('common/lang/assert'),
 	is = require('common/lang/is');
 
-const DataType = require('./../../schema/definitions/DataType'),
+const ComponentType = require('./../../schema/definitions/ComponentType'),
+	DataType = require('./../../schema/definitions/DataType'),
 	Table = require('./../../schema/definitions/Table');
 
 const JsonSerializer = require('./attributes/JsonSerializer'),
 	NumberSerializer = require('./attributes/NumberSerializer'),
 	StringSerializer = require('./attributes/StringSerializer');
+
+const MoneySerializer = require('./components/MoneySerializer');
 
 module.exports = (() => {
 	'use strict';
@@ -121,6 +124,10 @@ module.exports = (() => {
 	serializers.set(DataType.NUMBER, new NumberSerializer());
 	serializers.set(DataType.STRING, new StringSerializer());
 	serializers.set(DataType.JSON, new JsonSerializer());
+
+	const components = new Map();
+
+	components.add(ComponentType.MONEY, new MoneySerializer());
 
 	return Serializer;
 })();

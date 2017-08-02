@@ -14,12 +14,23 @@ module.exports = (() => {
 	 * @param {String} - The suffix to use when generating a field name.
 	 */
 	class ComponentTypeDefinition {
-		constructor(dataType, suffix, alias) {
+		constructor(description, dataType, suffix) {
+			assert.argumentIsRequired(description, 'description', String);
 			assert.argumentIsRequired(dataType, 'dataType', DataType, 'DataType');
 			assert.argumentIsRequired(suffix, 'suffix', String);
 
+			this._description = description;
 			this._dataType = dataType;
 			this._suffix = suffix;
+		}
+
+		/**
+		 * The field's description.
+		 *
+		 * @returns {String}
+		 */
+		get description() {
+			return this._description;
 		}
 
 		/**
