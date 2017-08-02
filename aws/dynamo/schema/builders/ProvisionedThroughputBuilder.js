@@ -11,6 +11,8 @@ module.exports = (() => {
 	 * Fluent interface for building a {@link ProvisionedThroughput} instance.
 	 *
 	 * @public
+	 * @param {Number=} read
+	 * @param {Number=} write
 	 */
 	class ProvisionedThroughputBuilder {
 		constructor(read, write) {

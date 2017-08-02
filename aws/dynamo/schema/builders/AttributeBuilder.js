@@ -10,11 +10,9 @@ module.exports = (() => {
 	 * Fluent interface for building an {@link Attribute}.
 	 *
 	 * @public
+	 * @param {String} name
 	 */
 	class AttributeBuilder {
-		/**
-		 * @param {string} name
-		 */
 		constructor(name) {
 			assert.argumentIsRequired(name, 'name', String);
 

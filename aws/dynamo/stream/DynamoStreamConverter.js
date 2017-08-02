@@ -20,14 +20,11 @@ module.exports = (() => {
 	 * coerced values.
 	 *
 	 * @public
+	 * @param {Table} table - The desired schema.
+	 * @param {Object} map - A map of property names to {@link Attribute} names (attributes not included in the map will be ignored).
+	 * @param {Boolean=} silent - If true, errors will be suppressed, instead warnings will be written to the logs.
 	 */
 	class DynamoStreamConverter extends Stream.Transform {
-		/**
-		 * @public
-		 * @param {Table} table - The desired schema.
-		 * @param {Object} map - A map of property names to {@link Attribute} names (attributes not included in the map will be ignored).
-		 * @param {Boolean=} silent - If true, errors will be suppressed, instead warnings will be written to the logs.
-		 */
 		constructor(table, map, silent) {
 			super({ objectMode: true });
 

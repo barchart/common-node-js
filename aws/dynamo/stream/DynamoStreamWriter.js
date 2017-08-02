@@ -18,13 +18,10 @@ module.exports = (() => {
 	 * {@link DynamoProvider#saveItem} (or {@link DynamoProvider#createItems}).
 	 *
 	 * @public
+	 * @param {Table} table - The table schema which the items conform to.
+	 * @param {DynamoProvider} provider - The provider used to write records.
 	 */
 	class DynamoStreamWriter extends Stream.Writable {
-		/**
-		 * @public
-		 * @param {Table} table - The table schema which the items conform to.
-		 * @param {DynamoProvider} provider - The provider used to write records.
-		 */
 		constructor(table, provider) {
 			super({ objectMode: true });
 

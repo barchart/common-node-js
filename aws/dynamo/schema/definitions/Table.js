@@ -18,12 +18,13 @@ module.exports = (() => {
 	 * @public
 	 */
 	class Table {
-		constructor(name, keys, indicies, attributes, provisionedThroughput, streamViewType) {
+		constructor(name, keys, indicies, attributes, components, provisionedThroughput, streamViewType) {
 			this._name = name;
 
 			this._keys = keys || [ ];
 			this._indices = indicies || [ ];
 			this._attributes = attributes || [ ];
+			this._components = components || [ ];
 
 			this._provisionedThroughput = provisionedThroughput;
 
@@ -68,6 +69,16 @@ module.exports = (() => {
 		 */
 		get attributes() {
 			return [...this._attributes];
+		}
+
+		/**
+		 * The components of the table.
+		 *
+		 * @public
+		 * @returns {Array<Component>}
+		 */
+		get components() {
+			return [...this._components];
 		}
 
 		/**
@@ -138,6 +149,7 @@ module.exports = (() => {
 
 			this._keys.forEach(k => k.validate());
 			this._indices.forEach(i => i.validate());
+			this._components.forEach(c => c.validate());
 
 			this._provisionedThroughput.validate();
 		}

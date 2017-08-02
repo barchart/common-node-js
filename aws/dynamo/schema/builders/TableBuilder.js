@@ -2,6 +2,7 @@ const assert = require('common/lang/assert'),
 	is = require('common/lang/is');
 
 const DataType = require('./../definitions/DataType'),
+	ComponentType = require('./../definitions/ComponentType'),
 	IndexType = require('./../definitions/IndexType'),
 	KeyType = require('./../definitions/KeyType'),
 	ProjectionType = require('./../definitions/ProjectionType'),
@@ -10,6 +11,7 @@ const DataType = require('./../definitions/DataType'),
 	Table = require('./../definitions/Table');
 
 const AttributeBuilder = require('./AttributeBuilder'),
+	ComponentBuilder = require('./ComponentBuilder'),
 	IndexBuilder = require('./IndexBuilder'),
 	KeyBuilder = require('./KeyBuilder'),
 	ProjectionBuilder = require('./ProjectionBuilder'),
@@ -22,15 +24,13 @@ module.exports = (() => {
 	 * Fluent interface for building a {@link Table}.
 	 *
 	 * @public
+	 * @param {String} name - Name of the table.
 	 */
 	class TableBuilder {
-		/**
-		 * @param {String} name - Name of the table.
-		 */
 		constructor(name) {
 			assert.argumentIsRequired(name, 'name', String);
 
-			this._table = new Table(name, [ ], [ ], [ ], null, null);
+			this._table = new Table(name, [ ], [ ], [ ], [ ], null, null);
 		}
 
 		/**
@@ -55,12 +55,12 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Adds an {@link Attribute} to the filter, using a callback that
+		 * Adds an {@link Attribute} to the table, using a callback that
 		 * provides the consumer with an {@AttributeBuilder}, then returns
 		 * the current instance.
 		 *
 		 * @public
-		 * @param {Attribute} attributeName
+		 * @param {String} attributeName
 		 * @param {Function} callback - Synchronously called, providing a {@link AttributeBuilder} tied to the current instance.
 		 * @returns {TableBuilder}
 		 */
@@ -72,6 +72,38 @@ module.exports = (() => {
 			callback(attributeBuilder);
 
 			return addAttributeBuilder.call(this, attributeBuilder);
+		}
+
+		/**
+		 * Adds a {@link Component} and returns the current instance.
+		 *
+		 * @public
+		 * @param {String} componentName
+		 * @param {ComponentType} componentType
+		 * @returns {TableBuilder}
+		 */
+		withComponent(componentName, componentType) {
+			return this.withComponentBuilder(componentName, cb => cb.withComponentType(componentType));
+		}
+
+		/**
+		 * Adds a {@link Component} to the table, using a callback that
+		 * provides the consumer with an {@ComponentBuilder}, then returns
+		 * the current instance.
+		 *
+		 * @public
+		 * @param {String} componentName
+		 * @param {Function} callback - Synchronously called, providing a {@link ComponentBuilder} tied to the current instance.
+		 * @returns {TableBuilder}
+		 */
+		withComponentBuilder(componentName, callback) {
+			assert.argumentIsRequired(callback, 'callback', Function);
+
+			const componentBuilder = new ComponentBuilder(componentName, this);
+
+			callback(componentBuilder);
+
+			return addComponentBuilder.call(this, componentBuilder);
 		}
 
 		/**
@@ -87,7 +119,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Adds an {@link Key} to the filter, using a callback that
+		 * Adds a {@link Key} to the table, using a callback that
 		 * provides the consumer with an {@KeyBuilder}, then returns
 		 * the current instance.
 		 *
@@ -107,7 +139,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Adds an {@link Index} to the filter, using a callback that
+		 * Adds an {@link Index} to the table, using a callback that
 		 * provides the consumer with an {@IndexBuilder}, then returns
 		 * the current instance.
 		 *
@@ -141,7 +173,7 @@ module.exports = (() => {
 
 		/**
 		 * Adds an {@link ProvisionedThroughpu} specification to the
-		 * filter, using a callback that provides the consumer with a
+		 * table, using a callback that provides the consumer with a
 		 * {@ProvisionedThroughputBuilder}, then returns the current instance.
 		 *
 		 * @public
@@ -164,6 +196,8 @@ module.exports = (() => {
 		 * @param {StreamViewType} streamViewType
 		 */
 		withStreamViewType(streamViewType) {
+			assert.argumentIsRequired(streamViewType, 'streamViewType', StreamViewType, 'StreamViewType');
+
 			addStreamViewType.call(this, streamViewType);
 		}
 
@@ -221,7 +255,16 @@ module.exports = (() => {
 		const attribute = attributeBuilder.attribute;
 		const attributes = this._table.attributes.filter(a => a.name !== attribute.name).concat(attribute);
 
-		this._table = new Table(this._table.name, this._table.keys, this._table.indicies, attributes, this._table.provisionedThroughput, this._table.streamViewType);
+		this._table = new Table(this._table.name, this._table.keys, this._table.indicies, attributes, this._table.components, this._table.provisionedThroughput, this._table.streamViewType);
+
+		return this;
+	}
+
+	function addComponentBuilder(componentBuilder) {
+		const component = componentBuilder.component;
+		const components = this._table.components.filter(c => c.name !== component.name).concat(component);
+
+		this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, components, this._table.provisionedThroughput, this._table.streamViewType);
 
 		return this;
 	}
@@ -230,7 +273,7 @@ module.exports = (() => {
 		const key = keyBuilder.key;
 		const keys = this._table.keys.filter(k => k.attribute.name !== key.attribute.name).concat(key);
 
-		this._table = new Table(this._table.name, keys, this._table.indicies, this._table.attributes, this._table.provisionedThroughput, this._table.streamViewType);
+		this._table = new Table(this._table.name, keys, this._table.indicies, this._table.attributes, this._table.components, this._table.provisionedThroughput, this._table.streamViewType);
 
 		return this;
 	}
@@ -239,19 +282,19 @@ module.exports = (() => {
 		const index = indexBuilder.index;
 		const indicies = this._table._indices.filter(i => i.name !== index.name).concat(index);
 
-		this._table = new Table(this._table.name, this._table.keys, indicies, this._table.attributes, this._table.provisionedThroughput, this._table.streamViewType);
+		this._table = new Table(this._table.name, this._table.keys, indicies, this._table.attributes, this._table.components, this._table.provisionedThroughput, this._table.streamViewType);
 
 		return this;
 	}
 
 	function addProvisionedThroughputBuilder(provisionedThroughputBuilder) {
-		this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, provisionedThroughputBuilder.provisionedThroughput, this._table.streamViewType);
+		this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, this._table.components, provisionedThroughputBuilder.provisionedThroughput, this._table.streamViewType);
 
 		return this;
 	}
 
 	function addStreamViewType(streamViewType) {
-		this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, this._table.provisionedThroughput, streamViewType);
+		this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, this._table.components, this._table.provisionedThroughput, streamViewType);
 
 		return this;
 	}

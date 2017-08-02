@@ -16,12 +16,10 @@ module.exports = (() => {
 	 * Fluent interface for building an {@link Index}.
 	 *
 	 * @public
+	 * @param {string} name
+	 * @param {TableBuilder} parent
 	 */
 	class IndexBuilder {
-		/**
-		 * @param {string} name
-		 * @param {TableBuilder} parent
-		 */
 		constructor(name, parent) {
 			assert.argumentIsRequired(name, 'name', String);
 

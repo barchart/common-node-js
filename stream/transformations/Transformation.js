@@ -8,7 +8,7 @@ module.exports = (() => {
 	 * The base class for a logic package used by {@link ObjectTransformer}.
 	 *
 	 * @public
-	 * @abstract
+	 * @interface
 	 */
 	class Transformation extends Disposable {
 		/**

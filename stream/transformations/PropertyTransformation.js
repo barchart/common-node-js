@@ -12,7 +12,7 @@ module.exports = (() => {
 	 * to the same (or another) property.
 	 *
 	 * @public
-	 * @abstract
+	 * @interface
 	 */
 	class PropertyTransformation extends Transformation {
 		/**

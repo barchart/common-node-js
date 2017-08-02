@@ -9,8 +9,6 @@ module.exports = (() => {
 	/**
 	 * Converts an object into (and back from) the representation used
 	 * on a DynamoDB record.
-	 *
-	 * @interface
 	 */
 	class JsonSerializer extends StringSerializer {
 		constructor() {

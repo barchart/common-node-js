@@ -19,7 +19,7 @@ module.exports = (() => {
 	 * single DynamoDB table. In other words, this is the base
 	 * class for a DynamoDB based repository pattern.
 	 *
-	 * @abstract
+	 * @interface
 	 */
 	class TableContainer extends Disposable {
 		/**

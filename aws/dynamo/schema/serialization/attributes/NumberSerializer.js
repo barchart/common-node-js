@@ -9,8 +9,6 @@ module.exports = (() => {
 	/**
 	 * Converts a number into (and back from) the representation used
 	 * on a DynamoDB record.
-	 *
-	 * @interface
 	 */
 	class NumberSerializer extends AttributeSerializer {
 		constructor() {

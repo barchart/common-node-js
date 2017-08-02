@@ -79,7 +79,6 @@ module.exports = (() => {
 		 *
 		 * @param {string} applicationPath - The root application directory, which must contain a "config" folder with a "config.yml" file.
 		 * @param {string} version - The version of the application.
-		 *
 		 * @returns {Environment}
 		 */
 		static initialize(applicationPath, version) {
@@ -126,7 +125,7 @@ module.exports = (() => {
 		 * a map with keys, "a" and "b" would be returned having values 1 and 2,
 		 * respectively.
 		 *
-		 * returns {object}
+		 * @returns {object}
 		 */
 		static parseProcessArguments() {
 			const a = process.argv;

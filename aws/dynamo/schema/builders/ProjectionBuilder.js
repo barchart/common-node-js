@@ -11,12 +11,10 @@ module.exports = (() => {
 	 * Fluent interface for building a {@link Projection}.
 	 *
 	 * @public
+	 * @param {ProjectionType} projectionType
+	 * @param {TableBuilder} parent
 	 */
 	class ProjectionBuilder {
-		/**
-		 * @param {ProjectionType} projectionType
-		 * @param {TableBuilder} parent
-		 */
 		constructor(projectionType, parent) {
 			assert.argumentIsRequired(projectionType, 'projectionType', ProjectionType, 'ProjectionType');
 

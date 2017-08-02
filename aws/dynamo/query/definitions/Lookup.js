@@ -11,7 +11,7 @@ module.exports = (() => {
 	 * operation that targets a {@link Table}.
 	 *
 	 * @public
-	 * @abstract
+	 * @interface
 	 */
 	class Lookup {
 		/**

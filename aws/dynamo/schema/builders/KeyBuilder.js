@@ -11,12 +11,10 @@ module.exports = (() => {
 	 * Fluent interface for building a {@link Key}.
 	 *
 	 * @public
+	 * @param {string} name
+	 * @param {TableBuilder} parent
 	 */
 	class KeyBuilder {
-		/**
-		 * @param {string} name
-		 * @param {TableBuilder} parent
-		 */
 		constructor(name, parent) {
 			assert.argumentIsRequired(name, 'name', String);
 
