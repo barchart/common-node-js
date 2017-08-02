@@ -73,13 +73,13 @@ module.exports = (() => {
 	}
 
 	const componentTypeAmount = new ComponentType('Money', [
-		new ComponentTypeDefinition(DataType.STRING, 'amount', 'a'),
-		new ComponentTypeDefinition(DataType.STRING, 'currency', 'c')
+		new ComponentTypeDefinition(DataType.STRING, 'amount'),
+		new ComponentTypeDefinition(DataType.STRING, 'currency')
 	]);
 
 	const componentTypePrice = new ComponentType('Price', [
-		new ComponentTypeDefinition(DataType.STRING, 'amount', 'p'),
-		new ComponentTypeDefinition(DataType.STRING, 'currency', 'c')
+		new ComponentTypeDefinition(DataType.STRING, 'amount'),
+		new ComponentTypeDefinition(DataType.STRING, 'currency')
 	]);
 
 	return ComponentType;

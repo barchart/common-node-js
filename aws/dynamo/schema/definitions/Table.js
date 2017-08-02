@@ -3,6 +3,7 @@ const array = require('common/lang/array'),
 	is = require('common/lang/is');
 
 const Attribute = require('./Attribute'),
+	Component = require('./Component'),
 	Key = require('./Key'),
 	KeyType = require('./KeyType'),
 	Index = require('./Index'),
@@ -111,6 +112,18 @@ module.exports = (() => {
 				throw new Error('Table name is invalid.');
 			}
 
+			if (!is.array(this._attributes)) {
+				throw new Error('Table must have an array of attributes.');
+			}
+
+			if (!this._attributes.every(a => a instanceof Attribute)) {
+				throw new Error('Table attribute array can only contain Attribute instances.');
+			}
+
+			if (array.unique(this._attributes.map(a => a.name)).length !== this._attributes.length) {
+				throw new Error('Table attribute names must be unique (only one attribute with a given name).');
+			}
+
 			if (!is.array(this._keys)) {
 				throw new Error('Table must have an array of keys.');
 			}
@@ -127,7 +140,7 @@ module.exports = (() => {
 				throw new Error('Table must not have more than one range key.');
 			}
 
-			if (!array.unique(this._keys.map(k => k.attribute.name))) {
+			if (array.unique(this._keys.map(k => k.attribute.name)).length !== this._keys.length) {
 				throw new Error('Table key names must be unique (only one key with a given name).');
 			}
 
@@ -139,8 +152,24 @@ module.exports = (() => {
 				throw new Error('Table indicies array can only contain Index instances.');
 			}
 
-			if (!array.unique(this._indices.map(i => i.name))) {
+			if (array.unique(this._indices.map(i => i.name)).length !== this._indices.length) {
 				throw new Error('Table index names must be unique (only one index with a given name).');
+			}
+
+			if (!is.array(this._components)) {
+				throw new Error('Table must have an array of components.');
+			}
+
+			if (!this._components.every(c => c instanceof Component)) {
+				throw new Error('Table component array can only contain Component instances.');
+			}
+
+			const componentNames = this._components.reduce((names, component) => {
+				return names.concat(component.componentType.definitions.map(ctd => ctd.getFieldName(component.name)));
+			}, [ ]);
+
+			if (array.intersection(this._attributes.map(a => a.name), componentNames).length !== 0) {
+				throw new Error('Component names must not conflict with attribute names.');
 			}
 
 			if (this._streamViewType !== null && !(this._streamViewType instanceof StreamViewType)) {

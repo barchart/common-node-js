@@ -1,8 +1,7 @@
 const assert = require('common/lang/assert'),
 	is = require('common/lang/is');
 
-const ComponentType = require('./ComponentType'),
-	ComponentItem = require('./ComponentItem');
+const ComponentType = require('./ComponentType');
 
 module.exports = (() => {
 	'use strict';
@@ -13,11 +12,9 @@ module.exports = (() => {
 	 * @public
 	 */
 	class Component {
-		constructor(name, alias, componentType, componentItems) {
+		constructor(name, componentType) {
 			this._name = name;
-			this._alias = alias || name;
 			this._componentType = componentType;
-			this._componentItems = componentItems || [ ];
 		}
 
 		/**
@@ -31,16 +28,6 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Alias of the component.
-		 *
-		 * @public
-		 * @returns {String}
-		 */
-		get alias() {
-			return this._alias;
-		}
-
-		/**
 		 * Type of the component.
 		 *
 		 * @public
@@ -51,22 +38,18 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Returns the component's items.
-		 *
-		 * @public
-		 * @returns {Array<ComponentItem>}
-		 */
-		get componentItems() {
-			return [...this._componentItems];
-		}
-
-		/**
 		 * Throws an {@link Error} if the instance is invalid.
 		 *
 		 * @public
 		 */
 		validate() {
-			return true;
+			if (!is.string(this._name) || this._name.length < 1) {
+				throw new Error('Component name is invalid.');
+			}
+
+			if (!(this._componentType instanceof ComponentType)) {
+				throw new Error('Component type is invalid.');
+			}
 		}
 
 		toString() {

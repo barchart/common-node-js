@@ -12,17 +12,14 @@ module.exports = (() => {
 	 * @public
 	 * @param {DataType} - The field's {@link DataType}.
 	 * @param {String} - The suffix to use when generating a field name.
-	 * @param {String=} - The suffix to use when geneating a field alias.
 	 */
 	class ComponentTypeDefinition {
 		constructor(dataType, suffix, alias) {
 			assert.argumentIsRequired(dataType, 'dataType', DataType, 'DataType');
 			assert.argumentIsRequired(suffix, 'suffix', String);
-			assert.argumentIsRequired(alias, 'alias', String);
 
 			this._dataType = dataType;
 			this._suffix = suffix;
-			this._alias = alias || suffix;
 		}
 
 		/**
@@ -44,15 +41,6 @@ module.exports = (() => {
 		}
 
 		/**
-		 * The field's suffix (for a field alias).
-		 *
-		 * @returns {String}
-		 */
-		get alias() {
-			return this._alias;
-		}
-
-		/**
 		 * Generates a field name.
 		 *
 		 * @public
@@ -61,17 +49,6 @@ module.exports = (() => {
 		 */
 		getFieldName(componentName) {
 			return `${componentName}-${this._suffix}`;
-		}
-
-		/**
-		 * Generates a field alias.
-		 *
-		 * @public
-		 * @param {String} componentName - The name of the {@link Component}. See {@link Component#alias}.
-		 * @returns {String}
-		 */
-		getFieldAlias(componentAlias) {
-			return `${componentAlias}-${this._alias}`;
 		}
 
 		toString() {

@@ -186,7 +186,7 @@ module.exports = (() => {
 					assert.argumentIsRequired(definition, 'definition', Table, 'Table');
 
 					checkReady.call(this);
-
+					
 					const qualifiedTableName = definition.name;
 
 					const getTableForCreate = () => {
