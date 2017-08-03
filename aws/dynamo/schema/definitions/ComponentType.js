@@ -1,4 +1,5 @@
 const assert = require('common/lang/assert');
+	Money = require('common/lang/Money');
 
 const ComponentTypeDefinition = require('./ComponentTypeDefinition'),
 	DataType = require('./DataType');
@@ -14,9 +15,10 @@ module.exports = (() => {
 	 * @param {Array<ComponentTypeDefinition>} definitions
 	 */
 	class ComponentType {
-		constructor(description, definitions) {
+		constructor(description, definitions, type) {
 			assert.argumentIsRequired(description, 'description', String);
 			assert.argumentIsArray(definitions, 'definitions', ComponentTypeDefinition, 'ComponentTypeDefinition');
+			assert.argumentIsOptional(type, type, Function);
 
 			if (definitions.length < 1) {
 				throw new Error('The "definitions" array cannot be empty.');
@@ -24,6 +26,8 @@ module.exports = (() => {
 
 			this._description = description;
 			this._definitions = definitions;
+
+			this._type = type || null;
 		}
 
 		/**
@@ -44,6 +48,16 @@ module.exports = (() => {
 		 */
 		get definitions() {
 			return this._definitions;
+		}
+
+		/**
+		 * The type, which a component must be an instance of.
+		 *
+		 * @public
+		 * @returns {Function|null}
+		 */
+		get type() {
+			return this._type;
 		}
 
 		/**
@@ -86,12 +100,12 @@ module.exports = (() => {
 	const componentTypeAmount = new ComponentType('Money', [
 		new ComponentTypeDefinition('amount', DataType.STRING, 'amount'),
 		new ComponentTypeDefinition('currency', DataType.STRING, 'currency')
-	]);
+	], Money);
 
 	const componentTypePrice = new ComponentType('Price', [
 		new ComponentTypeDefinition('amount', DataType.STRING, 'amount'),
 		new ComponentTypeDefinition('currency', DataType.STRING, 'currency')
-	]);
+	], Money);
 
 	return ComponentType;
 })();

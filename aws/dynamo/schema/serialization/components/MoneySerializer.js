@@ -1,31 +1,32 @@
-const assert = require('common/lang/assert');
+const assert = require('common/lang/assert'),
+	Money = require('common/lang/Money');
 
-const ComponentType = require('./../../definitions/ComponentType');
+const ComponentSerializer = require('./ComponentSerializer'),
+	ComponentType = require('./../../definitions/ComponentType');
 
 module.exports = (() => {
 	'use strict';
-	
-	class MoneySerializer {
-		constructor() {
 
+	class MoneySerializer extends ComponentSerializer {
+		constructor() {
+			super();
 		}
 
 		get componentType() {
 			return ComponentType.MONEY;
 		}
 
-		serialize(component, source, target) {
-			const amountField = component.componentType.getDefinition('amount').getFieldName(component.name);
-			const currencyField = component.componentType.getDefinition('currency').getFieldName(component.name);
+		_readComponent(object) {
+			assert.argumentIsRequired(object, 'object', Money, 'Money');
 
-
+			return [
+				object.decimal.toFixed(),
+				object.currency
+			];
 		}
 
-		deserialize(component, source, target) {
-			const amountField = component.componentType.getDefinition('amount').getFieldName(component.name);
-			const currencyField = component.componentType.getDefinition('currency').getFieldName(component.name);
-
-
+		_createComponent(data) {
+			return new Money(data[0], data[1]);
 		}
 
 		toString() {
