@@ -16,7 +16,7 @@ module.exports = (() => {
 	 */
 	class ComponentSerializer {
 		constructor(componentType) {
-			assert.argumentIsRequired(componentType, 'componentType', ComponentType, 'ComponentType')
+			assert.argumentIsRequired(componentType, 'componentType', ComponentType, 'ComponentType');
 
 			this._componentType = componentType;
 		}

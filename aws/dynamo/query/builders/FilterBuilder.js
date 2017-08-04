@@ -62,18 +62,14 @@ module.exports = (() => {
 
 			callback(expressionBuilder);
 
-			return addExpressionBuilder.call(this, expressionBuilder);
+			this._filter = new Filter(this._filter.expressions.concat([ expressionBuilder.expression ]));
+
+			return this;
 		}
 
 		toString() {
 			return '[FilterBuilder]';
 		}
-	}
-
-	function addExpressionBuilder(expressionBuilder) {
-		this._filter = new Filter(this._filter.expressions.concat([ expressionBuilder.expression ]));
-
-		return this;
 	}
 
 	return FilterBuilder;

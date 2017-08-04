@@ -71,7 +71,12 @@ module.exports = (() => {
 
 			callback(attributeBuilder);
 
-			return addAttributeBuilder.call(this, attributeBuilder);
+			const attribute = attributeBuilder.attribute;
+			const attributes = this._table.attributes.filter(a => a.name !== attribute.name).concat(attribute);
+
+			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, attributes, this._table.components, this._table.provisionedThroughput, this._table.streamViewType);
+
+			return this;
 		}
 
 		/**
@@ -103,7 +108,12 @@ module.exports = (() => {
 
 			callback(componentBuilder);
 
-			return addComponentBuilder.call(this, componentBuilder);
+			const component = componentBuilder.component;
+			const components = this._table.components.filter(c => c.name !== component.name).concat(component);
+
+			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, components, this._table.provisionedThroughput, this._table.streamViewType);
+
+			return this;
 		}
 
 		/**
@@ -135,7 +145,12 @@ module.exports = (() => {
 
 			callback(keyBuilder);
 
-			return addKeyBuilder.call(this, keyBuilder);
+			const key = keyBuilder.key;
+			const keys = this._table.keys.filter(k => k.attribute.name !== key.attribute.name).concat(key);
+
+			this._table = new Table(this._table.name, keys, this._table.indicies, this._table.attributes, this._table.components, this._table.provisionedThroughput, this._table.streamViewType);
+
+			return this;
 		}
 
 		/**
@@ -155,7 +170,12 @@ module.exports = (() => {
 
 			callback(indexBuilder);
 
-			return addIndexBuilder.call(this, indexBuilder);
+			const index = indexBuilder.index;
+			const indicies = this._table._indices.filter(i => i.name !== index.name).concat(index);
+
+			this._table = new Table(this._table.name, this._table.keys, indicies, this._table.attributes, this._table.components, this._table.provisionedThroughput, this._table.streamViewType);
+
+			return this;
 		}
 
 		/**
@@ -187,7 +207,9 @@ module.exports = (() => {
 
 			callback(provisionedThroughputBuilder);
 
-			return addProvisionedThroughputBuilder.call(this, provisionedThroughputBuilder);
+			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, this._table.components, provisionedThroughputBuilder.provisionedThroughput, this._table.streamViewType);
+
+			return this;
 		}
 
 		/**
@@ -198,7 +220,9 @@ module.exports = (() => {
 		withStreamViewType(streamViewType) {
 			assert.argumentIsRequired(streamViewType, 'streamViewType', StreamViewType, 'StreamViewType');
 
-			addStreamViewType.call(this, streamViewType);
+			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, this._table.components, this._table.provisionedThroughput, streamViewType);
+
+			return this;
 		}
 
 		/**
@@ -249,54 +273,6 @@ module.exports = (() => {
 		toString() {
 			return '[TableBuilder]';
 		}
-	}
-
-	function addAttributeBuilder(attributeBuilder) {
-		const attribute = attributeBuilder.attribute;
-		const attributes = this._table.attributes.filter(a => a.name !== attribute.name).concat(attribute);
-
-		this._table = new Table(this._table.name, this._table.keys, this._table.indicies, attributes, this._table.components, this._table.provisionedThroughput, this._table.streamViewType);
-
-		return this;
-	}
-
-	function addComponentBuilder(componentBuilder) {
-		const component = componentBuilder.component;
-		const components = this._table.components.filter(c => c.name !== component.name).concat(component);
-
-		this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, components, this._table.provisionedThroughput, this._table.streamViewType);
-
-		return this;
-	}
-
-	function addKeyBuilder(keyBuilder) {
-		const key = keyBuilder.key;
-		const keys = this._table.keys.filter(k => k.attribute.name !== key.attribute.name).concat(key);
-
-		this._table = new Table(this._table.name, keys, this._table.indicies, this._table.attributes, this._table.components, this._table.provisionedThroughput, this._table.streamViewType);
-
-		return this;
-	}
-
-	function addIndexBuilder(indexBuilder) {
-		const index = indexBuilder.index;
-		const indicies = this._table._indices.filter(i => i.name !== index.name).concat(index);
-
-		this._table = new Table(this._table.name, this._table.keys, indicies, this._table.attributes, this._table.components, this._table.provisionedThroughput, this._table.streamViewType);
-
-		return this;
-	}
-
-	function addProvisionedThroughputBuilder(provisionedThroughputBuilder) {
-		this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, this._table.components, provisionedThroughputBuilder.provisionedThroughput, this._table.streamViewType);
-
-		return this;
-	}
-
-	function addStreamViewType(streamViewType) {
-		this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, this._table.components, this._table.provisionedThroughput, streamViewType);
-
-		return this;
 	}
 
 	return TableBuilder;

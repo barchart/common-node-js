@@ -10,6 +10,8 @@ module.exports = (() => {
 			if (this.canWrite(source, target)) {
 				this._write(source, target);
 			}
+
+			return target;
 		}
 
 		/**

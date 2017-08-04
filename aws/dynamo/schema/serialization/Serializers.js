@@ -1,5 +1,4 @@
-const assert = require('common/lang/assert'),
-	is = require('common/lang/is');
+const assert = require('common/lang/assert');
 
 const Attribute = require('./../../schema/definitions/Attribute'),
 	Component = require('./../../schema/definitions/Component'),
@@ -15,29 +14,59 @@ const MoneySerializer = require('./components/MoneySerializer');
 module.exports = (() => {
 	'use strict';
 
+	/**
+	 * Utility for looking up {@link AttributeSerializer} and {@link ComponentSerializer}
+	 * instances. (no instance-level functionality exists -- static functions only).
+	 *
+	 * @public
+	 */
 	class Serializers {
 		constructor() {
 
 		}
 
+		/**
+		 * Returns the appropriate {@link AttributeSerializer} given an {@link Attribute}.
+		 *
+		 * @param {Attribute} attribute
+		 * @returns {AtrributeSerializer|null}
+		 */
 		static forAttribute(attribute) {
 			assert.argumentIsRequired(attribute, 'attribute', Attribute, 'Attribute');
 
 			return Serializers.forDataType(attribute.dataType);
 		}
 
+		/**
+		 * Returns the appropriate {@link AttributeSerializer} given a {@link DataType}.
+		 *
+		 * @param {DataType} dataType
+		 * @returns {AtrributeSerializer|null}
+		 */
 		static forDataType(dataType) {
 			assert.argumentIsRequired(dataType, 'dataType', DataType, 'DataType');
 
 			return serializers.get(dataType) || null;
 		}
 
+		/**
+		 * Returns the appropriate {@link ComponentSerializer} given a {@link Component}.
+		 *
+		 * @param {Component} component
+		 * @returns {ComponentSerializer|null}
+		 */
 		static forComponent(component) {
 			assert.argumentIsRequired(component, 'component', Component, 'Component');
 
 			return Serializers.forComponentType(component.componentType);
 		}
 
+		/**
+		 * Returns the appropriate {@link ComponentSerializer} given a {@link ComponentType}.
+		 *
+		 * @param {ComponentType} componentType
+		 * @returns {ComponentSerializer|null}
+		 */
 		static forComponentType(componentType) {
 			assert.argumentIsRequired(componentType, 'componentType', Component, 'Component');
 

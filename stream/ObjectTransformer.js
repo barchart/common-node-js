@@ -35,7 +35,7 @@ module.exports = (() => {
 			if (transformations.every(t => t.synchronous)) {
 				delegate = processSynchronous.bind(this);
 			} else {
-				delegate = processSynchronous.bind(this);
+				delegate = processAsynchronous.bind(this);
 			}
 
 			this._delegate = delegate;
@@ -60,7 +60,7 @@ module.exports = (() => {
 
 			return new ObjectTransformer(this._tranformations.concat([ transformation ]), this._description, this._silent);
 		}
-		
+
 		static define(description, silent) {
 			return new ObjectTransformer([ ], description, silent);
 		}

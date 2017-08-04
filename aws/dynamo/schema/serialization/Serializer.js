@@ -5,17 +5,18 @@ const ComponentType = require('./../../schema/definitions/ComponentType'),
 	DataType = require('./../../schema/definitions/DataType'),
 	Table = require('./../../schema/definitions/Table');
 
-const JsonSerializer = require('./attributes/JsonSerializer'),
-	NumberSerializer = require('./attributes/NumberSerializer'),
-	StringSerializer = require('./attributes/StringSerializer');
-
-const MoneySerializer = require('./components/MoneySerializer');
+const AttributeDeserializationWriter = require('./writers/AttributeDeserializationWriter'),
+	AttributeSerializationWriter = require('./writers/AttributeSerializationWriter'),
+	ComponentDeserializationWriter = require('./writers/ComponentDeserializationWriter'),
+	ComponentSerializationWriter = require('./writers/ComponentSerializationWriter'),
+	CompositeWriter = require('./writers/CompositeWriter');
 
 module.exports = (() => {
 	'use strict';
 
 	/**
-	 * Utilities for converting objects to (and from) a DynamoDB representation.
+	 * Utilities for converting objects to (and from) a DynamoDB representation (no
+	 * instance-level functionality exists -- static functions only).
 	 *
 	 * @public
 	 */
@@ -38,15 +39,7 @@ module.exports = (() => {
 			assert.argumentIsRequired(item, 'item', Object);
 			assert.argumentIsRequired(table, 'table', Table, 'Table');
 
-			return table.attributes.reduce((serialized, attribute) => {
-				const name = attribute.name;
-
-				if (item.hasOwnProperty(name) && !is.undefined(item[name])) {
-					serialized[name] = Serializer.serializeValue(item[name], attribute.dataType);
-				}
-
-				return serialized;
-			}, { });
+			return getSerializationWriter(table).write(item, { });
 		}
 
 		/**
@@ -62,56 +55,7 @@ module.exports = (() => {
 			assert.argumentIsRequired(item, 'item', Object);
 			assert.argumentIsRequired(table, 'table', Table, 'Table');
 
-			return table.attributes.reduce((deserialized, attribute) => {
-				const name = attribute.name;
-
-				if (item.hasOwnProperty(name)) {
-					deserialized[name] = serializers.get(attribute.dataType).deserialize(item[name]);
-				}
-
-				return deserialized;
-			}, { });
-		}
-
-		/**
-		 * Converts a simple value into an object suitable for use with the
-		 * AWS SDK for DynamoDB.
-		 *
-		 * @public
-		 * @param {Object} item - The value to serialize (for DynamoDB).
-		 * @param {DataType} dataType - The value's data type.
-		 * @returns {Object} - The serialized object.
-		 */
-		static serializeValue(value, dataType) {
-			assert.argumentIsRequired(dataType, 'dataType', DataType, 'DataType');
-
-			return serializers.get(dataType).serialize(value);
-		}
-
-		/**
-		 * Returns true if the value can be coerced to the specified {@link DataType}
-		 * without an error occurring.
-		 *
-		 * @param {*} value - The value to check.
-		 * @returns {boolean}
-		 */
-		static canCoerce(value, dataType) {
-			return serializers.has(dataType) && serializers.get(dataType).canCoerce(value);
-		}
-
-		/**
-		 * Accepts a value (of any type) and attempts to coerce it to the
-		 * simple type used by the appropriate {@link DataType}.
-		 *
-		 * @public
-		 * @param {*|Object} value - The value to coerce.
-		 * @param {DataType} dataType - The {@link DataType} which describes the desired output type.
-		 * @returns {*|Object} - The coerced value.
-		 */
-		static coerce(value, dataType) {
-			assert.argumentIsRequired(dataType, 'dataType', DataType, 'DataType');
-
-			return serializers.get(dataType).coerce(value);
+			return getDeserializationWriter(table).write(item, { });
 		}
 
 		toString() {
@@ -120,14 +64,29 @@ module.exports = (() => {
 	}
 
 	const serializers = new Map();
+	const deserializers = new Map();
 
-	serializers.set(DataType.NUMBER, new NumberSerializer());
-	serializers.set(DataType.STRING, new StringSerializer());
-	serializers.set(DataType.JSON, new JsonSerializer());
+	function getSerializationWriter(table) {
+		if (!serializers.has(table)) {
+			const attributeWriters = table.attributes.map(a => new AttributeSerializationWriter(a));
+			const componentWriters = table.components.map(c => new ComponentSerializationWriter(c));
 
-	const components = new Map();
+			serializers.set(table, new CompositeWriter(attributeWriters.concat(componentWriters)));
+		}
 
-	components.add(ComponentType.MONEY, new MoneySerializer());
+		return serializers.get(table);
+	}
+
+	function getDeserializationWriter(table) {
+		if (!deserializers.has(table)) {
+			const attributeWriters = table.attributes.map(a => new AttributeDeserializationWriter(a));
+			const componentWriters = table.components.map(c => new ComponentDeserializationWriter(c));
+
+			deserializers.set(table, new CompositeWriter(attributeWriters.concat(componentWriters)));
+		}
+
+		return deserializers.get(table);
+	}
 
 	return Serializer;
 })();

@@ -81,7 +81,12 @@ module.exports = (() => {
 
 			callback(keyBuilder);
 
-			return addKeyBuilder.call(this, keyBuilder);
+			const key = keyBuilder.key;
+			const keys = this._index.keys.filter(k => k.attribute.name !== key.attribute.name).concat(key);
+
+			this._index = new Index(this._index.name, this._index.type, keys, this._index.projection, this._index.provisionedThroughput);
+
+			return this;
 		}
 
 		/**
@@ -116,7 +121,9 @@ module.exports = (() => {
 
 			callback(projectionBuilder);
 
-			return addProjectionBuilder.call(this, projectionBuilder);
+			this._index = new Index(this._index.name, this._index.type, this._index.keys, projectionBuilder.projection, this._index.provisionedThroughput);
+
+			return this;
 		}
 
 		/**
@@ -155,21 +162,6 @@ module.exports = (() => {
 		toString() {
 			return '[IndexBuilder]';
 		}
-	}
-
-	function addKeyBuilder(keyBuilder) {
-		const key = keyBuilder.key;
-		const keys = this._index.keys.filter(k => k.attribute.name !== key.attribute.name).concat(key);
-
-		this._index = new Index(this._index.name, this._index.type, keys, this._index.projection, this._index.provisionedThroughput);
-
-		return this;
-	}
-
-	function addProjectionBuilder(projectionBuilder) {
-		this._index = new Index(this._index.name, this._index.type, this._index.keys, projectionBuilder.projection, this._index.provisionedThroughput);
-
-		return this;
 	}
 
 	return IndexBuilder;

@@ -23,8 +23,6 @@ module.exports = (() => {
 			const name = this._attribute.name;
 			const definitions = this._component.componentType.definitions;
 
-			const name = this._attribute.name;
-
 			const values = definitions.map((definition) => {
 				const componentName = definition.getFieldName(name);
 

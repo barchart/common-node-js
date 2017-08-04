@@ -15,13 +15,13 @@ module.exports = (() => {
 
 	/**
 	 * Groups items into arrays, based on key (selected by delegate). Stream must be sorted.
+	 *
+	 * @public
+	 * @param {Function} keySelector
+	 * @param {String=} description
+	 * @param {Boolean=} silent
 	 */
 	class GroupTransformer extends Stream.Transform {
-		/***
-		 * @param {Function} keySelector
-		 * @param {String=} description
-		 * @param {Boolean=} silent
-		 */
 		constructor(keySelector, description, silent) {
 			super({ objectMode: true });
 
