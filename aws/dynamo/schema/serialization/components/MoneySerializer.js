@@ -7,13 +7,12 @@ const ComponentSerializer = require('./ComponentSerializer'),
 module.exports = (() => {
 	'use strict';
 
+	/**
+	 * A component serializer for {@link Money} instances.
+	 */
 	class MoneySerializer extends ComponentSerializer {
 		constructor() {
-			super();
-		}
-
-		get componentType() {
-			return ComponentType.MONEY;
+			super(ComponentType.MONEY);
 		}
 
 		_readComponent(object) {

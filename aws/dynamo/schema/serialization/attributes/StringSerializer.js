@@ -15,10 +15,6 @@ module.exports = (() => {
 			super();
 		}
 
-		get dataType() {
-			return DataType.STRING;
-		}
-
 		serialize(value) {
 			assert.argumentIsRequired(value, 'value', String);
 

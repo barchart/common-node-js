@@ -46,7 +46,7 @@ module.exports = (() => {
 
 		/**
 		 * @protected
-		 * @ignore
+		 * @abstract
 		 * @param {*} input
 		 * @returns {Boolean}
 		 */
@@ -70,7 +70,7 @@ module.exports = (() => {
 
 		/**
 		 * @protected
-		 * @ignore
+		 * @abstract
 		 * @param {*} input
 		 * @returns {Boolean}
 		 */

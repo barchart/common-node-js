@@ -1,102 +1,84 @@
 const assert = require('common/lang/assert');
 
-const AttributeSerializer = require('./../attributes/AttributeSerializer');
+const ComponentType = require('./../../definitions/ComponentType'),
+	Serializers = require('./../Serializers');
 
 module.exports = (() => {
 	'use strict';
 
 	/**
-	 * Converts a complex component into (and back from) the representation used
-	 * on a DynamoDB record.
+	 * Converts a complex object (i.e. a component) into an array
+	 * of objects which define DynamoDB values. Also performs the
+	 * inverse.
 	 *
+	 * @public
 	 * @interface
 	 */
 	class ComponentSerializer {
-		constructor(attributeSerializers) {
-			assert.argumentIsArray(attributeSerializers, 'attributeSerializers', AttributeSerializer, 'AttributeSerializer');
+		constructor(componentType) {
+			assert.argumentIsRequired(componentType, 'componentType', ComponentType, 'ComponentType')
 
-			this._attributeSerializers = attributeSerializers;
+			this._componentType = componentType;
 		}
 
 		/**
-		 * The {@link ComponentType} the serializer is related to.
+		 * Reads a complex component, and emits an array of DynamoDB values,
+		 * in the order defined by by {@link ComponentType#defintitions}.
 		 *
 		 * @public
-		 * @abstract
-		 * @returns {ComponentType}
+		 * @param {*} source - The component object.
+		 * @returns {Array} - An array of serialized component values.
 		 */
-		get componentType() {
-			return null;
-		}
+		serialize(source) {
+			let serialized = [ ];
 
-		/**
-		 * Accepts the component object (i.e. the source) and writes out
-		 * the components attributes (using DynamoDB syntax) to the target.
-		 *
-		 * @public
-		 * @param {Component} component
-		 * @param {Object} source
-		 * @param {Object} target
-		 */
-		serialize(component, source, target) {
-			const componentName = component.name;
+			const definitions = this._componentType.definitions;
+			const values = this._readComponent(source);
 
-			if (source.hasOwnProperty(componentName)) {
-				const items = this._readComponent(source[componentName]);
-				const definitions = this.componentType.definitions;
+			if (values !== null && values.length === definitions.length) {
+				serialized = definitions.map((ctd) => {
+					const serializer = Serializers.forDataType(ctd.dataType);
 
-				if (items !== null && items.length === definitions.length) {
-					definitions.forEach((ctd, i) => {
-						const name = ctd.getFieldName(component);
-						const serializer = this._attributeSerializers.get(ctd.dataType);
-
-						target[name] = serializer.serialize(items[i]);
-					});
-				}
+					return serializer.serialize(values[i]);
+				});
 			}
+
+			return serialized;
 		}
 
 		/**
-		 * Reads each property value from the component object and returns
-		 * an array of values in the same order as specified by the
-		 * {@link ComponentType#definitions} array.
+		 * Reads each property value from the source component and returns
+		 * an array of primitive values, in the order defined by by
+		 * {@link ComponentType#defintitions}.
 		 *
 		 * @protected
 		 * @abstract
-		 * @param {*} object
-		 * @returns {Array}
+		 * @param {*} source - The component object.
+		 * @returns {Array} - The primitive values that compose the component.
 		 */
-		_readComponent(object) {
+		_readComponent(source) {
 			return null;
 		}
 
 		/**
-		 * Reads a component from a DynamoDB data object (i.e. the source)
-		 * and assigns it to the target.
+		 * Generates a complex component, from an array of DynamoDB object, assuming
+		 * the array is ordered according to {@link ComponentType#defintitions}.
 		 *
-		 * @param {Component} component
-		 * @param {Object} source
-		 * @param {Object} target
+		 * @param {Array} values - An array of serialized component values.
+		 * @returns {*} - The component object.
 		 */
-		deserialize(component, source, target) {
-			const data = this.componentType.definitions.reduce((items, ctd) => {
-				if (items) {
-					const name = ctd.getFieldName(component);
-					const serializer = this._attributeSerializers.get(ctd.dataType);
+		deserialize(values) {
+			assert.argumentIsArray(values, 'values');
 
-					if (source.hasOwnProperty(name)) {
-						items.push(serializer.deserialize(source[name]));
-					} else {
-						items = null;
-					}
-				}
+			const definitions = this._componentType.definitions;
 
-				return items;
-			}, [ ]);
+			return this._createComponent(
+				definitions.map((ctd, i) => {
+					const serializer = Serializers.forDataType(ctd.dataType);
 
-			if (data !== null) {
-				target[component.name] = this._createComponent(data);
-			}
+					return serializer.deserialize(values[i]);
+				})
+			);
 		}
 
 		/**
@@ -106,10 +88,10 @@ module.exports = (() => {
 		 *
 		 * @protected
 		 * @abstract
-		 * @param {Array} data
+		 * @param {Array} values
 		 * @returns {*}
 		 */
-		_createComponent(data) {
+		_createComponent(values) {
 			return null;
 		}
 

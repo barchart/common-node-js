@@ -4,25 +4,14 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * Converts a simple value into (and back from) the representation used
-	 * on a DynamoDB record.
+	 * Converts a simple value (e.g. a number) into an object used to define
+	 * the value in DynamoDB notation. Also performs the inverse.
 	 *
 	 * @interface
 	 */
 	class AttributeSerializer {
 		constructor() {
 
-		}
-
-		/**
-		 * The {@link DataType} the serializer is related to.
-		 *
-		 * @public
-		 * @abstract
-		 * @returns {DataType}
-		 */
-		get dataType() {
-			return null;
 		}
 
 		/**

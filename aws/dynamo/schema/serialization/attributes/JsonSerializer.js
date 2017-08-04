@@ -15,10 +15,6 @@ module.exports = (() => {
 			super();
 		}
 
-		get dataType() {
-			return DataType.JSON;
-		}
-
 		serialize(value) {
 			return super.serialize(JSON.stringify(value));
 		}
