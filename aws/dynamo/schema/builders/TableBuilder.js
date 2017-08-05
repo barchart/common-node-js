@@ -48,10 +48,17 @@ module.exports = (() => {
 		 * @public
 		 * @param {String} attributeName
 		 * @param {DataType} dataType
+		 * @param {KeyType=} keyType
 		 * @returns {TableBuilder}
 		 */
-		withAttribute(attributeName, dataType) {
-			return this.withAttributeBuilder(attributeName, ab => ab.withDataType(dataType));
+		withAttribute(attributeName, dataType, keyType) {
+			this.withAttributeBuilder(attributeName, ab => ab.withDataType(dataType));
+
+			if (keyType) {
+				this.withKey(attributeName, keyType);
+			}
+
+			return this;
 		}
 
 		/**
