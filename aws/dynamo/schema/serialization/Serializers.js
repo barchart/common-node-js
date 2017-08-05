@@ -68,7 +68,7 @@ module.exports = (() => {
 		 * @returns {ComponentSerializer|null}
 		 */
 		static forComponentType(componentType) {
-			assert.argumentIsRequired(componentType, 'componentType', Component, 'Component');
+			assert.argumentIsRequired(componentType, 'componentType', ComponentType, 'ComponentType');
 
 			return components.get(componentType) || null;
 		}
@@ -86,7 +86,7 @@ module.exports = (() => {
 
 	const components = new Map();
 
-	components.add(ComponentType.MONEY, new MoneySerializer());
+	components.set(ComponentType.MONEY, new MoneySerializer());
 
 	return Serializers;
 })();

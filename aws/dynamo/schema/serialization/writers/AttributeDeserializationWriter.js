@@ -4,7 +4,7 @@ const assert = require('common/lang/assert'),
 const Attribute = require('./../../definitions/Attribute'),
 	Serializers = require('./../Serializers');
 
-const Writer = require('./Translation');
+const Writer = require('./Writer');
 
 module.exports = (() => {
 	'use strict';

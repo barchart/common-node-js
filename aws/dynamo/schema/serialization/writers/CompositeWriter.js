@@ -22,10 +22,10 @@ module.exports = (() => {
 		}
 
 		_write(source, target) {
-			return this._writers.reduce((targetToUse, writer) => writer._write(source, targetToUse), target);
+			return this._writers.reduce((targetToUse, writer) => writer.write(source, targetToUse), target);
 		}
 
-		_canTranslate(source, target) {
+		_canWrite(source, target) {
 			return true;
 		}
 

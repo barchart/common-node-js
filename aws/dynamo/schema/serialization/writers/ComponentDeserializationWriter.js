@@ -20,7 +20,7 @@ module.exports = (() => {
 		}
 
 		_write(source, target) {
-			const name = this._attribute.name;
+			const name = this._component.name;
 			const definitions = this._component.componentType.definitions;
 
 			const values = definitions.map((definition) => {
@@ -32,8 +32,8 @@ module.exports = (() => {
 			target[name] = this._serializer.deserialize(values);
 		}
 
-		_canTranslate(source, target) {
-			return this._serializer !== null && is.object(source);
+		_canWrite(source, target) {
+			return this._serializer !== null && is.object(source) && source.hasOwnProperty(this._component.name);
 		}
 
 		toString() {
