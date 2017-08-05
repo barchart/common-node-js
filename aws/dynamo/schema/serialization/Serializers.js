@@ -5,7 +5,8 @@ const Attribute = require('./../../schema/definitions/Attribute'),
 	ComponentType = require('./../../schema/definitions/ComponentType'),
 	DataType = require('./../../schema/definitions/DataType');
 
-const JsonSerializer = require('./attributes/JsonSerializer'),
+const DecimalSerializer = require('./attributes/DecimalSerializer'),
+	JsonSerializer = require('./attributes/JsonSerializer'),
 	NumberSerializer = require('./attributes/NumberSerializer'),
 	StringSerializer = require('./attributes/StringSerializer');
 
@@ -80,6 +81,7 @@ module.exports = (() => {
 
 	const serializers = new Map();
 
+	serializers.set(DataType.DECIMAL, new DecimalSerializer());
 	serializers.set(DataType.NUMBER, new NumberSerializer());
 	serializers.set(DataType.STRING, new StringSerializer());
 	serializers.set(DataType.JSON, new JsonSerializer());

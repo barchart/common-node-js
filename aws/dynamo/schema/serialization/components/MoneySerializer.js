@@ -19,7 +19,7 @@ module.exports = (() => {
 			assert.argumentIsRequired(object, 'object', Money, 'Money');
 
 			return [
-				object.decimal.toFixed(),
+				object.decimal,
 				object.currency
 			];
 		}

@@ -70,40 +70,13 @@ module.exports = (() => {
 			return componentTypeAmount;
 		}
 
-		/**
-		 * Returns the definition for a field with a given description.
-		 *
-		 * @public
-		 * @param {String} description
-		 * @returns {ComponentTypeDefinition|null}
-		 */
-		getDefinition(description) {
-			return this._definitions.find(ctd => ctd.description === description) || null;
-		}
-
-		/**
-		 * The component type for a price, combining fields for
-		 * the price's value and the currency.
-		 *
-		 * @public
-		 * @returns {ComponentType}
-		 */
-		static get PRICE() {
-			return componentTypePrice;
-		}
-
 		toString() {
 			return `[ComponentType (description=${this._description})]`;
 		}
 	}
 
 	const componentTypeAmount = new ComponentType('Money', [
-		new ComponentTypeDefinition('amount', DataType.STRING, 'amount'),
-		new ComponentTypeDefinition('currency', DataType.STRING, 'currency')
-	], Money);
-
-	const componentTypePrice = new ComponentType('Price', [
-		new ComponentTypeDefinition('amount', DataType.STRING, 'amount'),
+		new ComponentTypeDefinition('amount', DataType.DECIMAL, 'amount'),
 		new ComponentTypeDefinition('currency', DataType.STRING, 'currency')
 	], Money);
 

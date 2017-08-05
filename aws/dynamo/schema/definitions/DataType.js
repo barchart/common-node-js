@@ -49,6 +49,10 @@ module.exports = (() => {
 			return dataTypeJson;
 		}
 
+		static get DECIMAL() {
+			return dataTypeDecimal;
+		}
+
 		/**
 		 * Description of the data type (or null, if no known {@link DataType} can be found).
 		 *
@@ -70,8 +74,9 @@ module.exports = (() => {
 	const dataTypeString = new DataType('S', 'String');
 	const dataTypeNumber = new DataType('N', 'Number');
 	const dataTypeJson = new DataType('S', 'Json');
+	const dataTypeDecimal = new DataType('S', 'Decimal');
 
-	const dataTypes = [ dataTypeString, dataTypeNumber, dataTypeJson ];
+	const dataTypes = [ dataTypeString, dataTypeNumber, dataTypeJson, dataTypeDecimal ];
 
 	return DataType;
 })();
