@@ -47,6 +47,10 @@ module.exports = (() => {
 			return this._definition;
 		}
 
+		validate(item) {
+			return true;
+		}
+
 		/**
 		 * Initializes the table. Call this before invoking any other instance
 		 * functions.
