@@ -33,7 +33,7 @@ module.exports = (() => {
 	}
 
 	function deserializeJson(value) {
-		return JSON.parse(value)
+		return JSON.parse(value);
 	}
 
 	const instance = new JsonSerializer();

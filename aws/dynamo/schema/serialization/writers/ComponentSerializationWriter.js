@@ -33,7 +33,7 @@ module.exports = (() => {
 		}
 
 		_canWrite(source, target) {
-			return this._serializer !== null && is.object(source) && source.hasOwnProperty(this._component.name);;
+			return this._serializer !== null && is.object(source) && source.hasOwnProperty(this._component.name);
 		}
 
 		toString() {
