@@ -23,10 +23,10 @@ module.exports = (() => {
 			let existsDelegate;
 
 			if (this._attribute.name.includes(Writer.SEPARATOR)) {
-				const names = this._attribute.split(Writer.SEPARATOR);
+				const names = this._attribute.name.split(Writer.SEPARATOR);
 
 				readDelegate = source => attributes.read(source, names);
-				existsDelegate = source => attribute.has(source, names);
+				existsDelegate = source => attributes.has(source, names);
 			} else {
 				const name = this._attribute.name;
 

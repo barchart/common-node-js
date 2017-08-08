@@ -22,7 +22,7 @@ module.exports = (() => {
 			let writeDelegate;
 
 			if (this._attribute.name.includes(Writer.SEPARATOR)) {
-				const names = this._attribute.split(Writer.SEPARATOR);
+				const names = this._attribute.name.split(Writer.SEPARATOR);
 
 				writeDelegate = (target, value) => attributes.write(target, names, value);
 			} else {
