@@ -1,36 +1,42 @@
-const assert = require('common/lang/assert');
+const assert = require('common/lang/assert'),
+	Decimal = require('common/lang/Decimal');
 
-const StringSerializer = require('./StringSerializer'),
-	DataType = require('./../../definitions/DataType');
+const DataType = require('./../../definitions/DataType'),
+	DelegateSerializer = require('./AttributeSerialzer'),
+	StringSerializer = require('./StringSerializer');
 
 module.exports = (() => {
 	'use strict';
 
 	/**
 	 * Converts an object into (and back from) the representation used
-	 * on a DynamoDB record.
+	 * on a DynamoDB record using JSON strings.
 	 */
-	class JsonSerializer extends StringSerializer {
+	class JsonSerializer extends DelegateSerializer {
 		constructor() {
-			super();
+			super(StringSerializer.INSTANCE, serializeJson, deserializeJson);
 		}
 
-		serialize(value) {
-			return super.serialize(JSON.stringify(value));
-		}
-
-		deserialize(wrapper) {
-			return JSON.parse(super.deserialize(wrapper));
-		}
-
-		coerce(value) {
-			return value;
+		static get INSTANCE() {
+			return instance;
 		}
 
 		toString() {
 			return '[JsonSerializer]';
 		}
 	}
+
+	function serializeJson(value) {
+		assert.argumentIsRequired(value, 'value', Object);
+
+		return JSON.stringify(value);
+	}
+
+	function deserializeJson(value) {
+		return JSON.parse(value)
+	}
+
+	const instance = new JsonSerializer();
 
 	return JsonSerializer;
 })();

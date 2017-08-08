@@ -28,10 +28,16 @@ module.exports = (() => {
 			return new Money(data[0], data[1]);
 		}
 
+		static get INSTANCE() {
+			return instance;
+		}
+
 		toString() {
 			return '[MoneySerializer]';
 		}
 	}
+
+	const instance = new MoneySerializer();
 
 	return MoneySerializer;
 })();

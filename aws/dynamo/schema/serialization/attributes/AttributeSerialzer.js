@@ -7,6 +7,7 @@ module.exports = (() => {
 	 * Converts a simple value (e.g. a number) into an object used to define
 	 * the value in DynamoDB notation. Also performs the inverse.
 	 *
+	 * @public
 	 * @interface
 	 */
 	class AttributeSerializer {
@@ -19,6 +20,7 @@ module.exports = (() => {
 		 * an implementation for numbers should serialize 19 as the
 		 * following object: { "N": "19" }.
 		 *
+		 * @public
 		 * @abstract
 		 * @param {*} value - The value to serialize.
 		 * @returns {Object}
@@ -33,48 +35,13 @@ module.exports = (() => {
 		 * { "N": "19" } to the number 19. This operation is the inverse of
 		 * {@link AttributeSerializer#serialize}.
 		 *
+		 * @public
 		 * @abstract
 		 * @param {Object} wrapper - The DynamoDB wrapper to extract a value from.
 		 * @returns {Object}
 		 */
 		deserialize(wrapper) {
 			return wrapper;
-		}
-
-		/**
-		 * Returns true if the value can be coerced without an error
-		 * occurring.
-		 *
-		 * @abstract
-		 * @param {*} value - The value to check.
-		 * @returns {Boolean}
-		 */
-		canCoerce(value) {
-			let returnVal;
-
-			try {
-				this.coerce(value);
-
-				returnVal = true;
-			} catch (e) {
-				returnVal = false;
-			}
-
-			return returnVal;
-		}
-
-		/**
-		 * Coerces a value into the type of value which would be accepted by the
-		 * {@link AttributeSerializer#serialize} function and returned by the
-		 * {@link AttributeSerializer#deserialize} function. This function may
-		 * throw an error.
-		 *
-		 * @abstract
-		 * @param {Object} value - The value to coerce.
-		 * @returns {Object} - The coerced value.
-		 */
-		coerce(value) {
-			return value;
 		}
 
 		toString() {

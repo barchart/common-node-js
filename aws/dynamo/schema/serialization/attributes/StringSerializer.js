@@ -29,14 +29,16 @@ module.exports = (() => {
 			return wrapper[DataType.STRING.code];
 		}
 
-		coerce(value) {
-			return value.toString();
+		static get INSTANCE() {
+			return instance;
 		}
 
 		toString() {
 			return '[StringSerializer]';
 		}
 	}
+
+	const instance = new StringSerializer();
 
 	return StringSerializer;
 })();

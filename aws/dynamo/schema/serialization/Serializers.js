@@ -81,14 +81,14 @@ module.exports = (() => {
 
 	const serializers = new Map();
 
-	serializers.set(DataType.DECIMAL, new DecimalSerializer());
-	serializers.set(DataType.NUMBER, new NumberSerializer());
-	serializers.set(DataType.STRING, new StringSerializer());
-	serializers.set(DataType.JSON, new JsonSerializer());
+	serializers.set(DataType.DECIMAL, DecimalSerializer.INSTANCE);
+	serializers.set(DataType.NUMBER, NumberSerializer.INSTANCE);
+	serializers.set(DataType.STRING, StringSerializer.INSTANCE);
+	serializers.set(DataType.JSON, JsonSerializer.INSTANCE);
 
 	const components = new Map();
 
-	components.set(ComponentType.MONEY, new MoneySerializer());
+	components.set(ComponentType.MONEY, MoneySerializer.INSTANCE);
 
 	return Serializers;
 })();

@@ -16,25 +16,29 @@ module.exports = (() => {
 		}
 
 		serialize(value) {
+			assert.argumentIsRequired(value, 'value', Number);
+
 			const wrapper = { };
 
-			wrapper[DataType.NUMBER.code] = this.coerce(value).toString();
+			wrapper[DataType.NUMBER.code] = value.toString();
 
 			return wrapper;
 		}
 
 		deserialize(wrapper) {
-			return this.coerce(wrapper[DataType.NUMBER.code]);
+			return parseFloat(wrapper[DataType.NUMBER.code]);
 		}
 
-		coerce(value) {
-			return parseFloat(value);
+		static get INSTANCE() {
+			return instance;
 		}
 
 		toString() {
 			return '[NumberSerializer]';
 		}
 	}
+
+	const instance = new NumberSerializer();
 
 	return NumberSerializer;
 })();
