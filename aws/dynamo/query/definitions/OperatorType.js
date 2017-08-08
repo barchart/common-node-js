@@ -48,7 +48,7 @@ module.exports = (() => {
 		 * Returns true, if the operator an be used with the {@link KeyType}.
 		 *
 		 * @param {KeyType} keyType - The type of key to check.
-		 * @returns {boolean|*}
+		 * @returns {Boolean|*}
 		 */
 		validFor(keyType) {
 			assert.argumentIsRequired(keyType, 'keyType', KeyType, 'KeyType');
@@ -75,26 +75,62 @@ module.exports = (() => {
 			return this._formatter(field, operand);
 		}
 
+		/**
+		 * Equals.
+		 *
+		 * @public
+		 * @returns {OperatorType}
+		 */
 		static get EQUALS() {
 			return operatorTypeEquals;
 		}
 
+		/**
+		 * Greater than.
+		 *
+		 * @public
+		 * @returns {OperatorType}
+		 */
 		static get GREATER_THAN() {
 			return operatorTypeGreaterThan;
 		}
 
+		/**
+		 * Less than.
+		 *
+		 * @public
+		 * @returns {OperatorType}
+		 */
 		static get LESS_THAN() {
 			return operatorTypeLessThan;
 		}
 
+		/**
+		 * Greater than or equal to.
+		 *
+		 * @public
+		 * @returns {OperatorType}
+		 */
 		static get GREATER_THAN_OR_EQUAL_TO() {
 			return operatorTypeGreaterThanOrEqualTo;
 		}
 
+		/**
+		 * Less than or equal to.
+		 *
+		 * @public
+		 * @returns {OperatorType}
+		 */
 		static get LESS_THAN_OR_EQUAL_TO() {
 			return operatorTypeLessThanOrEqualTo;
 		}
 
+		/**
+		 * Between.
+		 *
+		 * @public
+		 * @returns {OperatorType}
+		 */
 		static get BETWEEN() {
 			return operatorTypeBetween;
 		}
