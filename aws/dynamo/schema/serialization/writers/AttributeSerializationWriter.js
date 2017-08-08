@@ -28,7 +28,9 @@ module.exports = (() => {
 				readDelegate = source => attributes.read(source, names);
 				existsDelegate = source => attribute.has(source, names);
 			} else {
-				readDelegate = source => target[name];
+				const name = this._attribute.name;
+
+				readDelegate = source => source[name];
 				existsDelegate = source => source.hasOwnProperty(name);
 			}
 
@@ -43,7 +45,7 @@ module.exports = (() => {
 		}
 
 		_canWrite(source, target) {
-			return this._serializer !== null && is.object(source) && this._existsDelegate(this._attribute.name);
+			return this._serializer !== null && is.object(source) && this._existsDelegate(source);
 		}
 
 		toString() {

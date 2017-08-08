@@ -10,19 +10,17 @@ describe('When a Serializer with a table that has "firstName" and "age" attribut
 	var table;
 
 	beforeEach(function() {
-		var builder = TableBuilder.withName('irrelevant')
-			.withAttribute('firstName', DataType.STRING)
+		table = TableBuilder.withName('irrelevant')
+			.withAttribute('firstName', DataType.STRING, KeyType.HASH)
 			.withAttribute('age', DataType.NUMBER)
-			.withKey('firstName', KeyType.HASH);
-
-		table = builder.table;
+			.table;
 	});
 
 	describe('and { firstName: "Imogen", age: 3 } is serialized', function() {
 		var serialized;
 
 		beforeEach(function() {
-			serialized = Serializer.serialize({ firstName: 'Imogen', age: 3}, table);
+			serialized = Serializer.serialize({firstName: 'Imogen', age: 3}, table);
 		});
 
 		it('the result should have an "firstName.S" property with a value of "Imogen"', function() {

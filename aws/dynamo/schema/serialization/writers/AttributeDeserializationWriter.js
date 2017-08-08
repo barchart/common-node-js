@@ -26,6 +26,8 @@ module.exports = (() => {
 
 				writeDelegate = (target, value) => attributes.write(target, names, value);
 			} else {
+				const name = this._attribute.name;
+
 				writeDelegate = (target, value) => target[name] = value;
 			}
 
@@ -45,5 +47,5 @@ module.exports = (() => {
 		}
 	}
 
-	return Writer;
+	return AttributeDeserializationWriter;
 })();
