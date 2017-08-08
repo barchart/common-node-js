@@ -34,6 +34,10 @@ module.exports = (() => {
 			return true;
 		}
 
+		static get SEPARATOR() {
+			return '.';
+		}
+
 		toString() {
 			return '[Writer]';
 		}
