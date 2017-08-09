@@ -43,18 +43,6 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Adds an item.
-		 *
-		 * @param {Object} item
-		 * @returns {ConditionalBuilder}
-		 */
-		withItem(item) {
-			this._conditional = new Conditional(this._conditional.table, this._conditional.filter, this._conditional.description, item);
-
-			return this;
-		}
-
-		/**
 		 * Adds a {@link Filter} to the scan, using a callback that
 		 * provides the consumer with a {@link FilterBuilder} then
 		 * returns the current instance.
@@ -70,7 +58,7 @@ module.exports = (() => {
 
 			callback(filterBuilder);
 
-			this._conditional = new Conditional(this._conditional.table, filterBuilder.filter, this._conditional.description, this._conditional.item);
+			this._conditional = new Conditional(this._conditional.table, filterBuilder.filter, this._conditional.description);
 
 			return this;
 		}
@@ -85,7 +73,7 @@ module.exports = (() => {
 		withDescription(description) {
 			assert.argumentIsRequired(description, 'description', String);
 
-			this._conditional = new Conditional(this._conditional.table, this._conditional.filter, description, this._conditional.item);
+			this._conditional = new Conditional(this._conditional.table, this._conditional.filter, description);
 
 			return this;
 		}

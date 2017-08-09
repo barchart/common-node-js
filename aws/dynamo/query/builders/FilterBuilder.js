@@ -36,7 +36,7 @@ module.exports = (() => {
 		 * @public
 		 * @param {Attribute} attributeName - The attribute name.
 		 * @param {OperatorType} operatorType
-		 * @param {*} operand
+		 * @param {*=} operand
 		 * @returns {FilterBuilder}
 		 */
 		withExpression(attributeName, operatorType, operand) {

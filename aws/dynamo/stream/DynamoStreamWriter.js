@@ -38,7 +38,7 @@ module.exports = (() => {
 			if (is.array(chunk)) {
 				writePromise = this._provider.createItems(chunk, this._table);
 			} else {
-				writePromise = this._provider.saveItem(chunk, this._table);
+				writePromise = this._provider.saveItem(chunk, this._table, true);
 			}
 
 			writePromise.then(() => {

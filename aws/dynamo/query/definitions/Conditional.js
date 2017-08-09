@@ -1,6 +1,7 @@
 const array = require('common/lang/array'),
 	assert = require('common/lang/assert'),
-	is = require('common/lang/is');
+	is = require('common/lang/is'),
+	object = require('common/lang/object');
 
 const Action = require('./Action'),
 	Filter = require('./Filter'),
@@ -20,11 +21,10 @@ module.exports = (() => {
 	 * @param {Object=} item
 	 */
 	class Conditional extends Action {
-		constructor(table, filter, description, item) {
+		constructor(table, filter, description) {
 			super(table, null, (description || '[Unnamed Conditional]'));
 
 			this._filter = filter;
-			this._item = item || null;
 		}
 
 		/**
@@ -36,15 +36,6 @@ module.exports = (() => {
 		 */
 		get filter() {
 			return this._filter;
-		}
-
-		/**
-		 * The item the condition applies to.
-		 *
-		 * @returns {Object}
-		 */
-		getItem() {
-			return this._item;
 		}
 
 		/**
@@ -78,14 +69,13 @@ module.exports = (() => {
 				TableName: this.table.name
 			};
 
-			if (this._item !== null) {
-				schema.item = this._item;
-			}
-
 			const expressionData = Action.getExpressionData(this._filter);
 
-			schema.FilterExpression = expressionData.components.join(' and ');
-			schema.ExpressionAttributeValues = expressionData.aliases;
+			schema.ConditionExpression = expressionData.components.join(' and ');
+
+			if (object.keys(expressionData.aliases).length !== 0) {
+				schema.ExpressionAttributeValues = expressionData.aliases;
+			}
 
 			return schema;
 		}

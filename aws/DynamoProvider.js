@@ -12,6 +12,7 @@ const assert = require('common/lang/assert'),
 
 const ConditionalBuilder = require('./dynamo/query/builders/ConditionalBuilder'),
 	KeyType = require('./dynamo/schema/definitions/KeyType'),
+	OperatorType = require('./dynamo/query/definitions/OperatorType'),
 	Table = require('./dynamo/schema/definitions/Table'),
 	TableBuilder = require('./dynamo/schema/builders/TableBuilder'),
 	Query = require('./dynamo/query/definitions/Query'),
@@ -252,7 +253,7 @@ module.exports = (() => {
 		 * @public
 		 * @param {Object} item - The item to write.
 		 * @param {Table} table - Describes the schema of the table to write to.
-		 * @param {Table} preventOverwrite - If true, the resulting promise will reject if another item shares the same key.
+		 * @param {Boolean=} preventOverwrite - If true, the resulting promise will reject if another item shares the same key.
 		 * @returns {Promise}
 		 */
 		saveItem(item, table, preventOverwrite) {
@@ -268,22 +269,22 @@ module.exports = (() => {
 					let payload;
 
 					if (is.boolean(preventOverwrite) && preventOverwrite) {
-						const conditional = new ConditionalBuilder(table)
+						const builder = new ConditionalBuilder(table)
 							.withDescription(`Conditional put to [${qualifiedTableName}] table`)
-							.withItem(item)
 							.withFilterBuilder((fb) => {
 								const hashKeyName = table.keys.find(k => k.keyType === KeyType.HASH).attribute.name;
 
 								fb.withExpression(hashKeyName, OperatorType.ATTRIBUTE_NOT_EXISTS);
-							})
+							});
 
 						payload = builder.conditional.toConditionalSchema();
 					} else {
 						payload = {
-							TableName: table.name,
-							Item: Serializer.serialize(item, table)
+							TableName: table.name
 						};
 					}
+
+					payload.Item = Serializer.serialize(item, table);
 
 					const putItem = () => {
 						return promise.build((resolveCallback, rejectCallback) => {
@@ -634,7 +635,8 @@ module.exports = (() => {
 
 	const dynamoErrors = [
 		new DynamoError('ThrottlingException', 'Throttling Exception', true),
-		new DynamoError('ProvisionedThroughputExceededException', 'Provisioned Throughput Exceeded Exception', true)
+		new DynamoError('ProvisionedThroughputExceededException', 'Provisioned Throughput Exceeded Exception', true),
+		new DynamoError('ConditionalCheckFailedException', 'Conditional Check Failed Exception', false)
 	];
 
 	return DynamoProvider;
