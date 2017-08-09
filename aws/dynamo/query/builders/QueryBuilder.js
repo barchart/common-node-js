@@ -3,8 +3,8 @@ const assert = require('common/lang/assert');
 const Query = require('./../definitions/Query'),
 	Table = require('./../../schema/definitions/Table');
 
-const FilterBuilder = require('./FilterBuilder'),
-	LookupBuilder = require('./LookupBuilder');
+const ActionBuilder = require('./ActionBuilder'),
+	FilterBuilder = require('./FilterBuilder');
 
 module.exports = (() => {
 	'use strict';
@@ -13,11 +13,9 @@ module.exports = (() => {
 	 * Fluent interface for building a {@link Query}.
 	 *
 	 * @public
+	 * @param {Table} table - The table targeted.
 	 */
-	class QueryBuilder extends LookupBuilder {
-		/**
-		 * @param {Table} table - The table targeted.
-		 */
+	class QueryBuilder extends ActionBuilder {
 		constructor(table) {
 			super();
 
@@ -25,11 +23,12 @@ module.exports = (() => {
 		}
 
 		/**
-		 * The {@link Lookup}, given all the information provided thus far.
+		 * The {@link Action}, given all the information provided thus far.
 		 *
 		 * @public
+		 * @returns {Action}
 		 */
-		get lookup() {
+		get action() {
 			return this._query;
 		}
 
@@ -37,13 +36,14 @@ module.exports = (() => {
 		 * The {@link Query}, given all the information provided thus far.
 		 *
 		 * @public
+		 * @returns {Query}
 		 */
 		get query() {
 			return this._query;
 		}
 
 		/**
-		 * Changes the lookup target to an index of the table (instead of the
+		 * Changes the action target to an index of the table (instead of the
 		 * table itself) and returns the current instance.
 		 *
 		 * @public

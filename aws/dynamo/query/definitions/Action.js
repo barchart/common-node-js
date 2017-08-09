@@ -12,13 +12,11 @@ module.exports = (() => {
 	 *
 	 * @public
 	 * @interface
+	 * @param {Table} table
+	 * @param {Index=} index
+	 * @param {String=} description
 	 */
-	class Lookup {
-		/**
-		 * @param {Table} table
-		 * @param {Index=} index
-		 * @param {String=} description
-		 */
+	class Action {
 		constructor(table, index, description) {
 			this._table = table;
 			this._index = index || null;
@@ -77,40 +75,42 @@ module.exports = (() => {
 				const repeatCount = 1 + Math.floor(index / 26);
 				const letterCode = 97 + (index % 26);
 
-				const addAlias = (aliasName, aliasValue) => {
-					accumulator.aliases[aliasName] = aliasValue;
+				const addOperandAlias = (operandAlias, operandValue) => {
+					accumulator.aliases[operandAlias] = operandValue;
 				};
 
-				let operandsToFormat;
+				let operandAliases;
 
-				if (operatorType.operandIsArray) {
-					operandsToFormat = operand.map((o, i) => {
-						const aliasName = `:${String.fromCharCode(letterCode).repeat(repeatCount)}${i}`;
-						const aliasValue = Serializer.serializeValue(operand[i], e.attribute.dataType);
+				if (operatorType.operandCount > 1) {
+					operandAliases = operand.map((o, i) => {
+						const operandAlias = `:${String.fromCharCode(letterCode).repeat(repeatCount)}${i}`;
+						const operandValue = Serializer.serializeValue(operand[i], e.attribute.dataType);
 
-						addAlias(aliasName, aliasValue);
+						addOperandAlias(operandAlias, operandValue);
 
-						return aliasName;
+						return operandAlias;
 					});
+				} else if (operatorType.operandCount === 1) {
+					const operandAlias = `:${String.fromCharCode(letterCode).repeat(repeatCount)}`;
+					const operandValue = Serializer.serializeValue(operand, e.attribute.dataType);
+
+					addOperandAlias(operandAlias, operandValue);
+
+					operandAliases = operandAlias;
 				} else {
-					const aliasName = `:${String.fromCharCode(letterCode).repeat(repeatCount)}`;
-					const aliasValue = Serializer.serializeValue(operand, e.attribute.dataType);
-
-					addAlias(aliasName, aliasValue);
-
-					operandsToFormat = aliasName;
+					operandAliases = [ ];
 				}
 
-				accumulator.components.push(operatorType.format(e.attribute.name, operandsToFormat));
+				accumulator.components.push(operatorType.format(e.attribute.name, operandAliases));
 
 				return accumulator;
 			}, { components: [ ], aliases: { }, offset: offsetToUse + filter.expressions.length });
 		}
 
 		toString() {
-			return '[Lookup]';
+			return '[Action]';
 		}
 	}
 
-	return Lookup;
+	return Action;
 })();

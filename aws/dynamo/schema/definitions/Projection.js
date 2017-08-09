@@ -58,7 +58,7 @@ module.exports = (() => {
 				throw new Error('Projection attributes array can only contain attribute instances).');
 			}
 
-			if (!array.uniqueBy(this._attributes, a => a.name)) {
+			if (array.uniqueBy(this._attributes, a => a.name).length !== this._attributes.length) {
 				throw new Error('Projection attributes must be unique.');
 			}
 

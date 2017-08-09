@@ -3,10 +3,10 @@ const array = require('common/lang/array'),
 	is = require('common/lang/is'),
 	object = require('common/lang/object');
 
-const Filter = require('./Filter'),
+const Action = require('./Action'),
+	Filter = require('./Filter'),
 	Index = require('./../../schema/definitions/Index'),
 	KeyType = require('./../../schema/definitions/KeyType'),
-	Lookup = require('./Lookup'),
 	Table = require('./../../schema/definitions/Table');
 
 module.exports = (() => {
@@ -16,15 +16,13 @@ module.exports = (() => {
 	 * The definition of a table (or index) query.
 	 *
 	 * @public
+	 * @param {Table} table
+	 * @param {Index} index
+	 * @param {Filter} keyFilter
+	 * @param {Filter} resultsFilter
+	 * @param {String=} description
 	 */
-	class Query extends Lookup {
-		/**
-		 * @param {Table} table
-		 * @param {Index} index
-		 * @param {Filter} keyFilter
-		 * @param {Filter} resultsFilter
-		 * @param {String=} description
-		 */
+	class Query extends Action {
 		constructor(table, index, keyFilter, resultsFilter, description) {
 			super(table, index, (description || '[Unnamed Query]'));
 
@@ -33,7 +31,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * A {@link Filter} to apply to key of the table (or index)
+		 * A {@link Filter} to apply to key of the table (or index).
 		 *
 		 * @public
 		 * @returns {Filter}
@@ -43,7 +41,8 @@ module.exports = (() => {
 		}
 
 		/**
-		 * A {@link Filter} to apply to key of the table (or index)
+		 * A {@link Filter} to apply to results of the query (after the
+		 * key filter has been applied).
 		 *
 		 * @public
 		 * @returns {Filter}
@@ -98,9 +97,10 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Outputs an object suitable for running a "scan" operation using
+		 * Outputs an object suitable for running a "query" operation using
 		 * the DynamoDB SDK.
 		 *
+		 * @public
 		 * @returns {Object}
 		 */
 		toQuerySchema() {
@@ -114,14 +114,14 @@ module.exports = (() => {
 				schema.IndexName = this.index.name;
 			}
 
-			const keyExpressionData = Lookup.getExpressionData(this._keyFilter);
+			const keyExpressionData = Action.getExpressionData(this._keyFilter);
 
 			schema.KeyConditionExpression = keyExpressionData.components.join(' and ');
 
 			let aliases;
 
 			if (this._resultsFilter !== null) {
-				const resultsExpressionData = Lookup.getExpressionData(this._resultsFilter, keyExpressionData.offset);
+				const resultsExpressionData = Action.getExpressionData(this._resultsFilter, keyExpressionData.offset);
 
 				schema.FilterExpression = resultsExpressionData.components.join(' and ');
 

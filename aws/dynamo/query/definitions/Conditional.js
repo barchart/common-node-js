@@ -4,36 +4,47 @@ const array = require('common/lang/array'),
 
 const Action = require('./Action'),
 	Filter = require('./Filter'),
-	Index = require('./../../schema/definitions/Index'),
 	Table = require('./../../schema/definitions/Table');
 
 module.exports = (() => {
 	'use strict';
 
 	/**
-	 * The definition of a table (or index) scan.
+	 * An set of instructions for conditional updates, inserts, or
+	 * deletes.
 	 *
 	 * @public
 	 * @param {Table} table
-	 * @param {Index} index
 	 * @param {Filter} filter
 	 * @param {String=} description
+	 * @param {Object=} item
 	 */
-	class Scan extends Action {
-		constructor(table, index, filter, description) {
-			super(table, index, (description || '[Unnamed Scan]'));
+	class Conditional extends Action {
+		constructor(table, filter, description, item) {
+			super(table, null, (description || '[Unnamed Conditional]'));
 
 			this._filter = filter;
+			this._item = item || null;
 		}
 
 		/**
-		 * A {@link Filter} to apply results scan.
+		 * The conditional {@link Filter} (i.e. the collection of conditional
+		 * {@link Expression} instances).
 		 *
 		 * @public
 		 * @returns {Filter}
 		 */
 		get filter() {
 			return this._filter;
+		}
+
+		/**
+		 * The item the condition applies to.
+		 *
+		 * @returns {Object}
+		 */
+		getItem() {
+			return this._item;
 		}
 
 		/**
@@ -46,14 +57,6 @@ module.exports = (() => {
 				throw new Error('Table data type is invalid.');
 			}
 
-			if (this.index !== null && !(this.index instanceof Index)) {
-				throw new Error('Index data type is invalid.');
-			}
-
-			if (this.index !== null && !this.table.indicies.some(i => i.equals(this.index, true))) {
-				throw new Error('The index must belong to the table.');
-			}
-
 			if (!(this._filter instanceof Filter)) {
 				throw new Error('Filter data type is invalid.');
 			}
@@ -62,20 +65,21 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Outputs an object suitable for running a "scan" operation using
-		 * the DynamoDB SDK.
+		 * Outputs an object suitable for running a "conditional" operation
+		 * using the DynamoDB SDK. Please note, the object may be incomplete
+		 * (e.g. an "Item" property is needed to call the AWS "putItem" function).
 		 *
 		 * @returns {Object}
 		 */
-		toScanSchema() {
+		toConditionalSchema() {
 			this.validate();
 
 			const schema = {
 				TableName: this.table.name
 			};
 
-			if (this.index !== null) {
-				schema.IndexName = this.index.name;
+			if (this._item !== null) {
+				schema.item = this._item;
 			}
 
 			const expressionData = Action.getExpressionData(this._filter);
@@ -87,9 +91,9 @@ module.exports = (() => {
 		}
 
 		toString() {
-			return '[Scan]';
+			return '[Conditional]';
 		}
 	}
 
-	return Scan;
+	return Conditional;
 })();

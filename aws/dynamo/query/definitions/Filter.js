@@ -11,6 +11,7 @@ module.exports = (() => {
 	 * The collection of {@link Expression} objects that compose a filter.
 	 *
 	 * @public
+	 * @param {Array<Expression>} expressions
 	 */
 	class Filter {
 		constructor(expressions) {
@@ -38,10 +39,6 @@ module.exports = (() => {
 			}
 
 			if (!this._expressions.every((e => e instanceof Expression))) {
-				throw new Error('Filter expression array can only contain Expression instances.');
-			}
-
-			if (!array.uniqueBy(this._expressions, e => e.attribute.name)) {
 				throw new Error('Filter expression array can only contain Expression instances.');
 			}
 

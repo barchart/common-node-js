@@ -10,12 +10,10 @@ module.exports = (() => {
 	 * Fluent interface for building an {@link Expression}.
 	 *
 	 * @public
+	 * @param {string} attributeName
+	 * @param {ActionBuilder} parent
 	 */
 	class ExpressionBuilder {
-		/**
-		 * @param {string} attributeName
-		 * @param {LookupBuilder} parent
-		 */
 		constructor(attributeName, parent) {
 			assert.argumentIsRequired(attributeName, 'attributeName', String);
 
@@ -26,6 +24,7 @@ module.exports = (() => {
 		 * The {@link Expression}, given all the information provided thus far.
 		 *
 		 * @public
+		 * @returns {Expression}
 		 */
 		get expression() {
 			return this._expression;
@@ -76,7 +75,7 @@ module.exports = (() => {
 	}
 
 	function getAttribute(name, parent) {
-		return parent.lookup.table.attributes.find(a => a.name === name) || null;
+		return parent.action.table.attributes.find(a => a.name === name) || null;
 	}
 
 	return ExpressionBuilder;

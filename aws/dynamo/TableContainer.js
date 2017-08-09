@@ -20,12 +20,10 @@ module.exports = (() => {
 	 * class for a DynamoDB based repository pattern.
 	 *
 	 * @interface
+	 * @param {Table} definition
+	 * @param {DynamoProvider} provider
 	 */
 	class TableContainer extends Disposable {
-		/**
-		 * @param {Table} definition
-		 * @param {DynamoProvider} provider
-		 */
 		constructor(provider, definition) {
 			super();
 
@@ -45,10 +43,6 @@ module.exports = (() => {
 		 */
 		get definition() {
 			return this._definition;
-		}
-
-		validate(item) {
-			return true;
 		}
 
 		/**
@@ -84,10 +78,44 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Returns true, if the item conforms to the table's schema; otherwise false.
+		 *
+		 * @protected
+		 * @abstract
+		 * @param {Object} item
+		 * @returns {boolean}
+		 */
+		_validate(item) {
+			return is.object(item);
+		}
+
+		/**
+		 * Creates a new item.
+		 *
+		 * @protected
+		 * @param {Object} item
+		 * @param {Boolean} preventOverwrite
+		 * @returns {Promise}
+		 */
+		_createItem(item, preventOverwrite) {
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
+
+					if (!this._validate(item)) {
+						logger.trace('Failed to create item in [', this.definition.name, '] table', item);
+
+						throw new Error(`Unable to insert item in [${this.definition.name}] table`);
+					}
+
+					return this._provider.saveItem(item, this.definition, preventOverwrite);
+				});
+		}
+
+		/**
 		 * Runs a scan on the table.
 		 *
 		 * @protected
-		 * @ignore
 		 * @param {Scan} scan
 		 * @returns {Promise.<Array<Object>>}
 		 */
@@ -104,8 +132,7 @@ module.exports = (() => {
 		 * Runs a query on the table.
 		 *
 		 * @protected
-		 * @ignore
-		 * @param {Scan} scan
+		 * @param {Query} query
 		 * @returns {Promise.<Array<Object>>}
 		 */
 		query(query) {
@@ -118,7 +145,7 @@ module.exports = (() => {
 		}
 
 		_onDispose() {
-
+			return;
 		}
 
 		toString() {

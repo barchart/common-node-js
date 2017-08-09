@@ -1,6 +1,6 @@
 const assert = require('common/lang/assert');
 
-const Scan = require('./../definitions/Scan'),
+const Conditional = require('./../definitions/Conditional'),
 	Table = require('./../../schema/definitions/Table');
 
 const ActionBuilder = require('./ActionBuilder'),
@@ -10,16 +10,16 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * Fluent interface for building a {@link Scan}.
+	 * Fluent interface for building a {@link Conditional}.
 	 *
 	 * @public
 	 * @param {Table} table - The table targeted.
 	 */
-	class ScanBuilder extends ActionBuilder {
+	class ConditionalBuilder extends ActionBuilder {
 		constructor(table) {
 			super();
 
-			this._scan = new Scan(table);
+			this._conditional = new Conditional(table);
 		}
 
 		/**
@@ -29,17 +29,29 @@ module.exports = (() => {
 		 * @returns {Action}
 		 */
 		get action() {
-			return this._scan;
+			return this._conditional;
 		}
 
 		/**
-		 * The {@link Scan}, given all the information provided thus far.
+		 * The {@link Conditional}, given all the information provided thus far.
 		 *
 		 * @public
-		 * @returns {Scan}
+		 * @returns {Conditional}
 		 */
-		get scan() {
-			return this._scan;
+		get conditional() {
+			return this._conditional;
+		}
+
+		/**
+		 * Adds an item.
+		 *
+		 * @param {Object} item
+		 * @returns {ConditionalBuilder}
+		 */
+		withItem(item) {
+			this._conditional = new Conditional(this._conditional.table, this._conditional.filter, this._conditional.description, item);
+
+			return this;
 		}
 
 		/**
@@ -49,7 +61,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Function} callback - Synchronously called, providing a {@link FilterBuilder} tied to the current instance.
-		 * @returns {ScanBuilder}
+		 * @returns {ConditionalBuilder}
 		 */
 		withFilterBuilder(callback) {
 			assert.argumentIsRequired(callback, 'callback', Function);
@@ -58,23 +70,7 @@ module.exports = (() => {
 
 			callback(filterBuilder);
 
-			this._scan = new Scan(this._scan.table, this._scan.index, filterBuilder.filter, this._scan.description);
-
-			return this;
-		}
-
-		/**
-		 * Changes the action target to an index of the table (instead of the
-		 * table itself) and returns the current instance.
-		 *
-		 * @public
-		 * @param {String} indexName - The {@link Index} to target.
-		 * @returns {ScanBuilder}
-		 */
-		withIndex(indexName) {
-			assert.argumentIsRequired(indexName, 'indexName', String);
-
-			this._scan = new Scan(this._scan.table, getIndex(indexName, this._scan.table), this._scan.filter, this._scan.description);
+			this._conditional = new Conditional(this._conditional.table, filterBuilder.filter, this._conditional.description, this._conditional.item);
 
 			return this;
 		}
@@ -84,36 +80,32 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {String} description
-		 * @returns {ScanBuilder}
+		 * @returns {ConditionalBuilder}
 		 */
 		withDescription(description) {
 			assert.argumentIsRequired(description, 'description', String);
 
-			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, description);
+			this._conditional = new Conditional(this._conditional.table, this._conditional.filter, description, this._conditional.item);
 
 			return this;
 		}
 
 		/**
-		 * Creates a new {@link ScanBuilder}.
+		 * Creates a new {@link ConditionalBuilder}.
 		 *
 		 * @param {String} name - Name of the table.
-		 * @returns {ScanBuilder}
+		 * @returns {ConditionalBuilder}
 		 */
 		static targeting(table) {
 			assert.argumentIsRequired(table, 'table', Table, 'Table');
 
-			return new ScanBuilder(table);
+			return new ConditionalBuilder(table);
 		}
 
 		toString() {
-			return '[ScanBuilder]';
+			return '[ConditionalBuilder]';
 		}
 	}
 
-	function getIndex(name, table) {
-		return table.indicies.find(i => i.name === name) || null;
-	}
-
-	return ScanBuilder;
+	return ConditionalBuilder;
 })();

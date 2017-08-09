@@ -10,7 +10,9 @@ const assert = require('common/lang/assert'),
 	WorkQueue = require('common/timing/Serializer'),
 	Scheduler = require('common/timing/Scheduler');
 
-const Table = require('./dynamo/schema/definitions/Table'),
+const ConditionalBuilder = require('./dynamo/query/builders/ConditionalBuilder'),
+	KeyType = require('./dynamo/schema/definitions/KeyType'),
+	Table = require('./dynamo/schema/definitions/Table'),
 	TableBuilder = require('./dynamo/schema/builders/TableBuilder'),
 	Query = require('./dynamo/query/definitions/Query'),
 	Scan = require('./dynamo/query/definitions/Scan'),
@@ -186,7 +188,7 @@ module.exports = (() => {
 					assert.argumentIsRequired(definition, 'definition', Table, 'Table');
 
 					checkReady.call(this);
-					
+
 					const qualifiedTableName = definition.name;
 
 					const getTableForCreate = () => {
@@ -262,10 +264,25 @@ module.exports = (() => {
 					checkReady.call(this);
 
 					const qualifiedTableName = table.name;
-					const payload = { TableName: table.name, Item: Serializer.serialize(item, table) };
+
+					let payload;
 
 					if (is.boolean(preventOverwrite) && preventOverwrite) {
+						const conditional = new ConditionalBuilder(table)
+							.withDescription(`Conditional put to [${qualifiedTableName}] table`)
+							.withItem(item)
+							.withFilterBuilder((fb) => {
+								const hashKeyName = table.keys.find(k => k.keyType === KeyType.HASH).attribute.name;
 
+								fb.withExpression(hashKeyName, OperatorType.ATTRIBUTE_NOT_EXISTS);
+							})
+
+						payload = builder.conditional.toConditionalSchema();
+					} else {
+						payload = {
+							TableName: table.name,
+							Item: Serializer.serialize(item, table)
+						};
 					}
 
 					const putItem = () => {

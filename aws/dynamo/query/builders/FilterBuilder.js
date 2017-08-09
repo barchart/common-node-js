@@ -11,11 +11,9 @@ module.exports = (() => {
 	 * Fluent interface for building a {@link Filter}.
 	 *
 	 * @public
+	 * @param {ActionBuilder} parent
 	 */
 	class FilterBuilder {
-		/**
-		 * @param {LookupBuilder} parent
-		 */
 		constructor(parent) {
 			this._filter = new Filter([ ]);
 			this._parent = parent;
@@ -25,6 +23,7 @@ module.exports = (() => {
 		 * The {@link Filter}, given all the information provided thus far.
 		 *
 		 * @public
+		 * @returns {Filter}
 		 */
 		get filter() {
 			return this._filter;

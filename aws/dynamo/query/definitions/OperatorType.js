@@ -11,17 +11,21 @@ module.exports = (() => {
 	 * part of a {@link Scan} or {@link Query}.
 	 *
 	 * @public
+	 * @param {String} description
+	 * @param {Function} formatter
+	 * @param {Number} operandCount
+	 * @param {Array<KeyType>} keyTypes
 	 */
 	class OperatorType {
-		constructor(description, formatter, operandIsArray, keyTypes) {
+		constructor(description, formatter, operandCount, keyTypes) {
 			assert.argumentIsRequired(description, 'description', String);
 			assert.argumentIsRequired(formatter, 'formatter', Function);
-			assert.argumentIsRequired(operandIsArray, 'operandIsArray', Boolean);
+			assert.argumentIsRequired(operandCount, 'operandCount', Number);
 			assert.argumentIsArray(keyTypes, 'keyTypes', KeyType, 'KeyType');
 
 			this._description = description;
 			this._formatter = formatter;
-			this._operandIsArray = operandIsArray;
+			this._operandCount = operandCount;
 			this._keyTypes = keyTypes;
 		}
 
@@ -36,17 +40,19 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Returns true, if the operand must be an array of values.
+		 * The number of expected operands (will be zero, one, or two).
 		 *
-		 * @returns {Boolean}
+		 * @public
+		 * @returns {Number}
 		 */
-		get operandIsArray() {
-			return this._operandIsArray;
+		get operandCount() {
+			return this._operandCount;
 		}
 
 		/**
 		 * Returns true, if the operator an be used with the {@link KeyType}.
 		 *
+		 * @public
 		 * @param {KeyType} keyType - The type of key to check.
 		 * @returns {Boolean|*}
 		 */
@@ -59,6 +65,7 @@ module.exports = (() => {
 		/**
 		 * Returns a string suitable for use in an AWS SDK expression.
 		 *
+		 * @public
 		 * @param {String} field
 		 * @param {String|Array<String>} operand
 		 * @returns {String}
@@ -66,9 +73,9 @@ module.exports = (() => {
 		format(field, operand) {
 			assert.argumentIsRequired(field, 'field', String);
 
-			if (this._operandIsArray) {
+			if (this._operandCount === 2) {
 				assert.argumentIsArray(operand, 'operand', String);
-			} else {
+			} else if (this._operandCount === 1) {
 				assert.argumentIsRequired(operand, 'operand', String);
 			}
 
@@ -135,17 +142,28 @@ module.exports = (() => {
 			return operatorTypeBetween;
 		}
 
+		/**
+		 * Attribute doesn't exist (for use with {@link Conditional} instances only}).
+		 *
+		 * @public
+		 * @returns {OperatorType}
+		 */
+		static get ATTRIBUTE_NOT_EXISTS() {
+			return operatorTypeAttributeNotExists;
+		}
+
 		toString() {
 			return `[OperatorType (description=${this._description})]`;
 		}
 	}
 
-	const operatorTypeEquals = new OperatorType('Equals', (f, o) => `${f} = ${o}`, false, [ KeyType.HASH, KeyType.RANGE ]);
-	const operatorTypeGreaterThan = new OperatorType('Greater Than', (f, o) => `${f} > ${o}`, false, [ KeyType.RANGE ]);
-	const operatorTypeLessThan = new OperatorType('Less Than', (f, o) => `${f} < ${o}`, false, [ KeyType.RANGE ]);
-	const operatorTypeGreaterThanOrEqualTo = new OperatorType('Greater Than Or Equal To', (f, o) => `${f} >= ${o}`, false, [ KeyType.RANGE ]);
-	const operatorTypeLessThanOrEqualTo = new OperatorType('Less Than Or Equal To', (f, o) => `${f} <= ${o}`, false, [ KeyType.RANGE ]);
-	const operatorTypeBetween = new OperatorType('Between', (f, o) => `${f} BETWEEN ${o[0]} AND ${o[1]}`, true, [ KeyType.RANGE ]);
+	const operatorTypeEquals = new OperatorType('Equals', (f, o) => `${f} = ${o}`, 1, [ KeyType.HASH, KeyType.RANGE ]);
+	const operatorTypeGreaterThan = new OperatorType('Greater Than', (f, o) => `${f} > ${o}`, 1, [ KeyType.RANGE ]);
+	const operatorTypeLessThan = new OperatorType('Less Than', (f, o) => `${f} < ${o}`, 1, [ KeyType.RANGE ]);
+	const operatorTypeGreaterThanOrEqualTo = new OperatorType('Greater Than Or Equal To', (f, o) => `${f} >= ${o}`, 1, [ KeyType.RANGE ]);
+	const operatorTypeLessThanOrEqualTo = new OperatorType('Less Than Or Equal To', (f, o) => `${f} <= ${o}`, 1, [ KeyType.RANGE ]);
+	const operatorTypeBetween = new OperatorType('Between', (f, o) => `${f} BETWEEN ${o[0]} AND ${o[1]}`, 2, [ KeyType.RANGE ]);
+	const operatorTypeAttributeNotExists = new OperatorType('Attribute Not Exists', (f, o) => `attribute_not_exists(${f})`, 0, [ KeyType.HASH, KeyType.RANGE ]);
 
 	return OperatorType;
 })();

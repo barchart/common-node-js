@@ -11,6 +11,9 @@ module.exports = (() => {
 	 * An expression that can be used as part of a {@link Filter}.
 	 *
 	 * @public
+	 * @param {Attribute} attribute
+	 * @param {OperatorType} operatorType
+	 * @param {*} operand
 	 */
 	class Expression {
 		constructor(attribute, operatorType, operand) {
