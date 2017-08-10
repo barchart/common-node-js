@@ -1,6 +1,6 @@
 var NumberSerializer = require('./../../../../../../../aws/dynamo/schema/serialization/attributes/NumberSerializer');
 
-describe('When a Number Serializer is instantiated', function() {
+describe('When a NumberSerializer is instantiated', function() {
 	'use strict';
 
 	var serializer;

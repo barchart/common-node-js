@@ -1,6 +1,6 @@
 var BooleanSerializer = require('./../../../../../../../aws/dynamo/schema/serialization/attributes/BooleanSerializer');
 
-describe('When a Boolean Serializer is instantiated', function() {
+describe('When a BooleanSerializer is instantiated', function() {
 	'use strict';
 
 	var serializer;

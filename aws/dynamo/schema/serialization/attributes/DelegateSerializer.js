@@ -1,5 +1,4 @@
-const assert = require('common/lang/assert'),
-	Decimal = require('common/lang/Decimal');
+const assert = require('common/lang/assert');
 
 const AttributeSerializer = require('./AttributeSerialzer'),
 	DataType = require('./../../definitions/DataType');

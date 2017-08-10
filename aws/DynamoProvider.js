@@ -3,6 +3,7 @@ const aws = require('aws-sdk'),
 
 const assert = require('common/lang/assert'),
 	Disposable = require('common/lang/Disposable'),
+	Enum = require('common/lang/Enum'),
 	is = require('common/lang/is'),
 	memoize = require('common/lang/memoize'),
 	object = require('common/lang/object'),
@@ -290,7 +291,7 @@ module.exports = (() => {
 						return promise.build((resolveCallback, rejectCallback) => {
 							this._dynamo.putItem(payload, (error, data) => {
 								if (error) {
-									const dynamoError = DynamoError.fromCode(error.code);
+									const dynamoError = Enum.fromCode(DynamoError, error.code);
 
 									if (dynamoError !== null && dynamoError.retryable) {
 										logger.debug('Encountered retryable error [', error.code, '] while putting an item into [', qualifiedTableName, ']');
@@ -356,7 +357,7 @@ module.exports = (() => {
 							return promise.build((resolveCallback, rejectCallback) => {
 								this._dynamo.batchWriteItem(currentPayload, (error, data) => {
 									if (error) {
-										const dynamoError = DynamoError.fromCode(error.code);
+										const dynamoError = Enum.fromCode(DynamoError, error.code);
 
 										if (dynamoError !== null && dynamoError.retryable) {
 											logger.debug('Encountered retryable error [', error.code, '] while putting an item into [', qualifiedTableName, ']');
@@ -605,27 +606,15 @@ module.exports = (() => {
 		FAILURE: 'FAILURE'
 	};
 
-	class DynamoError {
+	class DynamoError extends Enum {
 		constructor(code, description, retryable) {
-			this._code = code;
-			this._description = description;
+			super(code, description);
+
 			this._retryable = retryable;
-		}
-
-		get code() {
-			return this._code;
-		}
-
-		get description() {
-			return this._description;
 		}
 
 		get retryable() {
 			return this._retryable;
-		}
-
-		static fromCode(code) {
-			return dynamoErrors.find(de => de.code === code) || null;
 		}
 
 		toString() {
@@ -633,11 +622,9 @@ module.exports = (() => {
 		}
 	}
 
-	const dynamoErrors = [
-		new DynamoError('ThrottlingException', 'Throttling Exception', true),
-		new DynamoError('ProvisionedThroughputExceededException', 'Provisioned Throughput Exceeded Exception', true),
-		new DynamoError('ConditionalCheckFailedException', 'Conditional Check Failed Exception', false)
-	];
+	const dynamoErrorThrottling = new DynamoError('ThrottlingException', 'Throttling Exception', true);
+	const dynamoErrorThroughput = new DynamoError('ProvisionedThroughputExceededException', 'Provisioned Throughput Exceeded Exception', true);
+	const dynamoErrorConditional = new DynamoError('ConditionalCheckFailedException', 'Conditional Check Failed Exception', false);
 
 	return DynamoProvider;
 })();

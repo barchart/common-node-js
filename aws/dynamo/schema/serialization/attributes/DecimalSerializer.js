@@ -1,8 +1,7 @@
 const assert = require('common/lang/assert'),
 	Decimal = require('common/lang/Decimal');
 
-const DataType = require('./../../definitions/DataType'),
-	DelegateSerializer = require('./DelegateSerializer'),
+const DelegateSerializer = require('./DelegateSerializer'),
 	StringSerializer = require('./StringSerializer');
 
 module.exports = (() => {

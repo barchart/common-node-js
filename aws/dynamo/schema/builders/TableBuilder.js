@@ -1,4 +1,5 @@
 const assert = require('common/lang/assert'),
+	Enum = require('common/lang/Enum'),
 	is = require('common/lang/is');
 
 const DataType = require('./../definitions/DataType'),
@@ -246,15 +247,15 @@ module.exports = (() => {
 			let tableBuilder = TableBuilder.withName(definition.TableName)
 				.withProvisionedThroughput(definition.ProvisionedThroughput.ReadCapacityUnits, definition.ProvisionedThroughput.WriteCapacityUnits);
 
-			definition.AttributeDefinitions.reduce((tb, ad) => tb.withAttribute(ad.AttributeName, DataType.fromCode(ad.AttributeType)), tableBuilder);
-			definition.KeySchema.reduce((tb, ks) => tb.withKey(ks.AttributeName, KeyType.fromCode(ks.KeyType)), tableBuilder);
+			definition.AttributeDefinitions.reduce((tb, ad) => tb.withAttribute(ad.AttributeName, Enum.fromCode(DataType, ad.AttributeType)), tableBuilder);
+			definition.KeySchema.reduce((tb, ks) => tb.withKey(ks.AttributeName, Enum.fromCode(KeyType, ks.KeyType)), tableBuilder);
 
 			const processIndex = (indexType, indexDefinition) => {
 				return tableBuilder.withIndexBuilder(indexDefinition.IndexName, (indexBuilder) => {
-					indexDefinition.KeySchema.reduce((ib, ks) => ib.withKey(ks.AttributeName, KeyType.fromCode(ks.KeyType)), indexBuilder);
+					indexDefinition.KeySchema.reduce((ib, ks) => ib.withKey(ks.AttributeName, Enum.fromCode(KeyType, ks.KeyType)), indexBuilder);
 
 					indexBuilder.withType(indexType)
-						.withProjectionBuilder(ProjectionType.fromCode(indexDefinition.Projection.ProjectionType), (projectionBuilder) => {
+						.withProjectionBuilder(Enum.fromCode(ProjectionType, indexDefinition.Projection.ProjectionType), (projectionBuilder) => {
 							if (is.array(indexDefinition.Projection.NonKeyAttributes)) {
 								indexDefinition.Projection.NonKeyAttributes.reduce((pb, nka) => pb.withAttribute(nka, true), projectionBuilder);
 							}
@@ -271,7 +272,7 @@ module.exports = (() => {
 			}
 
 			if (is.object(definition.StreamSpecification) && is.boolean(definition.StreamSpecification.StreamEnabled) && definition.StreamSpecification.StreamEnabled) {
-				tableBuilder.withStreamViewType(StreamViewType.fromCode(definition.StreamSpecification.StreamViewType));
+				tableBuilder.withStreamViewType(Enum.fromCode(StreamViewType, definition.StreamSpecification.StreamViewType));
 			}
 
 			return tableBuilder.table;

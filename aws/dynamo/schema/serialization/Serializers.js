@@ -7,6 +7,7 @@ const Attribute = require('./../../schema/definitions/Attribute'),
 
 const DaySerializer = require('./attributes/DaySerializer'),
 	DecimalSerializer = require('./attributes/DecimalSerializer'),
+	EnumSerializer = require('./attributes/EnumSerializer'),
 	JsonSerializer = require('./attributes/JsonSerializer'),
 	NumberSerializer = require('./attributes/NumberSerializer'),
 	StringSerializer = require('./attributes/StringSerializer'),
@@ -32,7 +33,7 @@ module.exports = (() => {
 		 * Returns the appropriate {@link AttributeSerializer} given an {@link Attribute}.
 		 *
 		 * @param {Attribute} attribute
-		 * @returns {AtrributeSerializer|null}
+		 * @returns {AttributeSerializer|null}
 		 */
 		static forAttribute(attribute) {
 			assert.argumentIsRequired(attribute, 'attribute', Attribute, 'Attribute');
@@ -44,12 +45,26 @@ module.exports = (() => {
 		 * Returns the appropriate {@link AttributeSerializer} given a {@link DataType}.
 		 *
 		 * @param {DataType} dataType
-		 * @returns {AtrributeSerializer|null}
+		 * @returns {AttributeSerializer|null}
 		 */
 		static forDataType(dataType) {
 			assert.argumentIsRequired(dataType, 'dataType', DataType, 'DataType');
 
-			return serializers.get(dataType) || null;
+			const enumerationType = dataType.enumerationType;
+
+			let returnRef;
+
+			if (enumerationType) {
+				if (!enumSerializers.has(enumerationType)) {
+					enumSerializers.set(enumerationType, new EnumSerializer(enumerationType));
+				}
+
+				returnRef = enumSerializers.get(enumerationType);
+			} else {
+				returnRef = serializers.get(dataType);
+			}
+
+			return returnRef || null;
 		}
 
 		/**
@@ -80,6 +95,8 @@ module.exports = (() => {
 			return '[Serializers]';
 		}
 	}
+
+	const enumSerializers = new Map();
 
 	const serializers = new Map();
 

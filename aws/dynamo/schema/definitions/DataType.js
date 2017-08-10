@@ -1,4 +1,5 @@
-const assert = require('common/lang/assert');
+const assert = require('common/lang/assert'),
+	Enum = require('common/lang/Enum');
 
 module.exports = (() => {
 	'use strict';
@@ -9,12 +10,18 @@ module.exports = (() => {
 	 * @public
 	 */
 	class DataType {
-		constructor(code, description) {
+		constructor(code, description, enumerationType) {
 			assert.argumentIsRequired(code, 'code', String);
 			assert.argumentIsRequired(description, 'description', String);
+			assert.argumentIsOptional(enumerationType, 'enumerationType', Function);
+
+			if (enumerationType) {
+				assert.argumentIsValid(enumerationType, 'enumerationType', extendsEnumeration, 'is an enumeration');
+			}
 
 			this._code = code;
 			this._description = description;
+			this._enumerationType = enumerationType || null;
 		}
 
 		/**
@@ -35,6 +42,16 @@ module.exports = (() => {
 		 */
 		get description() {
 			return this._description;
+		}
+
+		/**
+		 * The {@Enumeration} type.
+		 *
+		 * @public
+		 * @returns {Function|null}
+		 */
+		get enumerationType() {
+			return this._enumerationType;
 		}
 
 		/**
@@ -113,9 +130,17 @@ module.exports = (() => {
 			return dataTypes.find(dt => dt.code === code) || null;
 		}
 
+		static forEnumeration(EnumerationType, description) {
+			return new DataType('S', description, EnumerationType)
+		}
+
 		toString() {
 			return `[DataType (code=${this._code}, description=${this._description})]`;
 		}
+	}
+
+	function extendsEnumeration(EnumerationType) {
+		return is.extension(Enumeration, EnumerationType);
 	}
 
 	const dataTypeString = new DataType('S', 'String');

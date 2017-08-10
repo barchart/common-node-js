@@ -1,6 +1,6 @@
 var StringSerializer = require('./../../../../../../../aws/dynamo/schema/serialization/attributes/StringSerializer');
 
-describe('When a String Serializer is instantiated', function() {
+describe('When a StringSerializer is instantiated', function() {
 	'use strict';
 
 	var serializer;

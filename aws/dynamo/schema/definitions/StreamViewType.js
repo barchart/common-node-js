@@ -1,4 +1,5 @@
-const assert = require('common/lang/assert');
+const assert = require('common/lang/assert'),
+	Enum = require('common/lang/Enum');
 
 module.exports = (() => {
 	'use strict';
@@ -8,27 +9,16 @@ module.exports = (() => {
 	 *
 	 * @public
 	 */
-	class StreamViewType {
-		constructor(description, schemaName) {
-			assert.argumentIsRequired(description, 'description', String);
-			assert.argumentIsRequired(schemaName, 'schemaName', String);
-
-			this._description = description;
-			this._schemaName = schemaName;
-		}
-
-		/**
-		 * @returns {String}
-		 */
-		get description() {
-			return this._description;
+	class StreamViewType extends Enum {
+		constructor(schemaName, description) {
+			super(schemaName, description);
 		}
 
 		/**
 		 * @returns {String}
 		 */
 		get schemaName() {
-			return this._schemaName;
+			return this.code;
 		}
 
 		/**
@@ -59,27 +49,15 @@ module.exports = (() => {
 			return streamTypeKeysOnly;
 		}
 
-		/**
-		 * @param {String} code
-		 * @returns {StreamViewType}
-		 */
-		static fromCode(code) {
-			assert.argumentIsRequired(code, 'code', String);
-
-			return streamTypes.find(it => it.code === code);
-		}
-
 		toString() {
-			return `[StreamViewType (description=${this._description})]`;
+			return `[StreamViewType (description=${this.description})]`;
 		}
 	}
 
-	const streamTypeNewImage = new StreamViewType('New Image', 'NEW_IMAGE');
-	const streamTypeOldImage = new StreamViewType('Old Image', 'OLD_IMAGE');
-	const streamTypeBothImages = new StreamViewType('Both Images', 'NEW_AND_OLD_IMAGES');
-	const streamTypeKeysOnly = new StreamViewType('Keys Only', 'KEYS_ONLY');
-
-	const streamTypes = [ streamTypeNewImage, streamTypeOldImage, streamTypeBothImages, streamTypeKeysOnly ];
+	const streamTypeNewImage = new StreamViewType('NEW_IMAGE', 'New Image');
+	const streamTypeOldImage = new StreamViewType('OLD_IMAGE', 'Old Image');
+	const streamTypeBothImages = new StreamViewType('NEW_AND_OLD_IMAGES', 'Both Images');
+	const streamTypeKeysOnly = new StreamViewType('KEYS_ONLY', 'Keys Only');
 
 	return StreamViewType;
 })();

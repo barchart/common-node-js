@@ -2,7 +2,7 @@ var Decimal = require('common/lang/Decimal');
 
 var DecimalSerializer = require('./../../../../../../../aws/dynamo/schema/serialization/attributes/DecimalSerializer');
 
-describe('When a Decimal Serializer is instantiated', function() {
+describe('When a DecimalSerializer is instantiated', function() {
 	'use strict';
 
 	var serializer;

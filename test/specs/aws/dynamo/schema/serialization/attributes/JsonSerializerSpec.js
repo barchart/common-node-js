@@ -1,6 +1,6 @@
 var JsonSerializer = require('./../../../../../../../aws/dynamo/schema/serialization/attributes/JsonSerializer');
 
-describe('When a JSON Serializer is instantiated', function() {
+describe('When a JsonSerializer is instantiated', function() {
 	'use strict';
 
 	var serializer;

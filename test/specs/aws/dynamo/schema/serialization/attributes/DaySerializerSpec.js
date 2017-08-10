@@ -2,7 +2,7 @@ var Day = require('common/lang/Day');
 
 var DaySerializer = require('./../../../../../../../aws/dynamo/schema/serialization/attributes/DaySerializer');
 
-describe('When a Day Serializer is instantiated', function() {
+describe('When a DaySerializer is instantiated', function() {
 	'use strict';
 
 	var serializer;

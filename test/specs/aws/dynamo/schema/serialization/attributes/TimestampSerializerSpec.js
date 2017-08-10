@@ -2,7 +2,7 @@ var Timestamp = require('common/lang/Timestamp');
 
 var TimestampSerializer = require('./../../../../../../../aws/dynamo/schema/serialization/attributes/TimestampSerializer');
 
-describe('When a Timestamp Serializer is instantiated', function() {
+describe('When a TimestampSerializer is instantiated', function() {
 	'use strict';
 
 	var serializer;
