@@ -45,6 +45,10 @@ module.exports = (() => {
 			return dataTypeNumber;
 		}
 
+		static get BOOLEAN() {
+			return dataTypeBoolean;
+		}
+
 		static get JSON() {
 			return dataTypeJson;
 		}
@@ -73,10 +77,18 @@ module.exports = (() => {
 
 	const dataTypeString = new DataType('S', 'String');
 	const dataTypeNumber = new DataType('N', 'Number');
+	const dataTypeBoolean = new DataType('BOOL', 'Boolean');
+
 	const dataTypeJson = new DataType('S', 'Json');
 	const dataTypeDecimal = new DataType('S', 'Decimal');
 
-	const dataTypes = [ dataTypeString, dataTypeNumber, dataTypeJson, dataTypeDecimal ];
+	const dataTypes = [
+		dataTypeString,
+		dataTypeNumber,
+		dataTypeBoolean,
+		dataTypeJson,
+		dataTypeDecimal
+	];
 
 	return DataType;
 })();
