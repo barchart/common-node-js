@@ -54,6 +54,10 @@ module.exports = (() => {
 			return this._enumerationType;
 		}
 
+		static forEnum(EnumerationType, description) {
+			return new DataType('S', description, EnumerationType)
+		}
+
 		/**
 		 * References a string.
 		 *
@@ -117,23 +121,6 @@ module.exports = (() => {
 			return dataTypeTimestamp;
 		}
 
-		/**
-		 * Description of the data type (or null, if no known {@link DataType} can be found).
-		 *
-		 * @public
-		 * @param {string} code - The code of the {@link DataType} instance to find.
-		 * @returns {DataType|null}
-		 */
-		static fromCode(code) {
-			assert.argumentIsRequired(code, 'code', String);
-
-			return dataTypes.find(dt => dt.code === code) || null;
-		}
-
-		static forEnumeration(EnumerationType, description) {
-			return new DataType('S', description, EnumerationType)
-		}
-
 		toString() {
 			return `[DataType (code=${this._code}, description=${this._description})]`;
 		}
@@ -151,16 +138,6 @@ module.exports = (() => {
 	const dataTypeDecimal = new DataType('S', 'Decimal');
 	const dataTypeDay = new DataType('S', 'Day');
 	const dataTypeTimestamp = new DataType('N', 'Timestamp');
-
-	const dataTypes = [
-		dataTypeString,
-		dataTypeNumber,
-		dataTypeBoolean,
-		dataTypeJson,
-		dataTypeDecimal,
-		dataTypeDay,
-		dataTypeTimestamp
-	];
 
 	return DataType;
 })();
