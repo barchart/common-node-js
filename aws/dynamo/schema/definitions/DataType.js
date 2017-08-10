@@ -37,22 +37,47 @@ module.exports = (() => {
 			return this._description;
 		}
 
+		/**
+		 * A string.
+		 *
+		 * @returns {DataType}
+		 */
 		static get STRING() {
 			return dataTypeString;
 		}
 
+		/**
+		 * A number.
+		 *
+		 * @returns {DataType}
+		 */
 		static get NUMBER() {
 			return dataTypeNumber;
 		}
 
+		/**
+		 * A Boolean value.
+		 *
+		 * @returns {DataType}
+		 */
 		static get BOOLEAN() {
 			return dataTypeBoolean;
 		}
 
+		/**
+		 * An object (serialized as JSON).
+		 *
+		 * @returns {DataType}
+		 */
 		static get JSON() {
 			return dataTypeJson;
 		}
 
+		/**
+		 * An {@link Decimal} instance.
+		 *
+		 * @returns {DataType}
+		 */
 		static get DECIMAL() {
 			return dataTypeDecimal;
 		}
