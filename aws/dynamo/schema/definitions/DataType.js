@@ -38,7 +38,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * A string.
+		 * References a string.
 		 *
 		 * @returns {DataType}
 		 */
@@ -47,7 +47,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * A number.
+		 * References a number.
 		 *
 		 * @returns {DataType}
 		 */
@@ -56,7 +56,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * A Boolean value.
+		 * References a Boolean value.
 		 *
 		 * @returns {DataType}
 		 */
@@ -65,7 +65,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * An object (serialized as JSON).
+		 * References an object (serialized as JSON).
 		 *
 		 * @returns {DataType}
 		 */
@@ -74,12 +74,30 @@ module.exports = (() => {
 		}
 
 		/**
-		 * An {@link Decimal} instance.
+		 * References a {@link Decimal} instance.
 		 *
 		 * @returns {DataType}
 		 */
 		static get DECIMAL() {
 			return dataTypeDecimal;
+		}
+
+		/**
+		 * References a {@link Day} instance.
+		 *
+		 * @returns {DataType}
+		 */
+		static get DAY() {
+			return dataTypeDay;
+		}
+
+		/**
+		 * References a {@link Timestamp} instance.
+		 *
+		 * @returns {DataType}
+		 */
+		static get TIMESTAMP() {
+			return dataTypeTimestamp;
 		}
 
 		/**
@@ -106,13 +124,17 @@ module.exports = (() => {
 
 	const dataTypeJson = new DataType('S', 'Json');
 	const dataTypeDecimal = new DataType('S', 'Decimal');
+	const dataTypeDay = new DataType('S', 'Day');
+	const dataTypeTimestamp = new DataType('N', 'Timestamp');
 
 	const dataTypes = [
 		dataTypeString,
 		dataTypeNumber,
 		dataTypeBoolean,
 		dataTypeJson,
-		dataTypeDecimal
+		dataTypeDecimal,
+		dataTypeDay,
+		dataTypeTimestamp
 	];
 
 	return DataType;

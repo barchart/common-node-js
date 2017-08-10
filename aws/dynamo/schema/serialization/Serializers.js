@@ -5,10 +5,12 @@ const Attribute = require('./../../schema/definitions/Attribute'),
 	ComponentType = require('./../../schema/definitions/ComponentType'),
 	DataType = require('./../../schema/definitions/DataType');
 
-const DecimalSerializer = require('./attributes/DecimalSerializer'),
+const DaySerializer = require('./attributes/DaySerializer'),
+	DecimalSerializer = require('./attributes/DecimalSerializer'),
 	JsonSerializer = require('./attributes/JsonSerializer'),
 	NumberSerializer = require('./attributes/NumberSerializer'),
-	StringSerializer = require('./attributes/StringSerializer');
+	StringSerializer = require('./attributes/StringSerializer'),
+	TimestampSerializer = require('./attributes/TimestampSerializer');
 
 const MoneySerializer = require('./components/MoneySerializer');
 
@@ -85,6 +87,8 @@ module.exports = (() => {
 	serializers.set(DataType.NUMBER, NumberSerializer.INSTANCE);
 	serializers.set(DataType.STRING, StringSerializer.INSTANCE);
 	serializers.set(DataType.JSON, JsonSerializer.INSTANCE);
+	serializers.set(DataType.DAY, DaySerializer.INSTANCE);
+	serializers.set(DataType.TIMESTAMP, TimestampSerializer.INSTANCE);
 
 	const components = new Map();
 
