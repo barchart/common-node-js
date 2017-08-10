@@ -8,6 +8,8 @@ module.exports = (() => {
 	 * a "hash" key and a "range" key.
 	 *
 	 * @public
+	 * @param {String} code
+	 * @param {String} description
 	 */
 	class KeyType {
 		constructor(code, description) {
@@ -18,22 +20,48 @@ module.exports = (() => {
 			this._description = description;
 		}
 
+		/**
+		 * The key type's unique code (used by AWS schemas).
+		 *
+		 * @returns {String}
+		 */
 		get code() {
 			return this._code;
 		}
 
+		/**
+		 * A description.
+		 *
+		 * @returns {String}
+		 */
 		get description() {
 			return this._description;
 		}
 
+		/**
+		 * A hash key.
+		 *
+		 * @returns {KeyType}
+		 */
 		static get HASH() {
 			return keyTypeHash;
 		}
 
+		/**
+		 * A range key.
+		 *
+		 * @returns {KeyType}
+		 */
 		static get RANGE() {
 			return keyTypeRange;
 		}
 
+		/**
+		 * Returns a {@link KeyType}, given its unique code.
+		 *
+		 * @param {String} code
+		 * @returns {KeyType}
+		 */
 		static fromCode(code) {
 			assert.argumentIsRequired(code, 'code', String);
 
