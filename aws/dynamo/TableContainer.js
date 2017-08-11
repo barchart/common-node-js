@@ -1,5 +1,4 @@
-const aws = require('aws-sdk'),
-	log4js = require('log4js');
+const log4js = require('log4js');
 
 const assert = require('common/lang/assert'),
 	Disposable = require('common/lang/Disposable'),
@@ -62,7 +61,9 @@ module.exports = (() => {
 					.then(() => {
 						return this._provider.start();
 					}).then(() => {
-						logger.info('Dynamo table wrapper for ', this._definition.name,'initialized');
+						return this._provider.createTable(definition);
+					}).then(() => {
+						logger.info('Dynamo table wrapper for ', this._definition.name, 'initialized');
 
 						this._started = true;
 
