@@ -1,5 +1,6 @@
 const assert = require('common/lang/assert'),
-	Enum = require('common/lang/Enum');
+	Enum = require('common/lang/Enum'),
+	is = require('common/lang/is');
 
 module.exports = (() => {
 	'use strict';
