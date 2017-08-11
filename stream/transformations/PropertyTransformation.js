@@ -13,13 +13,11 @@ module.exports = (() => {
 	 *
 	 * @public
 	 * @interface
+	 * @param {String} inputPropertyName - The name of the property to read from.
+	 * @param {String=} outputPropertyName - The name of the property to write to.
+	 * @param {String=} description - Describes the transformation, intended for logging purposes.
 	 */
 	class PropertyTransformation extends Transformation {
-		/**
-		 * @param {String} inputPropertyName - The name of the property to read from.
-		 * @param {String=} outputPropertyName - The name of the property to write to.
-		 * @param {String=} description - Describes the transformation, intended for logging purposes.
-		 */
 		constructor(inputPropertyName, outputPropertyName, descripription) {
 			super(descripription);
 
