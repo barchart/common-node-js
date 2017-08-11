@@ -18,12 +18,12 @@ module.exports = (() => {
 	 * @param {String=} description - Describes the transformation, intended for logging purposes.
 	 */
 	class PropertyTransformation extends Transformation {
-		constructor(inputPropertyName, outputPropertyName, descripription) {
-			super(descripription);
+		constructor(inputPropertyName, outputPropertyName, description) {
+			super(description || 'Property Transformation');
 
 			assert.argumentIsRequired(inputPropertyName, 'inputPropertyName', String);
 			assert.argumentIsOptional(outputPropertyName, 'inputPropertyName', String);
-			assert.argumentIsOptional(descripription, 'descripription', String);
+			assert.argumentIsOptional(description, 'description', String);
 
 			this._inputPropertyName = inputPropertyName;
 			this._outputPropertyName = outputPropertyName || inputPropertyName;
