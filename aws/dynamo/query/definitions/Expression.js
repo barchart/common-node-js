@@ -19,7 +19,16 @@ module.exports = (() => {
 		constructor(attribute, operatorType, operand) {
 			this._attribute = attribute;
 			this._operatorType = operatorType || null;
-			this._operand = operand || null;
+
+			var operandToUse;
+
+			if (is.undefined(operand)) {
+				operandToUse = null;
+			} else {
+				operandToUse = operand;
+			}
+
+			this._operand = operandToUse;
 		}
 
 		/**

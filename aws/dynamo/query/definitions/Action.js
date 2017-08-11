@@ -1,7 +1,7 @@
 const assert = require('common/lang/assert');
 
 const Filter = require('./Filter'),
-	Serializer = require('./../../schema/serialization/Serializer');
+	Serializers = require('./../../schema/serialization/Serializers');
 
 module.exports = (() => {
 	'use strict';
@@ -72,8 +72,10 @@ module.exports = (() => {
 				const operatorType = e.operatorType;
 				const operand = e.operand;
 
-				const repeatCount = 1 + Math.floor(index / 26);
-				const letterCode = 97 + (index % 26);
+				const indexToUse = index + offsetToUse;
+
+				const repeatCount = 1 + Math.floor(indexToUse / 26);
+				const letterCode = 97 + (indexToUse % 26);
 
 				const addOperandAlias = (operandAlias, operandValue) => {
 					accumulator.aliases[operandAlias] = operandValue;
@@ -84,7 +86,7 @@ module.exports = (() => {
 				if (operatorType.operandCount > 1) {
 					operandAliases = operand.map((o, i) => {
 						const operandAlias = `:${String.fromCharCode(letterCode).repeat(repeatCount)}${i}`;
-						const operandValue = Serializer.serialize(operand[i], e.attribute.dataType);
+						const operandValue = Serializers.forDataType(e.attribute.dataType).serialize(operand[i]);
 
 						addOperandAlias(operandAlias, operandValue);
 
@@ -92,7 +94,7 @@ module.exports = (() => {
 					});
 				} else if (operatorType.operandCount === 1) {
 					const operandAlias = `:${String.fromCharCode(letterCode).repeat(repeatCount)}`;
-					const operandValue = Serializer.serialize(operand, e.attribute.dataType);
+					const operandValue = Serializers.forDataType(e.attribute.dataType).serialize(operand);
 
 					addOperandAlias(operandAlias, operandValue);
 
