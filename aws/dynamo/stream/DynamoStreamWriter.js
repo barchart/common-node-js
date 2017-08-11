@@ -44,6 +44,8 @@ module.exports = (() => {
 			writePromise.then(() => {
 				callback(null);
 			}).catch((e) => {
+				logger.error('Failed to write chunk', chunk);
+
 				callback(e);
 			});
 		}
