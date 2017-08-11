@@ -37,6 +37,8 @@ module.exports = (() => {
 		}
 
 		/**
+		 * The table definition.
+		 *
 		 * @public
 		 * @returns {Table}
 		 */
