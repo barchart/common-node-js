@@ -101,7 +101,7 @@ module.exports = (() => {
 		withProjection(projectionType, attributeNames) {
 			const namesToUse = attributeNames || [ ];
 
-			return this.withKeyBuilder(projectionType, pb => namesToUse.forEach(n => pb.withAttribute(n)));
+			return this.withProjectionBuilder(projectionType, pb => namesToUse.forEach(n => pb.withAttribute(n)));
 		}
 
 		/**
