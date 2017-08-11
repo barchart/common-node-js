@@ -247,7 +247,7 @@ module.exports = (() => {
 			let tableBuilder = TableBuilder.withName(definition.TableName)
 				.withProvisionedThroughput(definition.ProvisionedThroughput.ReadCapacityUnits, definition.ProvisionedThroughput.WriteCapacityUnits);
 
-			definition.AttributeDefinitions.reduce((tb, ad) => tb.withAttribute(ad.AttributeName, Enum.fromCode(DataType, ad.AttributeType)), tableBuilder);
+			definition.AttributeDefinitions.reduce((tb, ad) => tb.withAttribute(ad.AttributeName, DataType.fromCode(ad.AttributeType)), tableBuilder);
 			definition.KeySchema.reduce((tb, ks) => tb.withKey(ks.AttributeName, Enum.fromCode(KeyType, ks.KeyType)), tableBuilder);
 
 			const processIndex = (indexType, indexDefinition) => {
