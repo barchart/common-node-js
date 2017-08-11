@@ -422,6 +422,7 @@ module.exports = (() => {
 		 * Runs a scan against a DynamoDB table (or index) and returns
 		 * all the items matching the scan.
 		 *
+		 * @public
 		 * @param {Scan} scan
 		 * @returns {Promise<Array<Object>>}
 		 */
@@ -475,6 +476,7 @@ module.exports = (() => {
 		 * Runs a query against a DynamoDB table (or index) and returns
 		 * all the items matching the query.
 		 *
+		 * @public
 		 * @param {Query} query
 		 * @returns {Promise<Array<Object>>}
 		 */
