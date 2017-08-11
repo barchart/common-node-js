@@ -84,7 +84,7 @@ module.exports = (() => {
 				if (operatorType.operandCount > 1) {
 					operandAliases = operand.map((o, i) => {
 						const operandAlias = `:${String.fromCharCode(letterCode).repeat(repeatCount)}${i}`;
-						const operandValue = Serializer.serializeValue(operand[i], e.attribute.dataType);
+						const operandValue = Serializer.serialize(operand[i], e.attribute.dataType);
 
 						addOperandAlias(operandAlias, operandValue);
 
@@ -92,7 +92,7 @@ module.exports = (() => {
 					});
 				} else if (operatorType.operandCount === 1) {
 					const operandAlias = `:${String.fromCharCode(letterCode).repeat(repeatCount)}`;
-					const operandValue = Serializer.serializeValue(operand, e.attribute.dataType);
+					const operandValue = Serializer.serialize(operand, e.attribute.dataType);
 
 					addOperandAlias(operandAlias, operandValue);
 
