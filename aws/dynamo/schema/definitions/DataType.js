@@ -128,7 +128,7 @@ module.exports = (() => {
 	}
 
 	function extendsEnumeration(EnumerationType) {
-		return is.extension(Enumeration, EnumerationType);
+		return is.extension(Enum, EnumerationType);
 	}
 
 	const dataTypeString = new DataType('S', 'String');

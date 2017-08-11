@@ -63,7 +63,7 @@ module.exports = (() => {
 					.then(() => {
 						return this._provider.start();
 					}).then(() => {
-						return this._provider.createTable(definition);
+						return this._provider.createTable(this.definition);
 					}).then(() => {
 						logger.info('Dynamo table wrapper for ', this._definition.name, 'initialized');
 
