@@ -69,12 +69,18 @@ module.exports = (() => {
 				TableName: this.table.name
 			};
 
-			const expressionData = Action.getExpressionData(this._filter);
+			const expressionData = Action.getConditionExpressionData(this.table, this._filter);
 
-			schema.ConditionExpression = expressionData.components.join(' and ');
+			schema.ConditionExpression = expressionData.expression;
 
-			if (object.keys(expressionData.aliases).length !== 0) {
-				schema.ExpressionAttributeValues = expressionData.aliases;
+			if (object.keys(expressionData.valueAliases).length !== 0) {
+				schema.ExpressionAttributeValues = expressionData.valueAliases;
+			}
+
+			const attributes = this._filter.expressions.map(e => e.attribute);
+
+			if (attributes.length !== 0) {
+				schema.ExpressionAttributeNames = Action.getExpressionAttributeNames(this._table, attributes);
 			}
 
 			return schema;
