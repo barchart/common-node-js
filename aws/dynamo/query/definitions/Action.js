@@ -55,6 +55,15 @@ module.exports = (() => {
 			return this._description;
 		}
 
+		/**
+		 * Returns a string suitable to pass to an "ExpressionAttributeNames" property
+		 * on an AWS query or scan object.
+		 *
+		 * @protected
+		 * @param {Table} table
+		 * @param {Array<Attribute>} attributes
+		 * @returns {String}
+		 */
 		static getExpressionAttributeNames(table, attributes) {
 			const aliases = getAttributeAliasMap(table);
 
@@ -68,12 +77,33 @@ module.exports = (() => {
 				}, { });
 		}
 
+		/**
+		 * Returns a string suitable to pass to a "ProjectionExpression" property
+		 * on an AWS query or scan object.
+		 *
+		 * @protected
+		 * @param {Table} table
+		 * @param {Array<Attribute>} projectedAttributes - Attributes to project (i.e. select).
+		 * @returns {String}
+		 */
 		static getProjectionExpression(table, projectedAttributes) {
 			const aliases = getAttributeAliasMap(table);
 
 			return projectedAttributes.map(pa => aliases[pa.name]).join(',');
 		}
 
+		/**
+		 * Gets an object with useful data for building an AWS scan or query. Specifically,
+		 * an "expression" which can be used by a "FilterExpression" or "KeyConditionExpression"
+		 * field. Also, a "valueAliases" object which conforms to the "ExpressionAttributeValues"
+		 * field.
+		 *
+		 * @protected
+		 * @param {Table} table
+		 * @param {Filter} filter
+		 * @param {Number=} offset - Used to "offset" the alias counter (when calling this function many times -- e.g. query key condition and result filter)
+		 * @returns {*}
+		 */
 		static getConditionExpressionData(table, filter, offset) {
 			assert.argumentIsRequired(table, 'table', Table, 'Table');
 			assert.argumentIsRequired(filter, 'filter', Filter, 'Filter');
