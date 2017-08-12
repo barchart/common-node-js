@@ -18,7 +18,7 @@ module.exports = (() => {
 	 */
 	class PropertyMapTransformation extends PropertyTransformation {
 		constructor(inputPropertyName, map, outputPropertyName, description) {
-			super(inputPropertyName, outputPropertyName, (description || 'Property Map Transformation'));
+			super(inputPropertyName, outputPropertyName, (description || `Property Map Transformation (${inputPropertyName}${(outputPropertyName ? ' to ' + outputPropertyName : '')})`));
 
 			assert.argumentIsRequired(map, 'map', Map, 'Map');
 

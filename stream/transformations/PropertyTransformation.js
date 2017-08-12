@@ -19,7 +19,7 @@ module.exports = (() => {
 	 */
 	class PropertyTransformation extends Transformation {
 		constructor(inputPropertyName, outputPropertyName, description) {
-			super(description || 'Property Transformation');
+			super(description || `Property Transformation (${inputPropertyName}${(outputPropertyName ? ' to ' + outputPropertyName : '')})`);
 
 			assert.argumentIsRequired(inputPropertyName, 'inputPropertyName', String);
 			assert.argumentIsOptional(outputPropertyName, 'inputPropertyName', String);

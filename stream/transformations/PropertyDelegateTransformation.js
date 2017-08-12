@@ -21,7 +21,7 @@ module.exports = (() => {
 	 */
 	class PropertyDelegateTransformation extends PropertyTransformation {
 		constructor(inputPropertyName, transformDelegate, outputPropertyName, asynchronous, canTransformDelegate, description) {
-			super(inputPropertyName, outputPropertyName, (description || 'Delegated Property Transformation'));
+			super(inputPropertyName, outputPropertyName, (description || `Delegated Property Transformation (${inputPropertyName}${(outputPropertyName ? ' to ' + outputPropertyName : '')})`));
 
 			this._delegateTransformation = new DelegateTransformation(transformDelegate, asynchronous, canTransformDelegate);
 		}

@@ -18,7 +18,7 @@ module.exports = (() => {
 	 */
 	class PropertyDefaultTransformation extends PropertyTransformation {
 		constructor(propertyName, defaultValue, description) {
-			super(propertyName, propertyName, (description || 'Property Default Transformation'));
+			super(propertyName, propertyName, (description || `Property Transformation (${propertyName})`));
 
 			this._defaultValue = defaultValue;
 		}

@@ -60,7 +60,7 @@ module.exports = (() => {
 		 */
 		transform(input) {
 			if (!this._canTransform(input)) {
-				throw new Error('Unable to perform transformation');
+				throw new Error(`Unable to perform transformation [ ${this._description} ]`);
 			}
 
 			return this._transform(input);
