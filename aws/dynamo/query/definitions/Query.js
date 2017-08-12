@@ -20,14 +20,17 @@ module.exports = (() => {
 	 * @param {Index} index
 	 * @param {Filter} keyFilter
 	 * @param {Filter} resultsFilter
+	 * @param {Array<Attribute>} attributes
 	 * @param {String=} description
 	 */
 	class Query extends Action {
-		constructor(table, index, keyFilter, resultsFilter, description) {
+		constructor(table, index, keyFilter, resultsFilter, attributes, description) {
 			super(table, index, (description || '[Unnamed Query]'));
 
 			this._keyFilter = keyFilter || null;
 			this._resultsFilter = resultsFilter || null;
+
+			this._attributes = attributes || [ ];
 		}
 
 		/**
@@ -49,6 +52,16 @@ module.exports = (() => {
 		 */
 		get resultsFilter() {
 			return this._resultsFilter;
+		}
+
+		/**
+		 * The {@link Attribute} instances to select. If the array is empty, all
+		 * attributes will be selected.
+		 *
+		 * @returns {Array<Attribute>}
+		 */
+		get attributes() {
+			return [...this._attributes];
 		}
 
 		/**
@@ -131,6 +144,13 @@ module.exports = (() => {
 			}
 
 			schema.ExpressionAttributeValues = aliases;
+
+			if (this._attributes.length !== 0) {
+				const projectionData = Action.getProjectionData(this._attributes);
+
+				schema.ExpressionAttributeNames = projectionData.aliases;
+				schema.ProjectionExpression = projectionData.projection;
+			}
 
 			return schema;
 		}

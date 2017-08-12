@@ -17,6 +17,7 @@ module.exports = (() => {
 	 * @param {Table} table
 	 * @param {Index} index
 	 * @param {Filter} filter
+	 * @param {Array<Attribute>} attributes
 	 * @param {String=} description
 	 */
 	class Scan extends Action {

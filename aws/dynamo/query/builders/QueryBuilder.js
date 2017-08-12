@@ -53,7 +53,7 @@ module.exports = (() => {
 		withIndex(indexName) {
 			assert.argumentIsRequired(indexName, 'indexName', String);
 
-			this._query = new Query(this._query.table, getIndex(indexName, this._query.table), this._query.keyFilter, this._query.resultsFilter, this._query.description);
+			this._query = new Query(this._query.table, getIndex(indexName, this._query.table), this._query.keyFilter, this._query.resultsFilter, this._query.attributes, this._query.description);
 
 			return this;
 		}
@@ -73,7 +73,7 @@ module.exports = (() => {
 
 			callback(filterBuilder);
 
-			this._query = new Query(this._query.table, this._query.index, filterBuilder.filter, this._query.resultsFilter, this._query.description);
+			this._query = new Query(this._query.table, this._query.index, filterBuilder.filter, this._query.resultsFilter, this._query.attributes, this._query.description);
 
 			return this;
 		}
@@ -93,13 +93,38 @@ module.exports = (() => {
 
 			callback(filterBuilder);
 
-			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, filterBuilder.filter, this._query.description);
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, filterBuilder.filter, this._query.attributes, this._query.description);
+
+			return this;
+		}
+
+
+		/**
+		 * The name of an attribute to select.
+		 *
+		 * @public
+		 * @param {String} attributeName
+		 */
+		withAttribute(attributeName) {
+			assert.argumentIsRequired(attributeName, 'attributeName', String);
+
+			const attribute = getAttribute(attributeName, this._query.table);
+
+			if (attribute !== null) {
+				const attributes = this.query.attributes;
+
+				if (!attributes.some(a => a.name === attribute.name)) {
+					attributes.push(attribute);
+
+					this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, attributes, this._query.description);
+				}
+			}
 
 			return this;
 		}
 
 		/**
-		 * Adds a description to the scan and returns the current instance.
+		 * Adds a description to the query and returns the current instance.
 		 *
 		 * @public
 		 * @param {String} description
@@ -108,7 +133,7 @@ module.exports = (() => {
 		withDescription(description) {
 			assert.argumentIsRequired(description, 'description', String);
 
-			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, description);
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.attributes, description);
 
 			return this;
 		}
@@ -134,6 +159,10 @@ module.exports = (() => {
 
 	function getIndex(name, table) {
 		return table.indicies.find(i => i.name === name) || null;
+	}
+
+	function getAttribute(name, table) {
+		return table.attributes.find(a => a.name === name) || null;
 	}
 
 	return QueryBuilder;
