@@ -127,30 +127,35 @@ module.exports = (() => {
 				schema.IndexName = this.index.name;
 			}
 
-			const keyExpressionData = Action.getExpressionData(this._keyFilter);
+			let attributes = this.attributes;
 
-			schema.KeyConditionExpression = keyExpressionData.components.join(' and ');
+			if (attributes.length !== 0) {
+				schema.ProjectionExpression = Action.getProjectionExpression(this.table, attributes);
+			}
 
-			let aliases;
+			const keyExpressionData = Action.getConditionExpressionData(this.table, this._keyFilter);
+
+			schema.KeyConditionExpression = keyExpressionData.expression;
+			attributes = attributes.concat(this._keyFilter.expressions.map(e => e.attribute));
+
+			let valueAliases = keyExpressionData.valueAliases;
 
 			if (this._resultsFilter !== null) {
-				const resultsExpressionData = Action.getExpressionData(this._resultsFilter, keyExpressionData.offset);
+				const resultsExpressionData = Action.getConditionExpressionData(this.table, this._resultsFilter, keyExpressionData.offset);
 
-				schema.FilterExpression = resultsExpressionData.components.join(' and ');
+				schema.FilterExpression = resultsExpressionData.expression;
+				attributes = attributes.concat(this._resultsFilter.expressions.map(e => e.attribute));
 
-				aliases = object.merge(keyExpressionData.aliases, resultsExpressionData.aliases);
+				valueAliases = object.merge(keyExpressionData.valueAliases, resultsExpressionData.valueAliases);
 			} else {
-				aliases = keyExpressionData.aliases;
+				valueAliases = keyExpressionData.valueAliases;
 			}
 
-			schema.ExpressionAttributeValues = aliases;
-
-			if (this._attributes.length !== 0) {
-				const projectionData = Action.getProjectionData(this._attributes);
-
-				schema.ExpressionAttributeNames = projectionData.aliases;
-				schema.ProjectionExpression = projectionData.projection;
+			if (attributes.length !== 0) {
+				schema.ExpressionAttributeNames = Action.getExpressionAttributeNames(this._table, attributes);
 			}
+
+			schema.ExpressionAttributeValues = valueAliases;
 
 			return schema;
 		}

@@ -1,7 +1,9 @@
-const assert = require('common/lang/assert');
+const array = require('common/lang/array'),
+	assert = require('common/lang/assert');
 
 const Filter = require('./Filter'),
-	Serializers = require('./../../schema/serialization/Serializers');
+	Serializers = require('./../../schema/serialization/Serializers'),
+	Table = require('./../../schema/definitions/Table');
 
 module.exports = (() => {
 	'use strict';
@@ -53,22 +55,35 @@ module.exports = (() => {
 			return this._description;
 		}
 
-		/**
-		 * Used to convert {@link Filter} definitions into data suitable for
-		 * passing to the AWS SDK. This function is for internal use only.
-		 *
-		 * @protected
-		 * @param {Filter} filter
-		 * @param {Number} offset
-		 * @returns {Object}
-		 */
-		static getExpressionData(filter, offset) {
+		static getExpressionAttributeNames(table, attributes) {
+			const aliases = getAttributeAliasMap(table);
+
+			return array.unique(attributes.map(a => a.name))
+				.reduce((accumulator, name) => {
+					const alias = aliases[name];
+
+					accumulator[alias] = name;
+
+					return accumulator;
+				}, { });
+		}
+
+		static getProjectionExpression(table, projectedAttributes) {
+			const aliases = getAttributeAliasMap(table);
+
+			return projectedAttributes.map(pa => aliases[pa.name]).join(',');
+		}
+
+		static getConditionExpressionData(table, filter, offset) {
+			assert.argumentIsRequired(table, 'table', Table, 'Table');
 			assert.argumentIsRequired(filter, 'filter', Filter, 'Filter');
 			assert.argumentIsOptional(offset, 'offset', Number);
 
+			const attributeAliases = getAttributeAliasMap(table);
+
 			const offsetToUse = offset || 0;
 
-			return filter.expressions.reduce((accumulator, e, index) => {
+			const data = filter.expressions.reduce((accumulator, e, index) => {
 				const operatorType = e.operatorType;
 				const operand = e.operand;
 
@@ -78,7 +93,7 @@ module.exports = (() => {
 				const letterCode = 97 + (indexToUse % 26);
 
 				const addOperandAlias = (operandAlias, operandValue) => {
-					accumulator.aliases[operandAlias] = operandValue;
+					accumulator.valueAliases[operandAlias] = operandValue;
 				};
 
 				let operandAliases;
@@ -103,42 +118,38 @@ module.exports = (() => {
 					operandAliases = [ ];
 				}
 
-				accumulator.components.push(operatorType.format(e.attribute.name, operandAliases));
+				accumulator.expressionComponents.push(operatorType.format(attributeAliases[e.attribute.name], operandAliases));
 
 				return accumulator;
-			}, { components: [ ], aliases: { }, offset: offsetToUse + filter.expressions.length });
-		}
+			}, { expressionComponents: [ ], valueAliases: { }, offset: offsetToUse + filter.expressions.length });
 
-		static getProjectionData(attributes) {
-			const items = attributes.map((a, index) => {
-				const repeatCount = 1 + Math.floor(index / 26);
-				const letterCode = 97 + (index % 26);
+			data.expression = data.expressionComponents.join(' and ');
 
-				const alias = `#${String.fromCharCode(letterCode).repeat(repeatCount)}`;
-
-				return {
-					name: a.name,
-					alias: alias,
-				};
-			});
-
-			const aliases = items.reduce((accumulator, item) => {
-				accumulator[item.alias] = item.name;
-
-				return accumulator;
-			}, { });
-
-			const projection = items.map(item => item.alias).join(',');
-
-			return {
-				aliases: aliases,
-				projection: projection
-			};
+			return data;
 		}
 
 		toString() {
 			return '[Action]';
 		}
+	}
+
+	const attributeAliasMaps = new Map();
+
+	function getAttributeAliasMap(table) {
+		if (!attributeAliasMaps.has(table.name)) {
+			const aliases = table.attributes.reduce((map, a, index) => {
+				const repeatCount = 1 + Math.floor(index / 26);
+				const letterCode = 97 + (index % 26);
+
+				map[a.name] = `#${String.fromCharCode(letterCode).repeat(repeatCount)}`;
+
+				return map;
+			}, { });
+
+			attributeAliasMaps.set(table.name, aliases);
+		}
+
+		return attributeAliasMaps.get(table.name);
 	}
 
 	return Action;

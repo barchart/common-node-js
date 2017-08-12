@@ -58,7 +58,7 @@ module.exports = (() => {
 
 			callback(filterBuilder);
 
-			this._scan = new Scan(this._scan.table, this._scan.index, filterBuilder.filter, this._scan.description);
+			this._scan = new Scan(this._scan.table, this._scan.index, filterBuilder.filter, this._scan.attributes, this._scan.description);
 
 			return this;
 		}

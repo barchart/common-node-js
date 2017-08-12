@@ -92,18 +92,23 @@ module.exports = (() => {
 				schema.IndexName = this.index.name;
 			}
 
-			if (this._filter !== null) {
-				const expressionData = Action.getExpressionData(this._filter);
+			let attributes = this.attributes;
 
-				schema.FilterExpression = expressionData.components.join(' and ');
-				schema.ExpressionAttributeValues = expressionData.aliases;
+			if (attributes.length !== 0) {
+				schema.ProjectionExpression = Action.getProjectionExpression(this.table, attributes);
 			}
 
-			if (this._attributes.length !== 0) {
-				const projectionData = Action.getProjectionData(this._attributes);
+			if (this._filter !== null) {
+				const expressionData = Action.getConditionExpressionData(this.table, this._filter);
 
-				schema.ExpressionAttributeNames = projectionData.aliases;
-				schema.ProjectionExpression = projectionData.projection;
+				schema.FilterExpression = expressionData.expression;
+				schema.ExpressionAttributeValues = expressionData.valueAliases;
+
+				attributes = attributes.concat(this._filter.expressions.map(e => e.attribute));
+			}
+
+			if (attributes.length !== 0) {
+				schema.ExpressionAttributeNames = Action.getExpressionAttributeNames(this._table, attributes);
 			}
 
 			return schema;
