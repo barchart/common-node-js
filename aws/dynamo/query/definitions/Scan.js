@@ -20,10 +20,11 @@ module.exports = (() => {
 	 * @param {String=} description
 	 */
 	class Scan extends Action {
-		constructor(table, index, filter, description) {
+		constructor(table, index, filter, attributes, description) {
 			super(table, index, (description || '[Unnamed Scan]'));
 
-			this._filter = filter;
+			this._filter = filter || null;
+			this._attributes = attributes || [ ];
 		}
 
 		/**
@@ -34,6 +35,16 @@ module.exports = (() => {
 		 */
 		get filter() {
 			return this._filter;
+		}
+
+		/**
+		 * The {@link Attribute} instances to select. If the array is empty, all
+		 * attributes will be selected.
+		 *
+		 * @returns {Array<Attribute>}
+		 */
+		get attributes() {
+			return [...this._attributes];
 		}
 
 		/**
@@ -54,11 +65,13 @@ module.exports = (() => {
 				throw new Error('The index must belong to the table.');
 			}
 
-			if (!(this._filter instanceof Filter)) {
-				throw new Error('Filter data type is invalid.');
-			}
+			if (this._filter !== null) {
+				if (!(this._filter instanceof Filter)) {
+					throw new Error('Filter data type is invalid.');
+				}
 
-			this._filter.validate();
+				this._filter.validate();
+			}
 		}
 
 		/**
@@ -78,10 +91,19 @@ module.exports = (() => {
 				schema.IndexName = this.index.name;
 			}
 
-			const expressionData = Action.getExpressionData(this._filter);
+			if (this._filter !== null) {
+				const expressionData = Action.getExpressionData(this._filter);
 
-			schema.FilterExpression = expressionData.components.join(' and ');
-			schema.ExpressionAttributeValues = expressionData.aliases;
+				schema.FilterExpression = expressionData.components.join(' and ');
+				schema.ExpressionAttributeValues = expressionData.aliases;
+			}
+
+			if (this._attributes.length !== 0) {
+				const projectionData = Action.getProjectionData(this._attributes);
+
+				schema.ExpressionAttributeNames = projectionData.aliases;
+				schema.ProjectionExpression = projectionData.projection;
+			}
 
 			return schema;
 		}

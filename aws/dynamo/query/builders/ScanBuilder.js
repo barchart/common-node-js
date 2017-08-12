@@ -74,7 +74,31 @@ module.exports = (() => {
 		withIndex(indexName) {
 			assert.argumentIsRequired(indexName, 'indexName', String);
 
-			this._scan = new Scan(this._scan.table, getIndex(indexName, this._scan.table), this._scan.filter, this._scan.description);
+			this._scan = new Scan(this._scan.table, getIndex(indexName, this._scan.table), this._scan.filter, this._scan.attributes, this._scan.description);
+
+			return this;
+		}
+
+		/**
+		 * The name of an attribute to select.
+		 *
+		 * @public
+		 * @param {String} attributeName
+		 */
+		withAttribute(attributeName) {
+			assert.argumentIsRequired(attributeName, 'attributeName', String);
+
+			const attribute = getAttribute(attributeName, this._scan.table);
+
+			if (attribute !== null) {
+				const attributes = this.scan.attributes;
+
+				if (!attributes.some(a => a.name === attribute.name)) {
+					attributes.push(attribute);
+
+					this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, attributes, this._scan.description);
+				}
+			}
 
 			return this;
 		}
@@ -89,7 +113,7 @@ module.exports = (() => {
 		withDescription(description) {
 			assert.argumentIsRequired(description, 'description', String);
 
-			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, description);
+			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, this._scan.attributes, description);
 
 			return this;
 		}
@@ -113,6 +137,10 @@ module.exports = (() => {
 
 	function getIndex(name, table) {
 		return table.indicies.find(i => i.name === name) || null;
+	}
+
+	function getAttribute(name, table) {
+		return table.attributes.find(a => a.name === name) || null;
 	}
 
 	return ScanBuilder;

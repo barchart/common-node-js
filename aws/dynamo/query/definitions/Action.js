@@ -109,6 +109,33 @@ module.exports = (() => {
 			}, { components: [ ], aliases: { }, offset: offsetToUse + filter.expressions.length });
 		}
 
+		static getProjectionData(attributes) {
+			const items = attributes.map((a, index) => {
+				const repeatCount = 1 + Math.floor(index / 26);
+				const letterCode = 97 + (index % 26);
+
+				const alias = `#${String.fromCharCode(letterCode).repeat(repeatCount)}`;
+
+				return {
+					name: a.name,
+					alias: alias,
+				};
+			});
+
+			const aliases = items.reduce((accumulator, item) => {
+				accumulator[item.alias] = item.name;
+
+				return accumulator;
+			}, { });
+
+			const projection = items.map(item => item.alias).join(',');
+
+			return {
+				aliases: aliases,
+				projection: projection
+			};
+		}
+
 		toString() {
 			return '[Action]';
 		}

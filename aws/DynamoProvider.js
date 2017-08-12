@@ -438,7 +438,7 @@ module.exports = (() => {
 					const runScanRecursive = (previous) => {
 						return this._scheduler.backoff(() => {
 							return promise.build((resolveCallback, rejectCallback) => {
-								if (previous && is.string(previous)) {
+								if (previous) {
 									options.ExclusiveStartKey = previous;
 								}
 
@@ -492,7 +492,7 @@ module.exports = (() => {
 					const runQueryRecursive = (previous) => {
 						return this._scheduler.backoff(() => {
 							return promise.build((resolveCallback, rejectCallback) => {
-								if (previous && is.string(previous)) {
+								if (previous) {
 									options.ExclusiveStartKey = previous;
 								}
 
