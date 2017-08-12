@@ -1,8 +1,12 @@
+const log4js = require('log4js');
+
 const assert = require('common/lang/assert'),
 	Disposable = require('common/lang/Disposable');
 
 module.exports = (() => {
 	'use strict';
+
+	const logger = log4js.getLogger('common-node/streams/Transformation');
 
 	/**
 	 * The base class for a logic package used by {@link ObjectTransformer}.
@@ -60,6 +64,9 @@ module.exports = (() => {
 		 */
 		transform(input) {
 			if (!this._canTransform(input)) {
+				logger.error(`Unable to perform transformation [ ${this._description} ]`);
+				logger.error(input);
+
 				throw new Error(`Unable to perform transformation [ ${this._description} ]`);
 			}
 

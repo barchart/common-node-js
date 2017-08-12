@@ -17,7 +17,7 @@ module.exports = (() => {
 		constructor(delegate, options) {
 			super(object.merge({ objectMode: true  }, (options || { })));
 
-			assert.argumnentIsRequired('delegate', delegate, Function);
+			assert.argumentIsRequired(delegate, 'delegate', Function);
 
 			this._delegate = delegate;
 		}
