@@ -13,21 +13,20 @@ module.exports = (() => {
 	 * test
 	 *
 	 * @public
-	 * @param {String} inputPropertyName - The name of the property to read from.
-	 * @param {Map} map - The map of translations.
-	 * @param {String=} outputPropertyName - The name of the property to write to.
-	 * @param {String=} description - Describes the transformation, intended for logging purposes.
 	 */
 	class SelectiveTransformation extends Transformation {
-		constructor(transformations, first, description) {
+		constructor(transformations, first, silent, description) {
 			super((description || 'Selector Transformation'));
 
 			assert.argumentIsArray(transformations, 'transformations', Transformation, 'Transformation');
 			assert.argumentIsOptional(first, 'first', Boolean);
+			assert.argumentIsOptional(silent, 'silent', Boolean);
 
 			this._transformations = transformations;
 
-			this._first = first;
+			this._first = is.boolean(first) && boolean;
+			this._silent = is.boolean(silent) && silent;
+
 			this._synchronous = this._transformations.every(t => t.synchronous);
 		}
 
@@ -36,14 +35,18 @@ module.exports = (() => {
 		}
 
 		_canTransform(input) {
-			return this._transformations.some(t => t.canTransform(input));
+			return this._silent || this._transformations.some(t => t.canTransform(input));
 		}
 
 		_transform(input) {
 			if (this._first) {
-				this._transformations.find(t => t.canTransform(input)).transform(input);
+				const transformation = this._transformations.find(t => t.canTransform(input));
+
+				if (transformation) {
+					transformation.transform(input);
+				}
 			} else {
-				this._transformations.filter(t => t.canTransform(input)).transform(input);
+				this._transformations.filter(t => t.canTransform(input)).forEach(t => t.transform(input));
 			}
 		}
 
