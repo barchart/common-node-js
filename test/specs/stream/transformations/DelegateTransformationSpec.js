@@ -15,7 +15,7 @@ describe('When a DelegateTransformation is created', function() {
 				canTransform = jasmine.createSpy('canTransform').and.returnValue(true);
 				transform = jasmine.createSpy('transform').and.returnValue(output = { });
 
-				transformation = new DelegateTransformation(transform, false, canTransform);
+				transformation = new DelegateTransformation(transform, canTransform, false);
 			});
 
 			describe('and the transformation is checked', function() {
