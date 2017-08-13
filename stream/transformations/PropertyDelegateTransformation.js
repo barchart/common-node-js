@@ -20,10 +20,14 @@ module.exports = (() => {
 	 * @param {String=} description - Describes the transformation, intended for logging purposes.
 	 */
 	class PropertyDelegateTransformation extends PropertyTransformation {
-		constructor(inputPropertyName, transformDelegate, outputPropertyName, asynchronous, canTransformDelegate, description) {
+		constructor(inputPropertyName, transformDelegate, outputPropertyName, canTransformDelegate, asynchronous, description) {
 			super(inputPropertyName, outputPropertyName, (description || `Delegated Property Transformation (${inputPropertyName}${(outputPropertyName ? ' to ' + outputPropertyName : '')})`));
 
 			this._delegateTransformation = new DelegateTransformation(transformDelegate, asynchronous, canTransformDelegate);
+		}
+
+		get synchronous() {
+			return this._delegateTransformation.synchronous;
 		}
 
 		_canTransformValue(value) {
