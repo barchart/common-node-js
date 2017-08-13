@@ -23,7 +23,7 @@ module.exports = (() => {
 		constructor(inputPropertyName, transformDelegate, outputPropertyName, canTransformDelegate, asynchronous, description) {
 			super(inputPropertyName, outputPropertyName, (description || `Delegated Property Transformation (${inputPropertyName}${(outputPropertyName ? ' to ' + outputPropertyName : '')})`));
 
-			this._delegateTransformation = new DelegateTransformation(transformDelegate, asynchronous, canTransformDelegate);
+			this._delegateTransformation = new DelegateTransformation(transformDelegate, canTransformDelegate, asynchronous);
 		}
 
 		get synchronous() {

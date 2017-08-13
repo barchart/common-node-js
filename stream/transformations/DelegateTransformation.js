@@ -11,17 +11,17 @@ module.exports = (() => {
 	 *
 	 * @public
 	 * @param {Function} transformDelegate - Accepts the input and returns the transformed value.
-	 * @param {Boolean=} asynchronous - True, if the delegates may run asynchronously.
 	 * @param {Function=} canTransformDelegate - Accepts the input and indicates if the transform delegate will succeed, passed the same input.
+	 * @param {Boolean=} asynchronous - True, if the delegates may run asynchronously.
 	 * @param {String=} description - Describes the transformation, intended for logging purposes.
 	 */
 	class DelegateTransformation extends Transformation {
-		constructor(transformDelegate, asynchronous, canTransformDelegate, description) {
+		constructor(transformDelegate, canTransformDelegate, asynchronous, description) {
 			super((description || 'Delegated Transformation'));
 
 			assert.argumentIsRequired(transformDelegate, 'transformDelegate', Function);
-			assert.argumentIsOptional(asynchronous, 'asynchronous', Boolean);
 			assert.argumentIsOptional(canTransformDelegate, 'canTransformDelegate', Function);
+			assert.argumentIsOptional(asynchronous, 'asynchronous', Boolean);
 
 			this._transformDelegate = transformDelegate;
 			this._canTransformDelegate = canTransformDelegate || (input => true);
