@@ -7,7 +7,7 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * passes that input to a delegate and returns the result.
+	 * Defers all transformation work to a delegate.
 	 *
 	 * @public
 	 * @param {Function} transformDelegate - Accepts the input and returns the transformed value.
