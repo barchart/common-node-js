@@ -56,7 +56,7 @@ module.exports = (() => {
 		}
 
 		static forEnum(EnumerationType, description) {
-			return new DataType('S', description, EnumerationType)
+			return new DataType('S', description, EnumerationType);
 		}
 
 		/**
