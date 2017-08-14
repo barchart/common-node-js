@@ -14,7 +14,7 @@ module.exports = (() => {
 	 */
 	class EmptyWriteStream extends Stream.Writable {
 		constructor(options) {
-			super(object.merge({ objectMode: true  }, (options || { })));
+			super(object.merge({ objectMode: true }, (options || { })));
 
 			this._counter = 0;
 		}

@@ -8,7 +8,7 @@ module.exports = (() => {
 
 	class IteratorReadStream extends Stream.Readable {
 		constructor(iterator, options) {
-			super(object.merge({ objectMode: true  }, (options || { })));
+			super(object.merge({ objectMode: true }, (options || { })));
 
 			this._iterator = iterator;
 		}

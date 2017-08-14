@@ -3,7 +3,6 @@ const log4js = require('log4js'),
 
 const assert = require('common/lang/assert'),
 	is = require('common/lang/is'),
-	object = require('common/lang/object'),
 	promise = require('common/lang/promise');
 
 const Transformation = require('./transformations/Transformation');

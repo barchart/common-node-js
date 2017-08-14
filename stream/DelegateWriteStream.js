@@ -15,7 +15,7 @@ module.exports = (() => {
 	 */
 	class DelegateWriteStream extends Stream.Writable {
 		constructor(delegate, options) {
-			super(object.merge({ objectMode: true  }, (options || { })));
+			super(object.merge({ objectMode: true }, (options || { })));
 
 			assert.argumentIsRequired(delegate, 'delegate', Function);
 
