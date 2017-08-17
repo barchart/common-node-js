@@ -17,6 +17,7 @@ module.exports = (() => {
 	 * Groups items into arrays, based on key (selected by delegate). Stream must be sorted.
 	 *
 	 * @public
+	 * @extends {Steam.Transform}
 	 * @param {Function} keySelector
 	 * @param {String=} description
 	 * @param {Boolean=} silent

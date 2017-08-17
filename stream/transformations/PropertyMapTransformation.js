@@ -11,6 +11,7 @@ module.exports = (() => {
 	 * the key's value to a property.
 	 *
 	 * @public
+	 * @extends {PropertyTransformation}
 	 * @param {String} inputPropertyName - The name of the property to read from.
 	 * @param {Map} map - The map of translations.
 	 * @param {String=} outputPropertyName - The name of the property to write to.

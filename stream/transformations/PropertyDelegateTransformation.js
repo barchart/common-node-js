@@ -12,6 +12,7 @@ module.exports = (() => {
 	 * the output of the delegate to the same (or another) property.
 	 *
 	 * @public
+	 * @extends {PropertyTransformation}
 	 * @param {String} inputPropertyName - The name of the property to read from.
 	 * @param {Function} transformDelegate - Accepts the input property value and returns the transformed value.
 	 * @param {String=} outputPropertyName - The name of the property to write to.

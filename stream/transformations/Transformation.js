@@ -13,6 +13,7 @@ module.exports = (() => {
 	 *
 	 * @public
 	 * @interface
+	 * @extends {Disposable}
 	 * @param {String=} description - Describes the transformation, intended for logging purposes.
 	 */
 	class Transformation extends Disposable {

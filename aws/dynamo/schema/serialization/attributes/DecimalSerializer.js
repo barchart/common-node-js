@@ -10,12 +10,22 @@ module.exports = (() => {
 	/**
 	 * Converts a {@link Decimal} into (and back from) the representation used
 	 * on a DynamoDB record.
+	 *
+	 * @public
+	 * @extends {DelegateSerializer}
 	 */
 	class DecimalSerializer extends DelegateSerializer {
 		constructor() {
 			super(StringSerializer.INSTANCE, serializeDecimal, deserializeDecimal);
 		}
 
+		/**
+		 * A singleton.
+		 *
+		 * @public
+		 * @static
+		 * @returns {DecimalSerializer}
+		 */
 		static get INSTANCE() {
 			return instance;
 		}

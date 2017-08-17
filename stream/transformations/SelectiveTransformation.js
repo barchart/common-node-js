@@ -13,6 +13,7 @@ module.exports = (() => {
 	 * test
 	 *
 	 * @public
+	 * @extends {PropertyTransformation}
 	 */
 	class SelectiveTransformation extends Transformation {
 		constructor(transformations, first, silent, description) {

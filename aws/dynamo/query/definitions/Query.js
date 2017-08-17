@@ -16,6 +16,7 @@ module.exports = (() => {
 	 * The definition of a table (or index) query.
 	 *
 	 * @public
+	 * @extends {Action}
 	 * @param {Table} table
 	 * @param {Index} index
 	 * @param {Filter} keyFilter

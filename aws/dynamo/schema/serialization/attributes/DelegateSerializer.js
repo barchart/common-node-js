@@ -6,6 +6,15 @@ const AttributeSerializer = require('./AttributeSerialzer'),
 module.exports = (() => {
 	'use strict';
 
+	/**
+	 * An {@link AttributeSerializer} that delegates it work.
+	 *
+	 * @public
+	 * @extends {AttributeSerializer}
+	 * @param {AttributeSerializer} - A serializer for the underlying type (e.g. string).
+	 * @param {Function} serializeDelegate - The delegate which extracts the underlying value.
+	 * @param {Function} serializeDelegate - The delegate which rehydrates the underlying value.
+	 */
 	class DelegateSerializer extends AttributeSerializer {
 		constructor(baseSerializer, serializeDelegate, deserializeDelegate) {
 			super();

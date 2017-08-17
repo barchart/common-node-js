@@ -14,6 +14,7 @@ module.exports = (() => {
 	 * The definition of a table (or index) scan.
 	 *
 	 * @public
+	 * @extends {Action}
 	 * @param {Table} table
 	 * @param {Index} index
 	 * @param {Filter} filter

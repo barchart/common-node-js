@@ -14,6 +14,7 @@ module.exports = (() => {
 	 * the form of an array).
 	 *
 	 * @public
+	 * @extends {Steam.Readable}
 	 * @param {Object=} options
 	 */
 	class ArrayReadStream extends Stream.Readable {

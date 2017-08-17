@@ -15,6 +15,7 @@ module.exports = (() => {
 	 * deletes.
 	 *
 	 * @public
+	 * @extends {Action}
 	 * @param {Table} table
 	 * @param {Filter} filter
 	 * @param {String=} description

@@ -19,6 +19,7 @@ module.exports = (() => {
 	 * requests.
 	 *
 	 * @public
+	 * @extends {Disposable}
 	 * @interface
 	 */
 	class HttpProvider extends Disposable {

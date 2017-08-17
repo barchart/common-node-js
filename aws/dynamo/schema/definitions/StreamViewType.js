@@ -8,6 +8,7 @@ module.exports = (() => {
 	 * Specifies the streaming behavior of a DynamoDB table.
 	 *
 	 * @public
+	 * @extends {Enum}
 	 */
 	class StreamViewType extends Enum {
 		constructor(schemaName, description) {

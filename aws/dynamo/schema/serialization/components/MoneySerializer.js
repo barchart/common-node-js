@@ -9,6 +9,9 @@ module.exports = (() => {
 
 	/**
 	 * A component serializer for {@link Money} instances.
+	 *
+	 * @public
+	 * @extends {ComponentSerializer}
 	 */
 	class MoneySerializer extends ComponentSerializer {
 		constructor() {
@@ -28,6 +31,13 @@ module.exports = (() => {
 			return new Money(data[0], data[1]);
 		}
 
+		/**
+		 * A singleton.
+		 *
+		 * @public
+		 * @static
+		 * @returns {MoneySerializer}
+		 */
 		static get INSTANCE() {
 			return instance;
 		}

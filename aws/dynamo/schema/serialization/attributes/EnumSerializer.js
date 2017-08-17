@@ -10,6 +10,9 @@ module.exports = (() => {
 	/**
 	 * Converts a {@link Enum} item into (and back from) the
 	 * representation used on a DynamoDB record.
+	 *
+	 * @public
+	 * @extends {DelegateSerializer}
 	 */
 	class EnumSerializer extends DelegateSerializer {
 		constructor(EnumerationType) {

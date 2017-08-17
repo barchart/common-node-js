@@ -9,6 +9,9 @@ module.exports = (() => {
 	/**
 	 * Converts a number into (and back from) the representation used
 	 * on a DynamoDB record.
+	 *
+	 * @public
+	 * @extends {AttributeSerializer}
 	 */
 	class BooleanSerializer extends AttributeSerializer {
 		constructor() {
@@ -29,6 +32,13 @@ module.exports = (() => {
 			return wrapper[DataType.BOOLEAN.code];
 		}
 
+		/**
+		 * A singleton.
+		 *
+		 * @public
+		 * @static
+		 * @returns {BooleanSerializer}
+		 */
 		static get INSTANCE() {
 			return instance;
 		}

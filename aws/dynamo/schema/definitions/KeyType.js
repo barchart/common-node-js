@@ -9,6 +9,7 @@ module.exports = (() => {
 	 * a "hash" key and a "range" key.
 	 *
 	 * @public
+	 * @extends {Enum}
 	 * @param {String} code
 	 * @param {String} description
 	 */

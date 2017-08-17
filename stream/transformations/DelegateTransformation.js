@@ -10,6 +10,7 @@ module.exports = (() => {
 	 * Defers all transformation work to a delegate.
 	 *
 	 * @public
+	 * @extends {Transformation}
 	 * @param {Function} transformDelegate - Accepts the input and returns the transformed value.
 	 * @param {Function=} canTransformDelegate - Accepts the input and indicates if the transform delegate will succeed, passed the same input.
 	 * @param {Boolean=} asynchronous - True, if the delegates may run asynchronously.

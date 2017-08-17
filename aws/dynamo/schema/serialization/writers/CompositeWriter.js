@@ -11,6 +11,7 @@ module.exports = (() => {
 	 * of {@link Writer} instances.
 	 *
 	 * @public
+	 * @extends {Writer}
 	 */
 	class CompositeWriter extends Writer {
 		constructor(writers) {

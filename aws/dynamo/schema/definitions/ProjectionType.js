@@ -10,6 +10,7 @@ module.exports = (() => {
 	 * projecting a custom subset of the table's attributes.
 	 *
 	 * @public
+	 * @extends {Enum}
 	 */
 	class ProjectionType extends Enum {
 		constructor(code, description) {

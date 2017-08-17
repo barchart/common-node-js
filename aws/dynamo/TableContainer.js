@@ -19,6 +19,7 @@ module.exports = (() => {
 	 * class for a DynamoDB based repository pattern.
 	 *
 	 * @interface
+	 * @extends {Disposable}
 	 * @param {Table} definition
 	 * @param {DynamoProvider} provider
 	 */

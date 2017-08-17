@@ -10,12 +10,22 @@ module.exports = (() => {
 	/**
 	 * Converts a {@link Timestamp} instance into (and back from) the
 	 * representation used on a DynamoDB record.
+	 *
+	 * @public
+	 * @extends {DelegateSerializer}
 	 */
 	class DaySerializer extends DelegateSerializer {
 		constructor() {
 			super(StringSerializer.INSTANCE, serializeDay, deserializeDay);
 		}
 
+		/**
+		 * A singleton.
+		 *
+		 * @public
+		 * @static
+		 * @returns {DaySerializer}
+		 */
 		static get INSTANCE() {
 			return instance;
 		}

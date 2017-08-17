@@ -11,6 +11,7 @@ module.exports = (() => {
 	 * when writing data. By Default, the "objectMode" option is set to true.
 	 *
 	 * @public
+	 * @extends {Steam.Writable}
 	 * @param {Object=} options
 	 */
 	class DelegateWriteStream extends Stream.Writable {

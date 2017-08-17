@@ -16,6 +16,7 @@ module.exports = (() => {
 	 * Splits arrays into items.
 	 *
 	 * @public
+	 * @extends {Steam.Transform}
 	 * @param {String=} description
 	 * @param {Boolean=} silent
 	 */

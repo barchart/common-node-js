@@ -13,6 +13,7 @@ module.exports = (() => {
 	 * Fluent interface for building a {@link Conditional}.
 	 *
 	 * @public
+	 * @extends {ActionBuilder}
 	 * @param {Table} table - The table targeted.
 	 */
 	class ConditionalBuilder extends ActionBuilder {

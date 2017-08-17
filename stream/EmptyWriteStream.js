@@ -10,6 +10,7 @@ module.exports = (() => {
 	 * the "objectMode" option is set to true.
 	 *
 	 * @public
+	 * @extends {Steam.Writable}
 	 * @param {Object=} options
 	 */
 	class EmptyWriteStream extends Stream.Writable {

@@ -12,12 +12,17 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('common-node/stream/ObjectTransformer');
 
+	/**
+	 * A Node.js stream transform that delegates work to one (or many) other
+	 * {@link Transformer} instances.
+	 *
+	 * @public
+	 * @extends {Steam.Transform}
+	 * @param {Array<Transformation>} transformations
+	 * @param {String=} description
+	 * @param {Boolean=} silent
+	 */
 	class ObjectTransformer extends Stream.Transform {
-		/***
-		 * @param {Array<Transformation>} transformations
-		 * @param {String=} description
-		 * @param {Boolean=} silent
-		 */
 		constructor(transformations, description, silent) {
 			super({ objectMode: true });
 
@@ -52,6 +57,9 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Adds a new {@link Transformer} intstance.
+		 *
+		 * @public
 		 * @param {Transformation}
 		 * @returns {ObjectTransformer}
 		 */

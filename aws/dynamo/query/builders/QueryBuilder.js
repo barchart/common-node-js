@@ -13,6 +13,7 @@ module.exports = (() => {
 	 * Fluent interface for building a {@link Query}.
 	 *
 	 * @public
+	 * @extends {ActionBuilder}
 	 * @param {Table} table - The table targeted.
 	 */
 	class QueryBuilder extends ActionBuilder {
