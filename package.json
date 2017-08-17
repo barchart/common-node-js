@@ -36,7 +36,7 @@
     "barchart-marketdata-utilities": "2.0.4",
     "body-parser": "1.15.2",
     "client-sessions": "0.7.0",
-    "common": "git+ssh://github.com/barchart/barchart-common-js#2.2.24",
+    "common": "git+ssh://github.com/barchart/barchart-common-js#2.2.25",
     "express": "4.14.0",
     "express-handlebars": "3.0.0",
     "express-http-proxy": "0.10.1",
