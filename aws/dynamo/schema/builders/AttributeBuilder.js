@@ -16,7 +16,7 @@ module.exports = (() => {
 		constructor(name) {
 			assert.argumentIsRequired(name, 'name', String);
 
-			this._attribute = new Attribute(name, null);
+			this._attribute = new Attribute(name, null, null);
 		}
 
 		/**
@@ -38,7 +38,21 @@ module.exports = (() => {
 		withDataType(dataType) {
 			assert.argumentIsRequired(dataType, 'dataType', DataType, 'DataType');
 
-			this._attribute = new Attribute(this._attribute.name, dataType);
+			this._attribute = new Attribute(this._attribute.name, dataType, this._attribute.sources);
+
+			return this;
+		}
+
+		/**
+		 * Set the source properties for the attribute and returns the current instance.
+		 *
+		 * @param {Array<String>} sources
+		 * @returns {AttributeBuilder}
+		 */
+		withSources(sources) {
+			assert.argumentIsArray(sources, 'sources', String);
+
+			this._attribute = new Attribute(this._attribute.name, this._attribute.dataType, sources);
 
 			return this;
 		}

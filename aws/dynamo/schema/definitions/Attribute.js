@@ -12,9 +12,10 @@ module.exports = (() => {
 	 * @public
 	 */
 	class Attribute {
-		constructor(name, dataType) {
+		constructor(name, dataType, sources) {
 			this._name = name;
-			this._dataType = dataType;
+			this._dataType = dataType || null;
+			this._sources = sources || null;
 		}
 
 		/**
@@ -35,6 +36,17 @@ module.exports = (() => {
 		 */
 		get dataType() {
 			return this._dataType;
+		}
+
+		/**
+		 * Returns the list of sources used to compose the attribute's value. If null,
+		 * that simply means the attribute value is read directly from a property
+		 * having the same name as the attribute.
+		 *
+		 * @returns {Array<String>|null}
+		 */
+		get sources() {
+			return this._sources;
 		}
 
 		/**
@@ -84,6 +96,7 @@ module.exports = (() => {
 
 				if (!(is.boolean(relaxed) && relaxed)) {
 					returnVal = returnVal && this._dataType === other.dataType;
+					returnVal = returnVal && ((this._sources === null && other.sources === null)|| (this._sources !== null && other.sources !== null && this._sources.every((s, i) => s === other.sources[i])));
 				}
 			}
 
