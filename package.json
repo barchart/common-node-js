@@ -39,7 +39,7 @@
     "common": "git+ssh://github.com/barchart/barchart-common-js#2.2.27",
     "express": "4.14.0",
     "express-handlebars": "3.0.0",
-    "express-http-proxy": "0.10.1",gi
+    "express-http-proxy": "0.10.1",
     "http-digest-client": "0.0.3",
     "log4js": "2.0.1",
     "moment-timezone": "0.5.11",
