@@ -34,7 +34,7 @@ module.exports = (() => {
 		 * components of an expression, then returns the current instance.
 		 *
 		 * @public
-		 * @param {Attribute} attributeName - The attribute name.
+		 * @param {String} attributeName - The attribute name.
 		 * @param {OperatorType} operatorType
 		 * @param {*=} operand
 		 * @returns {FilterBuilder}
@@ -49,7 +49,7 @@ module.exports = (() => {
 		 * the current instance.
 		 *
 		 * @public
-		 * @param {Attribute} attributeName - The {@link Attribute} to target.
+		 * @param {String} attributeName - The {@link Attribute} to target.
 		 * @param {Function} callback - Synchronously called, providing a {@link ExpressionBuilder} tied to the current instance.
 		 * @returns {FilterBuilder}
 		 */
