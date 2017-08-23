@@ -1,6 +1,6 @@
-const fs = require('fs');
-const handlebars = require('handlebars');
-const log4js = require('log4js');
+const fs = require('fs'),
+	handlebars = require('handlebars'),
+	log4js = require('log4js');
 
 module.exports = (() => {
 	'use strict';
