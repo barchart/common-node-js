@@ -10,6 +10,8 @@ module.exports = (() => {
 
 	/**
 	 * An object that describes the environment of an AWS lambda function.
+	 *
+	 * @public
 	 */
 	return class LambdaEnvironment {
 		constructor(mode, name) {

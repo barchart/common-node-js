@@ -7,6 +7,11 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('templates/TemplateSelector');
 
+	/**
+	 * A factory for templates.
+	 *
+	 * @public
+	 */
 	class TemplateSelector {
 		constructor(name) {
 			this._name = name;
