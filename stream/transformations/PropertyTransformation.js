@@ -1,5 +1,5 @@
-const assert = require('common/lang/assert'),
-	attributes = require('common/lang/attributes');
+const assert = require('@barchart/common-js/lang/assert'),
+	attributes = require('@barchart/common-js/lang/attributes');
 
 const Transformation = require('./Transformation');
 

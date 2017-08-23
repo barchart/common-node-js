@@ -1,10 +1,10 @@
 const log4js = require('log4js'),
 	Stream = require('stream');
 
-const assert = require('common/lang/assert'),
-	is = require('common/lang/is'),
-	object = require('common/lang/object'),
-	promise = require('common/lang/promise');
+const assert = require('@barchart/common-js/lang/assert'),
+	is = require('@barchart/common-js/lang/is'),
+	object = require('@barchart/common-js/lang/object'),
+	promise = require('@barchart/common-js/lang/promise');
 
 const Transformation = require('./transformations/Transformation');
 

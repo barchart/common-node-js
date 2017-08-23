@@ -1,5 +1,5 @@
-const assert = require('common/lang/assert'),
-	Decimal = require('common/lang/Decimal');
+const assert = require('@barchart/common-js/lang/assert'),
+	Decimal = require('@barchart/common-js/lang/Decimal');
 
 const DelegateSerializer = require('./DelegateSerializer'),
 	StringSerializer = require('./StringSerializer');

@@ -1,6 +1,6 @@
 const log4js = require('log4js');
 
-const attributes = require('common/lang/attributes');
+const attributes = require('@barchart/common-js/lang/attributes');
 
 const MutateResultProcessor = require('./MutateResultProcessor');
 

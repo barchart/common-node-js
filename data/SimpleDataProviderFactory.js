@@ -1,6 +1,6 @@
-const assert = require('common/lang/assert'),
-	is = require('common/lang/is'),
-	object = require('common/lang/object');
+const assert = require('@barchart/common-js/lang/assert'),
+	is = require('@barchart/common-js/lang/is'),
+	object = require('@barchart/common-js/lang/object');
 
 const DataProvider = require('./DataProvider'),
 	DataProviderFactory = require('./DataProviderFactory'),

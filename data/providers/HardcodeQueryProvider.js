@@ -1,6 +1,6 @@
 const log4js = require('log4js');
 
-const object = require('common/lang/object');
+const object = require('@barchart/common-js/lang/object');
 
 const QueryProvider = require('./../QueryProvider');
 

@@ -1,4 +1,4 @@
-var Timestamp = require('common/lang/Timestamp');
+var Timestamp = require('@barchart/common-js/lang/Timestamp');
 
 var TimestampSerializer = require('./../../../../../../../aws/dynamo/schema/serialization/attributes/TimestampSerializer');
 

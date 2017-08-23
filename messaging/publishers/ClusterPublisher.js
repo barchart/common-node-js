@@ -1,10 +1,10 @@
 const log4js = require('log4js'),
 	uuid = require('uuid');
 
-const assert = require('common/lang/assert'),
-	Disposable = require('common/lang/Disposable'),
-	DisposableStack = require('common/collections/specialized/DisposableStack'),
-	Event = require('common/messaging/Event');
+const assert = require('@barchart/common-js/lang/assert'),
+	Disposable = require('@barchart/common-js/lang/Disposable'),
+	DisposableStack = require('@barchart/common-js/collections/specialized/DisposableStack'),
+	Event = require('@barchart/common-js/messaging/Event');
 
 const MessageProvider = require('./../../cluster/MessageProvider'),
 	Publisher = require('./Publisher');

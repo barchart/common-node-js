@@ -1,9 +1,9 @@
 const configurator = require('node-yaml-config'),
 	path = require('path');
 
-const assert = require('common/lang/assert'),
-	 is = require('common/lang/is'),
-	 object = require('common/lang/object');
+const assert = require('@barchart/common-js/lang/assert'),
+	 is = require('@barchart/common-js/lang/is'),
+	 object = require('@barchart/common-js/lang/object');
 
 module.exports = (() => {
 	'use strict';

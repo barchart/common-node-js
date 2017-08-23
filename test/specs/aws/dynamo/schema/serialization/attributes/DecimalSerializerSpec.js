@@ -1,4 +1,4 @@
-var Decimal = require('common/lang/Decimal');
+var Decimal = require('@barchart/common-js/lang/Decimal');
 
 var DecimalSerializer = require('./../../../../../../../aws/dynamo/schema/serialization/attributes/DecimalSerializer');
 

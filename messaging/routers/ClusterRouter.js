@@ -3,13 +3,13 @@ const log4js = require('log4js'),
 	process = require('process'),
 	uuid = require('uuid');
 
-const assert = require('common/lang/assert'),
-	Event = require('common/messaging/Event'),
-	Disposable = require('common/lang/Disposable'),
-	DisposableStack = require('common/collections/specialized/DisposableStack'),
-	is = require('common/lang/is'),
-	promise = require('common/lang/promise'),
-	random = require('common/lang/random');
+const assert = require('@barchart/common-js/lang/assert'),
+	Event = require('@barchart/common-js/messaging/Event'),
+	Disposable = require('@barchart/common-js/lang/Disposable'),
+	DisposableStack = require('@barchart/common-js/collections/specialized/DisposableStack'),
+	is = require('@barchart/common-js/lang/is'),
+	promise = require('@barchart/common-js/lang/promise'),
+	random = require('@barchart/common-js/lang/random');
 
 const MessageProvider = require('./../../cluster/MessageProvider'),
 	Router = require('./Router');

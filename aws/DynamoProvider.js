@@ -1,15 +1,15 @@
 const aws = require('aws-sdk'),
 	log4js = require('log4js');
 
-const assert = require('common/lang/assert'),
-	Disposable = require('common/lang/Disposable'),
-	Enum = require('common/lang/Enum'),
-	is = require('common/lang/is'),
-	memoize = require('common/lang/memoize'),
-	object = require('common/lang/object'),
-	promise = require('common/lang/promise'),
-	WorkQueue = require('common/timing/Serializer'),
-	Scheduler = require('common/timing/Scheduler');
+const assert = require('@barchart/common-js/lang/assert'),
+	Disposable = require('@barchart/common-js/lang/Disposable'),
+	Enum = require('@barchart/common-js/lang/Enum'),
+	is = require('@barchart/common-js/lang/is'),
+	memoize = require('@barchart/common-js/lang/memoize'),
+	object = require('@barchart/common-js/lang/object'),
+	promise = require('@barchart/common-js/lang/promise'),
+	WorkQueue = require('@barchart/common-js/timing/Serializer'),
+	Scheduler = require('@barchart/common-js/timing/Scheduler');
 
 const ConditionalBuilder = require('./dynamo/query/builders/ConditionalBuilder'),
 	KeyType = require('./dynamo/schema/definitions/KeyType'),

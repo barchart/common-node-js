@@ -1,8 +1,8 @@
 const log4js = require('log4js');
 
-const assert = require('common/lang/assert'),
-	is = require('common/lang/is'),
-	Serializer = require('common/timing/Serializer');
+const assert = require('@barchart/common-js/lang/assert'),
+	is = require('@barchart/common-js/lang/is'),
+	Serializer = require('@barchart/common-js/timing/Serializer');
 
 const HttpProvider = require('./../../network/http/HttpProvider'),
 	LambdaEnvironment = require('./LambdaEnvironment'),

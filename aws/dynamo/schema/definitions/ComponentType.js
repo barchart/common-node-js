@@ -1,5 +1,5 @@
-const assert = require('common/lang/assert');
-	Money = require('common/lang/Money');
+const assert = require('@barchart/common-js/lang/assert');
+	Money = require('@barchart/common-js/lang/Money');
 
 const ComponentTypeDefinition = require('./ComponentTypeDefinition'),
 	DataType = require('./DataType');

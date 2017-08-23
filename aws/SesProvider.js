@@ -2,12 +2,12 @@ const aws = require('aws-sdk'),
 	log4js = require('log4js'),
 	nodemailer = require('nodemailer');
 
-const assert = require('common/lang/assert'),
-	Disposable = require('common/lang/Disposable'),
-	is = require('common/lang/is'),
-	object = require('common/lang/object'),
-	promise = require('common/lang/promise'),
-	RateLimiter = require('common/timing/RateLimiter');
+const assert = require('@barchart/common-js/lang/assert'),
+	Disposable = require('@barchart/common-js/lang/Disposable'),
+	is = require('@barchart/common-js/lang/is'),
+	object = require('@barchart/common-js/lang/object'),
+	promise = require('@barchart/common-js/lang/promise'),
+	RateLimiter = require('@barchart/common-js/timing/RateLimiter');
 
 module.exports = (() => {
 	'use strict';

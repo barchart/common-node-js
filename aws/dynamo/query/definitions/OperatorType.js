@@ -1,5 +1,5 @@
-const assert = require('common/lang/assert'),
-	is = require('common/lang/is');
+const assert = require('@barchart/common-js/lang/assert'),
+	is = require('@barchart/common-js/lang/is');
 
 const KeyType = require('./../../schema/definitions/KeyType');
 

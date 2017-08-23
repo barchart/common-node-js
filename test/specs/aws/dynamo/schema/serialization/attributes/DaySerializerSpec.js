@@ -1,4 +1,4 @@
-var Day = require('common/lang/Day');
+var Day = require('@barchart/common-js/lang/Day');
 
 var DaySerializer = require('./../../../../../../../aws/dynamo/schema/serialization/attributes/DaySerializer');
 

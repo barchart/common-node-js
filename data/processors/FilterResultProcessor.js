@@ -1,8 +1,8 @@
 const log4js = require('log4js'),
 	moment = require('moment');
 
-const attributes = require('common/lang/attributes'),
-	is = require('common/lang/is');
+const attributes = require('@barchart/common-js/lang/attributes'),
+	is = require('@barchart/common-js/lang/is');
 
 const ResultProcessor = require('./../ResultProcessor');
 

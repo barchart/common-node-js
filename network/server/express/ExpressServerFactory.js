@@ -12,13 +12,13 @@ const bodyParser = require('body-parser'),
 	socketIO = require('socket.io'),
 	url = require('url');
 
-const assert = require('common/lang/assert'),
-	CommandHandler = require('common/commands/CommandHandler'),
-	Disposable = require('common/lang/Disposable'),
-	DisposableStack = require('common/collections/specialized/DisposableStack'),
-	Event = require('common/messaging/Event'),
-	is = require('common/lang/is'),
-	promise = require('common/lang/promise');
+const assert = require('@barchart/common-js/lang/assert'),
+	CommandHandler = require('@barchart/common-js/commands/CommandHandler'),
+	Disposable = require('@barchart/common-js/lang/Disposable'),
+	DisposableStack = require('@barchart/common-js/collections/specialized/DisposableStack'),
+	Event = require('@barchart/common-js/messaging/Event'),
+	is = require('@barchart/common-js/lang/is'),
+	promise = require('@barchart/common-js/lang/promise');
 
 const Container = require('./../endpoints/Container'),
 	PageContainer = require('./../endpoints/html/PageContainer'),

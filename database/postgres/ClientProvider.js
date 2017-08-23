@@ -1,5 +1,5 @@
-const assert = require('common/lang/assert'),
-	Disposable = require('common/lang/Disposable');
+const assert = require('@barchart/common-js/lang/assert'),
+	Disposable = require('@barchart/common-js/lang/Disposable');
 
 module.exports = (() => {
 	'use strict';

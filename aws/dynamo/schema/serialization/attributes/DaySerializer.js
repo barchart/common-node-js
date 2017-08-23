@@ -1,5 +1,5 @@
-const assert = require('common/lang/assert'),
-	Day = require('common/lang/Day');
+const assert = require('@barchart/common-js/lang/assert'),
+	Day = require('@barchart/common-js/lang/Day');
 
 const DelegateSerializer = require('./DelegateSerializer'),
 	StringSerializer = require('./StringSerializer');

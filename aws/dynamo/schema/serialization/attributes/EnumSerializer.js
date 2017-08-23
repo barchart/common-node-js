@@ -1,5 +1,5 @@
-const assert = require('common/lang/assert'),
-	Enum = require('common/lang/Enum');
+const assert = require('@barchart/common-js/lang/assert'),
+	Enum = require('@barchart/common-js/lang/Enum');
 
 const DelegateSerializer = require('./DelegateSerializer'),
 	StringSerializer = require('./StringSerializer');

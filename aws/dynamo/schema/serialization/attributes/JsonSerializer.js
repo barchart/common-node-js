@@ -1,4 +1,4 @@
-const assert = require('common/lang/assert');
+const assert = require('@barchart/common-js/lang/assert');
 
 const DelegateSerializer = require('./DelegateSerializer'),
 	StringSerializer = require('./StringSerializer');

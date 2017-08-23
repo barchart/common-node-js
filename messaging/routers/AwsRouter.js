@@ -1,12 +1,12 @@
 const log4js = require('log4js'),
 	uuid = require('uuid');
 
-const assert = require('common/lang/assert'),
-	Event = require('common/messaging/Event'),
-	Disposable = require('common/lang/Disposable'),
-	DisposableStack = require('common/collections/specialized/DisposableStack'),
-	is = require('common/lang/is'),
-	promise = require('common/lang/promise');
+const assert = require('@barchart/common-js/lang/assert'),
+	Event = require('@barchart/common-js/messaging/Event'),
+	Disposable = require('@barchart/common-js/lang/Disposable'),
+	DisposableStack = require('@barchart/common-js/collections/specialized/DisposableStack'),
+	is = require('@barchart/common-js/lang/is'),
+	promise = require('@barchart/common-js/lang/promise');
 
 const Router = require('./Router'),
 	SqsProvider = require('./../../aws/SqsProvider');

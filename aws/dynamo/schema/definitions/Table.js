@@ -1,6 +1,6 @@
-const array = require('common/lang/array'),
-	assert = require('common/lang/assert'),
-	is = require('common/lang/is');
+const array = require('@barchart/common-js/lang/array'),
+	assert = require('@barchart/common-js/lang/assert'),
+	is = require('@barchart/common-js/lang/is');
 
 const Attribute = require('./Attribute'),
 	Component = require('./Component'),

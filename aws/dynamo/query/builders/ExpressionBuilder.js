@@ -1,4 +1,4 @@
-const assert = require('common/lang/assert');
+const assert = require('@barchart/common-js/lang/assert');
 
 const Expression = require('./../definitions/Expression'),
 	OperatorType = require('./../definitions/OperatorType');

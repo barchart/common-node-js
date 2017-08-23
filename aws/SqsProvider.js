@@ -1,13 +1,13 @@
 const aws = require('aws-sdk'),
 	log4js = require('log4js');
 
-const array = require('common/lang/array'),
-	assert = require('common/lang/assert'),
-	Disposable = require('common/lang/Disposable'),
-	is = require('common/lang/is'),
-	object = require('common/lang/object'),
-	promise = require('common/lang/promise'),
-	Scheduler = require('common/timing/Scheduler');
+const array = require('@barchart/common-js/lang/array'),
+	assert = require('@barchart/common-js/lang/assert'),
+	Disposable = require('@barchart/common-js/lang/Disposable'),
+	is = require('@barchart/common-js/lang/is'),
+	object = require('@barchart/common-js/lang/object'),
+	promise = require('@barchart/common-js/lang/promise'),
+	Scheduler = require('@barchart/common-js/timing/Scheduler');
 
 module.exports = (() => {
 	'use strict';

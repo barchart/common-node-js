@@ -1,4 +1,4 @@
-var Enum = require('common/lang/Enum');
+var Enum = require('@barchart/common-js/lang/Enum');
 
 var EnumSerializer = require('./../../../../../../../aws/dynamo/schema/serialization/attributes/EnumSerializer');
 

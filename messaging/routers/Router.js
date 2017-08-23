@@ -1,8 +1,8 @@
 const log4js = require('log4js');
 
-const assert = require('common/lang/assert'),
-	Event = require('common/messaging/Event'),
-	Disposable = require('common/lang/Disposable');
+const assert = require('@barchart/common-js/lang/assert'),
+	Event = require('@barchart/common-js/messaging/Event'),
+	Disposable = require('@barchart/common-js/lang/Disposable');
 
 module.exports = (() => {
 	'use strict';

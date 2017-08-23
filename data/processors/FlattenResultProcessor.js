@@ -1,7 +1,7 @@
 const log4js = require('log4js');
 
-const is = require('common/lang/is'),
-	array = require('common/lang/array');
+const is = require('@barchart/common-js/lang/is'),
+	array = require('@barchart/common-js/lang/array');
 
 const ResultProcessor = require('./../ResultProcessor');
 

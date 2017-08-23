@@ -1,5 +1,5 @@
-const array = require('common/lang/array'),
-	assert = require('common/lang/assert');
+const array = require('@barchart/common-js/lang/array'),
+	assert = require('@barchart/common-js/lang/assert');
 
 const Filter = require('./Filter'),
 	Serializers = require('./../../schema/serialization/Serializers'),

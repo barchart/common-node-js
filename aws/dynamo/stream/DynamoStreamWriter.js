@@ -1,8 +1,8 @@
 const log4js = require('log4js'),
 	Stream = require('stream');
 
-const assert = require('common/lang/assert'),
-	is = require('common/lang/is');
+const assert = require('@barchart/common-js/lang/assert'),
+	is = require('@barchart/common-js/lang/is');
 
 const DynamoProvider = require('./../../DynamoProvider'),
 	Table = require('./../schema/definitions/Table');

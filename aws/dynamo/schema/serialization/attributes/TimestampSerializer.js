@@ -1,5 +1,5 @@
-const assert = require('common/lang/assert'),
-	Timestamp = require('common/lang/Timestamp');
+const assert = require('@barchart/common-js/lang/assert'),
+	Timestamp = require('@barchart/common-js/lang/Timestamp');
 
 const DelegateSerializer = require('./DelegateSerializer'),
 	NumberSerializer = require('./NumberSerializer');

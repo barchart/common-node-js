@@ -1,6 +1,6 @@
-const assert = require('common/lang/assert'),
-	Enum = require('common/lang/Enum'),
-	is = require('common/lang/is');
+const assert = require('@barchart/common-js/lang/assert'),
+	Enum = require('@barchart/common-js/lang/Enum'),
+	is = require('@barchart/common-js/lang/is');
 
 const DataType = require('./../definitions/DataType'),
 	ComponentType = require('./../definitions/ComponentType'),

@@ -1,9 +1,9 @@
-const attributes = require('common/lang/attributes'),
+const attributes = require('@barchart/common-js/lang/attributes'),
 	log4js = require('log4js'),
 	mysql = require('mysql');
 
-const is = require('common/lang/is'),
-	promise = require('common/lang/promise');
+const is = require('@barchart/common-js/lang/is'),
+	promise = require('@barchart/common-js/lang/promise');
 
 const QueryProvider = require('./../QueryProvider');
 

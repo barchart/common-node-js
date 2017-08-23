@@ -1,5 +1,5 @@
-const assert = require('common/lang/assert'),
-	object = require('common/lang/object');
+const assert = require('@barchart/common-js/lang/assert'),
+	object = require('@barchart/common-js/lang/object');
 
 const Stream = require('stream');
 

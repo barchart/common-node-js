@@ -1,10 +1,10 @@
 const log4js = require('log4js'),
 	querystring = require('querystring');
 
-const assert = require('common/lang/assert'),
-	Disposable = require('common/lang/Disposable'),
-	is = require('common/lang/is'),
-	Scheduler = require('common/timing/Scheduler');
+const assert = require('@barchart/common-js/lang/assert'),
+	Disposable = require('@barchart/common-js/lang/Disposable'),
+	is = require('@barchart/common-js/lang/is'),
+	Scheduler = require('@barchart/common-js/timing/Scheduler');
 
 const http = require('http'),
 	https = require('https');

@@ -1,9 +1,9 @@
 const log4js = require('log4js');
 
-const assert = require('common/lang/assert'),
-	Disposable = require('common/lang/Disposable'),
-	is = require('common/lang/is'),
-	promise = require('common/lang/promise');
+const assert = require('@barchart/common-js/lang/assert'),
+	Disposable = require('@barchart/common-js/lang/Disposable'),
+	is = require('@barchart/common-js/lang/is'),
+	promise = require('@barchart/common-js/lang/promise');
 
 const Definition = require('./schema/definitions/Table'),
 	DynamoProvider = require('./../DynamoProvider');

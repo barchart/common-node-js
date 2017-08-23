@@ -1,7 +1,7 @@
 const log4js = require('log4js');
 
-const assert = require('common/lang/assert'),
-	promise = require('common/lang/promise');
+const assert = require('@barchart/common-js/lang/assert'),
+	promise = require('@barchart/common-js/lang/promise');
 
 const ResultProcessor = require('./../ResultProcessor');
 

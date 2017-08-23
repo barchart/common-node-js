@@ -1,7 +1,7 @@
 const log4js = require('log4js'),
 	pg = require('pg');
 
-const promise = require('common/lang/promise');
+const promise = require('@barchart/common-js/lang/promise');
 
 const Client = require('./Client'),
 	ClientProvider = require('./ClientProvider');
