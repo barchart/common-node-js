@@ -1,6 +1,6 @@
 {
-  "name": "common-node",
-  "version": "2.2.27",
+  "name": "@barchart/common-node-js",
+  "version": "3.0.0",
   "description": "Common classes, utilities, and functions for building Node.js servers",
   "author": {
     "name": "Bryan Ingle",
@@ -31,12 +31,12 @@
     "SQS"
   ],
   "dependencies": {
+    "@barchart/common-js": "3.0.0",
     "@google-cloud/pubsub": "^0.13.0",
     "aws-sdk": "2.7.19",
     "barchart-marketdata-utilities": "2.0.4",
     "body-parser": "1.15.2",
     "client-sessions": "0.7.0",
-    "common": "git+ssh://github.com/barchart/barchart-common-js#2.2.27",
     "express": "4.14.0",
     "express-handlebars": "3.0.0",
     "express-http-proxy": "0.10.1",
@@ -62,10 +62,15 @@
     "gulp-jasmine": "^2.2.1",
     "gulp-jsdoc3": "^1.0.1",
     "gulp-jshint": "~1.11.2",
-    "gulp-sourcemaps": "^1.6.0",
     "gulp-util": "^3.0.7",
     "run-sequence": "~1.1.4"
   },
-  "license": "UNLICENSED",
-  "private": true
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/barchart/barchart-common-node-js/issues"
+  },
+  "homepage": "https://github.com/barchart/barchart-common-node-js#readme",
+  "directories": {
+    "test": "test"
+  }
 }
