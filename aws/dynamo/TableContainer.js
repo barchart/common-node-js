@@ -72,7 +72,7 @@ module.exports = (() => {
 
 						return this._started;
 					}).catch((e) => {
-						logger.error('Dynamo Provider failed to start', e);
+						logger.error('Dynamo table wrapper failed to start', e);
 
 						throw e;
 					});
