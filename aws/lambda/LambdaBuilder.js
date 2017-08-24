@@ -324,7 +324,7 @@ module.exports = (() => {
 				let recordsToProcess;
 
 				if (event && Array.isArray(event.Records)) {
-					recordsToProcess = event.Records.filter((r) => r && r.Sns && typeof r.Sns.Message === 'string');
+					recordsToProcess = event.Records.filter((r) => r && r.Sns && is.string(r.Sns.Message));
 				} else {
 					recordsToProcess = [ ];
 				}
