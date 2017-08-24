@@ -1,5 +1,4 @@
-const assert = require('@barchart/common-js/lang/assert'),
-	is = require('@barchart/common-js/lang/is');
+const assert = require('@barchart/common-js/lang/assert');
 
 const ComponentType = require('./../../schema/definitions/ComponentType'),
 	DataType = require('./../../schema/definitions/DataType'),
