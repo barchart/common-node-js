@@ -10,6 +10,8 @@ module.exports = (() => {
 	 * An explicitly defined field of a DynamoDB record.
 	 *
 	 * @public
+	 * @param {String} name
+	 * @param {DataType} dataType
 	 */
 	class Attribute {
 		constructor(name, dataType) {

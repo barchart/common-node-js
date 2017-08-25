@@ -1,4 +1,5 @@
-const assert = require('@barchart/common-js/lang/assert');
+const assert = require('@barchart/common-js/lang/assert'),
+	Currency = require('@barchart/common-js/lang/Currency'),
 	Money = require('@barchart/common-js/lang/Money');
 
 const ComponentTypeDefinition = require('./ComponentTypeDefinition'),
@@ -13,6 +14,7 @@ module.exports = (() => {
 	 * @public
 	 * @param {String} description
 	 * @param {Array<ComponentTypeDefinition>} definitions
+	 * @param {Function=} type
 	 */
 	class ComponentType {
 		constructor(description, definitions, type) {
@@ -77,7 +79,7 @@ module.exports = (() => {
 
 	const componentTypeAmount = new ComponentType('Money', [
 		new ComponentTypeDefinition('amount', DataType.DECIMAL, 'amount'),
-		new ComponentTypeDefinition('currency', DataType.STRING, 'currency')
+		new ComponentTypeDefinition('currency', DataType.forEnum(Currency, 'currency'), 'currency')
 	], Money);
 
 	return ComponentType;

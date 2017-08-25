@@ -9,6 +9,9 @@ module.exports = (() => {
 	 * A data type that used by DynamoDB attributes.
 	 *
 	 * @public
+	 * @param {String} code
+	 * @param {String} description
+	 * @param {Function=} enumerationType
 	 */
 	class DataType {
 		constructor(code, description, enumerationType) {
@@ -55,6 +58,14 @@ module.exports = (() => {
 			return this._enumerationType;
 		}
 
+		/**
+		 * Creates a {@link DataType} for an {@link Enum}.
+		 *
+		 * @public
+		 * @param {Function} EnumerationType - A type that inherits {@link Enum}
+		 * @param {String} description
+		 * @returns {DataType}
+		 */
 		static forEnum(EnumerationType, description) {
 			return new DataType('S', description, EnumerationType);
 		}
@@ -62,6 +73,7 @@ module.exports = (() => {
 		/**
 		 * References a string.
 		 *
+		 * @public
 		 * @returns {DataType}
 		 */
 		static get STRING() {
@@ -71,6 +83,7 @@ module.exports = (() => {
 		/**
 		 * References a number.
 		 *
+		 * @public
 		 * @returns {DataType}
 		 */
 		static get NUMBER() {
@@ -80,6 +93,7 @@ module.exports = (() => {
 		/**
 		 * References a Boolean value.
 		 *
+		 * @public
 		 * @returns {DataType}
 		 */
 		static get BOOLEAN() {
@@ -89,6 +103,7 @@ module.exports = (() => {
 		/**
 		 * References an object (serialized as JSON).
 		 *
+		 * @public
 		 * @returns {DataType}
 		 */
 		static get JSON() {
@@ -98,6 +113,7 @@ module.exports = (() => {
 		/**
 		 * References a {@link Decimal} instance.
 		 *
+		 * @public
 		 * @returns {DataType}
 		 */
 		static get DECIMAL() {
@@ -107,6 +123,7 @@ module.exports = (() => {
 		/**
 		 * References a {@link Day} instance.
 		 *
+		 * @public
 		 * @returns {DataType}
 		 */
 		static get DAY() {
@@ -116,6 +133,7 @@ module.exports = (() => {
 		/**
 		 * References a {@link Timestamp} instance.
 		 *
+		 * @public
 		 * @returns {DataType}
 		 */
 		static get TIMESTAMP() {

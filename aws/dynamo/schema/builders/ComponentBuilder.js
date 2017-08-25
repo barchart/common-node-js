@@ -31,8 +31,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Set the {@link ComponentType}, generates {@link Attributes} as necessary, and returns the
-		 * current instance.
+		 * Sets the {@link ComponentType} and returns the current instance.
 		 *
 		 * @public
 		 * @param {ComponentType} componentType
