@@ -37,6 +37,33 @@ module.exports = (() => {
 			return processor.process(message, environment, components, logger);
 		}
 
+		/**
+		 * Adds a {@link LambdaProcessor} and returns the current instance.
+		 *
+		 * @param {LambdaProcessor} processor
+		 * @returns {LambdaRouter}
+		 */
+		usingProcessor(processor) {
+			assert.argumentIsRequired(processor, 'processor', LambdaProcessor, 'LambdaProcessor');
+
+			return this._processors.push(processor);
+
+			return this;
+		}
+
+		/**
+		 * Creates a new {@link LambdaRouter} with a single child processor.
+		 *
+		 * @public
+		 * @param {LambdaProcessor} processor
+		 * @returns {LambdaRouter}
+		 */
+		static fromProcessor(processor) {
+			assert.argumentIsRequired(processor, 'processor', LambdaProcessor, 'LambdaProcessor');
+
+			return new LambdaRouter([ processor ]);
+		}
+
 		toString() {
 			return `[LambdaRouter]`;
 		}
