@@ -18,7 +18,7 @@ module.exports = (() => {
 	 * @param {Array<LambdaProcessor>}
 	 * @extends LambdaProcessor
 	 */
-	return class LambdaRouter extends LambdaProcessor {
+	class LambdaRouter extends LambdaProcessor {
 		constructor(processors) {
 			super();
 
@@ -46,7 +46,7 @@ module.exports = (() => {
 		usingProcessor(processor) {
 			assert.argumentIsRequired(processor, 'processor', LambdaProcessor, 'LambdaProcessor');
 
-			return this._processors.push(processor);
+			this._processors.push(processor);
 
 			return this;
 		}
@@ -67,5 +67,7 @@ module.exports = (() => {
 		toString() {
 			return `[LambdaRouter]`;
 		}
-	};
+	}
+
+	return LambdaRouter;
 })();

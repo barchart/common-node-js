@@ -6,6 +6,8 @@ const assert = require('@barchart/common-js/lang/assert'),
 
 const HttpProvider = require('./../../network/http/HttpProvider'),
 	LambdaEnvironment = require('./LambdaEnvironment'),
+	LambdaProcessor = require('./LambdaProcessor'),
+	LambdaRouter = require('./LambdaRouter'),
 	S3Provider = require('./../S3Provider'),
 	SesProvider = require('./../SesProvider'),
 	SnsProvider = require('./../SnsProvider'),
@@ -99,10 +101,22 @@ module.exports = (() => {
 			assert.argumentIsRequired(messageProcessor, 'messageProcessor', Function);
 
 			if (this._messageProcessor !== null) {
-				throw new Error('The "messageProcessor" has already been defined');
+				throw new Error('The "messageProcessor" (or router) has already been defined');
 			}
 
-			this._messageProcessor = messageProcessor;
+			this._messageProcessor = LambdaProcessor.fromFunction(messageProcessor);
+
+			return this;
+		}
+
+		usingMessageRouter(messageRouter) {
+			assert.argumentIsRequired(messageRouter, 'messageRouter', LambdaRouter);
+
+			if (this._messageProcessor !== null) {
+				throw new Error('The "messageRouter" (or processor) has already been defined');
+			}
+
+			this._messageProcessor = messageRouter;
 
 			return this;
 		}
@@ -164,7 +178,7 @@ module.exports = (() => {
 			const environment = this._environment || LambdaEnvironment.getInstance();
 
 			const messageExtractor = this._messageExtractor || LambdaBuilder.getEmptyExtractor();
-			const messageProcessor = this._messageProcessor || LambdaBuilder.getEmptyProcessor();
+			const messageProcessor = this._messageProcessor || LambdaProcessor.fromFunction(LambdaBuilder.getEmptyProcessor());
 			const outputTransformer = this._outputTransformer || null;
 
 			const componentInitializers = Array.from(this._componentInitializers);
@@ -226,7 +240,7 @@ module.exports = (() => {
 						return Promise.all(messagesToProcess.map((message, i) => {
 							logger.info('processing message', (i + 1), 'for run', run);
 
-							return messageProcessor(message, environment, context.components, logger);
+							return messageProcessor.process(message, environment, context.components, logger);
 						})).then((results) => {
 							return Object.assign(context, { results: results });
 						});

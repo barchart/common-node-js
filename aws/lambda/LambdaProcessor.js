@@ -18,7 +18,7 @@ module.exports = (() => {
 	 * @public
 	 * @interface
 	 */
-	return class LambdaProcessor {
+	class LambdaProcessor {
 		constructor() {
 
 		}
@@ -113,7 +113,7 @@ module.exports = (() => {
 		toString() {
 			return '[LambdaRouter]';
 		}
-	};
+	}
 
 	class DelegatedLambdaProcessor extends LambdaProcessor {
 		constructor(processDelegate, canProcessPredicate) {
