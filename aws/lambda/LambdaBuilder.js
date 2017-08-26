@@ -109,7 +109,7 @@ module.exports = (() => {
 
 		/**
 		 * In some circumstances, output can be passed back to the system that triggered
-		 * the Lambda function (e.g. the API Gateway). If supplied, his function accepts
+		 * the Lambda function (e.g. the API Gateway). If supplied, this function accepts
 		 * the array of results from the {@link LambdaBuilder#usingMessageExtractor}
 		 * invocations and returns them to the invoking system.
 		 *
