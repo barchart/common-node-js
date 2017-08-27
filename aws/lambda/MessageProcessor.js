@@ -110,7 +110,7 @@ module.exports = (() => {
 		 * @param {Array<Verb>=} methods - The methods supported by the handler.
 		 * @returns {MessageProcessor}
 		 */
-		static forApiGateway(processDelegate, resourceExpression, ...methods) {
+		static forApiGateway(processDelegate, resourceExpression, methods) {
 			return new ApiGatewayMessageProcessor(processDelegate, resourceExpression, methods);
 		}
 
@@ -159,6 +159,10 @@ module.exports = (() => {
 				is.string(message.path) &&
 				this._methods.some(m => m.code === message.httpMethod) &&
 				this._resourceExpression.test(message.resource);
+		}
+
+		_process(message, environment, components, logger) {
+			return this._processDelegate(message, environment, components, logger);
 		}
 	}
 
