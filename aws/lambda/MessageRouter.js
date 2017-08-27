@@ -1,13 +1,9 @@
-const log4js = require('log4js');
-
 const assert = require('@barchart/common-js/lang/assert');
 
 const MessageProcessor = require('./MessageProcessor');
 
 module.exports = (() => {
 	'use strict';
-
-	const logger = log4js.getLogger('lambda/MessageRouter');
 
 	/**
 	 * A {@link MessageProcessor} implementation that cycles through an
