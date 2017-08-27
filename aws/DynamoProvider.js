@@ -418,7 +418,7 @@ module.exports = (() => {
 				});
 		}
 
-		/***
+		/**
 		 * Runs a scan against a DynamoDB table (or index) and returns
 		 * all the items matching the scan.
 		 *
@@ -472,7 +472,7 @@ module.exports = (() => {
 				});
 		}
 
-		/***
+		/**
 		 * Runs a query against a DynamoDB table (or index) and returns
 		 * all the items matching the query.
 		 *

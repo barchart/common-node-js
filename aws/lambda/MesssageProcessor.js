@@ -8,7 +8,7 @@ const Verb = require('./../../network/http/Verb');
 module.exports = (() => {
 	'use strict';
 
-	const logger = log4js.getLogger('lambda/LambdaProcessor');
+	const logger = log4js.getLogger('lambda/MessageProcessor');
 
 	/**
 	 * A function wrapper for processing Lambdas coupled with a
@@ -18,13 +18,13 @@ module.exports = (() => {
 	 * @public
 	 * @interface
 	 */
-	class LambdaProcessor {
+	class MessageProcessor {
 		constructor() {
 
 		}
 
 		/**
-		 * Returns true if the arguments could be handled by the {LambdaProcessor#process},
+		 * Returns true if the arguments could be handled by the {MessageProcessor#process},
 		 * function; otherwise, false.
 		 *
 		 * @public
@@ -83,31 +83,35 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Returns a {@link LambdaProcessor} that is backed by functions.
+		 * Returns a {@link MessageProcessor} that is backed by functions.
 		 *
+		 * @public
 		 * @param {Function} processDelegate
 		 * @param {Function=} canProcessPredicate
-		 * @returns {LambdaProcessor}
+		 * @returns {MessageProcessor}
 		 */
 		static fromFunction(processDelegate, canProcessPredicate) {
 			assert.argumentIsRequired(processDelegate, 'processDelegate', Function);
 			assert.argumentIsOptional(canProcessPredicate, 'canProcessPredicate', Function);
 
-			return new DelegatedLambdaProcessor(processDelegate, canProcessPredicate);
+			return new DelegatedMessageProcessor(processDelegate, canProcessPredicate);
 		}
 
 		/**
-		 * Returns a {@link LambdaProcessor} implements "canProcess" logic
-		 * by looking at the HTTP verb and path of an event generated from
-		 * a proxied request to the API gateway.
+		 * Creates a {@link MessageProcessor} which can be used to handle
+		 * "proxy" events from the API Gateway. In other words, the
+		 * {@link MessageProcessor#canProcess} function will verify the
+		 * event's "httpMethod" property and its "resourceProperty" match
+		 * the arguments provided here.
 		 *
+		 * @public
 		 * @param {Function} processDelegate - The handler.
-		 * @param {String=} pathExpression - The regular expression, tested against the path, that must match for the processor to be executed.
-		 * @param {Array<String>=} methods - The HTTP methods supported by the processor.
-		 * @returns {LambdaProcessor}
+		 * @param {String=} resourceExpression - A regular expression that must match the message.resource (e.g. "v1/ponies/{color}")
+		 * @param {Array<Verb>=} methods - The methods supported by the handler.
+		 * @returns {MessageProcessor}
 		 */
-		static forApiGatewayProxyRequest(processDelegate, pathExpression, ...methods) {
-			return new ApiGatewayProxyLambdaProcessor(processDelegate, pathExpression, methods);
+		static forApiGateway(processDelegate, resourceExpression, ...methods) {
+			return new ApiGatewayMessageProcessor(processDelegate, resourceExpression, methods);
 		}
 
 		toString() {
@@ -115,7 +119,7 @@ module.exports = (() => {
 		}
 	}
 
-	class DelegatedLambdaProcessor extends LambdaProcessor {
+	class DelegatedMessageProcessor extends MessageProcessor {
 		constructor(processDelegate, canProcessPredicate) {
 			super();
 
@@ -132,27 +136,31 @@ module.exports = (() => {
 		}
 
 		toString() {
-			return '[DelegatedLambdaProcessor]';
+			return '[DelegatedMessageProcessor]';
 		}
 	}
 
-	class ApiGatewayProxyLambdaProcessor extends LambdaProcessor {
-		constructor(processDelegate, pathExpression, methods) {
+	class ApiGatewayMessageProcessor extends MessageProcessor {
+		constructor(processDelegate, resourceExpression, methods) {
 			super();
 
 			assert.argumentIsRequired(processDelegate, 'processDelegate', Function);
-			assert.argumentIsOptional(pathExpression, 'pathExpression', String);
+			assert.argumentIsOptional(resourceExpression, 'resourceExpression', String);
 			assert.argumentIsArray(methods, 'methods', String);
 
 			this._processDelegate = processDelegate;
-			this._pathExpression = new RegExp(pathExpression || '.*');
-			this._methods = methods || [ Verb.DELETE.code, Verb.GET.code, Verb.OPTIONS.code, Verb.POST.code, Verb.PUT.code ];
+			this._resourceExpression = new RegExp(resourceExpression || '.*');
+			this._methods = methods || [ Verb.DELETE, Verb.GET, Verb.OPTIONS, Verb.POST, Verb.PUT ];
 		}
 
 		_canProcess(message, environment, components, logger) {
-			return is.object(message) && is.string(message.path) && this._methods.includes(message.httpMethod) && is.string(message.path) && this._pathExpression.test(message.path);
+			return is.object(message) &&
+				is.string(message.httpMethod) &&
+				is.string(message.path) &&
+				this._methods.some(m => m.code === message.httpMethod) &&
+				this._resourceExpression.test(message.resource);
 		}
 	}
 
-	return LambdaProcessor;
+	return MessageProcessor;
 })();
