@@ -12,7 +12,6 @@ module.exports = (() => {
 	 *
 	 * @public
 	 * @param {string} name
-	 * @param {TableBuilder} parent
 	 */
 	class ComponentBuilder {
 		constructor(name) {

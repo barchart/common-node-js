@@ -14,9 +14,10 @@ module.exports = (() => {
 	 * @param {DataType} dataType
 	 */
 	class Attribute {
-		constructor(name, dataType) {
+		constructor(name, dataType, derivation) {
 			this._name = name;
 			this._dataType = dataType || null;
+			this._derivation = derivation || null;
 		}
 
 		/**
@@ -37,6 +38,18 @@ module.exports = (() => {
 		 */
 		get dataType() {
 			return this._dataType;
+		}
+
+		/**
+		 * If this attribute derives its value from other attributes; then
+		 * this property will return a {@link Derivation} instance; otherwise
+		 * it return a null reference.
+		 *
+		 * @public
+		 * @returns {Derivation|null}
+		 */
+		get derivation() {
+			return this._derivation;
 		}
 
 		/**
