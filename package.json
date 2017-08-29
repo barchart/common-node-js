@@ -1,6 +1,6 @@
 {
   "name": "@barchart/common-node-js",
-  "version": "3.0.6",
+  "version": "3.0.7",
   "description": "Common classes, utilities, and functions for building Node.js servers",
   "author": {
     "name": "Bryan Ingle",
@@ -31,7 +31,7 @@
     "SQS"
   ],
   "dependencies": {
-    "@barchart/common-js": "3.0.7",
+    "@barchart/common-js": "3.0.8",
     "@google-cloud/pubsub": "^0.13.0",
     "aws-sdk": "2.7.19",
     "barchart-marketdata-utilities": "2.0.4",
