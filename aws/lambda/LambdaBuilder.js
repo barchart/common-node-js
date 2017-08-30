@@ -199,6 +199,8 @@ module.exports = (() => {
 			const componentInitializers = Array.from(this._componentInitializers);
 
 			return (event, context, callback) => {
+				const start = new Date();
+
 				let run = ++runCounter;
 
 				logger.info(`starting run ${run} for ${environment.getName()} in ${environment.getMode()} mode`);
@@ -310,7 +312,9 @@ module.exports = (() => {
 							callback();
 						}
 
-						logger.info('finished run', run);
+						const end = new Date();
+
+						logger.info('finished run', run, ' after [', (end.getTime() - start.getTime()) ,'] milliseconds');
 					});
 			};
 		}
