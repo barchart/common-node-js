@@ -52,19 +52,29 @@ module.exports = (() => {
 		 * functions.
 		 *
 		 * @public
+		 * @param {Boolean=} skipVerification - If true, verification of table's existence and schema is skipped. This could be considered unsafe, but startup will be faster.
 		 * @returns {Promise.<Boolean>}
 		 */
-		start() {
-			if (this.getIsDisposed()) {
-				return Promise.reject('The Dynamo Provider has been disposed.');
-			}
-
+		start(skipVerification) {
 			if (this._startPromise === null) {
 				this._startPromise = Promise.resolve()
 					.then(() => {
+						if (this.getIsDisposed()) {
+							return Promise.reject('The Dynamo Provider has been disposed.');
+						}
+
+						assert.argumentIsOptional(skipVerification, 'skipVerification', Boolean);
+
 						return this._provider.start();
 					}).then(() => {
-						return this._provider.createTable(this.definition);
+						let createPromise;
+
+						if (is.boolean(skipVerification) && skipVerification) {
+							createPromise = Promise.resolve();
+						} else {
+							createPromise = this._provider.createTable(this.definition);
+						}
+						return createPromise;
 					}).then(() => {
 						logger.info('Dynamo table wrapper for', this._definition.name, 'initialized');
 
