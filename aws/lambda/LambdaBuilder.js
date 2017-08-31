@@ -314,7 +314,7 @@ module.exports = (() => {
 
 						const end = new Date();
 
-						logger.info('finished run', run, ' after [', (end.getTime() - start.getTime()) ,'] milliseconds');
+						logger.info('finished run', run, 'after [', (end.getTime() - start.getTime()) ,'] milliseconds');
 					});
 			};
 		}
