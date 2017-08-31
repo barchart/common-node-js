@@ -63,7 +63,7 @@ module.exports = (() => {
 		 * @returns {MessageRouter}
 		 */
 		routeApiGatewayRequest(processDelegate, resourceExpression, ...methods) {
-			this._processors.push(MessageProcessor.forApiGateway(processDelegate, resourceExpression, methods));
+			return this.usingProcessor(MessageProcessor.forApiGateway(processDelegate, resourceExpression, methods));
 		}
 
 		toString() {
