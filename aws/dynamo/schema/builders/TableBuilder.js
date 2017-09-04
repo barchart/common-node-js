@@ -69,7 +69,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {String} attributeName
-		 * @param {AttributeBuilderCallback} callback - Synchronously called, providing a {@link AttributeBuilder} tied to the current instance.
+		 * @param {TableBuilder~attributeBuilderCallback} callback - Synchronously called, providing a {@link AttributeBuilder} tied to the current instance.
 		 * @returns {TableBuilder}
 		 */
 		withAttributeBuilder(attributeName, callback) {
@@ -106,7 +106,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {String} componentName
-		 * @param {ComponentBuilderCallback} callback - Synchronously called, providing a {@link ComponentBuilder} tied to the current instance.
+		 * @param {TableBuilder~componentBuilderCallback} callback - Synchronously called, providing a {@link ComponentBuilder} tied to the current instance.
 		 * @returns {TableBuilder}
 		 */
 		withComponentBuilder(componentName, callback) {
@@ -286,14 +286,14 @@ module.exports = (() => {
 	/**
 	 * A callback that provides the user with an {@link AttributeBuilder}
 	 *
-	 * @callback AttributeBuilderCallback
+	 * @callback TableBuilder~attributeBuilderCallback
 	 * @param {AttributeBuilder} attributeBuilder
 	 */
 
 	/**
 	 * A callback that provides the user with a {@link ComponentBuilder}
 	 *
-	 * @callback ComponentBuilderCallback
+	 * @callback TableBuilder~componentBuilderCallback
 	 * @param {AttributeBuilder} attributeBuilder
 	 */
 
