@@ -51,7 +51,7 @@ gulp.task('commit-changes', function () {
 });
 
 gulp.task('push-changes', function (cb) {
-    git.push('origin', 'bryan/es6-upgrade', cb);
+    git.push('origin', 'master', cb);
 });
 
 gulp.task('create-tag', function (cb) {
@@ -62,7 +62,7 @@ gulp.task('create-tag', function (cb) {
             return cb(error);
         }
 
-        git.push('origin', 'bryan/es6-upgrade', { args: '--tags' }, cb);
+        git.push('origin', 'master', { args: '--tags' }, cb);
     });
 });
 
