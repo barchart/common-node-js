@@ -15,7 +15,7 @@ module.exports = (() => {
 	 * @param {String} mode - The function's mode (i.e. dev, stage, or prod).
 	 * @param {String} name - The name of the lambda function.
 	 */
-	return class LambdaEnvironment {
+	class LambdaEnvironment {
 		constructor(mode, name) {
 			this._mode = mode;
 			this._name = name || 'Unknown';
@@ -26,6 +26,7 @@ module.exports = (() => {
 		/**
 		 * Returns the function's mode (i.e. dev, stage, or prod).
 		 *
+		 * @public
 		 * @returns {String}
 		 */
 		getMode() {
@@ -35,6 +36,7 @@ module.exports = (() => {
 		/**
 		 * Returns the name of the function.
 		 *
+		 * @public
 		 * @returns {String}
 		 */
 		getName() {
@@ -45,6 +47,7 @@ module.exports = (() => {
 		 * Returns true, if the function's mode is production (i.e. "prod");
 		 * otherwise returns false.
 		 *
+		 * @public
 		 * @returns {String}
 		 */
 		getIsProduction() {
@@ -54,6 +57,7 @@ module.exports = (() => {
 		/**
 		 * Reads the function's config.yml file and returns the contents.
 		 *
+		 * @public
 		 * @returns {Promise.<Object>}
 		 */
 		getConfiguration() {
@@ -69,6 +73,7 @@ module.exports = (() => {
 		/**
 		 * Get the singleton instance for the function.
 		 *
+		 * @public
 		 * @returns {LambdaEnvironment}
 		 */
 		static getInstance() {
@@ -88,5 +93,7 @@ module.exports = (() => {
 		toString() {
 			return `[LambdaEnvironment (name=${this.getName()}, mode=${this.getMode()}]`;
 		}
-	};
+	}
+
+	return LambdaEnvironment;
 })();

@@ -64,12 +64,12 @@ module.exports = (() => {
 
 		/**
 		 * Adds an {@link Attribute} to the table, using a callback that
-		 * provides the consumer with an {@AttributeBuilder}, then returns
+		 * provides the consumer with an {@link AttributeBuilder}, then returns
 		 * the current instance.
 		 *
 		 * @public
 		 * @param {String} attributeName
-		 * @param {Function} callback - Synchronously called, providing a {@link AttributeBuilder} tied to the current instance.
+		 * @param {AttributeBuilderCallback} callback - Synchronously called, providing a {@link AttributeBuilder} tied to the current instance.
 		 * @returns {TableBuilder}
 		 */
 		withAttributeBuilder(attributeName, callback) {
@@ -101,12 +101,12 @@ module.exports = (() => {
 
 		/**
 		 * Adds a {@link Component} to the table, using a callback that
-		 * provides the consumer with an {@ComponentBuilder}, then returns
+		 * provides the consumer with a {@link ComponentBuilder}, then returns
 		 * the current instance.
 		 *
 		 * @public
 		 * @param {String} componentName
-		 * @param {Function} callback - Synchronously called, providing a {@link ComponentBuilder} tied to the current instance.
+		 * @param {ComponentBuilderCallback} callback - Synchronously called, providing a {@link ComponentBuilder} tied to the current instance.
 		 * @returns {TableBuilder}
 		 */
 		withComponentBuilder(componentName, callback) {
@@ -138,7 +138,7 @@ module.exports = (() => {
 
 		/**
 		 * Adds a {@link Key} to the table, using a callback that
-		 * provides the consumer with an {@KeyBuilder}, then returns
+		 * provides the consumer with a {@link KeyBuilder}, then returns
 		 * the current instance.
 		 *
 		 * @public
@@ -163,7 +163,7 @@ module.exports = (() => {
 
 		/**
 		 * Adds an {@link Index} to the table, using a callback that
-		 * provides the consumer with an {@IndexBuilder}, then returns
+		 * provides the consumer with an {@link IndexBuilder}, then returns
 		 * the current instance.
 		 *
 		 * @public
@@ -202,7 +202,7 @@ module.exports = (() => {
 		/**
 		 * Adds an {@link ProvisionedThroughpu} specification to the
 		 * table, using a callback that provides the consumer with a
-		 * {@ProvisionedThroughputBuilder}, then returns the current instance.
+		 * {@link ProvisionedThroughputBuilder}, then returns the current instance.
 		 *
 		 * @public
 		 * @param {Function} callback - Synchronously called, providing a {@link ProvisionedThroughputBuilder} tied to the current instance.
@@ -282,6 +282,20 @@ module.exports = (() => {
 			return '[TableBuilder]';
 		}
 	}
+
+	/**
+	 * A callback that provides the user with an {@link AttributeBuilder}
+	 *
+	 * @callback AttributeBuilderCallback
+	 * @param {AttributeBuilder} attributeBuilder
+	 */
+
+	/**
+	 * A callback that provides the user with a {@link ComponentBuilder}
+	 *
+	 * @callback ComponentBuilderCallback
+	 * @param {AttributeBuilder} attributeBuilder
+	 */
 
 	return TableBuilder;
 })();

@@ -9,8 +9,8 @@ module.exports = (() => {
 	 * describes the input required and the function needed to derive said value.
 	 *
 	 * @public
-	 * @param {String} name
-	 * @param {Function} generator
+	 * @param {Array<Attribute>} name - The attributes used by the generator. Each attribute will be read, then passed to the generator as an array.
+	 * @param {Function} generator - The function which derives (i.e. generates) the attribute value.
 	 */
 	class Derivation {
 		constructor(attributes, generator) {
@@ -39,7 +39,7 @@ module.exports = (() => {
 		}
 
 		toString() {
-			return `[Derivation (name=${this._name})]`;
+			return '[Derivation]';
 		}
 	}
 

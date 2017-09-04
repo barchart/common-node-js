@@ -19,23 +19,23 @@ module.exports = (() => {
 			this._attribute = attribute;
 			this._serializer = Serializers.forAttribute(attribute);
 
-			let readDelegate;
 			let existsDelegate;
+			let readDelegate;
 
-			if (this._attribute.name.includes(Writer.SEPARATOR)) {
-				const names = this._attribute.name.split(Writer.SEPARATOR);
+			if (this._attribute.derivation === null) {
+				const attributeDelegates = getDelegatesForAttribute(this._attribute);
 
-				readDelegate = source => attributes.read(source, names);
-				existsDelegate = source => attributes.has(source, names);
+				existsDelegate = attributeDelegates.exists;
+				readDelegate = attributeDelegates.read;
 			} else {
-				const name = this._attribute.name;
+				const derivationDelegates = this._attribute.derivation.attributes.map(a => getDelegatesForAttribute(a));
 
-				readDelegate = source => source[name];
-				existsDelegate = source => source.hasOwnProperty(name);
+				existsDelegate = source => derivationDelegates.every(dd => dd.exists(source));
+				readDelegate = source => derivation.generator(derivationDelegates.map(dd => dd.read(source)));
 			}
 
-			this._readDelegate = readDelegate;
 			this._existsDelegate = existsDelegate;
+			this._readDelegate = readDelegate;
 		}
 
 		_write(source, target) {
@@ -51,6 +51,28 @@ module.exports = (() => {
 		toString() {
 			return '[AttributeSerializationWriter]';
 		}
+	}
+
+	function getDelegatesForAttribute(attribute) {
+		let existsDelegate;
+		let readDelegate;
+
+		if (attribute.name.includes(Writer.SEPARATOR)) {
+			const names = attribute.name.split(Writer.SEPARATOR);
+
+			existsDelegate = source => attributes.has(source, names);
+			readDelegate = source => attributes.read(source, names);
+		} else {
+			const name = attribute.name;
+
+			existsDelegate = source => source.hasOwnProperty(name);
+			readDelegate = source => source[name];
+		}
+
+		return {
+			exists: existsDelegate,
+			read: readDelegate
+		};
 	}
 
 	return AttributeSerializationWriter;

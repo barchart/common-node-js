@@ -39,7 +39,7 @@ module.exports = (() => {
 	 *
 	 * @public
 	 */
-	return class LambdaBuilder {
+	class LambdaBuilder {
 		constructor() {
 			this._environment = null;
 
@@ -538,5 +538,7 @@ module.exports = (() => {
 		toString() {
 			return `[LambdaBuilder (name=${this._environment.getName()}, environment=${this._environment.getEnvironment()}]`;
 		}
-	};
+	}
+
+	return LambdaBuilder;
 })();
