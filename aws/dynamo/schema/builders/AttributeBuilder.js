@@ -49,13 +49,13 @@ module.exports = (() => {
 		withDerivationBuilder(callback) {
 			assert.argumentIsRequired(callback, 'callback', Function);
 
-			const derivationBuilder = new DerivationBuilder(this);
+			const derivationBuilder = new DerivationBuilder(this._parent);
 
 			callback(derivationBuilder);
 
 			const derivation = derivationBuilder.derivation;
 
-			this._attribute = new AttributeBuilder(this._attribute.name, this._attribute.dataType, derivation);
+			this._attribute = new Attribute(this._attribute.name, this._attribute.dataType, derivation);
 
 			return this;
 		}

@@ -15,8 +15,6 @@ module.exports = (() => {
 	 */
 	class DerivationBuilder {
 		constructor(parent) {
-			assert.argumentIsRequired(name, 'name', String);
-
 			this._derivation = null;
 			this._parent = parent;
 		}
@@ -37,7 +35,7 @@ module.exports = (() => {
 			let generator;
 
 			if (this._derivation) {
-				attributes = this._derivation.attributes.push(a);
+				attributes = this._derivation.attributes.concat([ a ]);
 				generator = this._derivation.generator;
 			} else {
 				attributes = [ a ];

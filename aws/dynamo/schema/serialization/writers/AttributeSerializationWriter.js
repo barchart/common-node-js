@@ -28,7 +28,9 @@ module.exports = (() => {
 				existsDelegate = attributeDelegates.exists;
 				readDelegate = attributeDelegates.read;
 			} else {
-				const derivationDelegates = this._attribute.derivation.attributes.map(a => getDelegatesForAttribute(a));
+				const derivation = this._attribute.derivation;
+
+				const derivationDelegates = derivation.attributes.map(a => getDelegatesForAttribute(a));
 
 				existsDelegate = source => derivationDelegates.every(dd => dd.exists(source));
 				readDelegate = source => derivation.generator(derivationDelegates.map(dd => dd.read(source)));
