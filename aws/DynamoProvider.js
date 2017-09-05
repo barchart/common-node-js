@@ -351,7 +351,7 @@ module.exports = (() => {
 					return workQueue.enqueue(() => {
 						const batchNumber =  workQueue.getCurrent();
 
-						logger.debug('Starting batch insert into [', qualifiedTableName, '] for batch number [', batchNumber,'] with [', items.length, '] items');
+						logger.debug('Starting batch insert into [', qualifiedTableName, '] for batch number [', batchNumber, '] with [', items.length, '] items');
 
 						const putBatch = (currentPayload) => {
 							return promise.build((resolveCallback, rejectCallback) => {
