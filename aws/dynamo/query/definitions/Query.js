@@ -7,6 +7,7 @@ const Action = require('./Action'),
 	Filter = require('./Filter'),
 	Index = require('./../../schema/definitions/Index'),
 	KeyType = require('./../../schema/definitions/KeyType'),
+	OrderingType = require('./OrderingType'),
 	Table = require('./../../schema/definitions/Table');
 
 module.exports = (() => {
@@ -22,16 +23,18 @@ module.exports = (() => {
 	 * @param {Filter} keyFilter
 	 * @param {Filter} resultsFilter
 	 * @param {Array<Attribute>} attributes
+	 * @param {OrderingType=} orderingType
 	 * @param {String=} description
 	 */
 	class Query extends Action {
-		constructor(table, index, keyFilter, resultsFilter, attributes, description) {
+		constructor(table, index, keyFilter, resultsFilter, attributes, orderingType, description) {
 			super(table, index, (description || '[Unnamed Query]'));
 
 			this._keyFilter = keyFilter || null;
 			this._resultsFilter = resultsFilter || null;
 
 			this._attributes = attributes || [ ];
+			this._orderingType = orderingType || OrderingType.ASCENDING;
 		}
 
 		/**
@@ -63,6 +66,16 @@ module.exports = (() => {
 		 */
 		get attributes() {
 			return [...this._attributes];
+		}
+
+		/**
+		 * If true, results will be returned in descending order. Otherwise, results
+		 * will be returned in ascending order.
+		 *
+		 * @returns {Boolean}
+		 */
+		get orderingType() {
+			return this._orderingType;
 		}
 
 		/**
@@ -157,6 +170,7 @@ module.exports = (() => {
 			}
 
 			schema.ExpressionAttributeValues = valueAliases;
+			schema.ScanIndexForward = this._orderingType.forward;
 
 			return schema;
 		}

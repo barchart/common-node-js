@@ -1,6 +1,7 @@
 const assert = require('@barchart/common-js/lang/assert');
 
-const Query = require('./../definitions/Query'),
+const OrderingType = require('./../definitions/OrderingType'),
+	Query = require('./../definitions/Query'),
 	Table = require('./../../schema/definitions/Table');
 
 const ActionBuilder = require('./ActionBuilder'),
@@ -54,7 +55,7 @@ module.exports = (() => {
 		withIndex(indexName) {
 			assert.argumentIsRequired(indexName, 'indexName', String);
 
-			this._query = new Query(this._query.table, getIndex(indexName, this._query.table), this._query.keyFilter, this._query.resultsFilter, this._query.attributes, this._query.description);
+			this._query = new Query(this._query.table, getIndex(indexName, this._query.table), this._query.keyFilter, this._query.resultsFilter, this._query.attributes, this._query.orderingType, this._query.description);
 
 			return this;
 		}
@@ -74,7 +75,7 @@ module.exports = (() => {
 
 			callback(filterBuilder);
 
-			this._query = new Query(this._query.table, this._query.index, filterBuilder.filter, this._query.resultsFilter, this._query.attributes, this._query.description);
+			this._query = new Query(this._query.table, this._query.index, filterBuilder.filter, this._query.resultsFilter, this._query.attributes, this._query.orderingType, this._query.description);
 
 			return this;
 		}
@@ -94,11 +95,10 @@ module.exports = (() => {
 
 			callback(filterBuilder);
 
-			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, filterBuilder.filter, this._query.attributes, this._query.description);
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, filterBuilder.filter, this._query.attributes, this._query.orderingType, this._query.description);
 
 			return this;
 		}
-
 
 		/**
 		 * The name of an attribute to select.
@@ -117,7 +117,7 @@ module.exports = (() => {
 				if (!attributes.some(a => a.name === attribute.name)) {
 					attributes.push(attribute);
 
-					this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, attributes, this._query.description);
+					this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, attributes, this._query.orderingType, this._query.description);
 				}
 			}
 
@@ -134,7 +134,21 @@ module.exports = (() => {
 		withDescription(description) {
 			assert.argumentIsRequired(description, 'description', String);
 
-			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.attributes, description);
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.attributes, this._query.orderingType, description);
+
+			return this;
+		}
+
+		/**
+		 * Sets the direction of index processing (and the order of the results).
+		 *
+		 * @param {OrderingType}
+		 * @returns {QueryBuilder}
+		 */
+		withOrderingType(orderingType) {
+			assert.argumentIsRequired(orderingType, 'orderingType', OrderingType, 'OrderingType');
+
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.attributes, orderingType, this._query.description);
 
 			return this;
 		}
