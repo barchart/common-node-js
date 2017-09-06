@@ -59,7 +59,7 @@ module.exports = (() => {
 
 			callback(filterBuilder);
 
-			this._scan = new Scan(this._scan.table, this._scan.index, filterBuilder.filter, this._scan.attributes, this._scan.description);
+			this._scan = new Scan(this._scan.table, this._scan.index, filterBuilder.filter, this._scan.attributes, this._scan.limit, this._scan.description);
 
 			return this;
 		}
@@ -75,7 +75,7 @@ module.exports = (() => {
 		withIndex(indexName) {
 			assert.argumentIsRequired(indexName, 'indexName', String);
 
-			this._scan = new Scan(this._scan.table, getIndex(indexName, this._scan.table), this._scan.filter, this._scan.attributes, this._scan.description);
+			this._scan = new Scan(this._scan.table, getIndex(indexName, this._scan.table), this._scan.filter, this._scan.attributes, this._scan.limit, this._scan.description);
 
 			return this;
 		}
@@ -97,9 +97,24 @@ module.exports = (() => {
 				if (!attributes.some(a => a.name === attribute.name)) {
 					attributes.push(attribute);
 
-					this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, attributes, this._scan.description);
+					this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, attributes, this._scan.limit, this._scan.description);
 				}
 			}
+
+			return this;
+		}
+
+		/**
+		 * Sets hard limit to the number of results returned from the scan.
+		 *
+		 * @public
+		 * @param {Number} limit
+		 * @returns {ScanBuilder}
+		 */
+		withLimit(limit) {
+			assert.argumentIsRequired(limit, 'limit', Number);
+
+			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, this._scan.attributes, limit, this._scan.description);
 
 			return this;
 		}
@@ -114,7 +129,7 @@ module.exports = (() => {
 		withDescription(description) {
 			assert.argumentIsRequired(description, 'description', String);
 
-			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, this._scan.attributes, description);
+			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, this._scan.attributes, this._scan.limit, description);
 
 			return this;
 		}

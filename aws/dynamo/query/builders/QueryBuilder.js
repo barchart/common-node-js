@@ -55,7 +55,7 @@ module.exports = (() => {
 		withIndex(indexName) {
 			assert.argumentIsRequired(indexName, 'indexName', String);
 
-			this._query = new Query(this._query.table, getIndex(indexName, this._query.table), this._query.keyFilter, this._query.resultsFilter, this._query.attributes, this._query.orderingType, this._query.description);
+			this._query = new Query(this._query.table, getIndex(indexName, this._query.table), this._query.keyFilter, this._query.resultsFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.description);
 
 			return this;
 		}
@@ -75,7 +75,7 @@ module.exports = (() => {
 
 			callback(filterBuilder);
 
-			this._query = new Query(this._query.table, this._query.index, filterBuilder.filter, this._query.resultsFilter, this._query.attributes, this._query.orderingType, this._query.description);
+			this._query = new Query(this._query.table, this._query.index, filterBuilder.filter, this._query.resultsFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.description);
 
 			return this;
 		}
@@ -95,7 +95,7 @@ module.exports = (() => {
 
 			callback(filterBuilder);
 
-			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, filterBuilder.filter, this._query.attributes, this._query.orderingType, this._query.description);
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, filterBuilder.filter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.description);
 
 			return this;
 		}
@@ -117,9 +117,24 @@ module.exports = (() => {
 				if (!attributes.some(a => a.name === attribute.name)) {
 					attributes.push(attribute);
 
-					this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, attributes, this._query.orderingType, this._query.description);
+					this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, attributes, this._query.limit, this._query.orderingType, this._query.description);
 				}
 			}
+
+			return this;
+		}
+
+		/**
+		 * Sets a hard limit to the number of results returned from the query.
+		 *
+		 * @public
+		 * @param {Number} limit
+		 * @returns {QueryBuilder}
+		 */
+		withLimit(limit) {
+			assert.argumentIsRequired(limit, 'limit', Number);
+
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.attributes, limit, this._query.orderingType, this._query.description);
 
 			return this;
 		}
@@ -134,7 +149,7 @@ module.exports = (() => {
 		withDescription(description) {
 			assert.argumentIsRequired(description, 'description', String);
 
-			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.attributes, this._query.orderingType, description);
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.attributes, this._query.limit, this._query.orderingType, description);
 
 			return this;
 		}
@@ -148,7 +163,7 @@ module.exports = (() => {
 		withOrderingType(orderingType) {
 			assert.argumentIsRequired(orderingType, 'orderingType', OrderingType, 'OrderingType');
 
-			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.attributes, orderingType, this._query.description);
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.attributes, this._query.limit, orderingType, this._query.description);
 
 			return this;
 		}

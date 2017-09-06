@@ -19,14 +19,16 @@ module.exports = (() => {
 	 * @param {Index} index
 	 * @param {Filter} filter
 	 * @param {Array<Attribute>} attributes
+	 * @param {Number=} limit
 	 * @param {String=} description
 	 */
 	class Scan extends Action {
-		constructor(table, index, filter, attributes, description) {
+		constructor(table, index, filter, attributes, limit, description) {
 			super(table, index, (description || '[Unnamed Scan]'));
 
 			this._filter = filter || null;
 			this._attributes = attributes || [ ];
+			this._limit = limit || null;
 		}
 
 		/**
@@ -47,6 +49,16 @@ module.exports = (() => {
 		 */
 		get attributes() {
 			return [...this._attributes];
+		}
+
+		/**
+		 * The maximum number of results to returns from the scan. A null value
+		 * will be interpreted as no limit.
+		 *
+		 * @returns {Number|null}
+		 */
+		get limit() {
+			return this._limit;
 		}
 
 		/**
@@ -73,6 +85,10 @@ module.exports = (() => {
 				}
 
 				this._filter.validate();
+			}
+
+			if (this._limit !== null && (!is.large(this._limit) || !(this._limit > 0))) {
+				throw new Error('The limit must be a positive integer.');
 			}
 		}
 
@@ -110,6 +126,10 @@ module.exports = (() => {
 
 			if (attributes.length !== 0) {
 				schema.ExpressionAttributeNames = Action.getExpressionAttributeNames(this._table, attributes);
+			}
+
+			if (this._limit !== null) {
+				schema.Limit = this._limit;
 			}
 
 			return schema;

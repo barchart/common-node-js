@@ -27,13 +27,14 @@ module.exports = (() => {
 	 * @param {String=} description
 	 */
 	class Query extends Action {
-		constructor(table, index, keyFilter, resultsFilter, attributes, orderingType, description) {
+		constructor(table, index, keyFilter, resultsFilter, attributes, limit, orderingType, description) {
 			super(table, index, (description || '[Unnamed Query]'));
 
 			this._keyFilter = keyFilter || null;
 			this._resultsFilter = resultsFilter || null;
 
 			this._attributes = attributes || [ ];
+			this._limit = limit || null;
 			this._orderingType = orderingType || OrderingType.ASCENDING;
 		}
 
@@ -69,10 +70,20 @@ module.exports = (() => {
 		}
 
 		/**
+		 * The maximum number of results to returns from the query. A null value
+		 * will be interpreted as no limit.
+		 *
+		 * @returns {Number|null}
+		 */
+		get limit() {
+			return this._limit;
+		}
+
+		/**
 		 * If true, results will be returned in descending order. Otherwise, results
 		 * will be returned in ascending order.
 		 *
-		 * @returns {Boolean}
+		 * @returns {OrderingType}
 		 */
 		get orderingType() {
 			return this._orderingType;
@@ -120,6 +131,14 @@ module.exports = (() => {
 				}
 
 				this._resultsFilter.validate();
+			}
+
+			if (!(this._orderingType instanceof OrderingType)) {
+				throw new Error('The ordering type is invalid.');
+			}
+
+			if (this._limit !== null && (!is.large(this._limit) || !(this._limit > 0))) {
+				throw new Error('The limit must be a positive integer.');
 			}
 		}
 
@@ -171,6 +190,10 @@ module.exports = (() => {
 
 			schema.ExpressionAttributeValues = valueAliases;
 			schema.ScanIndexForward = this._orderingType.forward;
+
+			if (this._limit !== null) {
+				schema.Limit = this._limit;
+			}
 
 			return schema;
 		}
