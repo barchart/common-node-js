@@ -5,7 +5,8 @@ const Attribute = require('./../../schema/definitions/Attribute'),
 	ComponentType = require('./../../schema/definitions/ComponentType'),
 	DataType = require('./../../schema/definitions/DataType');
 
-const DaySerializer = require('./attributes/DaySerializer'),
+const BooleanSerializer = require('./attributes/BooleanSerializer'),
+	DaySerializer = require('./attributes/DaySerializer'),
 	DecimalSerializer = require('./attributes/DecimalSerializer'),
 	EnumSerializer = require('./attributes/EnumSerializer'),
 	JsonSerializer = require('./attributes/JsonSerializer'),
@@ -100,6 +101,7 @@ module.exports = (() => {
 
 	const serializers = new Map();
 
+	serializers.set(DataType.BOOLEAN, BooleanSerializer.INSTANCE);
 	serializers.set(DataType.DECIMAL, DecimalSerializer.INSTANCE);
 	serializers.set(DataType.NUMBER, NumberSerializer.INSTANCE);
 	serializers.set(DataType.STRING, StringSerializer.INSTANCE);
