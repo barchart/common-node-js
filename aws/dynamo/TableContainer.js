@@ -129,11 +129,11 @@ module.exports = (() => {
 		/**
 		 * Runs a scan on the table.
 		 *
-		 * @protected
+		 * @public
 		 * @param {Scan} scan
 		 * @returns {Promise.<Array<Object>>}
 		 */
-		_scan(scan) {
+		scan(scan) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
