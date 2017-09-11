@@ -23,6 +23,7 @@ The code is documented with [JSDoc](http://usejsdoc.org/). While the output hasn
 
 Gulp is used to check "linting" and run unit tests, as follows:
 
+    > nvm use 6.10.1
     > npm install
     > gulp lint
     > gulp test
