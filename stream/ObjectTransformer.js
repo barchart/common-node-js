@@ -116,7 +116,7 @@ module.exports = (() => {
 	}
 
 	function processAsynchronous(chunk, callback) {
-		return promise.pipeline(this._tranformations.map(t => t.transform), chunk)
+		return promise.pipeline(this._tranformations.map(t => t.transform.bind(t)), chunk)
 			.then((transformed) => {
 				callback(null, transformed);
 			}).catch((e) => {
