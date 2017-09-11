@@ -13,7 +13,7 @@ module.exports = (() => {
 	 * @extends {Transformation}
 	 * @param {Function} transformDelegate - Accepts the input and returns the transformed value.
 	 * @param {Function=} canTransformDelegate - Accepts the input and indicates if the transform delegate will succeed, passed the same input.
-	 * @param {Boolean=} asynchronous - True, if the delegates may run asynchronously.
+	 * @param {Boolean=} asynchronous - True, if the delegate might run asynchronously.
 	 * @param {String=} description - Describes the transformation, intended for logging purposes.
 	 */
 	class DelegateTransformation extends Transformation {
