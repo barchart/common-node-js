@@ -16,8 +16,8 @@ module.exports = (() => {
 	 * @param {String} inputPropertyName - The name of the property to read from.
 	 * @param {Function} transformDelegate - Accepts the input property value and returns the transformed value.
 	 * @param {String=} outputPropertyName - The name of the property to write to.
-	 * @param {Boolean=} asynchronous - True, if the delegate might run asynchronously.
 	 * @param {Function=} canTransformDelegate - Accepts the input property value and indicates if the transform delegate will succeed, passed the same value.
+	 * @param {Boolean=} asynchronous - True, if the delegate might run asynchronously.
 	 * @param {String=} description - Describes the transformation, intended for logging purposes.
 	 */
 	class PropertyDelegateTransformation extends PropertyTransformation {

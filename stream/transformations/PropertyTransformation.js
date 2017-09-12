@@ -13,9 +13,9 @@ module.exports = (() => {
 	 *
 	 * @public
 	 * @interface
-	 * @extends {PropertyTransformation}
+	 * @extends {Transformation}
 	 * @param {String} inputPropertyName - The name of the property to read from.
-	 * @param {String=} outputPropertyName - The name of the property to write to.
+	 * @param {String=} outputPropertyName - The name of the property to write to. If omitted, the transformed value is written back to the input property.
 	 * @param {String=} description - Describes the transformation, intended for logging purposes.
 	 */
 	class PropertyTransformation extends Transformation {
@@ -23,7 +23,7 @@ module.exports = (() => {
 			super(description || `Property Transformation (${inputPropertyName}${(outputPropertyName ? ' to ' + outputPropertyName : '')})`);
 
 			assert.argumentIsRequired(inputPropertyName, 'inputPropertyName', String);
-			assert.argumentIsOptional(outputPropertyName, 'inputPropertyName', String);
+			assert.argumentIsOptional(outputPropertyName, 'outputPropertyName', String);
 			assert.argumentIsOptional(description, 'description', String);
 
 			this._inputPropertyName = inputPropertyName;
