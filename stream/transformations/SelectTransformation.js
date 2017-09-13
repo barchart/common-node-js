@@ -24,7 +24,7 @@ module.exports = (() => {
 
 			if (outputPropertyNames) {
 				assert.argumentIsArray(outputPropertyNames, 'outputPropertyNames', String);
-				assert.argumentIsValid(outputPropertyNames, 'outputPropertyNames', x => outputPropertyNames.length === inputPropertyNames.length, 'input and output sizes must match')
+				assert.argumentIsValid(outputPropertyNames, 'outputPropertyNames', x => outputPropertyNames.length === inputPropertyNames.length, 'input and output sizes must match');
 			}
 
 			this._inputPropertyNames = inputPropertyNames;
