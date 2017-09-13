@@ -87,7 +87,7 @@ module.exports = (() => {
 		if (is.object(chunk)) {
 			this._tranformations.every((t) => {
 				try {
-					transformed = t.transform(chunk);
+					transformed = t.transform(transformed);
 				} catch (e) {
 					error = e;
 				}
