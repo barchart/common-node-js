@@ -7,13 +7,14 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * A transformation that maintains an ordered list of {@link Transformations} and can
-	 * either execute all transformations that pass the {@link Transformations#canTransform}
-	 * test, or executes the first transformations that pass the {@link Transformations#canTransform}
-	 * test
+	 * A transformation that maintains an ordered list of {@link Transformations}.
+	 * Depending on the configuration, all transformations, which pass the
+	 * {@link Transformations#canTransform} test, will be executed; or, only
+	 * the first transformation to pass the {@link Transformations#canTransform}
+	 * test will be executed.
 	 *
 	 * @public
-	 * @extends {PropertyTransformation}
+	 * @extends {Transformation}
 	 */
 	class SelectiveTransformation extends Transformation {
 		constructor(transformations, first, silent, description) {
@@ -55,7 +56,6 @@ module.exports = (() => {
 			return '[SelectiveTransformation]';
 		}
 	}
-
 
 	return SelectiveTransformation;
 })();
