@@ -112,6 +112,7 @@ module.exports = (() => {
 			let attributes = this.attributes;
 
 			if (attributes.length !== 0) {
+				schema.Select = 'SPECIFIC_ATTRIBUTES';
 				schema.ProjectionExpression = Action.getProjectionExpression(this.table, attributes);
 			}
 

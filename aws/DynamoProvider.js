@@ -450,7 +450,7 @@ module.exports = (() => {
 									} else {
 										const results = data.Items.map(i => Serializer.deserialize(i, scan.table));
 
-										if (data.LastEvaluatedKey && (!is.number(scan.Limit) || results.length < scan.Limit)) {
+										if (data.LastEvaluatedKey && (!is.number(options.Limit) || results.length < options.Limit)) {
 											runScanRecursive(data.LastEvaluatedKey)
 												.then((more) => {
 													resolveCallback(results.concat(more));
@@ -504,7 +504,7 @@ module.exports = (() => {
 									} else {
 										const results = data.Items.map(i => Serializer.deserialize(i, query.table));
 
-										if (data.LastEvaluatedKey && (!is.number(query.Limit) || results.length < query.Limit)) {
+										if (data.LastEvaluatedKey && (!is.number(options.Limit) || results.length < options.Limit)) {
 											runQueryRecursive(data.LastEvaluatedKey)
 												.then((more) => {
 													resolveCallback(results.concat(more));
