@@ -95,7 +95,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {ProjectionType} projectionType
-		 * @param {Array<String>} attributeNames
+		 * @param {Array<String>=} attributeNames
 		 * @returns {IndexBuilder}
 		 */
 		withProjection(projectionType, attributeNames) {

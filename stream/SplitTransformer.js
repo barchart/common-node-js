@@ -45,7 +45,6 @@ module.exports = (() => {
 
 			if (is.array(chunk)) {
 				chunk.forEach(item => this.push(item));
-
 			} else {
 				error = new Error(`Transformation [ ${this._counter} ] for [ ${this._description} ] failed, unexpected input type.`);
 			}
