@@ -7,7 +7,7 @@ describe('When a PropertyDefaultTransformation is created', function() {
 		var transformation;
 
 		beforeEach(function () {
-			transformation = new PropertyDefaultTransformation('zip', '60606');
+			transformation = new PropertyDefaultTransformation('60606', 'zip');
 		});
 
 		it('should not replace an existing zip property value', function() {

@@ -18,7 +18,7 @@ module.exports = (() => {
 	 * @param {String=} description - Describes the transformation, intended for logging purposes.
 	 */
 	class PropertyDefaultTransformation extends PropertyTransformation {
-		constructor(propertyName, defaultValue, description) {
+		constructor(defaultValue, propertyName, description) {
 			super(propertyName, propertyName, (description || `Property Transformation (${propertyName})`));
 
 			this._defaultValue = defaultValue;
