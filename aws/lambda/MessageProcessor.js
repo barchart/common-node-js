@@ -94,7 +94,7 @@ module.exports = (() => {
 			assert.argumentIsRequired(processDelegate, 'processDelegate', Function);
 			assert.argumentIsOptional(canProcessPredicate, 'canProcessPredicate', Function);
 
-			return new DelegatedMessageProcessor(processDelegate, canProcessPredicate);
+			return new DelegatedMessageProcessor(processDelegate, canProcessPredicate || (() => true));
 		}
 
 		/**
