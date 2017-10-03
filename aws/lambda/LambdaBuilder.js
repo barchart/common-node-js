@@ -511,17 +511,17 @@ module.exports = (() => {
 						statusCode: 500
 					};
 				} else {
-					const results = results[0];
+					const result = results[0];
 
 					let mimeType;
 					let body;
 
-					if (is.string(results)) {
+					if (is.string(result)) {
 						mimeType = 'text/csv';
-						body = results;
+						body = result;
 					} else {
 						mimeType = 'application/json';
-						body = JSON.stringify(results);
+						body = JSON.stringify(result);
 					}
 
 					response = {
