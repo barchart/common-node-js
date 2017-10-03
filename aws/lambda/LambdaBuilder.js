@@ -511,13 +511,26 @@ module.exports = (() => {
 						statusCode: 500
 					};
 				} else {
+					const results = results[0];
+
+					let mimeType;
+					let body;
+
+					if (is.string(results)) {
+						mimeType = 'text/csv';
+						body = results;
+					} else {
+						mimeType = 'application/json';
+						body = JSON.stringify(results);
+					}
+
 					response = {
 						statusCode: 200,
 						headers: {
-							"Content-Type": "application/json",
+							"Content-Type": mimeType,
 							"Access-Control-Allow-Origin": "*"
 						},
-						body: JSON.stringify(results[0])
+						body: body
 					};
 				}
 
