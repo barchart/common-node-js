@@ -523,7 +523,7 @@ module.exports = (() => {
 						}
 
 						mimeType = 'text/csv';
-						body = result;
+						body = result.csv;
 					} else {
 						contentDisposition = null;
 						mimeType = 'application/json';
