@@ -513,13 +513,19 @@ module.exports = (() => {
 				} else {
 					const result = results[0];
 
+					let contentDisposition;
 					let mimeType;
 					let body;
 
-					if (is.string(result)) {
+					if (is.string(result.csv)) {
+						if (is.string(result.filename)) {
+							contentDisposition = `attachment; filename="${result.filename}"`;
+						}
+
 						mimeType = 'text/csv';
 						body = result;
 					} else {
+						contentDisposition = null;
 						mimeType = 'application/json';
 						body = JSON.stringify(result);
 					}
@@ -532,6 +538,10 @@ module.exports = (() => {
 						},
 						body: body
 					};
+
+					if (contentDisposition) {
+						response.headers['Content-Disposition'] = contentDisposition;
+					}
 				}
 
 				return response;
