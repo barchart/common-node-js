@@ -1,7 +1,7 @@
 const log4js = require('log4js');
 
-const convert = require('barchart-marketdata-utilities/lib/convert'),
-	priceFormatterFactory = require('barchart-marketdata-utilities/lib/priceFormatter');
+const convert = require('@barchart/marketdata-utilities-js/lib/convert'),
+	priceFormatterFactory = require('@barchart/marketdata-utilities-js/lib/priceFormatter');
 
 const attributes = require('@barchart/common-js/lang/attributes'),
 	is = require('@barchart/common-js/lang/is');
