@@ -76,8 +76,8 @@ module.exports = (() => {
 		 * as the other key.
 		 *
 		 * @public
-		 * @param {Key} other - The kmey to compare.
-		 * @param {Boolean=} relaxed - If true, the key attribute's dataType is not compared.
+		 * @param {Key} other - The key to compare.
+		 * @param {Boolean=} relaxed - If true, the key's attribute's dataType is not compared.
 		 * @returns {Boolean}
 		 */
 		equals(other, relaxed) {
