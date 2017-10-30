@@ -76,11 +76,12 @@ module.exports = (() => {
 		 * as the other key.
 		 *
 		 * @public
-		 * @param {Key} other - The attribute to compare.
+		 * @param {Key} other - The kmey to compare.
+		 * @param {Boolean=} relaxed - If true, the key attribute's dataType is not compared.
 		 * @returns {Boolean}
 		 */
-		equals(other) {
-			return other === this || (other instanceof Key && this._attribute.equals(other.attribute) && this._keyType === other.keyType);
+		equals(other, relaxed) {
+			return other === this || (other instanceof Key && this._attribute.equals(other.attribute, relaxed) && this._keyType === other.keyType);
 		}
 
 		toString() {
