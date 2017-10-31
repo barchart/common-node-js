@@ -242,7 +242,7 @@ module.exports = (() => {
 				returnVal = returnVal && this._name === other.name;
 
 				returnVal = returnVal && this._keys.length === other.keys.length;
-				returnVal = returnVal && this._keys.every(k => other.keys.some(ok => ok.equals(k)));
+				returnVal = returnVal && this._keys.every(k => other.keys.some(ok => ok.equals(k, relaxed)));
 
 				returnVal = returnVal && this._indices.length === other.indicies.length;
 				returnVal = returnVal && this._indices.every(i => other.indicies.some(oi => oi.equals(i, relaxed)));
