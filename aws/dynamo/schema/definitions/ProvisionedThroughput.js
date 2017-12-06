@@ -9,6 +9,8 @@ module.exports = (() => {
 
 	/**
 	 * The throughput of a {@link Table} or {@link Index}.
+	 *
+	 * @public
 	 */
 	class ProvisionedThroughput {
 		constructor(read, write) {
