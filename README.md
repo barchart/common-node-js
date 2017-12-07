@@ -1,5 +1,5 @@
-# barchart-common-node-js
-## Common classes, utilities, and functions for exclusively for Node.js servers
+# @barchart/common-node-js
+## Common classes, utilities, and functions for building Node.js servers
 
 This library can serve as the foundation for Node.js servers.
 
