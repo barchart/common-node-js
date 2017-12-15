@@ -152,6 +152,16 @@ module.exports = (() => {
 			return operatorTypeAttributeNotExists;
 		}
 
+		/**
+		 * Attribute begins with text.
+		 *
+		 * @public
+		 * @returns {OperatorType}
+		 */
+		static get BEGINS_WITH() {
+			return operatorTypeBeginsWith;
+		}
+
 		toString() {
 			return `[OperatorType (description=${this._description})]`;
 		}
@@ -163,7 +173,10 @@ module.exports = (() => {
 	const operatorTypeGreaterThanOrEqualTo = new OperatorType('Greater Than Or Equal To', (f, o) => `${f} >= ${o}`, 1, [ KeyType.RANGE ]);
 	const operatorTypeLessThanOrEqualTo = new OperatorType('Less Than Or Equal To', (f, o) => `${f} <= ${o}`, 1, [ KeyType.RANGE ]);
 	const operatorTypeBetween = new OperatorType('Between', (f, o) => `${f} BETWEEN ${o[0]} AND ${o[1]}`, 2, [ KeyType.RANGE ]);
+
 	const operatorTypeAttributeNotExists = new OperatorType('Attribute Not Exists', (f, o) => `attribute_not_exists(${f})`, 0, [ KeyType.HASH, KeyType.RANGE ]);
+
+	const operatorTypeBeginsWith = new OperatorType('Begins With', (f, o) => `begins_with(${f}, ${o})`, 1, [ KeyType.RANGE ]);
 
 	return OperatorType;
 })();
