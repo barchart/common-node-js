@@ -143,16 +143,6 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Attribute doesn't exist (for use with {@link Conditional} instances only}).
-		 *
-		 * @public
-		 * @returns {OperatorType}
-		 */
-		static get ATTRIBUTE_NOT_EXISTS() {
-			return operatorTypeAttributeNotExists;
-		}
-
-		/**
 		 * Attribute begins with text.
 		 *
 		 * @public
@@ -162,10 +152,32 @@ module.exports = (() => {
 			return operatorTypeBeginsWith;
 		}
 
+		/**
+		 * Attribute exists.
+		 *
+		 * @public
+		 * @returns {OperatorType}
+		 */
+		static get ATTRIBUTE_EXISTS() {
+			return operatorTypeAttributeExists;
+		}
+
+		/**
+		 * Attribute doesn't exist (for use with {@link Conditional} instances only}).
+		 *
+		 * @public
+		 * @returns {OperatorType}
+		 */
+		static get ATTRIBUTE_NOT_EXISTS() {
+			return operatorTypeAttributeNotExists;
+		}
+
 		toString() {
 			return `[OperatorType (description=${this._description})]`;
 		}
 	}
+
+	// http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.OperatorsAndFunctions.html
 
 	const operatorTypeEquals = new OperatorType('Equals', (f, o) => `${f} = ${o}`, 1, [ KeyType.HASH, KeyType.RANGE ]);
 	const operatorTypeGreaterThan = new OperatorType('Greater Than', (f, o) => `${f} > ${o}`, 1, [ KeyType.RANGE ]);
@@ -174,9 +186,10 @@ module.exports = (() => {
 	const operatorTypeLessThanOrEqualTo = new OperatorType('Less Than Or Equal To', (f, o) => `${f} <= ${o}`, 1, [ KeyType.RANGE ]);
 	const operatorTypeBetween = new OperatorType('Between', (f, o) => `${f} BETWEEN ${o[0]} AND ${o[1]}`, 2, [ KeyType.RANGE ]);
 
-	const operatorTypeAttributeNotExists = new OperatorType('Attribute Not Exists', (f, o) => `attribute_not_exists(${f})`, 0, [ KeyType.HASH, KeyType.RANGE ]);
-
 	const operatorTypeBeginsWith = new OperatorType('Begins With', (f, o) => `begins_with(${f}, ${o})`, 1, [ KeyType.RANGE ]);
+
+	const operatorTypeAttributeExists = new OperatorType('Attribute Exists', (f, o) => `attribute_not_exists(${f})`, 0, [ ]);
+	const operatorTypeAttributeNotExists = new OperatorType('Attribute Not Exists', (f, o) => `attribute_not_exists(${f})`, 0, [ KeyType.HASH, KeyType.RANGE ]);
 
 	return OperatorType;
 })();
