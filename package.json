@@ -30,7 +30,7 @@
     "SQS"
   ],
   "dependencies": {
-    "@barchart/common-js": "3.1.9",
+    "@barchart/common-js": "3.1.10",
     "@barchart/marketdata-utilities-js": "3.0.1",
     "@google-cloud/pubsub": "^0.13.0",
     "aws-sdk": "2.132.0",
