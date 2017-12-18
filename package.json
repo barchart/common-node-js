@@ -10,7 +10,6 @@
   "engines": {
     "node": "=6.10.1"
   },
-  "main": "./index.js",
   "scripts": {
     "test": "echo \"Error: Please use gulp to run tests\" && exit 1"
   },
