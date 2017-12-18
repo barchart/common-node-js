@@ -71,13 +71,24 @@ module.exports = (() => {
 		}
 
 		/**
-		 * References a string.
+		 * References a {@link Buffer} instance.
+		 *
+		 * @returns {DataType}
+		 * @constructor
+		 */
+		static get BINARY() {
+			return dataTypeBinary;
+		}
+
+
+		/**
+		 * References a Boolean value.
 		 *
 		 * @public
 		 * @returns {DataType}
 		 */
-		static get STRING() {
-			return dataTypeString;
+		static get BOOLEAN() {
+			return dataTypeBoolean;
 		}
 
 		/**
@@ -91,13 +102,13 @@ module.exports = (() => {
 		}
 
 		/**
-		 * References a Boolean value.
+		 * References a string.
 		 *
 		 * @public
 		 * @returns {DataType}
 		 */
-		static get BOOLEAN() {
-			return dataTypeBoolean;
+		static get STRING() {
+			return dataTypeString;
 		}
 
 		/**
@@ -111,16 +122,6 @@ module.exports = (() => {
 		}
 
 		/**
-		 * References a {@link Decimal} instance.
-		 *
-		 * @public
-		 * @returns {DataType}
-		 */
-		static get DECIMAL() {
-			return dataTypeDecimal;
-		}
-
-		/**
 		 * References a {@link Day} instance.
 		 *
 		 * @public
@@ -131,6 +132,16 @@ module.exports = (() => {
 		}
 
 		/**
+		 * References a {@link Decimal} instance.
+		 *
+		 * @public
+		 * @returns {DataType}
+		 */
+		static get DECIMAL() {
+			return dataTypeDecimal;
+		}
+
+		/**
 		 * References a {@link Timestamp} instance.
 		 *
 		 * @public
@@ -138,6 +149,36 @@ module.exports = (() => {
 		 */
 		static get TIMESTAMP() {
 			return dataTypeTimestamp;
+		}
+
+		/**
+		 * References a {@link Buffer} instance (serialized with compression).
+		 *
+		 * @returns {DataType}
+		 * @constructor
+		 */
+		static get BINARY_COMPRESSED() {
+			return dataTypeBinaryCompressed;
+		}
+
+		/**
+		 * References a string (serialized with compression).
+		 *
+		 * @public
+		 * @returns {DataType}
+		 */
+		static get STRING_COMPRESSED() {
+			return dataTypeStringCompressed;
+		}
+
+		/**
+		 * References an object (serialized as JSON, and using compression).
+		 *
+		 * @public
+		 * @returns {DataType}
+		 */
+		static get JSON_COMPRESSED() {
+			return dataTypeJsonCompressed;
 		}
 
 		/**
@@ -162,23 +203,33 @@ module.exports = (() => {
 		return is.extension(Enum, EnumerationType);
 	}
 
-	const dataTypeString = new DataType('S', 'String');
-	const dataTypeNumber = new DataType('N', 'Number');
+	const dataTypeBinary = new DataType('B', 'Binary');
 	const dataTypeBoolean = new DataType('BOOL', 'Boolean');
+	const dataTypeNumber = new DataType('N', 'Number');
+	const dataTypeString = new DataType('S', 'String');
 
 	const dataTypeJson = new DataType('S', 'Json');
-	const dataTypeDecimal = new DataType('S', 'Decimal');
+
 	const dataTypeDay = new DataType('S', 'Day');
+	const dataTypeDecimal = new DataType('S', 'Decimal');
 	const dataTypeTimestamp = new DataType('N', 'Timestamp');
 
+	const dataTypeBinaryCompressed = new DataType('B', 'Binary (Compressed)');
+	const dataTypeStringCompressed = new DataType('B', 'String (Compressed)');
+	const dataTypeJsonCompressed = new DataType('B', 'Json (Compressed)');
+
 	const dataTypes = [
-		dataTypeString,
 		dataTypeNumber,
 		dataTypeBoolean,
+		dataTypeString,
+		dataTypeStringCompressed,
 		dataTypeJson,
+		dataTypeJsonCompressed,
 		dataTypeDecimal,
 		dataTypeDay,
-		dataTypeTimestamp
+		dataTypeTimestamp,
+		dataTypeBinary,
+		dataTypeBinaryCompressed
 	];
 
 	return DataType;

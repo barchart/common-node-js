@@ -59,7 +59,7 @@ module.exports = (() => {
 		let attribute = parent.table.attributes.find(a => a.name === name) || null;
 
 		if (attribute === null && allowMissing) {
-			attribute = new Attribute(name, null);
+			attribute = new Attribute(name);
 		}
 
 		return attribute;

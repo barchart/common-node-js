@@ -5,7 +5,8 @@ const Attribute = require('./../../schema/definitions/Attribute'),
 	ComponentType = require('./../../schema/definitions/ComponentType'),
 	DataType = require('./../../schema/definitions/DataType');
 
-const BooleanSerializer = require('./attributes/BooleanSerializer'),
+const BinarySerializer = require('./attributes/BinarySerializer'),
+	BooleanSerializer = require('./attributes/BooleanSerializer'),
 	DaySerializer = require('./attributes/DaySerializer'),
 	DecimalSerializer = require('./attributes/DecimalSerializer'),
 	EnumSerializer = require('./attributes/EnumSerializer'),
@@ -13,6 +14,10 @@ const BooleanSerializer = require('./attributes/BooleanSerializer'),
 	NumberSerializer = require('./attributes/NumberSerializer'),
 	StringSerializer = require('./attributes/StringSerializer'),
 	TimestampSerializer = require('./attributes/TimestampSerializer');
+
+const CompressedBinarySerializer = require('./attributes/CompressedBinarySerializer'),
+	CompressedJsonSerializer = require('./attributes/CompressedJsonSerializer'),
+	CompressedStringSerializer = require('./attributes/CompressedStringSerializer');
 
 const MoneySerializer = require('./components/MoneySerializer');
 
@@ -101,13 +106,20 @@ module.exports = (() => {
 
 	const serializers = new Map();
 
+	serializers.set(DataType.BINARY, BinarySerializer.INSTANCE);
 	serializers.set(DataType.BOOLEAN, BooleanSerializer.INSTANCE);
-	serializers.set(DataType.DECIMAL, DecimalSerializer.INSTANCE);
 	serializers.set(DataType.NUMBER, NumberSerializer.INSTANCE);
 	serializers.set(DataType.STRING, StringSerializer.INSTANCE);
+
 	serializers.set(DataType.JSON, JsonSerializer.INSTANCE);
+
 	serializers.set(DataType.DAY, DaySerializer.INSTANCE);
+	serializers.set(DataType.DECIMAL, DecimalSerializer.INSTANCE);
 	serializers.set(DataType.TIMESTAMP, TimestampSerializer.INSTANCE);
+
+	serializers.set(DataType.BINARY_COMPRESSED, CompressedBinarySerializer.INSTANCE);
+	serializers.set(DataType.STRING_COMPRESSED, CompressedStringSerializer.INSTANCE);
+	serializers.set(DataType.JSON_COMPRESSED, CompressedJsonSerializer.INSTANCE);
 
 	const components = new Map();
 

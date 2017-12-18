@@ -7,7 +7,7 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * Converts a number into (and back from) the representation used
+	 * Converts a string into (and back from) the representation used
 	 * on a DynamoDB record.
 	 *
 	 * @public

@@ -18,7 +18,7 @@ module.exports = (() => {
 		constructor(name, parent) {
 			assert.argumentIsRequired(name, 'name', String);
 
-			this._attribute = new Attribute(name, null, null);
+			this._attribute = new Attribute(name);
 			this._parent = parent;
 		}
 
@@ -44,6 +44,13 @@ module.exports = (() => {
 			this._attribute = new Attribute(this._attribute.name, dataType, this._attribute.derivation);
 
 			return this;
+		}
+
+		/**
+		 *
+		 */
+		withCompression() {
+
 		}
 
 		withDerivationBuilder(callback) {

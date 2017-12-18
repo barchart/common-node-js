@@ -8,7 +8,7 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * Converts a {@link Timestamp} instance into (and back from) the
+	 * Converts a {@link Day} instance into (and back from) the
 	 * representation used on a DynamoDB record.
 	 *
 	 * @public
