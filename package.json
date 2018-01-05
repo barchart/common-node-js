@@ -32,7 +32,6 @@
   "dependencies": {
     "@barchart/common-js": "3.2.2",
     "@barchart/marketdata-utilities-js": "3.0.1",
-    "@google-cloud/pubsub": "^0.13.0",
     "aws-sdk": "2.176.0",
     "body-parser": "1.15.2",
     "client-sessions": "0.7.0",
