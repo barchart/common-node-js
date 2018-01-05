@@ -3,7 +3,7 @@ const zlib = require('zlib');
 const assert = require('@barchart/common-js/lang/assert'),
 	is = require('@barchart/common-js/lang/is');
 
-const AttributeSerializer = require('./AttributeSerialzer'),
+const AttributeSerializer = require('./AttributeSerializer'),
 	DataType = require('./../../definitions/DataType');
 
 module.exports = (() => {

@@ -1,6 +1,6 @@
 const assert = require('@barchart/common-js/lang/assert');
 
-const AttributeSerializer = require('./AttributeSerialzer'),
+const AttributeSerializer = require('./AttributeSerializer'),
 	DataType = require('./../../definitions/DataType');
 
 module.exports = (() => {
