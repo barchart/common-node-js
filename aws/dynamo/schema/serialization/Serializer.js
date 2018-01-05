@@ -1,8 +1,6 @@
 const assert = require('@barchart/common-js/lang/assert');
 
-const ComponentType = require('./../../schema/definitions/ComponentType'),
-	DataType = require('./../../schema/definitions/DataType'),
-	Table = require('./../../schema/definitions/Table');
+const Table = require('./../../schema/definitions/Table');
 
 const AttributeDeserializationWriter = require('./writers/AttributeDeserializationWriter'),
 	AttributeSerializationWriter = require('./writers/AttributeSerializationWriter'),

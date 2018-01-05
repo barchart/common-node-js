@@ -5,7 +5,8 @@ const Attribute = require('./../../schema/definitions/Attribute'),
 	ComponentType = require('./../../schema/definitions/ComponentType'),
 	DataType = require('./../../schema/definitions/DataType');
 
-const BinarySerializer = require('./attributes/BinarySerializer'),
+const AttributeSerializer = require('./attributes/AttributeSerializer'),
+	BinarySerializer = require('./attributes/BinarySerializer'),
 	BooleanSerializer = require('./attributes/BooleanSerializer'),
 	DaySerializer = require('./attributes/DaySerializer'),
 	DecimalSerializer = require('./attributes/DecimalSerializer'),
@@ -19,7 +20,8 @@ const CompressedBinarySerializer = require('./attributes/CompressedBinarySeriali
 	CompressedJsonSerializer = require('./attributes/CompressedJsonSerializer'),
 	CompressedStringSerializer = require('./attributes/CompressedStringSerializer');
 
-const MoneySerializer = require('./components/MoneySerializer');
+const ComponentSerializer = require('./components/ComponentSerializer'),
+	MoneySerializer = require('./components/MoneySerializer');
 
 module.exports = (() => {
 	'use strict';
@@ -35,6 +37,24 @@ module.exports = (() => {
 
 		}
 
+		/**
+		 * Binds a {@link DataType} to an {@link AttributeSerializer}, allowing the underlying framework
+		 * to automatically handle the a custom attribute type.
+		 *
+		 * @param {DataType} serializer
+		 * @param {AttributeSerializer} serializer
+		 */
+		static registerAttributeSerializer(dataType, serializer) {
+			assert.argumentIsRequired(dataType, 'dataType', DataType, 'DataType');
+			assert.argumentIsRequired(serializer, 'serializer', AttributeSerializer, 'AttributeSerializer');
+			
+			if (attributeSerializers.has(dataType)) {
+				throw new Error('An attribute serializer has already been registered for the data type (' + dataType.toString() + ')');
+			}
+
+			attributeSerializers.set(dataType, serializer);
+		}
+		
 		/**
 		 * Returns the appropriate {@link AttributeSerializer} given an {@link Attribute}.
 		 *
@@ -67,12 +87,30 @@ module.exports = (() => {
 
 				returnRef = enumSerializers.get(enumerationType);
 			} else {
-				returnRef = serializers.get(dataType);
+				returnRef = attributeSerializers.get(dataType);
 			}
 
 			return returnRef || null;
 		}
 
+		/**
+		 * Binds a {@link DataType} to a {@link ComponentSerializer}, allowing the underlying framework
+		 * to automatically handle the a custom attribute type.
+		 *
+		 * @param {ComponentType} serializer
+		 * @param {ComponentSerializer} serializer
+		 */
+		static registerComponentSerializer(componentType, serializer) {
+			assert.argumentIsRequired(componentType, 'componentType', ComponentType, 'ComponentType');
+			assert.argumentIsRequired(serializer, 'serializer', ComponentSerializer, 'ComponentSerializer');
+
+			if (componentSerializers.has(componentType)) {
+				throw new Error('A component serializer has already been registered for the component type (' + componentType.toString() + ')');
+			}
+
+			componentSerializers.set(componentType, serializer);
+		}
+		
 		/**
 		 * Returns the appropriate {@link ComponentSerializer} given a {@link Component}.
 		 *
@@ -94,7 +132,7 @@ module.exports = (() => {
 		static forComponentType(componentType) {
 			assert.argumentIsRequired(componentType, 'componentType', ComponentType, 'ComponentType');
 
-			return components.get(componentType) || null;
+			return componentSerializers.get(componentType) || null;
 		}
 
 		toString() {
@@ -103,27 +141,22 @@ module.exports = (() => {
 	}
 
 	const enumSerializers = new Map();
+	const attributeSerializers = new Map();
+	const componentSerializers = new Map();
 
-	const serializers = new Map();
+	Serializers.registerAttributeSerializer(DataType.BINARY, BinarySerializer.INSTANCE);
+	Serializers.registerAttributeSerializer(DataType.BOOLEAN, BooleanSerializer.INSTANCE);
+	Serializers.registerAttributeSerializer(DataType.NUMBER, NumberSerializer.INSTANCE);
+	Serializers.registerAttributeSerializer(DataType.STRING, StringSerializer.INSTANCE);
+	Serializers.registerAttributeSerializer(DataType.JSON, JsonSerializer.INSTANCE);
+	Serializers.registerAttributeSerializer(DataType.DAY, DaySerializer.INSTANCE);
+	Serializers.registerAttributeSerializer(DataType.DECIMAL, DecimalSerializer.INSTANCE);
+	Serializers.registerAttributeSerializer(DataType.TIMESTAMP, TimestampSerializer.INSTANCE);
+	Serializers.registerAttributeSerializer(DataType.BINARY_COMPRESSED, CompressedBinarySerializer.INSTANCE);
+	Serializers.registerAttributeSerializer(DataType.STRING_COMPRESSED, CompressedStringSerializer.INSTANCE);
+	Serializers.registerAttributeSerializer(DataType.JSON_COMPRESSED, CompressedJsonSerializer.INSTANCE);
 
-	serializers.set(DataType.BINARY, BinarySerializer.INSTANCE);
-	serializers.set(DataType.BOOLEAN, BooleanSerializer.INSTANCE);
-	serializers.set(DataType.NUMBER, NumberSerializer.INSTANCE);
-	serializers.set(DataType.STRING, StringSerializer.INSTANCE);
-
-	serializers.set(DataType.JSON, JsonSerializer.INSTANCE);
-
-	serializers.set(DataType.DAY, DaySerializer.INSTANCE);
-	serializers.set(DataType.DECIMAL, DecimalSerializer.INSTANCE);
-	serializers.set(DataType.TIMESTAMP, TimestampSerializer.INSTANCE);
-
-	serializers.set(DataType.BINARY_COMPRESSED, CompressedBinarySerializer.INSTANCE);
-	serializers.set(DataType.STRING_COMPRESSED, CompressedStringSerializer.INSTANCE);
-	serializers.set(DataType.JSON_COMPRESSED, CompressedJsonSerializer.INSTANCE);
-
-	const components = new Map();
-
-	components.set(ComponentType.MONEY, MoneySerializer.INSTANCE);
+	Serializers.registerComponentSerializer(ComponentType.MONEY, MoneySerializer.INSTANCE);
 
 	return Serializers;
 })();
