@@ -3,7 +3,7 @@ const zlib = require('zlib');
 const assert = require('@barchart/common-js/lang/assert'),
 	is = require('@barchart/common-js/lang/is');
 
-const BinarySerializer = require('./BinarySerializer')
+const BinarySerializer = require('./BinarySerializer');
 
 module.exports = (() => {
 	'use strict';
