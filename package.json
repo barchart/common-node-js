@@ -30,7 +30,7 @@
     "SQS"
   ],
   "dependencies": {
-    "@barchart/common-js": "3.2.3",
+    "@barchart/common-js": "3.2.4",
     "@barchart/marketdata-utilities-js": "3.0.1",
     "aws-sdk": "2.176.0",
     "body-parser": "1.15.2",
@@ -39,7 +39,7 @@
     "express-handlebars": "3.0.0",
     "express-http-proxy": "0.10.1",
     "http-digest-client": "0.0.3",
-    "log4js": "git+ssh://github.com/barchart/log4js-node",
+    "log4js": "git://github.com/barchart/log4js-node",
     "moment-timezone": "0.5.11",
     "multer": "1.2.1",
     "mysql": "2.12.0",
