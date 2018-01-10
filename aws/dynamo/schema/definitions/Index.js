@@ -166,7 +166,7 @@ module.exports = (() => {
 				returnVal = returnVal = this._type === other.type;
 
 				returnVal = returnVal && this._keys.length === other.keys.length;
-				returnVal = returnVal && this._keys.every(k => other.keys.some(ok => ok.equals(k)));
+				returnVal = returnVal && this._keys.every(k => other.keys.some(ok => ok.equals(k, relaxed)));
 
 				returnVal = returnVal && this._projection.equals(other.projection, relaxed);
 
