@@ -308,7 +308,7 @@ module.exports = (() => {
 					};
 
 					return this._scheduler.backoff(putItem)
-						.then((result) =>{
+						.then((result) => {
 							if (result.code === DYNAMO_RESULT.FAILURE) {
 								throw result.error;
 							}
@@ -403,7 +403,7 @@ module.exports = (() => {
 						);
 
 						return this._scheduler.backoff(() => putBatch(originalPayload))
-							.then((result) =>{
+							.then((result) => {
 								if (result.code === DYNAMO_RESULT.FAILURE) {
 									logger.error('Failed batch insert into [', qualifiedTableName, '] for batch number [', batchNumber,'] with [', items.length, '] items');
 
