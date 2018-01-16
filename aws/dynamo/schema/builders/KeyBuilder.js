@@ -26,6 +26,7 @@ module.exports = (() => {
 		 * The {@link Key}, given all the information provided thus far.
 		 *
 		 * @public
+		 * @returns {Key}
 		 */
 		get key() {
 			return this._key;

@@ -31,6 +31,7 @@ module.exports = (() => {
 		 * The {@link Index}, given all the information provided thus far.
 		 *
 		 * @public
+		 * @returns {Index}
 		 */
 		get index() {
 			return this._index;

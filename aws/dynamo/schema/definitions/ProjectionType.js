@@ -34,7 +34,7 @@ module.exports = (() => {
 		}
 
 		toString() {
-			return `[ProjectionType (code=${this.code}, description=${this.description})]`;
+			return `[ProjectionType (code=${this.code})]`;
 		}
 	}
 

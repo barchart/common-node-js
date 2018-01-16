@@ -26,6 +26,7 @@ module.exports = (() => {
 		 * The {@link Projection}, given all the information provided thus far.
 		 *
 		 * @public
+		 * @returns {Projection}
 		 */
 		get projection() {
 			return this._projection;

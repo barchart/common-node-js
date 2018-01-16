@@ -10,6 +10,13 @@ const Writer = require('./Writer');
 module.exports = (() => {
 	'use strict';
 
+	/**
+	 * Reads an attribute value from a source object, serialized for
+	 * DynamoDB, and writes it to the target object.
+	 *
+	 * @public
+	 * @extends Writer
+	 */
 	class AttributeDeserializationWriter extends Writer {
 		constructor(attribute) {
 			super();

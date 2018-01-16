@@ -29,11 +29,11 @@ module.exports = (() => {
 		}
 
 		serialize(value) {
-			return this._baseSerializer.serialize(this._serializeDelegate(value));
+			return this._baseSerializer.serialize(this._serializeDelegate.call(this, value));
 		}
 
 		deserialize(wrapper) {
-			return this._deserializeDelegate(this._baseSerializer.deserialize(wrapper));
+			return this._deserializeDelegate.call(this, this._baseSerializer.deserialize(wrapper));
 		}
 
 		toString() {

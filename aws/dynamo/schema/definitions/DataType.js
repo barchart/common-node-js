@@ -49,7 +49,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * The {@Enumeration} type.
+		 * The {@link Enumeration} type.
 		 *
 		 * @public
 		 * @returns {Function|null}
@@ -79,7 +79,6 @@ module.exports = (() => {
 		static get BINARY() {
 			return dataTypeBinary;
 		}
-
 
 		/**
 		 * References a Boolean value.
@@ -172,6 +171,16 @@ module.exports = (() => {
 		}
 
 		/**
+		 * References a string (serialized with compression and then encrypted).
+		 *
+		 * @public
+		 * @returns {DataType}
+		 */
+		static get STRING_ENCRYPTED() {
+			return dataTypeStringEncrypted;
+		}
+
+		/**
 		 * References an object (serialized as JSON, and using compression).
 		 *
 		 * @public
@@ -179,6 +188,16 @@ module.exports = (() => {
 		 */
 		static get JSON_COMPRESSED() {
 			return dataTypeJsonCompressed;
+		}
+
+		/**
+		 * References an object (serialized as JSON, compression, and encrypted).
+		 *
+		 * @public
+		 * @returns {DataType}
+		 */
+		static get JSON_ENCRYPTED() {
+			return dataTypeJsonEncrypted;
 		}
 
 		/**
@@ -218,13 +237,18 @@ module.exports = (() => {
 	const dataTypeStringCompressed = new DataType('B', 'String (Compressed)');
 	const dataTypeJsonCompressed = new DataType('B', 'Json (Compressed)');
 
+	const dataTypeStringEncrypted = new DataType('B', 'String (Encrypted)');
+	const dataTypeJsonEncrypted = new DataType('B', 'Json (Encrypted)');
+
 	const dataTypes = [
 		dataTypeNumber,
 		dataTypeBoolean,
 		dataTypeString,
 		dataTypeStringCompressed,
+		dataTypeStringEncrypted,
 		dataTypeJson,
 		dataTypeJsonCompressed,
+		dataTypeJsonEncrypted,
 		dataTypeDecimal,
 		dataTypeDay,
 		dataTypeTimestamp,

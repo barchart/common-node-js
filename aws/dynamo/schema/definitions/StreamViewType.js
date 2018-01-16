@@ -51,7 +51,7 @@ module.exports = (() => {
 		}
 
 		toString() {
-			return `[StreamViewType (description=${this.description})]`;
+			return `[StreamViewType (description=${this.code})]`;
 		}
 	}
 

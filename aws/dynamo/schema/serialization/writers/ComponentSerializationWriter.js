@@ -9,6 +9,13 @@ const Writer = require('./Writer');
 module.exports = (() => {
 	'use strict';
 
+	/**
+	 * Reads an component value from a source object and writes it to
+	 * a target object, in the form required for saving to DynamoDB.
+	 *
+	 * @public
+	 * @extends Writer
+	 */
 	class ComponentSerializationWriter extends Writer {
 		constructor(component) {
 			super();

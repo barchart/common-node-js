@@ -1,4 +1,5 @@
-const assert = require('@barchart/common-js/lang/assert');
+const assert = require('@barchart/common-js/lang/assert'),
+	Enum = require('@barchart/common-js/lang/Enum');
 
 module.exports = (() => {
 	'use strict';
@@ -8,10 +9,12 @@ module.exports = (() => {
 	 * a "local" secondary index, and a "global" secondary index.
 	 *
 	 * @public
+	 * @extends {Enum}
 	 */
-	class IndexType {
-		constructor(description, schemaName, separateProvisioning) {
-			assert.argumentIsRequired(description, 'description', String);
+	class IndexType extends Enum {
+		constructor(code, description, schemaName, separateProvisioning) {
+			super(code, description);
+
 			assert.argumentIsRequired(schemaName, 'schemaName', String);
 			assert.argumentIsRequired(separateProvisioning, 'separateProvisioning', Boolean);
 
@@ -41,12 +44,12 @@ module.exports = (() => {
 		}
 
 		toString() {
-			return `[IndexType (description=${this._description})]`;
+			return `[IndexType (description=${this.code})]`;
 		}
 	}
 
-	const indexTypeGlobal = new IndexType('GlobalSecondaryIndex', 'GlobalSecondaryIndexes', true);
-	const indexTypeLocal = new IndexType('LocalSecondaryIndex', 'LocalSecondaryIndexes', false);
+	const indexTypeGlobal = new IndexType('GSI', 'GlobalSecondaryIndex', 'GlobalSecondaryIndexes', true);
+	const indexTypeLocal = new IndexType('LSI', 'LocalSecondaryIndex', 'LocalSecondaryIndexes', false);
 
 	return IndexType;
 })();

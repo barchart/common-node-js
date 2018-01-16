@@ -23,11 +23,19 @@ module.exports = (() => {
 		 * The {@link Derivation}, given all the information provided thus far.
 		 *
 		 * @public
+		 * @return {Derivation}
 		 */
 		get derivation() {
 			return this._derivation;
 		}
 
+		/**
+		 * Adds an attribute whose value can be used to derive the attribute's value.
+		 *
+		 * @public
+		 * @param {String} attribute - The name {@link Attribute} to use in the derivation.
+		 * @returns {DerivationBuilder}
+		 */
 		withAttribute(attribute) {
 			const a = getAttribute(attribute, this._parent);
 
@@ -47,6 +55,13 @@ module.exports = (() => {
 			return this;
 		}
 
+		/**
+		 * Adds an attribute whose value can be used to derive the attribute's value.
+		 *
+		 * @public
+		 * @param {Function} generator - The function which will be passed an array of
+		 * @returns {DerivationBuilder}
+		 */
 		withGenerator(generator) {
 			let attributes;
 

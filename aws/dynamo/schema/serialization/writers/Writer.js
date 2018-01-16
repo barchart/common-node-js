@@ -1,11 +1,23 @@
 module.exports = (() => {
 	'use strict';
 
+	/**
+	 * Base class for transforming data.
+	 *
+	 * @interface
+	 */
 	class Writer {
 		constructor() {
 
 		}
 
+		/**
+		 * Reads a source object and transcribes it to the target object.
+		 *
+		 * @param {Object} source
+		 * @param {Object} target
+		 * @returns {Object}
+		 */
 		write(source, target) {
 			if (this.canWrite(source, target)) {
 				this._write(source, target);

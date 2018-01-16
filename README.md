@@ -6,8 +6,8 @@ This library can serve as the foundation for Node.js servers.
 Features include:
 
 * Several promise-based convenience wrappers for the AWS SDK (including DynamoDB, S3, SES, SNS, SQS)
-* Asynchronous Message Bus for Request-Response (with Amazon SQS implementation)
-* Asynchronous Message Bus for Request-Response (with Amazon SNS SQS implementation)
+* Pluggable Asynchronous Message Bus for Request-Response (including an Amazon SQS implementation)
+* Pluggable Asynchronous Message Bus for Publish-Subscribe (including an Amazon SNS/SQS implementation)
 * Quick HTTP servers with REST and/or Socket.IO endpoints (using Express)
 * Some Utilities for Node.js streams
 * More

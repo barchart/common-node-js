@@ -26,6 +26,7 @@ module.exports = (() => {
 		 * The {@link ProvisionedThroughput}, given all the information provided thus far.
 		 *
 		 * @public
+		 * @returns {ProvisionedThroughput}
 		 */
 		get provisionedThroughput() {
 			return this._provisionedThroughput;

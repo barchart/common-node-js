@@ -24,6 +24,7 @@ module.exports = (() => {
 		 * The {@link Component}, given all the information provided thus far.
 		 *
 		 * @public
+		 * @returns {Component}
 		 */
 		get component() {
 			return this._component;
