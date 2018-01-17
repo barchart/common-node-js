@@ -1,8 +1,9 @@
-const crypto = require('crypto');
+const crypto = require('crypto'),
+	zlib = require('zlib');
 
 const assert = require('@barchart/common-js/lang/assert');
 
-const CompressedBinarySerializer = require('./CompressedBinarySerializer'),
+const BinarySerializer = require('./CompressedBinarySerializer'),
 	DelegateSerializer = require('./DelegateSerializer');
 
 module.exports = (() => {
@@ -17,7 +18,7 @@ module.exports = (() => {
 	 */
 	class EncryptedStringSerializer extends DelegateSerializer {
 		constructor(attribute) {
-			super(CompressedBinarySerializer.INSTANCE, serializeBuffer, deserializeBuffer);
+			super(BinarySerializer.INSTANCE, serializeBuffer, deserializeBuffer);
 
 			this._attribute = attribute;
 		}
@@ -33,7 +34,7 @@ module.exports = (() => {
 		const encryptor = this._attribute.encryptor;
 		const cipher = crypto.createCipher(encryptor.type.code, encryptor.password);
 
-		const buffer = Buffer.from(value);
+		const buffer = zlib.deflateSync(Buffer.from(value));
 
 		return Buffer.concat([ cipher.update(buffer), cipher.final() ]);
 	}
@@ -42,7 +43,7 @@ module.exports = (() => {
 		const encryptor = this._attribute.encryptor;
 		const decipher = crypto.createDecipher(encryptor.type.code, encryptor.password);
 
-		const decrypted = Buffer.concat([ decipher.update(value) , decipher.final() ]);
+		const decrypted = zlib.inflateSync(Buffer.concat([ decipher.update(value), decipher.final() ]));
 
 		return decrypted.toString();
 	}
