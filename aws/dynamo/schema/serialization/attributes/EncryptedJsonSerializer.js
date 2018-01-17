@@ -44,7 +44,7 @@ module.exports = (() => {
 
 		const decrypted = Buffer.concat([ decipher.update(value) , decipher.final() ]);
 
-		return  JSON.parse(decrypted.toString());
+		return JSON.parse(decrypted.toString());
 	}
 
 	const instance = new EncryptedJsonSerializer();
