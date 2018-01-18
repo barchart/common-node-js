@@ -33,7 +33,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Set the {@link KeyType} and returns the current instance.
+		 * Sets the {@link KeyType} and returns the current instance.
 		 *
 		 * @public
 		 * @param {KeyType} keyType
