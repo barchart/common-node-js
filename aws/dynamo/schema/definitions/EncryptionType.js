@@ -5,12 +5,11 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * Defines an encrytion algorithm that can be used to encrypt data.
+	 * Defines an encryption algorithm that can be used to encrypt data.
 	 *
 	 * @public
 	 * @extends {Enum}
 	 * @param {String} code
-	 * @param {String} description
 	 */
 	class EncryptionType extends Enum {
 		constructor(code) {
@@ -20,6 +19,7 @@ module.exports = (() => {
 		/**
 		 * AES-192.
 		 *
+		 * @static
 		 * @returns {EncryptionType}
 		 */
 		static get AES_192() {
@@ -29,6 +29,7 @@ module.exports = (() => {
 		/**
 		 * AES-256.
 		 *
+		 * @static
 		 * @returns {EncryptionType}
 		 */
 		static get AES_256() {

@@ -12,9 +12,11 @@ module.exports = (() => {
 	 * @param {String} code
 	 * @param {String} description
 	 * @param {Function=} enumerationType
+	 * @param {Boolean=} supportsCompression
+	 * @param {Boolean=} supportsEncryption
 	 */
 	class DataType {
-		constructor(code, description, enumerationType) {
+		constructor(code, description, enumerationType, supportsCompression, supportsEncryption) {
 			assert.argumentIsRequired(code, 'code', String);
 			assert.argumentIsRequired(description, 'description', String);
 			assert.argumentIsOptional(enumerationType, 'enumerationType', Function);
@@ -23,9 +25,16 @@ module.exports = (() => {
 				assert.argumentIsValid(enumerationType, 'enumerationType', extendsEnumeration, 'is an enumeration');
 			}
 
+			assert.argumentIsOptional(supportsCompression, 'supportsCompression', Boolean);
+			assert.argumentIsOptional(supportsEncryption, 'supportsEncryption', Boolean);
+
 			this._code = code;
 			this._description = description;
+
 			this._enumerationType = enumerationType || null;
+
+			this._supportsCompression = is.boolean(supportsCompression) && supportsCompression;
+			this._supportsEncryption = is.boolean(supportsEncryption) && supportsEncryption;
 		}
 
 		/**
@@ -56,6 +65,26 @@ module.exports = (() => {
 		 */
 		get enumerationType() {
 			return this._enumerationType;
+		}
+
+		/**
+		 * Indicates if the {@link DataType} can support compression.
+		 *
+		 * @public
+		 * @returns {Boolean}
+		 */
+		get supportsCompression() {
+			return this._supportsCompression;
+		}
+
+		/**
+		 * Indicates if the {@link DataType} can support encryption.
+		 *
+		 * @public
+		 * @returns {Boolean}
+		 */
+		get supportsEncryption() {
+			return this._supportsEncryption;
 		}
 
 		/**
@@ -233,12 +262,12 @@ module.exports = (() => {
 	const dataTypeDecimal = new DataType('S', 'Decimal');
 	const dataTypeTimestamp = new DataType('N', 'Timestamp');
 
-	const dataTypeBinaryCompressed = new DataType('B', 'Binary (Compressed)');
-	const dataTypeStringCompressed = new DataType('B', 'String (Compressed)');
-	const dataTypeJsonCompressed = new DataType('B', 'Json (Compressed)');
+	const dataTypeBinaryCompressed = new DataType('B', 'Binary (Compressed)', null, true, false);
+	const dataTypeStringCompressed = new DataType('B', 'String (Compressed)', null, true, false);
+	const dataTypeJsonCompressed = new DataType('B', 'Json (Compressed)', null, true, false);
 
-	const dataTypeStringEncrypted = new DataType('B', 'String (Encrypted)');
-	const dataTypeJsonEncrypted = new DataType('B', 'Json (Encrypted)');
+	const dataTypeStringEncrypted = new DataType('B', 'String (Encrypted)', null, true, true);
+	const dataTypeJsonEncrypted = new DataType('B', 'Json (Encrypted)', null, true, true);
 
 	const dataTypes = [
 		dataTypeNumber,
