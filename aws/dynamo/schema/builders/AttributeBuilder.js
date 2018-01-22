@@ -1,6 +1,7 @@
 const assert = require('@barchart/common-js/lang/assert');
 
 const Attribute = require('./../definitions/Attribute'),
+	CompressionType = require('./../definitions/CompressionType'),
 	DataType = require('./../definitions/DataType');
 
 const DerivationBuilder = require('./DerivationBuilder'),
@@ -43,7 +44,7 @@ module.exports = (() => {
 		withDataType(dataType) {
 			assert.argumentIsRequired(dataType, 'dataType', DataType, 'DataType');
 
-			this._attribute = new Attribute(this._attribute.name, dataType, this._attribute.derivation, this._attribute.encryptor);
+			this._attribute = new Attribute(this._attribute.name, dataType, this._attribute.derivation, this._attribute.encryptor, this._attribute.compressionType);
 
 			return this;
 		}
@@ -64,7 +65,7 @@ module.exports = (() => {
 
 			const derivation = derivationBuilder.derivation;
 
-			this._attribute = new Attribute(this._attribute.name, this._attribute.dataType, derivation, this._attribute.encryptor);
+			this._attribute = new Attribute(this._attribute.name, this._attribute.dataType, derivation, this._attribute.encryptor, this._attribute.compressionType);
 
 			return this;
 		}
@@ -100,7 +101,21 @@ module.exports = (() => {
 
 			const encryptor = encryptorBuilder.encryptor;
 
-			this._attribute = new Attribute(this._attribute.name, this._attribute.dataType, this._attribute.derivation, encryptor);
+			this._attribute = new Attribute(this._attribute.name, this._attribute.dataType, this._attribute.derivation, encryptor, this._attribute.compressionType);
+
+			return this;
+		}
+
+		/**
+		 * Sets the {@link CompressionType} for the field.
+		 *
+		 * @param {CompressionType} compressionType
+		 * @returns {AttributeBuilder}
+		 */
+		withCompression(compressionType) {
+			assert.argumentIsRequired(compressionType, 'compressionType', CompressionType);
+
+			this._attribute = new Attribute(this._attribute.name, this._attribute.dataType, this._attribute.derivation, this._attribute.encryptor, compressionType);
 
 			return this;
 		}

@@ -184,13 +184,14 @@ module.exports = (() => {
 	Serializers.registerAttributeSerializer(DataType.DAY, DaySerializer.INSTANCE);
 	Serializers.registerAttributeSerializer(DataType.DECIMAL, DecimalSerializer.INSTANCE);
 	Serializers.registerAttributeSerializer(DataType.TIMESTAMP, TimestampSerializer.INSTANCE);
-	Serializers.registerAttributeSerializer(DataType.BINARY_COMPRESSED, CompressedBinarySerializer.INSTANCE);
-	Serializers.registerAttributeSerializer(DataType.STRING_COMPRESSED, CompressedStringSerializer.INSTANCE);
-	Serializers.registerAttributeSerializer(DataType.JSON_COMPRESSED, CompressedJsonSerializer.INSTANCE);
 
 	Serializers.registerComponentSerializer(ComponentType.MONEY, MoneySerializer.INSTANCE);
 
 	const attributeSerializerFactories = new Map();
+
+	Serializers.registerAttributeSerializerFactory(DataType.BINARY_COMPRESSED, (a) => new CompressedBinarySerializer(a));
+	Serializers.registerAttributeSerializerFactory(DataType.STRING_COMPRESSED, (a) => new CompressedStringSerializer(a));
+	Serializers.registerAttributeSerializerFactory(DataType.JSON_COMPRESSED, (a) => new CompressedJsonSerializer(a));
 
 	Serializers.registerAttributeSerializerFactory(DataType.STRING_ENCRYPTED, (a) => new EncryptedStringSerializer(a));
 	Serializers.registerAttributeSerializerFactory(DataType.JSON_ENCRYPTED, (a) => new EncryptedJsonSerializer(a));

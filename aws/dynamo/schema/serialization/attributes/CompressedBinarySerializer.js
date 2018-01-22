@@ -3,6 +3,8 @@ const zlib = require('zlib');
 const assert = require('@barchart/common-js/lang/assert'),
 	is = require('@barchart/common-js/lang/is');
 
+const CompressionType = require('./../../definitions/CompressionType');
+
 const BinarySerializer = require('./BinarySerializer');
 
 module.exports = (() => {
@@ -13,34 +15,26 @@ module.exports = (() => {
 	 * on a DynamoDB record, using compression.
 	 *
 	 * @public
+	 * @param {Attribute} attribute
 	 * @extends {AttributeSerializer}
 	 */
 	class CompressedBinarySerializer extends BinarySerializer {
-		constructor() {
+		constructor(attribute) {
 			super();
+
+			assert.argumentIsRequired(attribute, 'attribute', Attribute, 'Attribute');
+
+			this._attribute = attribute;
 		}
 
-		_getUseCompression() {
-			return true;
-		}
-
-		/**
-		 * A singleton.
-		 *
-		 * @public
-		 * @static
-		 * @returns {CompressedBinarySerializer}
-		 */
-		static get INSTANCE() {
-			return instance;
+		_getCompressionType() {
+			return this._attribute.compressionType || CompressionType.DEFLATE;
 		}
 
 		toString() {
 			return '[CompressedBinarySerializer]';
 		}
 	}
-
-	const instance = new CompressedBinarySerializer();
 
 	return CompressedBinarySerializer;
 })();

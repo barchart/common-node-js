@@ -1,7 +1,10 @@
 const assert = require('@barchart/common-js/lang/assert'),
 	is = require('@barchart/common-js/lang/is');
 
-const DataType = require('./DataType');
+const CompressionType = require('./CompressionType'),
+	DataType = require('./DataType'),
+	Derivation = require('./Derivation'),
+	Encryptor = require('./Encryptor');
 
 module.exports = (() => {
 	'use strict';
@@ -12,13 +15,17 @@ module.exports = (() => {
 	 * @public
 	 * @param {String} name
 	 * @param {DataType} dataType
+	 * @param {Derivation|null} derivation
+	 * @param {Encryptor|null} encryptor
+	 * @param {CompressionType|null} compressionType
 	 */
 	class Attribute {
-		constructor(name, dataType, derivation, encryptor) {
+		constructor(name, dataType, derivation, encryptor, compressionType) {
 			this._name = name;
 			this._dataType = dataType || null;
 			this._derivation = derivation || null;
 			this._encryptor = encryptor || null;
+			this._compressionType = compressionType || null;
 		}
 
 		/**
@@ -54,7 +61,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * If this attribute supports encryption, then  this property will return
+		 * If this attribute supports encryption, then this property will return
 		 * an {@link Encryptor} instance; otherwise it return a null reference.
 		 *
 		 * @public
@@ -62,6 +69,17 @@ module.exports = (() => {
 		 */
 		get encryptor() {
 			return this._encryptor;
+		}
+
+		/**
+		 * If this attribute supports compression, then this property will return
+		 * an {@link CompressionType} to use; otherwise it return a null reference.
+		 *
+		 * @public
+		 * @returns {CompressionType|null}
+		 */
+		get compressionType() {
+			return this._compressionType;
 		}
 
 		/**
@@ -76,6 +94,30 @@ module.exports = (() => {
 
 			if (!(this._dataType instanceof DataType)) {
 				throw new Error('Attribute data type is invalid.');
+			}
+
+			if (this._derivation && (this._derivation instanceof Derivation)) {
+				throw new Error('Attribute derivation must be an instance of Derivation.');
+			}
+
+			if (this._encryptor !== null) {
+				if (!this._dataType.supportsEncryption) {
+					throw new Error(`Attribute data type [${this._dataType}] does not support encryption.`);
+				}
+
+				if (!(this._encryptor instanceof Encryptor)) {
+					throw new Error('Attribute encryptor must be an instance of Encryptor.');
+				}
+			}
+
+			if (this._compressionType != null) {
+				if (!this._compressionType.supportsCompression) {
+					throw new Error(`Attribute data type [${this._dataType}] does not support compression.`);
+				}
+
+				if (!(this._compressionType instanceof CompressionType)) {
+					throw new Error('Attribute compression type must be an instance of CompressionType.');
+				}
 			}
 		}
 

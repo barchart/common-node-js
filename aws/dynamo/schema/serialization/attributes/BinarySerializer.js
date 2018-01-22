@@ -4,6 +4,7 @@ const assert = require('@barchart/common-js/lang/assert'),
 	is = require('@barchart/common-js/lang/is');
 
 const AttributeSerializer = require('./AttributeSerializer'),
+	CompressionType = require('./../../definitions/CompressionType'),
 	DataType = require('./../../definitions/DataType');
 
 module.exports = (() => {
@@ -21,15 +22,25 @@ module.exports = (() => {
 			super();
 		}
 
-		_getUseCompression() {
-			return false;
+		_getCompressionType() {
+			return null;
 		}
 
 		serialize(value) {
 			assert.argumentIsValid(value, 'value', Buffer.isBuffer, 'is buffer');
 
 			const wrapper = { };
-			const compress = this._getUseCompression();
+			const compressionType = this._getCompressionType();
+
+			let valueToAssign;
+
+			if (compressionType === CompressionType.DEFLATE) {
+				valueToAssign = zlib.deflateSync(value);
+			} else if (compressionType === CompressionType.ZIP) {
+				valueToAssign = zlib.gzipSync(value);
+			} else {
+				valueToAssign = value;
+			}
 
 			wrapper[DataType.BINARY.code] = compress ? zlib.deflateSync(value) : value;
 
@@ -38,9 +49,20 @@ module.exports = (() => {
 
 		deserialize(wrapper) {
 			const value = wrapper[DataType.BINARY.code];
-			const compress = this._getUseCompression();
 
-			return compress ? zlib.inflateSync(value) : value;
+			const compressionType = this._getCompressionType();
+
+			let returnRef;
+
+			if (compressionType === CompressionType.DEFLATE) {
+				returnRef = zlib.inflateSync(value)
+			} else if (compressionType === CompressionType.ZIP) {
+				returnRef = zlib.gunzipSync(value);
+			} else {
+				returnRef = value;
+			}
+
+			return returnRef;
 		}
 
 		/**

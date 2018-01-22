@@ -11,22 +11,12 @@ module.exports = (() => {
 	 * used on a DynamoDB record.
 	 *
 	 * @public
+	 * @param {Attribute} attribute
 	 * @extends {DelegateSerializer}
 	 */
 	class CompressedJsonSerializer extends DelegateSerializer {
-		constructor() {
-			super(CompressedBinarySerializer.INSTANCE, serializeBuffer, deserializeBuffer);
-		}
-
-		/**
-		 * A singleton.
-		 *
-		 * @public
-		 * @static
-		 * @returns {CompressedJsonSerializer}
-		 */
-		static get INSTANCE() {
-			return instance;
+		constructor(attribute) {
+			super(new CompressedBinarySerializer(attribute), serializeBuffer, deserializeBuffer);
 		}
 
 		toString() {
@@ -43,8 +33,6 @@ module.exports = (() => {
 	function deserializeBuffer(value) {
 		return JSON.parse(value.toString());
 	}
-
-	const instance = new CompressedJsonSerializer();
 
 	return CompressedJsonSerializer;
 })();
