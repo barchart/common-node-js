@@ -38,7 +38,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Set the {@link IndexType} and returns the current instance.
+		 * Sets the {@link IndexType} and returns the current instance.
 		 *
 		 * @public
 		 * @param {IndexType} type

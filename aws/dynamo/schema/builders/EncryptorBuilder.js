@@ -27,7 +27,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Set the {@link EncryptionType} and returns the current instance.
+		 * Sets the {@link EncryptionType} and returns the current instance.
 		 *
 		 * @public
 		 * @param {EncryptionType} type
@@ -42,7 +42,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Set the encryption password and returns the current instance.
+		 * Sets the encryption password and returns the current instance.
 		 *
 		 * @public
 		 * @param {String} password
