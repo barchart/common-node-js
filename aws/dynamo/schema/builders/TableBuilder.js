@@ -200,7 +200,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Adds an {@link ProvisionedThroughpu} specification to the
+		 * Adds an {@link ProvisionedThroughput} specification to the
 		 * table, using a callback that provides the consumer with a
 		 * {@link ProvisionedThroughputBuilder}, then returns the current instance.
 		 *
