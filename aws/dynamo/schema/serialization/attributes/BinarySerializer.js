@@ -55,7 +55,7 @@ module.exports = (() => {
 			let returnRef;
 
 			if (compressionType === CompressionType.DEFLATE) {
-				returnRef = zlib.inflateSync(value)
+				returnRef = zlib.inflateSync(value);
 			} else if (compressionType === CompressionType.ZIP) {
 				returnRef = zlib.gunzipSync(value);
 			} else {
