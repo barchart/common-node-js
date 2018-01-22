@@ -233,10 +233,6 @@ module.exports = (() => {
 			return this;
 		}
 
-		withEncryptor(type, password) {
-
-		}
-
 		/**
 		 * Creates a new {@link TableBuilder}.
 		 *
