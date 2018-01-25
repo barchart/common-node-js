@@ -3,7 +3,7 @@ const crypto = require('crypto'),
 
 const assert = require('@barchart/common-js/lang/assert');
 
-const BinarySerializer = require('./CompressedBinarySerializer'),
+const BinarySerializer = require('./BinarySerializer'),
 	DelegateSerializer = require('./DelegateSerializer');
 
 module.exports = (() => {
