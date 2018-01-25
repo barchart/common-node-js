@@ -3,6 +3,7 @@ const attributes = require('@barchart/common-js/lang/attributes'),
 	mysql = require('mysql');
 
 const is = require('@barchart/common-js/lang/is'),
+	Scheduler = require('@barchart/common-js/timing/Scheduler'),
 	promise = require('@barchart/common-js/lang/promise');
 
 const QueryProvider = require('./../QueryProvider');
@@ -58,9 +59,9 @@ module.exports = (() => {
 				logger.error('MySql connection error (fatal)', e);
 			});
 
-			return promise.build((resolve, reject) => {
-				connection.query(this._configuration.query, parameters, (e, rows) => {
-					try {
+			const query = () => {
+				return promise.build((resolve, reject) => {
+					connection.query(this._configuration.query, parameters, (e, rows) => {
 						if (e) {
 							logger.error('MySql query error', e);
 
@@ -68,15 +69,28 @@ module.exports = (() => {
 						} else {
 							resolve(rows);
 						}
-					} finally {
-						connection.end((endError) => {
-							if (!is.undefined(endError)) {
-								logger.error('MySql connection error (on close)', endError);
-							}
-						});
-					}
+					});
 				});
-			});
+			};
+
+			const scheduler = new Scheduler();
+
+			return scheduler.backoff(query, 1000, 'MysqlQuery', 4)
+				.then((result) => result)
+				.catch((e) => {
+					throw e;
+				}).then((result) => {
+					scheduler.dispose();
+
+					connection.end((endError) => {
+						if (!is.undefined(endError)) {
+							logger.error('MySql connection error (on close)', endError);
+						}
+					});
+
+					return result;
+				});
+
 		}
 
 		toString() {
