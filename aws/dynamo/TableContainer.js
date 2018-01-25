@@ -127,6 +127,30 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Creates an array of new items.
+		 *
+		 * @protected
+		 * @param {Object} items
+		 * @returns {Promise}
+		 */
+		_createItems(items) {
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
+
+					items.forEach((item) => {
+						if (!this._validate(item)) {
+							logger.trace('Failed to create item in [', this.definition.name, '] table', item);
+
+							throw new Error(`Unable to insert item in [${this.definition.name}] table`);
+						}
+					});
+
+					return this._provider.createItems(items, this.definition);
+				});
+		}
+
+		/**
 		 * Runs a scan on the table.
 		 *
 		 * @public
