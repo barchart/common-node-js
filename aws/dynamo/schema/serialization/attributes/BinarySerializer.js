@@ -42,7 +42,7 @@ module.exports = (() => {
 				valueToAssign = value;
 			}
 
-			wrapper[DataType.BINARY.code] = compress ? zlib.deflateSync(value) : value;
+			wrapper[DataType.BINARY.code] = valueToAssign;
 
 			return wrapper;
 		}

@@ -3,7 +3,7 @@ const crypto = require('crypto'),
 
 const assert = require('@barchart/common-js/lang/assert');
 
-const BinarySerializer = require('./BinarySerializer'),
+const CompressedBinarySerializer = require('./CompressedBinarySerializer'),
 	DelegateSerializer = require('./DelegateSerializer');
 
 module.exports = (() => {
@@ -18,7 +18,7 @@ module.exports = (() => {
 	 */
 	class EncryptedStringSerializer extends DelegateSerializer {
 		constructor(attribute) {
-			super(BinarySerializer.INSTANCE, serializeBuffer, deserializeBuffer);
+			super(CompressedBinarySerializer.INSTANCE, serializeBuffer, deserializeBuffer);
 
 			this._attribute = attribute;
 		}
