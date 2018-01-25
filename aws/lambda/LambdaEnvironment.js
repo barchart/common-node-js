@@ -63,7 +63,11 @@ module.exports = (() => {
 		getConfiguration() {
 			if (this._configurationPromise === null) {
 				this._configurationPromise = Promise.resolve()
-					.then(() => configurator.load('./config.yml', this._mode))
+					.then(() => {
+						const path = process.env.CONFIG_PATH || './';
+
+						return configurator.load(path + 'config.yml', this._mode);
+					})
 					.catch((e) => logger.error('Unable to load configuration'));
 			}
 
