@@ -6,7 +6,8 @@ const assert = require('@barchart/common-js/lang/assert'),
 	Disposable = require('@barchart/common-js/lang/Disposable'),
 	is = require('@barchart/common-js/lang/is'),
 	object = require('@barchart/common-js/lang/object'),
-	promise = require('@barchart/common-js/lang/promise');
+	promise = require('@barchart/common-js/lang/promise'),
+	Scheduler = require('@barchart/common-js/timing/Scheduler');
 
 module.exports = (() => {
 	'use strict';
@@ -54,6 +55,7 @@ module.exports = (() => {
 		 * Connects to Amazon. Must be called once before using other instance
 		 * functions.
 		 *
+		 * @public
 		 * @returns {Promise.<boolean>}
 		 */
 		start() {
@@ -83,6 +85,12 @@ module.exports = (() => {
 			return this._startPromise;
 		}
 
+		/**
+		 * Returns a clone of the S3 configuration data used to make requests.
+		 *
+		 * @public
+		 * @returns {*}
+		 */
 		getConfiguration() {
 			if (this.getIsDisposed()) {
 				throw new Error('The S3 Provider has been disposed.');
@@ -96,32 +104,36 @@ module.exports = (() => {
 		 *
 		 * @param {string} bucket
 		 *
+		 * @public
 		 * @returns {Promise.<object>}
 		 */
 		getBucketContents(bucket) {
-			return Promise.resolve()
-				.then(() => {
-					checkReady.call(this);
+			return executeWithRetry('S3Provider.getBucketContents', () => {
+				return Promise.resolve()
+					.then(() => {
+						checkReady.call(this);
 
-					return promise.build((resolveCallback, rejectCallback) => {
-						this._s3.listObjects({Bucket: bucket}, (e, data) => {
-							if (e) {
-								logger.error('S3 failed to retrieve contents: ', e);
-								rejectCallback(e);
-							} else {
-								resolveCallback({
-									content: data.Contents
-								});
-							}
+						return promise.build((resolveCallback, rejectCallback) => {
+							this._s3.listObjects({Bucket: bucket}, (e, data) => {
+								if (e) {
+									logger.error('S3 failed to retrieve contents: ', e);
+									rejectCallback(e);
+								} else {
+									resolveCallback({
+										content: data.Contents
+									});
+								}
+							});
 						});
 					});
-				});
+			});
 		}
 
 		/**
 		 * Uploads an object, using the bucket (and folder) specified
 		 * in the provider's configuration.
 		 *
+		 * @public
 		 * @param {string} filename
 		 * @param {string|Buffer} buffer - The content to upload
 		 * @param {string=} mimeType = Defaults to "text/plain"
@@ -136,6 +148,7 @@ module.exports = (() => {
 		/**
 		 * Uploads an object.
 		 *
+		 * @public
 		 * @param {string} bucket
 		 * @param {string} filename
 		 * @param {string|Buffer} buffer - The content to upload
@@ -145,58 +158,61 @@ module.exports = (() => {
 		 * @returns {Promise.<object>}
 		 */
 		uploadObject(bucket, filename, content, mimeType, secure) {
-			return Promise.resolve()
-				.then(() => {
-					checkReady.call(this);
+			return executeWithRetry('S3Provider.uploadObject', () => {
+				return Promise.resolve()
+					.then(() => {
+						checkReady.call(this);
 
-					return promise.build((resolveCallback, rejectCallback) => {
-						let acl;
+						return promise.build((resolveCallback, rejectCallback) => {
+							let acl;
 
-						if (is.boolean(secure) && secure) {
-							acl = 'private';
-						} else {
-							acl = 'public-read';
-						}
-
-						let mimeTypeToUse;
-
-						if (is.string(mimeType)) {
-							mimeTypeToUse = mimeType;
-						} else if (is.string(content)) {
-							mimeTypeToUse = mimeTypes.text;
-						} else if (is.object) {
-							mimeTypeToUse = mimeTypes.json;
-						} else {
-							throw new Error('Unable to automatically determine MIME type for file.');
-						}
-
-						const params = getParameters(bucket, filename, {
-							ACL: acl,
-							Body: ContentHandler.getHandlerFor(mimeTypeToUse).toBuffer(content),
-							ContentType: mimeTypeToUse
-						});
-
-						const options = {
-							partSize: 10 * 1024 * 1024,
-							queueSize: 1
-						};
-
-						this._s3.upload(params, options, (e, data) => {
-							if (e) {
-								logger.error('S3 failed to upload object: ', e);
-								rejectCallback(e);
+							if (is.boolean(secure) && secure) {
+								acl = 'private';
 							} else {
-								resolveCallback({data: data});
+								acl = 'public-read';
 							}
+
+							let mimeTypeToUse;
+
+							if (is.string(mimeType)) {
+								mimeTypeToUse = mimeType;
+							} else if (is.string(content)) {
+								mimeTypeToUse = mimeTypes.text;
+							} else if (is.object) {
+								mimeTypeToUse = mimeTypes.json;
+							} else {
+								throw new Error('Unable to automatically determine MIME type for file.');
+							}
+
+							const params = getParameters(bucket, filename, {
+								ACL: acl,
+								Body: ContentHandler.getHandlerFor(mimeTypeToUse).toBuffer(content),
+								ContentType: mimeTypeToUse
+							});
+
+							const options = {
+								partSize: 10 * 1024 * 1024,
+								queueSize: 1
+							};
+
+							this._s3.upload(params, options, (e, data) => {
+								if (e) {
+									logger.error('S3 failed to upload object: ', e);
+									rejectCallback(e);
+								} else {
+									resolveCallback({data: data});
+								}
+							});
 						});
 					});
-				});
+			});
 		}
 
 		/**
 		 * Downloads an object, using the bucket (and folder) specified
 		 * in the provider's configuration.
 		 *
+		 * @public
 		 * @param {string} filename
 		 * @param {string|Buffer} buffer - The content to upload
 		 * @param {string=} mimeType = Defaults to "text/plain"
@@ -211,53 +227,59 @@ module.exports = (() => {
 		/**
 		 * Downloads an object.
 		 *
+		 * @public
 		 * @param {string} bucket
 		 * @param {string} filename
 		 *
 		 * @returns {Promise.<object>}
 		 */
 		downloadObject(bucket, filename) {
-			return Promise.resolve()
-				.then(() => {
-					checkReady.call(this);
+			return executeWithRetry('S3Provider.downloadObject', () => {
+				return Promise.resolve()
+					.then(() => {
+						checkReady.call(this);
 
-					return promise.build((resolveCallback, rejectCallback) => {
-						this._s3.getObject(getParameters(bucket, filename), (e, data) => {
-							if (e) {
-								logger.error('S3 failed to get object: ', e);
-								rejectCallback(e);
-							} else {
-								resolveCallback(ContentHandler.getHandlerFor(data.ContentType).fromBuffer(data.Body));
-							}
+						return promise.build((resolveCallback, rejectCallback) => {
+							this._s3.getObject(getParameters(bucket, filename), (e, data) => {
+								if (e) {
+									logger.error('S3 failed to get object: ', e);
+									rejectCallback(e);
+								} else {
+									resolveCallback(ContentHandler.getHandlerFor(data.ContentType).fromBuffer(data.Body));
+								}
+							});
 						});
 					});
-				});
+			});
 		}
 
 		/**
 		 * Deletes an object from a bucket.
 		 *
+		 * @public
 		 * @param {string} bucket
 		 * @param {string} filename
 		 *
 		 * @returns {Promise.<object>}
 		 */
 		deleteObject(bucket, filename) {
-			return Promise.resolve()
-				.then(() => {
-					checkReady.call(this);
+			return executeWithRetry('S3Provider.deleteObject', () => {
+				return Promise.resolve()
+					.then(() => {
+						checkReady.call(this);
 
-					return promise.build((resolveCallback, rejectCallback) => {
-						this._s3.deleteObject(getParameters(bucket, filename), (e, data) => {
-							if (e) {
-								logger.error('S3 failed to delete object: ', e);
-								rejectCallback(e);
-							} else {
-								resolveCallback({data: data});
-							}
+						return promise.build((resolveCallback, rejectCallback) => {
+							this._s3.deleteObject(getParameters(bucket, filename), (e, data) => {
+								if (e) {
+									logger.error('S3 failed to delete object: ', e);
+									rejectCallback(e);
+								} else {
+									resolveCallback({data: data});
+								}
+							});
 						});
 					});
-				});
+			});
 		}
 
 		/**
@@ -317,6 +339,24 @@ module.exports = (() => {
 			Bucket: bucket,
 			Key: S3Provider.getQualifiedFilename(filename)
 		});
+	}
+
+	function executeWithRetry(description, action) {
+		return Promise.resolve()
+			.then(() => {
+				const scheduler = new Scheduler();
+
+				return scheduler.backoff(action, 1000, description, 4)
+					.then((result) => {
+						scheduler.dispose();
+
+						return result;
+					}).catch((e) => {
+						scheduler.dispose();
+
+						throw e;
+					});
+			});
 	}
 
 	const contentHandlers = [ ];
