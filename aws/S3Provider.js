@@ -6,8 +6,7 @@ const assert = require('@barchart/common-js/lang/assert'),
 	Disposable = require('@barchart/common-js/lang/Disposable'),
 	is = require('@barchart/common-js/lang/is'),
 	object = require('@barchart/common-js/lang/object'),
-	promise = require('@barchart/common-js/lang/promise'),
-	Scheduler = require('@barchart/common-js/timing/Scheduler');
+	promise = require('@barchart/common-js/lang/promise');
 
 module.exports = (() => {
 	'use strict';
@@ -108,25 +107,23 @@ module.exports = (() => {
 		 * @returns {Promise.<object>}
 		 */
 		getBucketContents(bucket) {
-			return executeWithRetry('S3Provider.getBucketContents', () => {
-				return Promise.resolve()
-					.then(() => {
-						checkReady.call(this);
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
 
-						return promise.build((resolveCallback, rejectCallback) => {
-							this._s3.listObjects({Bucket: bucket}, (e, data) => {
-								if (e) {
-									logger.error('S3 failed to retrieve contents: ', e);
-									rejectCallback(e);
-								} else {
-									resolveCallback({
-										content: data.Contents
-									});
-								}
-							});
+					return promise.build((resolveCallback, rejectCallback) => {
+						this._s3.listObjects({Bucket: bucket}, (e, data) => {
+							if (e) {
+								logger.error('S3 failed to retrieve contents: ', e);
+								rejectCallback(e);
+							} else {
+								resolveCallback({
+									content: data.Contents
+								});
+							}
 						});
 					});
-			});
+				});
 		}
 
 		/**
@@ -158,54 +155,52 @@ module.exports = (() => {
 		 * @returns {Promise.<object>}
 		 */
 		uploadObject(bucket, filename, content, mimeType, secure) {
-			return executeWithRetry('S3Provider.uploadObject', () => {
-				return Promise.resolve()
-					.then(() => {
-						checkReady.call(this);
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
 
-						return promise.build((resolveCallback, rejectCallback) => {
-							let acl;
+					return promise.build((resolveCallback, rejectCallback) => {
+						let acl;
 
-							if (is.boolean(secure) && secure) {
-								acl = 'private';
+						if (is.boolean(secure) && secure) {
+							acl = 'private';
+						} else {
+							acl = 'public-read';
+						}
+
+						let mimeTypeToUse;
+
+						if (is.string(mimeType)) {
+							mimeTypeToUse = mimeType;
+						} else if (is.string(content)) {
+							mimeTypeToUse = mimeTypes.text;
+						} else if (is.object) {
+							mimeTypeToUse = mimeTypes.json;
+						} else {
+							throw new Error('Unable to automatically determine MIME type for file.');
+						}
+
+						const params = getParameters(bucket, filename, {
+							ACL: acl,
+							Body: ContentHandler.getHandlerFor(mimeTypeToUse).toBuffer(content),
+							ContentType: mimeTypeToUse
+						});
+
+						const options = {
+							partSize: 10 * 1024 * 1024,
+							queueSize: 1
+						};
+
+						this._s3.upload(params, options, (e, data) => {
+							if (e) {
+								logger.error('S3 failed to upload object: ', e);
+								rejectCallback(e);
 							} else {
-								acl = 'public-read';
+								resolveCallback({data: data});
 							}
-
-							let mimeTypeToUse;
-
-							if (is.string(mimeType)) {
-								mimeTypeToUse = mimeType;
-							} else if (is.string(content)) {
-								mimeTypeToUse = mimeTypes.text;
-							} else if (is.object) {
-								mimeTypeToUse = mimeTypes.json;
-							} else {
-								throw new Error('Unable to automatically determine MIME type for file.');
-							}
-
-							const params = getParameters(bucket, filename, {
-								ACL: acl,
-								Body: ContentHandler.getHandlerFor(mimeTypeToUse).toBuffer(content),
-								ContentType: mimeTypeToUse
-							});
-
-							const options = {
-								partSize: 10 * 1024 * 1024,
-								queueSize: 1
-							};
-
-							this._s3.upload(params, options, (e, data) => {
-								if (e) {
-									logger.error('S3 failed to upload object: ', e);
-									rejectCallback(e);
-								} else {
-									resolveCallback({data: data});
-								}
-							});
 						});
 					});
-			});
+				});
 		}
 
 		/**
@@ -234,23 +229,21 @@ module.exports = (() => {
 		 * @returns {Promise.<object>}
 		 */
 		downloadObject(bucket, filename) {
-			return executeWithRetry('S3Provider.downloadObject', () => {
-				return Promise.resolve()
-					.then(() => {
-						checkReady.call(this);
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
 
-						return promise.build((resolveCallback, rejectCallback) => {
-							this._s3.getObject(getParameters(bucket, filename), (e, data) => {
-								if (e) {
-									logger.error('S3 failed to get object: ', e);
-									rejectCallback(e);
-								} else {
-									resolveCallback(ContentHandler.getHandlerFor(data.ContentType).fromBuffer(data.Body));
-								}
-							});
+					return promise.build((resolveCallback, rejectCallback) => {
+						this._s3.getObject(getParameters(bucket, filename), (e, data) => {
+							if (e) {
+								logger.error('S3 failed to get object: ', e);
+								rejectCallback(e);
+							} else {
+								resolveCallback(ContentHandler.getHandlerFor(data.ContentType).fromBuffer(data.Body));
+							}
 						});
 					});
-			});
+				});
 		}
 
 		/**
@@ -263,23 +256,21 @@ module.exports = (() => {
 		 * @returns {Promise.<object>}
 		 */
 		deleteObject(bucket, filename) {
-			return executeWithRetry('S3Provider.deleteObject', () => {
-				return Promise.resolve()
-					.then(() => {
-						checkReady.call(this);
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
 
-						return promise.build((resolveCallback, rejectCallback) => {
-							this._s3.deleteObject(getParameters(bucket, filename), (e, data) => {
-								if (e) {
-									logger.error('S3 failed to delete object: ', e);
-									rejectCallback(e);
-								} else {
-									resolveCallback({data: data});
-								}
-							});
+					return promise.build((resolveCallback, rejectCallback) => {
+						this._s3.deleteObject(getParameters(bucket, filename), (e, data) => {
+							if (e) {
+								logger.error('S3 failed to delete object: ', e);
+								rejectCallback(e);
+							} else {
+								resolveCallback({data: data});
+							}
 						});
 					});
-			});
+				});
 		}
 
 		/**
@@ -339,24 +330,6 @@ module.exports = (() => {
 			Bucket: bucket,
 			Key: S3Provider.getQualifiedFilename(filename)
 		});
-	}
-
-	function executeWithRetry(description, action) {
-		return Promise.resolve()
-			.then(() => {
-				const scheduler = new Scheduler();
-
-				return scheduler.backoff(action, 1000, description, 4)
-					.then((result) => {
-						scheduler.dispose();
-
-						return result;
-					}).catch((e) => {
-						scheduler.dispose();
-
-						throw e;
-					});
-			});
 	}
 
 	const contentHandlers = [ ];
