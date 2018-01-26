@@ -26,23 +26,36 @@ module.exports = (() => {
 			return null;
 		}
 
+		_getEncryptor() {
+			return null;
+		}
+
 		serialize(value) {
 			assert.argumentIsValid(value, 'value', Buffer.isBuffer, 'is buffer');
 
 			const wrapper = { };
+
+			let serialized;
+
 			const compressionType = this._getCompressionType();
 
-			let valueToAssign;
-
 			if (compressionType === CompressionType.DEFLATE) {
-				valueToAssign = zlib.deflateSync(value);
+				serialized = zlib.deflateSync(value);
 			} else if (compressionType === CompressionType.ZIP) {
-				valueToAssign = zlib.gzipSync(value);
+				serialized = zlib.gzipSync(value);
 			} else {
-				valueToAssign = value;
+				serialized = value;
 			}
 
-			wrapper[DataType.BINARY.code] = valueToAssign;
+			const encryptor = this._getEncryptor();
+
+			if (encryptor !== null) {
+				const cipher = crypto.createCipher(encryptor.type.code, encryptor.password);
+
+				serialized = Buffer.concat([ cipher.update(bufferToAssign), cipher.final() ]);
+			}
+
+			wrapper[DataType.BINARY.code] = serialized;
 
 			return wrapper;
 		}
@@ -50,19 +63,27 @@ module.exports = (() => {
 		deserialize(wrapper) {
 			const value = wrapper[DataType.BINARY.code];
 
-			const compressionType = this._getCompressionType();
+			let deserialized;
 
-			let returnRef;
+			const encryptor = this._getEncryptor();
 
-			if (compressionType === CompressionType.DEFLATE) {
-				returnRef = zlib.inflateSync(value);
-			} else if (compressionType === CompressionType.ZIP) {
-				returnRef = zlib.gunzipSync(value);
-			} else {
-				returnRef = value;
+			if (encryptor !== null) {
+				const decipher = crypto.createDecipher(encryptor.type.code, encryptor.password);
+
+				deserialized = Buffer.concat([ decipher.update(value) , decipher.final() ]);
 			}
 
-			return returnRef;
+			const compressionType = this._getCompressionType();
+
+			if (compressionType === CompressionType.DEFLATE) {
+				deserialized = zlib.inflateSync(value);
+			} else if (compressionType === CompressionType.ZIP) {
+				deserialized = zlib.gunzipSync(value);
+			} else {
+				deserialized = value;
+			}
+
+			return deserialized;
 		}
 
 		/**

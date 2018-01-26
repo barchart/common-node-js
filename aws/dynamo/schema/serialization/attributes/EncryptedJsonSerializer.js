@@ -1,9 +1,6 @@
-const crypto = require('crypto');
-
 const assert = require('@barchart/common-js/lang/assert');
 
-const CompressedBinarySerializer = require('./CompressedBinarySerializer'),
-	DelegateSerializer = require('./DelegateSerializer');
+const CompressedJsonSerializer = require('./CompressedJsonSerializer');
 
 module.exports = (() => {
 	'use strict';
@@ -13,41 +10,21 @@ module.exports = (() => {
 	 * representation used on a DynamoDB record.
 	 *
 	 * @public
-	 * @extends {DelegateSerializer}
+	 * @extends {CompressedJsonSerializer}
 	 */
-	class EncryptedJsonSerializer extends DelegateSerializer {
+	class EncryptedJsonSerializer extends CompressedJsonSerializer {
 		constructor(attribute) {
-			super(CompressedBinarySerializer.INSTANCE, serializeBuffer, deserializeBuffer);
+			super(attribute);
+		}
 
-			this._attribute = attribute;
+		_getEncryptor() {
+			return this._getAttribute().encryptor;
 		}
 
 		toString() {
 			return '[EncryptedJsonSerializer]';
 		}
 	}
-
-	function serializeBuffer(value) {
-		assert.argumentIsRequired(value, 'value', Object);
-
-		const encryptor = this._attribute.encryptor;
-		const cipher = crypto.createCipher(encryptor.type.code, encryptor.password);
-
-		const buffer = Buffer.from(JSON.stringify(value));
-
-		return Buffer.concat([ cipher.update(buffer), cipher.final() ]);
-	}
-
-	function deserializeBuffer(value) {
-		const encryptor = this._attribute.encryptor;
-		const decipher = crypto.createDecipher(encryptor.type.code, encryptor.password);
-
-		const decrypted = Buffer.concat([ decipher.update(value) , decipher.final() ]);
-
-		return JSON.parse(decrypted.toString());
-	}
-
-	const instance = new EncryptedJsonSerializer();
 
 	return EncryptedJsonSerializer;
 })();

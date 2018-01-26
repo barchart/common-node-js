@@ -1,10 +1,6 @@
-const crypto = require('crypto'),
-	zlib = require('zlib');
-
 const assert = require('@barchart/common-js/lang/assert');
 
-const CompressedBinarySerializer = require('./CompressedBinarySerializer'),
-	DelegateSerializer = require('./DelegateSerializer');
+const CompressedStringSerializer = require('./CompressedStringSerializer');
 
 module.exports = (() => {
 	'use strict';
@@ -14,41 +10,21 @@ module.exports = (() => {
 	 * representation used on a DynamoDB record.
 	 *
 	 * @public
-	 * @extends {DelegateSerializer}
+	 * @extends {CompressedStringSerializer}
 	 */
-	class EncryptedStringSerializer extends DelegateSerializer {
+	class EncryptedStringSerializer extends CompressedStringSerializer {
 		constructor(attribute) {
-			super(CompressedBinarySerializer.INSTANCE, serializeBuffer, deserializeBuffer);
+			super(attribute);
+		}
 
-			this._attribute = attribute;
+		_getEncryptor() {
+			return this._getAttribute().encryptor;
 		}
 
 		toString() {
 			return '[EncryptedStringSerializer]';
 		}
 	}
-
-	function serializeBuffer(value) {
-		assert.argumentIsRequired(value, 'value', String);
-
-		const encryptor = this._attribute.encryptor;
-		const cipher = crypto.createCipher(encryptor.type.code, encryptor.password);
-
-		const buffer = zlib.deflateSync(Buffer.from(value));
-
-		return Buffer.concat([ cipher.update(buffer), cipher.final() ]);
-	}
-
-	function deserializeBuffer(value) {
-		const encryptor = this._attribute.encryptor;
-		const decipher = crypto.createDecipher(encryptor.type.code, encryptor.password);
-
-		const decrypted = zlib.inflateSync(Buffer.concat([ decipher.update(value), decipher.final() ]));
-
-		return decrypted.toString();
-	}
-
-	const instance = new EncryptedStringSerializer();
 
 	return EncryptedStringSerializer;
 })();

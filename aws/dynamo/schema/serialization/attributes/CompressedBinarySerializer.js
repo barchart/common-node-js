@@ -27,8 +27,12 @@ module.exports = (() => {
 			this._attribute = attribute;
 		}
 
+		_getAttribute() {
+			return this._attribute;
+		}
+
 		_getCompressionType() {
-			return this._attribute.compressionType || CompressionType.DEFLATE;
+			return this._getAttribute().compressionType || CompressionType.DEFLATE;
 		}
 
 		toString() {
