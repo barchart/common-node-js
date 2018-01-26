@@ -1,5 +1,4 @@
-const crypto = require('crypto'),
-	zlib = require('zlib');
+const crypto = require('crypto');
 
 const assert = require('@barchart/common-js/lang/assert');
 
@@ -34,7 +33,7 @@ module.exports = (() => {
 		const encryptor = this._attribute.encryptor;
 		const cipher = crypto.createCipher(encryptor.type.code, encryptor.password);
 
-		const buffer = zlib.deflateSync(Buffer.from(JSON.stringify(value)));
+		const buffer = Buffer.from(JSON.stringify(value));
 
 		return Buffer.concat([ cipher.update(buffer), cipher.final() ]);
 	}
@@ -45,7 +44,7 @@ module.exports = (() => {
 
 		const decrypted = Buffer.concat([ decipher.update(value) , decipher.final() ]);
 
-		return JSON.parse(zlib.inflateSync(decrypted.toString()));
+		return JSON.parse(decrypted.toString());
 	}
 
 	const instance = new EncryptedJsonSerializer();
