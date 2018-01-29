@@ -82,12 +82,16 @@ module.exports = (() => {
 		 */
 		static getInstance() {
 			if (instance === null) {
-				const matches = process.env.AWS_LAMBDA_FUNCTION_NAME.match(/^(.*)-(dev|stage|prod)$/);
-
-				if (Array.isArray(matches) && matches.length === 3) {
-					instance = new LambdaEnvironment(matches[2], matches[1]);
+				if (process.env.NODE_ENV) {
+					instance = new LambdaEnvironment(process.env.NODE_ENV);
 				} else {
-					instance = new LambdaEnvironment('dev');
+					const matches = process.env.AWS_LAMBDA_FUNCTION_NAME.match(/^(.*)-(dev|stage|prod)$/);
+
+					if (Array.isArray(matches) && matches.length === 3) {
+						instance = new LambdaEnvironment(matches[2], matches[1]);
+					} else {
+						instance = new LambdaEnvironment('dev');
+					}
 				}
 			}
 
