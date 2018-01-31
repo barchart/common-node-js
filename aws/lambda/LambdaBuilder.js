@@ -19,8 +19,8 @@ const HttpProvider = require('./../../network/http/HttpProvider'),
 module.exports = (() => {
 	'use strict';
 
-	if (is.string(process.env.log4js)) {
-		log4js.configure(process.env.log4js);
+	if (is.string(process.env.LOG_CONFIG_PATH)) {
+		log4js.configure(process.env.LOG_CONFIG_PATH);
 	} else {
 		log4js.configure({
 			"categories": {
