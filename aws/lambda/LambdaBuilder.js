@@ -1,3 +1,5 @@
+const process = require('process');
+
 const log4js = require('log4js');
 
 const assert = require('@barchart/common-js/lang/assert'),
@@ -17,20 +19,24 @@ const HttpProvider = require('./../../network/http/HttpProvider'),
 module.exports = (() => {
 	'use strict';
 
-	log4js.configure({
-		"categories": {
-			"default": { "appenders": [ "console" ], "level": "info" },
-		},
-		"appenders": {
-			"console": {
-				"type": "console",
+	if (is.string(process.env.log4js)) {
+		log4js.configure(process.env.log4js);
+	} else {
+		log4js.configure({
+			"categories": {
+				"default": { "appenders": [ "console" ], "level": "info" }
+			},
+			"appenders": {
+				"console": {
+					"type": "console",
 					"layout": {
-					"type": "pattern",
+						"type": "pattern",
 						"pattern": "[%d] [%p] %c - %m%"
+					}
 				}
 			}
-		}
-	});
+		});
+	}
 
 	const logger = log4js.getLogger('lambda/LambdaBuilder');
 
