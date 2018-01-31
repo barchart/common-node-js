@@ -1,3 +1,5 @@
+const process = require('process');
+
 const configurator = require('node-yaml-config'),
 	log4js = require('log4js');
 
