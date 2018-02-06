@@ -127,10 +127,10 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Creates an array of new items.
+		 * Creates multiple items, in an batch operation.
 		 *
 		 * @protected
-		 * @param {Object} items
+		 * @param {Array.<Object>} items
 		 * @returns {Promise}
 		 */
 		_createItems(items) {
