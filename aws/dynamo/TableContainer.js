@@ -155,7 +155,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Scan} scan
-		 * @returns {Promise.<Array<Object>>}
+		 * @returns {Promise.<Array.<Object>>}
 		 */
 		scan(scan) {
 			return Promise.resolve()
@@ -171,7 +171,7 @@ module.exports = (() => {
 		 *
 		 * @protected
 		 * @param {Query} query
-		 * @returns {Promise.<Array<Object>>}
+		 * @returns {Promise.<Array.<Object>>}
 		 */
 		query(query) {
 			return Promise.resolve()
