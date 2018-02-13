@@ -419,6 +419,61 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Removes an item from a table.
+		 *
+		 * @public
+		 * @param {Object} item - The item to delete.
+		 * @param {Table} table - Describes the schema of the table to write to.
+		 * @returns {Promise}
+		 */
+		deleteItem(item, table) {
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsRequired(table, 'table', Table, 'Table');
+					assert.argumentIsRequired(item, 'item', Object);
+
+					checkReady.call(this);
+
+					const qualifiedTableName = table.name;
+
+					const payload = {
+						TableName: table.name
+					};
+
+					payload.Item = Serializer.serialize(item, table);
+
+					const deleteItem = () => {
+						return promise.build((resolveCallback, rejectCallback) => {
+							this._dynamo.deleteItem(payload, (error, data) => {
+								if (error) {
+									const dynamoError = Enum.fromCode(DynamoError, error.code);
+
+									if (dynamoError !== null && dynamoError.retryable) {
+										logger.debug('Encountered retryable error [', error.code, '] while deleting an item from [', qualifiedTableName, ']');
+
+										rejectCallback(error);
+									} else {
+										resolveCallback({ code: DYNAMO_RESULT.FAILURE, error: error });
+									}
+								} else {
+									resolveCallback({ code: DYNAMO_RESULT.SUCCESS });
+								}
+							});
+						});
+					};
+
+					return this._scheduler.backoff(deleteItem)
+						.then((result) => {
+							if (result.code === DYNAMO_RESULT.FAILURE) {
+								throw result.error;
+							}
+
+							return true;
+						});
+				});
+		}
+
+		/**
 		 * Runs a scan against a DynamoDB table (or index) and returns
 		 * all the items matching the scan.
 		 *

@@ -119,7 +119,7 @@ module.exports = (() => {
 					if (!this._validate(item)) {
 						logger.trace('Failed to create item in [', this.definition.name, '] table', item);
 
-						throw new Error(`Unable to insert item in [${this.definition.name}] table`);
+						throw new Error(`Unable to insert item in [${this.definition.name}] table.`);
 					}
 
 					return this._provider.saveItem(item, this.definition, preventOverwrite);
@@ -142,11 +142,33 @@ module.exports = (() => {
 						if (!this._validate(item)) {
 							logger.trace('Failed to create item in [', this.definition.name, '] table', item);
 
-							throw new Error(`Unable to insert item in [${this.definition.name}] table`);
+							throw new Error(`Unable to insert item in [${this.definition.name}] table.`);
 						}
 					});
 
 					return this._provider.createItems(items, this.definition);
+				});
+		}
+
+		/**
+		 * Deletes an item from the table.
+		 *
+		 * @protected
+		 * @param {Object} item
+		 * @returns {Promise}
+		 */
+		_deleteItem(item) {
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
+
+					if (!this._validate(item)) {
+						logger.trace('Failed to delete item from [', this.definition.name, '] table', item);
+
+						throw new Error(`Unable to delete item from [${this.definition.name}] table.`);
+					}
+
+					return this._provider.deleteItem(item, this.definition);
 				});
 		}
 
