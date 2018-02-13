@@ -1,4 +1,6 @@
-const assert = require('@barchart/common-js/lang/assert');
+const assert = require('@barchart/common-js/lang/assert'),
+	attributes = require('@barchart/common-js/lang/attributes'),
+	is = require('@barchart/common-js/lang/is');
 
 const Table = require('./../../schema/definitions/Table');
 
@@ -30,13 +32,29 @@ module.exports = (() => {
 		 * @public
 		 * @param {Object} item - The object to serialize (for DynamoDB).
 		 * @param {Table} table - The schema that controls serialization of the object.
+		 * @param {Boolean=} keysOnly - If true, only the item's key fields will be will be serialized.
 		 * @returns {Object} - The serialized object.
 		 */
-		static serialize(item, table) {
+		static serialize(item, table, keysOnly) {
 			assert.argumentIsRequired(item, 'item', Object);
 			assert.argumentIsRequired(table, 'table', Table, 'Table');
 
-			return getSerializationWriter(table).write(item, { });
+			let itemToSerialize;
+
+			if (is.boolean(keysOnly) && keysOnly) {
+				itemToSerialize = table.keys.reduce((accumulator, key) => {
+					const name = key.attribute.name;
+					const value = attributes.read(item, name);
+
+					attributes.write(accumulator, name, value);
+
+					return accumulator;
+				}, { });
+			} else {
+				itemToSerialize = item;
+			}
+
+			return getSerializationWriter(table).write(itemToSerialize, { });
 		}
 
 		/**

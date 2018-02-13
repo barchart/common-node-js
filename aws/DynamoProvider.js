@@ -440,7 +440,7 @@ module.exports = (() => {
 						TableName: table.name
 					};
 
-					payload.Item = Serializer.serialize(item, table);
+					payload.Key = Serializer.serialize(item, table, true);
 
 					const deleteItem = () => {
 						return promise.build((resolveCallback, rejectCallback) => {
