@@ -289,12 +289,12 @@ module.exports = (() => {
 					}).catch((e) => {
 						if (e instanceof FailureReason) {
 							return e;
+						} else {
+							logger.error('processing failed for run', run);
+							logger.error(e);
+
+							return null;
 						}
-
-						logger.error('processing failed for run', run);
-						logger.error(e);
-
-						return null;
 					}).then((results) => {
 						let outputPromise;
 
