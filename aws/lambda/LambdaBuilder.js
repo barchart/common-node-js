@@ -3,6 +3,7 @@ const process = require('process');
 const log4js = require('log4js');
 
 const assert = require('@barchart/common-js/lang/assert'),
+	FailureReason = require('@barchart/common-js/api/failures/FailureReason'),
 	is = require('@barchart/common-js/lang/is'),
 	Serializer = require('@barchart/common-js/timing/Serializer');
 
@@ -286,6 +287,10 @@ module.exports = (() => {
 
 						return context.results;
 					}).catch((e) => {
+						if (e instanceof FailureReason) {
+							return e;
+						}
+
 						logger.error('processing failed for run', run);
 						logger.error(e);
 
@@ -510,7 +515,16 @@ module.exports = (() => {
 			return (results) => {
 				let response;
 
-				if (!is.array(results) || results.length !== 1 || is.null(results[0]) || is.undefined(results[0])) {
+				if (results instanceof FailureReason) {
+					response = {
+						statusCode: FailureReason.getHttpStatusCode(results),
+						body: results,
+						headers: {
+							"Content-Type": 'application/json',
+							"Access-Control-Allow-Origin": "*"
+						}
+					};
+				} else if (!is.array(results) || results.length !== 1 || is.null(results[0]) || is.undefined(results[0])) {
 					logger.error('Input processing returned an unexpected result, unable to formulate HTTP response.');
 
 					response = {
