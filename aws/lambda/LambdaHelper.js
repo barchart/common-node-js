@@ -91,10 +91,14 @@ module.exports = (() => {
 				}).then((response) => {
 					responder.send(response);
 				}).catch((e) => {
-					console.log(e);
+					let failure;
 
-					const failure = FailureReason.forRequest({ endpoint: { description: description }})
-						.addItem(FailureType.REQUEST_GENERAL_FAILURE);
+					if (e instanceof FailureReason) {
+						failure = e;
+					} else {
+						failure = FailureReason.forRequest({ endpoint: { description: description }})
+							.addItem(FailureType.REQUEST_GENERAL_FAILURE);
+					}
 
 					if (responder) {
 						responder.sendError(failure);
