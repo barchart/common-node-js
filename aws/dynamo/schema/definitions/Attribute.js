@@ -96,7 +96,7 @@ module.exports = (() => {
 				throw new Error('Attribute data type is invalid.');
 			}
 
-			if (this._derivation && (this._derivation instanceof Derivation)) {
+			if (this._derivation && !(this._derivation instanceof Derivation)) {
 				throw new Error('Attribute derivation must be an instance of Derivation.');
 			}
 
