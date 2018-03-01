@@ -29,7 +29,7 @@ module.exports = (() => {
 		 */
 		static getLogger() {
 			if (logger === null) {
-				log4js.configure(require('./' + process.env.LOG4JS_PATH));
+				log4js.configure(process.env.LOG_CONFIG_PATH);
 
 				logger = log4js.getLogger();
 			}
