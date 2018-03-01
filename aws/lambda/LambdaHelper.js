@@ -27,9 +27,9 @@ module.exports = (() => {
 		 * @public
 		 * @returns {Object}
 		 */
-		static getLogger() {
+		static getLogger(configuration) {
 			if (logger === null) {
-				log4js.configure(process.env.LOG_CONFIG_PATH);
+				log4js.configure(configuration);
 
 				logger = log4js.getLogger();
 			}
