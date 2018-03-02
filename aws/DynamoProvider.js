@@ -576,13 +576,13 @@ module.exports = (() => {
 										}
 									}
 								});
-							}).then((results) => {
-								if (results.code === DYNAMO_RESULT.FAILURE) {
-									return Promise.reject(results.error);
-								} else {
-									return Promise.resolve(results);
-								}
 							});
+						}).then((results) => {
+							if (results.code === DYNAMO_RESULT.FAILURE) {
+								return Promise.reject(results.error);
+							} else {
+								return Promise.resolve(results);
+							}
 						});
 					};
 
