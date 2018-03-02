@@ -499,9 +499,15 @@ module.exports = (() => {
 
 								this._dynamo.scan(options, (error, data) => {
 									if (error) {
-										logger.error(error);
+										const dynamoError = Enum.fromCode(DynamoError, error.code);
 
-										rejectCallback('Failed to scan DynamoDB table', error);
+										if (dynamoError !== null && dynamoError.retryable) {
+											logger.debug('Encountered retryable error [', error.code, '] while scanning [', scan.table.name, ']');
+
+											rejectCallback(error);
+										} else {
+											resolveCallback({ code: DYNAMO_RESULT.FAILURE, error: error });
+										}
 									} else {
 										const results = data.Items.map(i => Serializer.deserialize(i, scan.table));
 
@@ -516,6 +522,12 @@ module.exports = (() => {
 									}
 								});
 							});
+						}).then((results) => {
+							if (results.code === DYNAMO_RESULT.FAILURE) {
+								return Promise.reject(results.error);
+							} else {
+								return Promise.resolve(results);
+							}
 						});
 					};
 
@@ -524,6 +536,10 @@ module.exports = (() => {
 					logger.debug('Ran [', scan.description, '] on [', scan.table.name + (scan.index ? '/ ' + scan.index.name : ''), '] and matched [', results.length ,'] results.');
 
 					return results;
+				}).catch((e) => {
+					logger.error('Failed to run [', scan.description, '] on [', scan.table.name + (scan.index ? '/' + scan.index.name : ''), ']', e);
+
+					return Promise.reject(e);
 				});
 		}
 
@@ -542,7 +558,6 @@ module.exports = (() => {
 
 					checkReady.call(this);
 
-					const qualifiedTableName = query.table.name;
 					const options = query.toQuerySchema();
 
 					const runQueryRecursive = (previous) => {
@@ -557,7 +572,7 @@ module.exports = (() => {
 										const dynamoError = Enum.fromCode(DynamoError, error.code);
 
 										if (dynamoError !== null && dynamoError.retryable) {
-											logger.debug('Encountered retryable error [', error.code, '] while querying [', qualifiedTableName, ']');
+											logger.debug('Encountered retryable error [', error.code, '] while querying [', query.table.name, ']');
 
 											rejectCallback(error);
 										} else {
