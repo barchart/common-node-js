@@ -68,7 +68,7 @@ module.exports = (() => {
 		 * @param {Object} record
 		 * @return {*|null}
 		 */
-		getHashKey(record) {
+		getRangeKey(record) {
 			assert.argumentIsRequired(record, 'record', Object);
 
 			return attributes.read(record, this._definition.rangeKey.attribute.name);
