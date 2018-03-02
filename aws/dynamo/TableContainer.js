@@ -1,6 +1,7 @@
 const log4js = require('log4js');
 
 const assert = require('@barchart/common-js/lang/assert'),
+	attributes = require('@barchart/common-js/lang/attributes'),
 	Disposable = require('@barchart/common-js/lang/Disposable'),
 	is = require('@barchart/common-js/lang/is'),
 	promise = require('@barchart/common-js/lang/promise');
@@ -45,6 +46,32 @@ module.exports = (() => {
 		 */
 		get definition() {
 			return this._definition;
+		}
+
+		/**
+		 * Given a record, return's the record's hash key value.
+		 *
+		 * @public
+		 * @param {Object} record
+		 * @return {*|null}
+		 */
+		getHashKey(record) {
+			assert.argumentIsRequired(record, 'record', Object);
+
+			return attributes.read(record, this._definition.hashKey.attribute.name);
+		}
+
+		/**
+		 * Given a record, return's the record's range key value (or a null value).
+		 *
+		 * @public
+		 * @param {Object} record
+		 * @return {*|null}
+		 */
+		getHashKey(record) {
+			assert.argumentIsRequired(record, 'record', Object);
+
+			return attributes.read(record, this._definition.rangeKey.attribute.name);
 		}
 
 		/**

@@ -53,6 +53,26 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Returns the table's hash {@link Key}.
+		 *
+		 * @public
+		 * @returns {Key|null}
+		 */
+		get hashKey() {
+			return this._keys.find(k => k.keyType === KeyType.HASH) || null;
+		}
+
+		/**
+		 * Returns the table's range {@link Key}.
+		 *
+		 * @public
+		 * @returns {Key|null}
+		 */
+		get rangeKey() {
+			return this._keys.find(k => k.keyType === KeyType.RANGE) || null;
+		}
+
+		/**
 		 * The indicies of the table.
 		 *
 		 * @public
