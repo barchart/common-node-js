@@ -542,6 +542,7 @@ module.exports = (() => {
 
 					checkReady.call(this);
 
+					const qualifiedTableName = this.query.table.name;
 					const options = query.toQuerySchema();
 
 					const runQueryRecursive = (previous) => {
@@ -553,9 +554,15 @@ module.exports = (() => {
 
 								this._dynamo.query(options, (error, data) => {
 									if (error) {
-										logger.error(error);
+										const dynamoError = Enum.fromCode(DynamoError, error.code);
 
-										rejectCallback('Failed to query DynamoDB table', error);
+										if (dynamoError !== null && dynamoError.retryable) {
+											logger.debug('Encountered retryable error [', error.code, '] while querying [', qualifiedTableName, ']');
+
+											rejectCallback(error);
+										} else {
+											resolveCallback({ code: DYNAMO_RESULT.FAILURE, error: error });
+										}
 									} else {
 										const results = data.Items.map(i => Serializer.deserialize(i, query.table));
 
@@ -569,6 +576,12 @@ module.exports = (() => {
 										}
 									}
 								});
+							}).then((result) => {
+								if (result.code === DYNAMO_RESULT.FAILURE) {
+									throw result.error;
+								}
+
+								return result;
 							});
 						});
 					};
