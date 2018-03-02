@@ -578,10 +578,10 @@ module.exports = (() => {
 								});
 							}).then((results) => {
 								if (results.code === DYNAMO_RESULT.FAILURE) {
-									throw results.error;
+									return Promise.reject(results.error);
+								} else {
+									return Promise.resolve(results);
 								}
-
-								return results;
 							});
 						});
 					};
@@ -591,6 +591,10 @@ module.exports = (() => {
 					logger.debug('Ran [', query.description, '] on [', query.table.name + (query.index ? '/' + query.index.name : ''), '] and matched [', results.length ,'] results.');
 
 					return results;
+				}).catch((e) => {
+					logger.error('Failed to run [', query.description, '] on [', query.table.name + (query.index ? '/' + query.index.name : ''), ']', e);
+
+					return Promise.reject(e);
 				});
 		}
 
