@@ -542,7 +542,7 @@ module.exports = (() => {
 
 					checkReady.call(this);
 
-					const qualifiedTableName = this.query.table.name;
+					const qualifiedTableName = query.table.name;
 					const options = query.toQuerySchema();
 
 					const runQueryRecursive = (previous) => {
@@ -576,12 +576,12 @@ module.exports = (() => {
 										}
 									}
 								});
-							}).then((result) => {
-								if (result.code === DYNAMO_RESULT.FAILURE) {
-									throw result.error;
+							}).then((results) => {
+								if (results.code === DYNAMO_RESULT.FAILURE) {
+									throw results.error;
 								}
 
-								return result;
+								return results;
 							});
 						});
 					};
