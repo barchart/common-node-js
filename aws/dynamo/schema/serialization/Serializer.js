@@ -52,7 +52,7 @@ module.exports = (() => {
 				}, { });
 			}
 
-			return serialized
+			return serialized;
 		}
 
 		/**
