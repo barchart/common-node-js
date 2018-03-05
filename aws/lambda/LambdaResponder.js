@@ -80,6 +80,17 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Sends a raw response payload
+		 *
+		 * @param {Object|String} response
+		 */
+		sendRaw(response) {
+			this._complete = true;
+
+			this._callback(null, response);
+		}
+
+		/**
 		 * Sets and transmits the response.
 		 *
 		 * @public
