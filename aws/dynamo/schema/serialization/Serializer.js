@@ -39,22 +39,20 @@ module.exports = (() => {
 			assert.argumentIsRequired(item, 'item', Object);
 			assert.argumentIsRequired(table, 'table', Table, 'Table');
 
-			let itemToSerialize;
+			let serialized = getSerializationWriter(table).write(item, { });
 
 			if (is.boolean(keysOnly) && keysOnly) {
-				itemToSerialize = table.keys.reduce((accumulator, key) => {
+				serialized = table.keys.reduce((accumulator, key) => {
 					const name = key.attribute.name;
-					const value = attributes.read(item, name);
+					const value = serialized[name];
 
-					attributes.write(accumulator, name, value);
+					accumulator[name] = value;
 
 					return accumulator;
 				}, { });
-			} else {
-				itemToSerialize = item;
 			}
 
-			return getSerializationWriter(table).write(itemToSerialize, { });
+			return serialized
 		}
 
 		/**
