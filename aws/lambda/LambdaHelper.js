@@ -101,6 +101,10 @@ module.exports = (() => {
 							.addItem(FailureType.REQUEST_GENERAL_FAILURE);
 					}
 
+					if (logger) {
+						logger.error(e);
+					}
+
 					if (responder) {
 						responder.sendError(failure);
 					}
