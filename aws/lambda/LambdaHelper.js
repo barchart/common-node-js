@@ -95,7 +95,7 @@ module.exports = (() => {
 					let failure;
 
 					if (e instanceof FailureReason) {
-						failure = e;
+						failure = e.format();
 					} else {
 						failure = FailureReason.forRequest({ endpoint: { description: description }})
 							.addItem(FailureType.REQUEST_GENERAL_FAILURE);
