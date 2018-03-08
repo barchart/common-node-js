@@ -91,6 +91,7 @@ module.exports = (() => {
 		 * Creates a {@link DataType} for an {@link Enum}.
 		 *
 		 * @public
+		 * @static
 		 * @param {Function} EnumerationType - A type that inherits {@link Enum}
 		 * @param {String} description
 		 * @returns {DataType}
@@ -102,8 +103,9 @@ module.exports = (() => {
 		/**
 		 * References a {@link Buffer} instance.
 		 *
+		 * @public
+		 * @static
 		 * @returns {DataType}
-		 * @constructor
 		 */
 		static get BINARY() {
 			return dataTypeBinary;
@@ -113,6 +115,7 @@ module.exports = (() => {
 		 * References a Boolean value.
 		 *
 		 * @public
+		 * @static
 		 * @returns {DataType}
 		 */
 		static get BOOLEAN() {
@@ -123,6 +126,7 @@ module.exports = (() => {
 		 * References a number.
 		 *
 		 * @public
+		 * @static
 		 * @returns {DataType}
 		 */
 		static get NUMBER() {
@@ -133,6 +137,7 @@ module.exports = (() => {
 		 * References a string.
 		 *
 		 * @public
+		 * @static
 		 * @returns {DataType}
 		 */
 		static get STRING() {
@@ -143,6 +148,7 @@ module.exports = (() => {
 		 * References an object (serialized as JSON).
 		 *
 		 * @public
+		 * @static
 		 * @returns {DataType}
 		 */
 		static get JSON() {
@@ -153,6 +159,7 @@ module.exports = (() => {
 		 * References a {@link Day} instance.
 		 *
 		 * @public
+		 * @static
 		 * @returns {DataType}
 		 */
 		static get DAY() {
@@ -163,6 +170,7 @@ module.exports = (() => {
 		 * References a {@link Decimal} instance.
 		 *
 		 * @public
+		 * @static
 		 * @returns {DataType}
 		 */
 		static get DECIMAL() {
@@ -173,6 +181,7 @@ module.exports = (() => {
 		 * References a {@link Timestamp} instance.
 		 *
 		 * @public
+		 * @static
 		 * @returns {DataType}
 		 */
 		static get TIMESTAMP() {
@@ -182,8 +191,9 @@ module.exports = (() => {
 		/**
 		 * References a {@link Buffer} instance (serialized with compression).
 		 *
+		 * @public
+		 * @static
 		 * @returns {DataType}
-		 * @constructor
 		 */
 		static get BINARY_COMPRESSED() {
 			return dataTypeBinaryCompressed;
@@ -193,6 +203,7 @@ module.exports = (() => {
 		 * References a string (serialized with compression).
 		 *
 		 * @public
+		 * @static
 		 * @returns {DataType}
 		 */
 		static get STRING_COMPRESSED() {
@@ -203,6 +214,7 @@ module.exports = (() => {
 		 * References a string (serialized with compression and then encrypted).
 		 *
 		 * @public
+		 * @static
 		 * @returns {DataType}
 		 */
 		static get STRING_ENCRYPTED() {
@@ -213,6 +225,7 @@ module.exports = (() => {
 		 * References an object (serialized as JSON, and using compression).
 		 *
 		 * @public
+		 * @static
 		 * @returns {DataType}
 		 */
 		static get JSON_COMPRESSED() {
@@ -223,6 +236,7 @@ module.exports = (() => {
 		 * References an object (serialized as JSON, compression, and encrypted).
 		 *
 		 * @public
+		 * @static
 		 * @returns {DataType}
 		 */
 		static get JSON_ENCRYPTED() {
@@ -230,9 +244,32 @@ module.exports = (() => {
 		}
 
 		/**
+		 * References an {@link AdHoc} instance (serialized with compression).
+		 *
+		 * @public
+		 * @static
+		 * @returns {DataType}
+		 */
+		static get AD_HOC_COMPRESSED() {
+			return dataTypeAdHocCompressed;
+		}
+
+		/**
+		 * References an {@link AdHoc} instance (serialized with compression and encrypted).
+		 *
+		 * @public
+		 * @static
+		 * @returns {DataType}
+		 */
+		static get AD_HOC_ENCRYPTED() {
+			return dataTypeAdHocEncrypted;
+		}
+
+		/**
 		 * Description of the data type (or null, if no known {@link DataType} can be found).
 		 *
 		 * @public
+		 * @static
 		 * @param {string} code - The code of the {@link DataType} instance to find.
 		 * @returns {DataType|null}
 		 */
@@ -269,6 +306,9 @@ module.exports = (() => {
 	const dataTypeStringEncrypted = new DataType('B', 'String (Encrypted)', null, true, true);
 	const dataTypeJsonEncrypted = new DataType('B', 'Json (Encrypted)', null, true, true);
 
+	const dataTypeAdHocCompressed = new DataType('B', 'Ad Hoc (Compressed)', true, false);
+	const dataTypeAdHocEncrypted = new DataType('B', 'Ad Hoc (Encrypted)', true, true);
+
 	const dataTypes = [
 		dataTypeNumber,
 		dataTypeBoolean,
@@ -282,7 +322,9 @@ module.exports = (() => {
 		dataTypeDay,
 		dataTypeTimestamp,
 		dataTypeBinary,
-		dataTypeBinaryCompressed
+		dataTypeBinaryCompressed,
+		dataTypeAdHocCompressed,
+		dataTypeAdHocEncrypted
 	];
 
 	return DataType;
