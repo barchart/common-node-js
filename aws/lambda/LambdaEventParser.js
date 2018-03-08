@@ -31,7 +31,7 @@ module.exports = (() => {
 		 * @returns {Boolean}
 		 */
 		get plainText() {
-			return this.getQueryString('mode') === 'text';
+			return this.getQuerystring('mode') === 'text';
 		}
 
 		/**
