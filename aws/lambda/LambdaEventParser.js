@@ -87,6 +87,35 @@ module.exports = (() => {
 				return payload;
 			}
 		}
+
+		/**
+		 * Attempts to serialize JSON string into the given schema
+		 *
+		 * @param {String} jsonString
+		 * @param {Schema} schema
+		 * @param {String} description
+		 * @returns {String}
+		 */
+		parseSchema(jsonString, schema, description) {
+			const failureDescription = description || 'deserialize JSON string';
+
+			return new Promise((resolve, reject) => {
+				let serialized;
+
+				try {
+					const reviver = schema.schema.getReviver();
+
+					serialized = JSON.parse(jsonString, reviver);
+				} catch (e) {
+					const failure = FailureReason.forRequest({endpoint: {description: failureDescription}})
+						.addItem(FailureType.SCHEMA_VALIDATION_FAILURE, {key: e.key, name: e.name});
+
+					reject(failure);
+				}
+
+				resolve(serialized);
+			});
+		}
 	}
 
 	function read(object, key) {
