@@ -99,9 +99,5 @@ module.exports = (() => {
 		}
 	}
 
-	function getRequestInputMalformed(action, parameter) {
-
-	}
-
 	return LambdaEventParser;
 })();
