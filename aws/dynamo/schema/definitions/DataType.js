@@ -306,8 +306,8 @@ module.exports = (() => {
 	const dataTypeStringEncrypted = new DataType('B', 'String (Encrypted)', null, true, true);
 	const dataTypeJsonEncrypted = new DataType('B', 'Json (Encrypted)', null, true, true);
 
-	const dataTypeAdHocCompressed = new DataType('B', 'Ad Hoc (Compressed)', true, false);
-	const dataTypeAdHocEncrypted = new DataType('B', 'Ad Hoc (Encrypted)', true, true);
+	const dataTypeAdHocCompressed = new DataType('B', 'Ad Hoc (Compressed)', null, true, false);
+	const dataTypeAdHocEncrypted = new DataType('B', 'Ad Hoc (Encrypted)', null, true, true);
 
 	const dataTypes = [
 		dataTypeNumber,
