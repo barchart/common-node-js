@@ -1,6 +1,8 @@
 const assert = require('@barchart/common-js/lang/assert'),
 	attributes = require('@barchart/common-js/lang/attributes'),
-	is = require('@barchart/common-js/lang/is');
+	Enum = require('@barchart/common-js/lang/Enum'),
+	is = require('@barchart/common-js/lang/is'),
+	promise = require('@barchart/common-js/lang/promise');
 
 const FailureReason = require('@barchart/common-js/api/failures/FailureReason'),
 	FailureType = require('@barchart/common-js/api/failures/FailureType');
@@ -61,7 +63,7 @@ module.exports = (() => {
 		 * @param {String} key
 		 * @returns {String|undefined}
 		 */
-		getQueryString(key) {
+		getQuerystring(key) {
 			return read(this._event.queryStringParameters, key);
 		}
 
@@ -89,6 +91,29 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Attempts to determine the correct schema based on the querystring.
+		 *
+		 * @public
+		 * @param {Function} type
+		 * @returns {Schema|null}
+		 */
+		getSchema(type) {
+			assert.argumentIsValid(base, 'base', x => is.extension(Enum, base), 'is an enumeration');
+
+			const code = this.getQuerystring('schema');
+
+			let schema;
+
+			if (code) {
+				schema = Enum.fromCode(type, code);
+			} else {
+				schema = type.CLIENT;
+			}
+
+			return schema || null;
+		}
+
+		/**
 		 * Attempts to serialize JSON string into the given schema
 		 *
 		 * @param {String} jsonString
@@ -97,23 +122,19 @@ module.exports = (() => {
 		 * @returns {String}
 		 */
 		parseSchema(jsonString, schema, description) {
-			const failureDescription = description || 'deserialize JSON string';
-
-			return new Promise((resolve, reject) => {
+			return promise.build((resolve, reject) => {
 				let serialized;
 
 				try {
 					const reviver = schema.schema.getReviver();
 
-					serialized = JSON.parse(jsonString, reviver);
+					resolve(JSON.parse(jsonString, reviver));
 				} catch (e) {
-					const failure = FailureReason.forRequest({endpoint: {description: failureDescription}})
-						.addItem(FailureType.SCHEMA_VALIDATION_FAILURE, {key: e.key, name: e.name});
+					const failure = FailureReason.forRequest({ endpoint: { description: (description || 'deserialize JSON string') } })
+						.addItem(FailureType.SCHEMA_VALIDATION_FAILURE, { key: e.key, name: e.name });
 
 					reject(failure);
 				}
-
-				resolve(serialized);
 			});
 		}
 	}
