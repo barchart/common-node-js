@@ -98,7 +98,7 @@ module.exports = (() => {
 		 * @returns {Schema|null}
 		 */
 		getSchema(type) {
-			assert.argumentIsValid(base, 'base', x => is.extension(Enum, base), 'is an enumeration');
+			assert.argumentIsValid(base, 'base', x => is.extension(Enum, type), 'is an enumeration');
 
 			const code = this.getQuerystring('schema');
 
