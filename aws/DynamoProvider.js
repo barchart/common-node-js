@@ -131,6 +131,111 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Creates a backup of the table
+		 *
+		 * @public
+		 * @param {string} tableName
+		 * @param {string} backupName
+		 * @returns {Promise.<object>}
+		 */
+		createBackup(tableName, backupName) {
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
+
+					return promise.build((resolve, reject) => {
+						logger.info(`Creating a backup of table [ ${tableName} ]`);
+
+						const query = {
+							TableName: tableName,
+							BackupName: backupName
+						};
+
+						this._dynamo.createBackup(query, (error, data) => {
+							if (error) {
+								logger.error('Failed to create backup', error);
+								reject(error);
+							} else {
+								resolve(data);
+							}
+						});
+					});
+				})
+		}
+
+		/**
+		 * Creates a backup of the table
+		 *
+		 * @public
+		 * @param {string} tableName
+		 * @param {string=} lowerBound
+		 * @param {string=} upperBound
+		 * @returns {Promise.<object>}
+		 */
+		listBackups(tableName, lowerBound, uppperBound) {
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
+
+					return promise.build((resolve, reject) => {
+						logger.info(`Listing the backups for table [ ${tableName} ]`);
+
+						const query = {
+							TableName: tableName
+						};
+
+						if (lowerBound) {
+							query.TimeRangeLoweroBund = lowerBound;
+						}
+
+						if (uppperBound) {
+							query.TimeRangeUpperBound = uppperBound;
+						}
+
+						this._dynamo.listBackups(query, (error, data) => {
+							if (error) {
+								logger.error('Failed listing backups', error);
+								reject(error);
+							} else {
+								resolve(data.BackupSummaries);
+							}
+						});
+					});
+				})
+		}
+
+		/**
+		 * Creates a backup of the table
+		 *
+		 * @public
+		 * @param {string} arn
+		 * @returns {Promise.<object>}
+		 */
+		deleteBackup(arn) {
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
+
+					return promise.build((resolve, reject) => {
+						logger.info(`Deleting a backup of ARN [ ${arn} ]`);
+
+						const query = {
+							BackupArn: arn
+						};
+
+						this._dynamo.deleteBackup(query, (error, data) => {
+							if (error) {
+								logger.error('Failed to delete backup', error);
+								reject(error);
+							} else {
+								resolve(data);
+							}
+						});
+					});
+				})
+		}
+
+		/**
 		 * Gets a list of all table names.
 		 *
 		 * @public
