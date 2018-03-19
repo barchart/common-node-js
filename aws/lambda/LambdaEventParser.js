@@ -64,7 +64,7 @@ module.exports = (() => {
 		 * @returns {String|undefined}
 		 */
 		getQuerystring(key) {
-			return read(this._event.queryStringParameters, key);
+			return read(Object.assign({}, this._event.queryStringParameters), key);
 		}
 
 		/**
