@@ -131,7 +131,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Creates a backup of the table
+		 * Creates a backup of the table.
 		 *
 		 * @public
 		 * @param {string} tableName
@@ -160,7 +160,7 @@ module.exports = (() => {
 							}
 						});
 					});
-				})
+				});
 		}
 
 		/**
@@ -172,7 +172,7 @@ module.exports = (() => {
 		 * @param {string=} upperBound
 		 * @returns {Promise.<object>}
 		 */
-		listBackups(tableName, lowerBound, uppperBound) {
+		listBackups(tableName, lowerBound, upperBound) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
@@ -185,11 +185,11 @@ module.exports = (() => {
 						};
 
 						if (lowerBound) {
-							query.TimeRangeLoweroBund = lowerBound;
+							query.TimeRangeLowerBound = lowerBound;
 						}
 
-						if (uppperBound) {
-							query.TimeRangeUpperBound = uppperBound;
+						if (upperBound) {
+							query.TimeRangeUpperBound = upperBound;
 						}
 
 						this._dynamo.listBackups(query, (error, data) => {
@@ -232,7 +232,7 @@ module.exports = (() => {
 							}
 						});
 					});
-				})
+				});
 		}
 
 		/**
