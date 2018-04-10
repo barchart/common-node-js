@@ -173,7 +173,6 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Table} table
-		 * @param {String} indexName - Name of the index.
 		 * @returns {QueryBuilder}
 		 */
 		static targeting(table) {
