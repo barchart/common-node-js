@@ -93,6 +93,16 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Not equals.
+		 *
+		 * @public
+		 * @returns {OperatorType}
+		 */
+		static get NOT_EQUALS() {
+			return operatorTypeNotEquals;
+		}
+
+		/**
 		 * Greater than.
 		 *
 		 * @public
@@ -180,6 +190,7 @@ module.exports = (() => {
 	// http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.OperatorsAndFunctions.html
 
 	const operatorTypeEquals = new OperatorType('Equals', (f, o) => `${f} = ${o}`, 1, [ KeyType.HASH, KeyType.RANGE ]);
+	const operatorTypeNotEquals = new OperatorType('Equals', (f, o) => `${f} <> ${o}`, 1, [ KeyType.RANGE ]);
 	const operatorTypeGreaterThan = new OperatorType('Greater Than', (f, o) => `${f} > ${o}`, 1, [ KeyType.RANGE ]);
 	const operatorTypeLessThan = new OperatorType('Less Than', (f, o) => `${f} < ${o}`, 1, [ KeyType.RANGE ]);
 	const operatorTypeGreaterThanOrEqualTo = new OperatorType('Greater Than Or Equal To', (f, o) => `${f} >= ${o}`, 1, [ KeyType.RANGE ]);
