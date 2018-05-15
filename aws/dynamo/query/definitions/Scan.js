@@ -1,6 +1,7 @@
 const array = require('@barchart/common-js/lang/array'),
 	assert = require('@barchart/common-js/lang/assert'),
-	is = require('@barchart/common-js/lang/is');
+	is = require('@barchart/common-js/lang/is'),
+	object = require('@barchart/common-js/lang/object');
 
 const Action = require('./Action'),
 	Filter = require('./Filter'),
@@ -120,7 +121,10 @@ module.exports = (() => {
 				const expressionData = Action.getConditionExpressionData(this.table, this._filter);
 
 				schema.FilterExpression = expressionData.expression;
-				schema.ExpressionAttributeValues = expressionData.valueAliases;
+
+				if (object.keys(expressionData.valueAliases).length !== 0) {
+					schema.ExpressionAttributeValues = expressionData.valueAliases;
+				}
 
 				attributes = attributes.concat(this._filter.expressions.map(e => e.attribute));
 			}
