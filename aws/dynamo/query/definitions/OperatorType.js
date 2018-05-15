@@ -188,7 +188,7 @@ module.exports = (() => {
 
 	const operatorTypeBeginsWith = new OperatorType('Begins With', (f, o) => `begins_with(${f}, ${o})`, 1, [ KeyType.RANGE ]);
 
-	const operatorTypeAttributeExists = new OperatorType('Attribute Exists', (f, o) => `attribute_not_exists(${f})`, 0, [ ]);
+	const operatorTypeAttributeExists = new OperatorType('Attribute Exists', (f, o) => `attribute_exists(${f})`, 0, [ ]);
 	const operatorTypeAttributeNotExists = new OperatorType('Attribute Not Exists', (f, o) => `attribute_not_exists(${f})`, 0, [ KeyType.HASH, KeyType.RANGE ]);
 
 	return OperatorType;
