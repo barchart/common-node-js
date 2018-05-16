@@ -148,8 +148,7 @@ module.exports = (() => {
 		 * then returns the current instance.
 		 *
 		 * @public
-		 * @param {ProjectionType} projectionType
-		 * @param {Function} callback - Synchronously called, providing a {@link ProjectionBuilder} tied to the current instance.
+		 * @param {Function} callback - Synchronously called, providing a {@link ProvisionedThroughputBuilder} tied to the current instance.
 		 * @returns {IndexBuilder}
 		 */
 		withProvisionedThroughputBuilder(provisionedThroughputBuilder) {
