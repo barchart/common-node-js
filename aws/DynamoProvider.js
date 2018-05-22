@@ -614,15 +614,31 @@ module.exports = (() => {
 											resolveCallback({ code: DYNAMO_RESULT.FAILURE, error: error });
 										}
 									} else {
-										const results = data.Items.map(i => Serializer.deserialize(i, scan.table));
+										let results;
 
-										if (data.LastEvaluatedKey && (!is.number(options.Limit) || results.length < options.Limit)) {
-											runScanRecursive(data.LastEvaluatedKey)
-												.then((more) => {
-													resolveCallback(results.concat(more));
-												});
-										} else {
-											resolveCallback(results);
+										try {
+											results = data.Items.map(i => Serializer.deserialize(i, scan.table));
+										} catch (e) {
+											logger.error('Unable to deserialize scan results.');
+
+											if (data.Items) {
+												logger.error(data.Items);
+											}
+
+											results = null;
+
+											resolveCallback({ code: DYNAMO_RESULT.FAILURE, error: error });
+										}
+
+										if (results !== null) {
+											if (data.LastEvaluatedKey && (!is.number(options.Limit) || results.length < options.Limit)) {
+												runScanRecursive(data.LastEvaluatedKey)
+													.then((more) => {
+														resolveCallback(results.concat(more));
+													});
+											} else {
+												resolveCallback(results);
+											}
 										}
 									}
 								});
@@ -684,15 +700,31 @@ module.exports = (() => {
 											resolveCallback({ code: DYNAMO_RESULT.FAILURE, error: error });
 										}
 									} else {
-										const results = data.Items.map(i => Serializer.deserialize(i, query.table));
+										let results;
 
-										if (data.LastEvaluatedKey && (!is.number(options.Limit) || results.length < options.Limit)) {
-											runQueryRecursive(data.LastEvaluatedKey)
-												.then((more) => {
-													resolveCallback(results.concat(more));
-												});
-										} else {
-											resolveCallback(results);
+										try {
+											results = data.Items.map(i => Serializer.deserialize(i, query.table));
+										} catch (e) {
+											logger.error('Unable to deserialize scan results.');
+
+											if (data.Items) {
+												logger.error(data.Items);
+											}
+
+											results = null;
+
+											resolveCallback({ code: DYNAMO_RESULT.FAILURE, error: error });
+										}
+
+										if (results !== null) {
+											if (data.LastEvaluatedKey && (!is.number(options.Limit) || results.length < options.Limit)) {
+												runQueryRecursive(data.LastEvaluatedKey)
+													.then((more) => {
+														resolveCallback(results.concat(more));
+													});
+											} else {
+												resolveCallback(results);
+											}
 										}
 									}
 								});
