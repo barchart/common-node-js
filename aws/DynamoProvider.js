@@ -619,7 +619,7 @@ module.exports = (() => {
 										try {
 											results = data.Items.map(i => Serializer.deserialize(i, scan.table));
 										} catch (e) {
-											logger.error('Unable to deserialize scan results.');
+											logger.error('Unable to deserialize scan results.', e);
 
 											if (data.Items) {
 												logger.error(data.Items);
@@ -705,7 +705,7 @@ module.exports = (() => {
 										try {
 											results = data.Items.map(i => Serializer.deserialize(i, query.table));
 										} catch (e) {
-											logger.error('Unable to deserialize query results.');
+											logger.error('Unable to deserialize query results.', e);
 
 											if (data.Items) {
 												logger.error(data.Items);
