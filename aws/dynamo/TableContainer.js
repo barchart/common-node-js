@@ -146,7 +146,7 @@ module.exports = (() => {
 					if (!this._validate(item)) {
 						logger.trace('Failed to create item in [', this.definition.name, '] table', item);
 
-						throw new Error(`Unable to insert item in [${this.definition.name}] table.`);
+						throw new Error(`Unable to insert item into [${this.definition.name}] table.`);
 					}
 
 					return this._provider.saveItem(item, this.definition, preventOverwrite);
@@ -169,7 +169,7 @@ module.exports = (() => {
 						if (!this._validate(item)) {
 							logger.trace('Failed to create item in [', this.definition.name, '] table', item);
 
-							throw new Error(`Unable to insert item in [${this.definition.name}] table.`);
+							throw new Error(`Unable to insert items into [${this.definition.name}] table.`);
 						}
 					});
 
@@ -196,6 +196,30 @@ module.exports = (() => {
 					}
 
 					return this._provider.deleteItem(item, this.definition);
+				});
+		}
+
+		/**
+		 * Deletes multiple items, in an batch operation.
+		 *
+		 * @protected
+		 * @param {Array.<Object>} items
+		 * @returns {Promise}
+		 */
+		_deleteItems(items) {
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
+
+					items.forEach((item) => {
+						if (!this._validate(item)) {
+							logger.trace('Failed to create delete item from [', this.definition.name, '] table', item);
+
+							throw new Error(`Unable to delete items from [${this.definition.name}] table.`);
+						}
+					});
+
+					return this._provider.deleteItems(items, this.definition);
 				});
 		}
 

@@ -436,90 +436,24 @@ module.exports = (() => {
 		createItems(items, table) {
 			return Promise.resolve()
 				.then(() => {
-					assert.argumentIsRequired(table, 'table', Table, 'Table');
-					assert.argumentIsArray(items, 'items');
+					return processBatch.call(this, table, DynamoBatchType.PUT, items);
+				});
+		}
 
-					checkReady.call(this);
-
-					if (items.length === 0) {
-						return;
-					}
-
-					const qualifiedTableName = table.name;
-
-					if (!this._batches.has(qualifiedTableName)) {
-						this._batches.set(qualifiedTableName, new WorkQueue());
-					}
-
-					const workQueue = this._batches.get(qualifiedTableName);
-
-					return workQueue.enqueue(() => {
-						const batchNumber =  workQueue.getCurrent();
-
-						logger.debug('Starting batch insert into [', qualifiedTableName, '] for batch number [', batchNumber, '] with [', items.length, '] items');
-
-						const putBatch = (currentPayload) => {
-							return promise.build((resolveCallback, rejectCallback) => {
-								this._dynamo.batchWriteItem(currentPayload, (error, data) => {
-									if (error) {
-										const dynamoError = Enum.fromCode(DynamoError, error.code);
-
-										if (dynamoError !== null && dynamoError.retryable) {
-											logger.debug('Encountered retryable error [', error.code, '] while putting an item into [', qualifiedTableName, ']');
-
-											rejectCallback(error);
-										} else {
-											resolveCallback({ code: DYNAMO_RESULT.FAILURE, error: error });
-										}
-									} else {
-										let unprocessedItems;
-
-										if (is.object(data.UnprocessedItems) && is.array(data.UnprocessedItems[qualifiedTableName])) {
-											unprocessedItems = data.UnprocessedItems[qualifiedTableName];
-										} else {
-											unprocessedItems = [ ];
-										}
-
-										if (unprocessedItems.length === 0) {
-											resolveCallback({ code: DYNAMO_RESULT.SUCCESS });
-										} else {
-											logger.debug('Continuing batch insert into [', qualifiedTableName, '] for batch number [', batchNumber,'] with [', unprocessedItems.length, '] unprocessed items');
-
-											const continuePayload = getBatchPayload(qualifiedTableName, unprocessedItems);
-
-											this._scheduler.backoff(() => putBatch(continuePayload))
-												.then((continueResult) => {
-													resolveCallback(continueResult);
-												});
-										}
-									}
-								});
-							});
-						};
-
-						const originalPayload = getBatchPayload(qualifiedTableName,
-							items.map((item) => {
-								return {
-									PutRequest: {
-										Item: Serializer.serialize(item, table)
-									}
-								};
-							})
-						);
-
-						return this._scheduler.backoff(() => putBatch(originalPayload))
-							.then((result) => {
-								if (result.code === DYNAMO_RESULT.FAILURE) {
-									logger.error('Failed batch insert into [', qualifiedTableName, '] for batch number [', batchNumber,'] with [', items.length, '] items');
-
-									throw result.error;
-								}
-
-								logger.debug('Finished batch insert into [', qualifiedTableName, '] for batch number [', batchNumber,'] with [', items.length, '] items');
-
-								return true;
-							});
-					});
+		/**
+		 * Removes multiple items to a table. Unlike the {@link DynamoProvider#deleteItem} function,
+		 * batches are processed serially; that is, deletes from a batch must complete before
+		 * deletes from a subsequent batch are started.
+		 *
+		 * @public
+		 * @param {Array<Object>} item - The items to write.
+		 * @param {Table} table - Describes the schema of the table to write to.
+		 * @returns {Promise}
+		 */
+		deleteItems(items, table) {
+			return Promise.resolve()
+				.then(() => {
+					return processBatch.call(this, table, DynamoBatchType.DELETE, items);
 				});
 		}
 
@@ -817,6 +751,94 @@ module.exports = (() => {
 		});
 	}
 
+	function processBatch(table, type, items) {
+		assert.argumentIsRequired(table, 'table', Table, 'Table');
+		assert.argumentIsRequired(type, 'type', DynamoBatchType, 'DynamoBatchType');
+		assert.argumentIsArray(items, 'items');
+
+		checkReady.call(this);
+
+		if (items.length === 0) {
+			return;
+		}
+
+		const qualifiedTableName = table.name;
+
+		if (!this._batches.has(qualifiedTableName)) {
+			this._batches.set(qualifiedTableName, new WorkQueue());
+		}
+
+		const workQueue = this._batches.get(qualifiedTableName);
+
+		return workQueue.enqueue(() => {
+			const batchNumber =  workQueue.getCurrent();
+
+			logger.debug('Starting batch', type.description, 'into [', qualifiedTableName, '] for batch number [', batchNumber, '] with [', items.length, '] items');
+
+			const putBatch = (currentPayload) => {
+				return promise.build((resolveCallback, rejectCallback) => {
+					this._dynamo.batchWriteItem(currentPayload, (error, data) => {
+						if (error) {
+							const dynamoError = Enum.fromCode(DynamoError, error.code);
+
+							if (dynamoError !== null && dynamoError.retryable) {
+								logger.debug('Encountered retryable error [', error.code, '] while running batch', type.description, 'on [', qualifiedTableName, ']');
+
+								rejectCallback(error);
+							} else {
+								resolveCallback({ code: DYNAMO_RESULT.FAILURE, error: error });
+							}
+						} else {
+							let unprocessedItems;
+
+							if (is.object(data.UnprocessedItems) && is.array(data.UnprocessedItems[qualifiedTableName])) {
+								unprocessedItems = data.UnprocessedItems[qualifiedTableName];
+							} else {
+								unprocessedItems = [ ];
+							}
+
+							if (unprocessedItems.length === 0) {
+								resolveCallback({ code: DYNAMO_RESULT.SUCCESS });
+							} else {
+								logger.debug('Continuing batch', type.description,'on [', qualifiedTableName, '] for batch number [', batchNumber,'] with [', unprocessedItems.length, '] unprocessed items');
+
+								const continuePayload = getBatchPayload(qualifiedTableName, unprocessedItems);
+
+								this._scheduler.backoff(() => putBatch(continuePayload))
+									.then((continueResult) => {
+										resolveCallback(continueResult);
+									});
+							}
+						}
+					});
+				});
+			};
+
+			const originalPayload = getBatchPayload(qualifiedTableName,
+				items.map((item) => {
+					const request = { };
+
+					request[type.attribute] = Serializer.serialize(item, table, type.keysOnly);
+
+					return request;
+				})
+			);
+
+			return this._scheduler.backoff(() => putBatch(originalPayload))
+				.then((result) => {
+					if (result.code === DYNAMO_RESULT.FAILURE) {
+						logger.error('Failed batch', type.description, 'on [', qualifiedTableName, '] for batch number [', batchNumber,'] with [', items.length, '] items');
+
+						throw result.error;
+					}
+
+					logger.debug('Finished batch', type.description, 'on [', qualifiedTableName, '] for batch number [', batchNumber,'] with [', items.length, '] items');
+
+					return true;
+				});
+		});
+	}
+
 	function getBatchPayload(tableName, serializedItems) {
 		const payload = {
 			RequestItems: { }
@@ -851,6 +873,38 @@ module.exports = (() => {
 	const dynamoErrorThrottling = new DynamoError('ThrottlingException', 'Throttling Exception', true);
 	const dynamoErrorThroughput = new DynamoError('ProvisionedThroughputExceededException', 'Provisioned Throughput Exceeded Exception', true);
 	const dynamoErrorConditional = new DynamoError('ConditionalCheckFailedException', 'Conditional Check Failed Exception', false);
+
+	class DynamoBatchType extends Enum {
+		constructor(code, description, attribute, keysOnly) {
+			super(code, description);
+
+			this._attribute = attribute;
+			this._keysOnly = keysOnly;
+		}
+
+		get attribute() {
+			return this._attribute;
+		}
+
+		get keysOnly() {
+			return this._keysOnly;
+		}
+
+		static get PUT() {
+			return dynamoBatchPut;
+		}
+
+		static get DELETE() {
+			return dynamoBatchDelete;
+		}
+
+		toString() {
+			return `[DynamoBatchType (code=${this._code})]`;
+		}
+	}
+
+	const dynamoBatchPut = new DynamoBatchType('PUT', 'insert', 'PutRequest', false);
+	const dynamoBatchDelete = new DynamoBatchType('DELETE', 'delete', 'DeleteRequest', true);
 
 	return DynamoProvider;
 })();
