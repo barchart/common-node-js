@@ -23,7 +23,7 @@ module.exports = (() => {
 		 * The {@link Derivation}, given all the information provided thus far.
 		 *
 		 * @public
-		 * @return {Derivation}
+		 * @returns {Derivation}
 		 */
 		get derivation() {
 			return this._derivation;

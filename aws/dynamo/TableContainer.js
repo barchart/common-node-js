@@ -53,7 +53,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Object} record
-		 * @return {*|null}
+		 * @returns {*|null}
 		 */
 		getHashKey(record) {
 			assert.argumentIsRequired(record, 'record', Object);
@@ -66,7 +66,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Object} record
-		 * @return {*|null}
+		 * @returns {*|null}
 		 */
 		getRangeKey(record) {
 			assert.argumentIsRequired(record, 'record', Object);
