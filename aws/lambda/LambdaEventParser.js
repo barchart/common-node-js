@@ -116,6 +116,7 @@ module.exports = (() => {
 		/**
 		 * Attempts to serialize JSON string into the given schema
 		 *
+		 * @public
 		 * @param {String} jsonString
 		 * @param {Schema} schema
 		 * @param {String} description
