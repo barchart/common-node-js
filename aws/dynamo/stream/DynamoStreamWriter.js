@@ -34,9 +34,9 @@ module.exports = (() => {
 			let delegateFactory;
 
 			if (is.boolean(remove) && remove) {
-				delegateFactory = getCreateDelegate;
-			} else {
 				delegateFactory = getDeleteDelegate;
+			} else {
+				delegateFactory = getCreateDelegate;
 			}
 
 			this._delegateFactory = delegateFactory;
