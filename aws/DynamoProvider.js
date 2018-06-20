@@ -775,7 +775,7 @@ module.exports = (() => {
 
 			logger.debug('Starting batch', type.description, 'into [', qualifiedTableName, '] for batch number [', batchNumber, '] with [', items.length, '] items');
 
-			const putBatch = (currentPayload) => {
+			const writeBatch = (currentPayload) => {
 				return promise.build((resolveCallback, rejectCallback) => {
 					this._dynamo.batchWriteItem(currentPayload, (error, data) => {
 						if (error) {
@@ -804,7 +804,7 @@ module.exports = (() => {
 
 								const continuePayload = getBatchPayload(qualifiedTableName, unprocessedItems);
 
-								this._scheduler.backoff(() => putBatch(continuePayload))
+								this._scheduler.backoff(() => writeBatch(continuePayload))
 									.then((continueResult) => {
 										resolveCallback(continueResult);
 									});
@@ -824,7 +824,7 @@ module.exports = (() => {
 				})
 			);
 
-			return this._scheduler.backoff(() => putBatch(originalPayload))
+			return this._scheduler.backoff(() => writeBatch(originalPayload))
 				.then((result) => {
 					if (result.code === DYNAMO_RESULT.FAILURE) {
 						logger.error('Failed batch', type.description, 'on [', qualifiedTableName, '] for batch number [', batchNumber,'] with [', items.length, '] items');
