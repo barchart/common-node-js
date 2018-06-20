@@ -817,10 +817,10 @@ module.exports = (() => {
 			const originalPayload = getBatchPayload(qualifiedTableName,
 				items.map((item) => {
 					const request = { };
-					const item = { };
+					const wrapper = { };
 
-					item[type.requestItemName] = Serializer.serialize(item, table, type.keysOnly);
-					request[type.requestTypeName] = item;
+					wrapper[type.requestItemName] = Serializer.serialize(item, table, type.keysOnly);
+					request[type.requestTypeName] = wrapper;
 
 					return request;
 				})
