@@ -817,8 +817,10 @@ module.exports = (() => {
 			const originalPayload = getBatchPayload(qualifiedTableName,
 				items.map((item) => {
 					const request = { };
+					const item = { };
 
-					request[type.attribute] = Serializer.serialize(item, table, type.keysOnly);
+					item[type.requestItemName] = Serializer.serialize(item, table, type.keysOnly);
+					request[type.requestTypeName] = item;
 
 					return request;
 				})
@@ -875,15 +877,21 @@ module.exports = (() => {
 	const dynamoErrorConditional = new DynamoError('ConditionalCheckFailedException', 'Conditional Check Failed Exception', false);
 
 	class DynamoBatchType extends Enum {
-		constructor(code, description, attribute, keysOnly) {
+		constructor(code, description, requestTypeName, requestItemName, keysOnly) {
 			super(code, description);
 
-			this._attribute = attribute;
+			this._requestTypeName = requestTypeName;
+			this._requestItemName = requestItemName;
+
 			this._keysOnly = keysOnly;
 		}
 
-		get attribute() {
-			return this._attribute;
+		get requestTypeName() {
+			return this._requestTypeName;
+		}
+
+		get requestItemName() {
+			return this._requestItemName;
 		}
 
 		get keysOnly() {
@@ -903,8 +911,8 @@ module.exports = (() => {
 		}
 	}
 
-	const dynamoBatchPut = new DynamoBatchType('PUT', 'insert', 'PutRequest', false);
-	const dynamoBatchDelete = new DynamoBatchType('DELETE', 'delete', 'DeleteRequest', true);
+	const dynamoBatchPut = new DynamoBatchType('PUT', 'insert', 'PutRequest', 'Item', false);
+	const dynamoBatchDelete = new DynamoBatchType('DELETE', 'delete', 'DeleteRequest', 'Key', true);
 
 	return DynamoProvider;
 })();
