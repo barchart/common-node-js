@@ -1,4 +1,6 @@
-const zlib = require('zlib');
+const buffer = require('buffer'),
+	crypto = require('crypto'),
+	zlib = require('zlib');
 
 const assert = require('@barchart/common-js/lang/assert'),
 	is = require('@barchart/common-js/lang/is');
@@ -52,7 +54,7 @@ module.exports = (() => {
 			if (encryptor !== null) {
 				const cipher = crypto.createCipher(encryptor.type.code, encryptor.password);
 
-				serialized = Buffer.concat([ cipher.update(bufferToAssign), cipher.final() ]);
+				serialized = Buffer.concat([ cipher.update(serialized), cipher.final() ]);
 			}
 
 			wrapper[DataType.BINARY.code] = serialized;
@@ -61,7 +63,7 @@ module.exports = (() => {
 		}
 
 		deserialize(wrapper) {
-			const value = wrapper[DataType.BINARY.code];
+			let value = wrapper[DataType.BINARY.code];
 
 			let deserialized;
 
@@ -70,7 +72,7 @@ module.exports = (() => {
 			if (encryptor !== null) {
 				const decipher = crypto.createDecipher(encryptor.type.code, encryptor.password);
 
-				deserialized = Buffer.concat([ decipher.update(value) , decipher.final() ]);
+				value = Buffer.concat([ decipher.update(value), decipher.final() ]);
 			}
 
 			const compressionType = this._getCompressionType();

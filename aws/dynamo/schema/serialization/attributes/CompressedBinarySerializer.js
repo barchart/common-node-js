@@ -34,6 +34,10 @@ module.exports = (() => {
 			return this._getAttribute().compressionType || CompressionType.DEFLATE;
 		}
 
+		_getEncryptor() {
+			return this._getAttribute().encryptor || null;
+		}
+
 		toString() {
 			return '[CompressedBinarySerializer]';
 		}
