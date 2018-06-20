@@ -1,7 +1,7 @@
 var Attribute = require('./../../../../../../../aws/dynamo/schema/definitions/Attribute'),
+	DataType = require('./../../../../../../../aws/dynamo/schema/definitions/DataType'),
 	EncryptionType = require('./../../../../../../../aws/dynamo/schema/definitions/EncryptionType'),
-	Encryptor = require('./../../../../../../../aws/dynamo/schema/definitions/Encryptor'),
-	DataType = require('./../../../../../../../aws/dynamo/schema/definitions/DataType');
+	Encryptor = require('./../../../../../../../aws/dynamo/schema/definitions/Encryptor');
 
 var EncryptedStringSerializer = require('./../../../../../../../aws/dynamo/schema/serialization/attributes/EncryptedStringSerializer');
 
@@ -17,7 +17,7 @@ describe('When a EncryptedStringSerializer is instantiated using the AES-192 alg
 	});
 
 	describe('and a string is serialized', function() {
-		var string = ('abc').repeat(1);
+		var string = ('abc').repeat(10);
 		var serialized;
 
 		beforeEach(function() {
