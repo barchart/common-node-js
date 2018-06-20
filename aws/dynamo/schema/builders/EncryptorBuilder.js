@@ -36,22 +36,22 @@ module.exports = (() => {
 		withEncryptionType(type) {
 			assert.argumentIsRequired(type, 'type', EncryptionType, 'EncryptionType');
 
-			this._encryptor = new Encryptor(type, this._encryptor.password);
+			this._encryptor = new Encryptor(type, this._encryptor.key);
 
 			return this;
 		}
 
 		/**
-		 * Sets the encryption password and returns the current instance.
+		 * Sets the encryption key and returns the current instance.
 		 *
 		 * @public
-		 * @param {String} password
+		 * @param {String} key
 		 * @returns {EncryptorBuilder}
 		 */
-		withPassword(password) {
-			assert.argumentIsRequired(password, 'password', String);
+		withKey(key) {
+			assert.argumentIsRequired(key, 'key', String);
 
-			this._encryptor = new Encryptor(this._encryptor.type, password);
+			this._encryptor = new Encryptor(this._encryptor.type, key);
 
 			return this;
 		}

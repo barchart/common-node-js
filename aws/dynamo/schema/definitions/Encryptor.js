@@ -12,12 +12,12 @@ module.exports = (() => {
 	 *
 	 * @public
 	 * @param {EncyrptionType} type
-	 * @param {String} password
+	 * @param {String} key
 	 */
 	class Encryptor {
-		constructor(type, password) {
+		constructor(type, key) {
 			this._type = type || null;
-			this._password = password || null;
+			this._key = key;
 		}
 
 		/**
@@ -31,13 +31,13 @@ module.exports = (() => {
 		}
 
 		/**
-		 * The password.
+		 * The key.
 		 *
 		 * @public
 		 * @returns {String}
 		 */
-		get password() {
-			return this._password;
+		get key() {
+			return this._key;
 		}
 
 		/**

@@ -1,5 +1,4 @@
-const buffer = require('buffer'),
-	crypto = require('crypto'),
+const crypto = require('crypto'),
 	zlib = require('zlib');
 
 const assert = require('@barchart/common-js/lang/assert'),
@@ -52,9 +51,10 @@ module.exports = (() => {
 			const encryptor = this._getEncryptor();
 
 			if (encryptor !== null) {
-				const cipher = crypto.createCipher(encryptor.type.code, encryptor.password);
+				const initializationVector = crypto.randomBytes(encryptor.type.initializationVectorLength);
+				const cipher = crypto.createCipheriv(encryptor.type.code, encryptor.key, initializationVector);
 
-				serialized = Buffer.concat([ cipher.update(serialized), cipher.final() ]);
+				serialized = Buffer.concat([ initializationVector, cipher.update(serialized), cipher.final() ]);
 			}
 
 			wrapper[DataType.BINARY.code] = serialized;
@@ -63,26 +63,25 @@ module.exports = (() => {
 		}
 
 		deserialize(wrapper) {
-			let value = wrapper[DataType.BINARY.code];
+			const value = wrapper[DataType.BINARY.code];
 
-			let deserialized;
+			let deserialized = value;
 
 			const encryptor = this._getEncryptor();
 
 			if (encryptor !== null) {
-				const decipher = crypto.createDecipher(encryptor.type.code, encryptor.password);
+				const initializationVector = value.slice(0, encryptor.type.initializationVectorLength);
+				const decipher = crypto.createDecipheriv(encryptor.type.code, encryptor.key, initializationVector);
 
-				value = Buffer.concat([ decipher.update(value), decipher.final() ]);
+				deserialized = Buffer.concat([ decipher.update(value.slice(encryptor.type.initializationVectorLength)), decipher.final() ]);
 			}
 
 			const compressionType = this._getCompressionType();
 
 			if (compressionType === CompressionType.DEFLATE) {
-				deserialized = zlib.inflateSync(value);
+				deserialized = zlib.inflateSync(deserialized);
 			} else if (compressionType === CompressionType.ZIP) {
-				deserialized = zlib.gunzipSync(value);
-			} else {
-				deserialized = value;
+				deserialized = zlib.gunzipSync(deserialized);
 			}
 
 			return deserialized;

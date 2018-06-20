@@ -17,10 +17,6 @@ module.exports = (() => {
 			super(attribute);
 		}
 
-		_getEncryptor() {
-			return this._getAttribute().encryptor;
-		}
-
 		toString() {
 			return '[EncryptedAdHocSerializer]';
 		}
