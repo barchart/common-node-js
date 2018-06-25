@@ -74,13 +74,13 @@ module.exports = (() => {
 		 * Sets the encryption strategy for the field.
 		 *
 		 * @param {EncryptionType} encryptionType
-		 * @param {String} password
+		 * @param {String} key
 		 * @returns {AttributeBuilder}
 		 */
-		withEncryptor(encryptionType, password) {
+		withEncryptor(encryptionType, key) {
 			this.withEncryptorBuilder((eb) => {
 				eb.withEncryptionType(encryptionType)
-					.withPassword(password);
+					.withKey(key);
 			});
 			
 			return this;
