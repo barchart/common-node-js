@@ -31,7 +31,7 @@ module.exports = (() => {
 		}
 
 		_getCompressionType() {
-			return this._getAttribute().compressionType || null;
+			return this._getAttribute().compressionType || CompressionType.DEFLATE;
 		}
 
 		_getEncryptor() {
