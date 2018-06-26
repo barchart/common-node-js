@@ -42,7 +42,22 @@ module.exports = (() => {
 		 * @returns {*|undefined}
 		 */
 		getContext(key) {
-			return read(this._event.requestContext.authorizer, key);
+			assert.argumentIsRequired(key, 'key', String);
+
+			return read(this._event, `requestContext.authorizer.${key}`);
+		}
+
+		/**
+		 * Reads a request header.
+		 *
+		 * @public
+		 * @param {String} key
+		 * @returns {*|undefined}
+		 */
+		getHeader(key) {
+			assert.argumentIsRequired(key, 'key', String);
+
+			return read(this._event, `headers.${key}`);
 		}
 
 		/**
@@ -53,7 +68,9 @@ module.exports = (() => {
 		 * @returns {String|undefined}
 		 */
 		getPath(key) {
-			return read(this._event.pathParameters, key);
+			assert.argumentIsRequired(key, 'key', String);
+
+			return read(this._event, `pathParameters.${key}`);
 		}
 
 		/**
@@ -141,8 +158,6 @@ module.exports = (() => {
 	}
 
 	function read(object, key) {
-		assert.argumentIsRequired(key, 'key', String);
-
 		if (is.object(object)) {
 			return attributes.read(object, key);
 		} else {
