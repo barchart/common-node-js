@@ -92,16 +92,22 @@ module.exports = (() => {
 		 * @returns {*}
 		 */
 		getBody(key) {
-			let payload;
-
-			if (is.object(this._event.body)) {
-				payload = this._event.body;
-			} else {
-				payload = this._event.body;
-			}
+			let body = this._event.body;
 
 			if (is.string(key)) {
-				return read(payload, key);
+				let source;
+
+				if (is.string(body)) {
+					try {
+						source = JSON.parse(body);
+					} catch (e) {
+						source = null;
+					}
+				} else {
+					source = body;
+				}
+
+				return read(source, key);
 			} else {
 				return payload;
 			}
