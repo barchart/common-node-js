@@ -109,7 +109,7 @@ module.exports = (() => {
 
 				return read(source, key);
 			} else {
-				return payload;
+				return body;
 			}
 		}
 
