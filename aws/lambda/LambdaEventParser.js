@@ -163,7 +163,7 @@ module.exports = (() => {
 							resolve(JSON.parse(jsonString, reviver));
 						} catch (e) {
 							const failure = FailureReason.forRequest({ endpoint: { description: (description || 'deserialize JSON string') } })
-								.addItem(FailureType.SCHEMA_VALIDATION_FAILURE, { key: e.key, name: e.name, schema: schema.name });
+								.addItem(FailureType.SCHEMA_VALIDATION_FAILURE, { key: e.key, name: e.name, schema: schema.schema.name });
 
 							reject(failure);
 						}
