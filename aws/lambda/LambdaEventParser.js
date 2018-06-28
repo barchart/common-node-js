@@ -3,6 +3,7 @@ const assert = require('@barchart/common-js/lang/assert'),
 	Enum = require('@barchart/common-js/lang/Enum'),
 	is = require('@barchart/common-js/lang/is'),
 	promise = require('@barchart/common-js/lang/promise');
+	Schema = require('@barchart/common-js/serialization/Schema');
 
 const FailureReason = require('@barchart/common-js/api/failures/FailureReason'),
 	FailureType = require('@barchart/common-js/api/failures/FailureType');
@@ -143,23 +144,31 @@ module.exports = (() => {
 		 * @param {String} jsonString
 		 * @param {Schema} schema
 		 * @param {String} description
-		 * @returns {String}
+		 * @returns {Promise.<String>}
 		 */
 		parseSchema(jsonString, schema, description) {
-			return promise.build((resolve, reject) => {
-				let serialized;
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsRequired(jsonString, 'jsonString', String);
+					assert.argumentIsRequired(schema, schema, Object);
+					assert.argumentIsRequired(schema.schema, schema.schema, Schema, 'Schema');
+					assert.argumentIsOptional(description, 'description', String);
+				}).then(() => {
+					return promise.build((resolve, reject) => {
+						let serialized;
 
-				try {
-					const reviver = schema.schema.getReviver();
+						try {
+							const reviver = schema.schema.getReviver();
 
-					resolve(JSON.parse(jsonString, reviver));
-				} catch (e) {
-					const failure = FailureReason.forRequest({ endpoint: { description: (description || 'deserialize JSON string') } })
-						.addItem(FailureType.SCHEMA_VALIDATION_FAILURE, { key: e.key, name: e.name });
+							resolve(JSON.parse(jsonString, reviver));
+						} catch (e) {
+							const failure = FailureReason.forRequest({ endpoint: { description: (description || 'deserialize JSON string') } })
+								.addItem(FailureType.SCHEMA_VALIDATION_FAILURE, { key: e.key, name: e.name, schema: schema.name });
 
-					reject(failure);
-				}
-			});
+							reject(failure);
+						}
+					});
+				});
 		}
 	}
 
