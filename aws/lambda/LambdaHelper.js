@@ -92,17 +92,21 @@ module.exports = (() => {
 				}).then((response) => {
 					responder.send(response);
 				}).catch((e) => {
+					if (logger) {
+						logger.error(e);
+					}
+
 					let failure;
 
 					if (e instanceof FailureReason) {
-						failure = e.format();
+						failure = e;
 					} else {
 						failure = FailureReason.forRequest({ endpoint: { description: description }})
 							.addItem(FailureType.REQUEST_GENERAL_FAILURE);
 					}
 
 					if (logger) {
-						logger.error(e);
+						logger.error(failure.format());
 					}
 
 					if (responder) {
