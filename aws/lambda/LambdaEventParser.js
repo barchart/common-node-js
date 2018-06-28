@@ -151,7 +151,7 @@ module.exports = (() => {
 				.then(() => {
 					assert.argumentIsRequired(jsonString, 'jsonString', String);
 					assert.argumentIsRequired(schema, schema, Object);
-					assert.argumentIsRequired(schema.schema, schema.schema, Schema, 'Schema');
+					assert.argumentIsRequired(schema.schema, 'schema.schema', Schema, 'Schema');
 					assert.argumentIsOptional(description, 'description', String);
 				}).then(() => {
 					return promise.build((resolve, reject) => {
