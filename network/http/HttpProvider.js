@@ -184,7 +184,7 @@ module.exports = (() => {
 		 * @param {Object=} data
 		 * @returns {Promise.<String>}
 		 */
-		callEndpointUri(uri, method, data) {
+		callEndpointUri(uri, method, data, headers) {
 			assert.argumentIsRequired(uri, 'uri', String);
 			assert.argumentIsRequired(method, 'method', String);
 
@@ -200,7 +200,7 @@ module.exports = (() => {
 				port = parseInt(port);
 			}
 
-			return this.callEndpoint(components[2], components[5], components[7], method, components[1].toLowerCase() === 'https', port, data);
+			return this.callEndpoint(components[2], components[5], components[7], method, components[1].toLowerCase() === 'https', port, data, headers);
 		}
 
 		_onDispose() {
