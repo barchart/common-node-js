@@ -75,9 +75,10 @@ module.exports = (() => {
 		 * @param {Boolean=} secure
 		 * @param {Number=} port
 		 * @param {Object=} data
+		 * @param {Object=} headers
 		 * @returns {Promise.<String>}
 		 */
-		callEndpoint(host, path, query, method, secure, port, data) {
+		callEndpoint(host, path, query, method, secure, port, data, headers) {
 			assert.argumentIsRequired(host, 'host', String);
 			assert.argumentIsOptional(path, 'path', String);
 			assert.argumentIsOptional(query, 'query', String);
@@ -125,11 +126,16 @@ module.exports = (() => {
 				method: method,
 				hostname: host,
 				path: pathBuilder.join(''),
-				port: port || (secure ? 443 : 80 ),
-				headers: {
-					'Content-Type': 'application/json'
-				}
+				port: port || (secure ? 443 : 80 )
 			};
+
+			const headersToUse = Object.assign({ }, headers || { });
+
+			if (!headersToUse.hasOwnProperty('Context-Type')) {
+				headersToUse['Content-Type'] = 'application/json';
+			}
+
+			options.headers = headersToUse;
 
 			const counter = this._counter = this._counter + 1;
 
