@@ -4,6 +4,7 @@ const log4js = require('log4js'),
 const assert = require('@barchart/common-js/lang/assert'),
 	Disposable = require('@barchart/common-js/lang/Disposable'),
 	is = require('@barchart/common-js/lang/is'),
+	promise = require('@barchart/common-js/lang/promise'),
 	Scheduler = require('@barchart/common-js/timing/Scheduler');
 
 const http = require('http'),
@@ -142,7 +143,7 @@ module.exports = (() => {
 			logger.info('Beginning HTTP request', counter);
 
 			return this._scheduler.backoff(() => {
-				return new Promise((resolveCallback, rejectCallback) => {
+				return promise.build((resolveCallback, rejectCallback) => {
 					const request = connector.request(options, (response) => {
 						response.setEncoding('utf8');
 
@@ -161,7 +162,7 @@ module.exports = (() => {
 						response.on('end', () => {
 							logger.info('HTTP request', counter, 'completed');
 
-							resolveCallback(responseText);
+							resolveCallback(responseText || 'OK');
 						});
 					});
 
@@ -173,7 +174,7 @@ module.exports = (() => {
 
 					logger.info('HTTP request', counter, 'in flight');
 				});
-			}, 0, 'Call HTTP endpoint', 3);
+			}, 100, 'Call HTTP endpoint', 3);
 		}
 
 		/**
