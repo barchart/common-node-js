@@ -112,6 +112,7 @@ module.exports = (() => {
 		 * the promise is rejected.
 		 *
 		 * @public
+		 * @param {string} name - The (unqualified) name of the table.
 		 * @returns {Promise.<Table>}
 		 */
 		getTable(name) {
