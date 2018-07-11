@@ -9,6 +9,7 @@ const assert = require('@barchart/common-js/lang/assert'),
 
 const DataProvider = require('./DataProvider'),
 	DataOperation = require('./DataOperation'),
+	DataOperationComparator = require('./DataOperationComparator'),
 	DataOperationResult = require('./DataOperationResult');
 
 module.exports = (() => {
@@ -23,16 +24,18 @@ module.exports = (() => {
 	 * object -- quickly adding operations, then flushing, then discarding.
 	 *
 	 * @public
-	 * @param {Function} comparator - The comparator used to sort {@link DataOperation} instances in a {@link PriorityQueue}.
+	 * @param {Function=} comparator - The comparator used to sort {@link DataOperation} instances in a {@link PriorityQueue}.
 	 */
 	class DataSession {
 		constructor(comparator) {
+			assert.argumentIsOptional(comparator, 'comparator', Function);
+
 			this._instanceCounter = ++instance;
 			this._instanceId = uuid.v4();
 
 			this._enqueueCounter = 0;
 
-			this._pending = new PriorityQueue(comparator);
+			this._pending = new PriorityQueue(comparator || DataOperationComparator.INSTANCE);
 			this._processed = [ ];
 			this._resultTypes = [ ];
 
