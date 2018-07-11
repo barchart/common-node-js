@@ -124,7 +124,7 @@ module.exports = (() => {
 		 * @protected
 		 * @abstract
 		 * @param {Object} item
-		 * @returns {boolean}
+		 * @returns {Boolean}
 		 */
 		_validate(item) {
 			return is.object(item);
@@ -136,7 +136,7 @@ module.exports = (() => {
 		 * @protected
 		 * @param {Object} item
 		 * @param {Boolean} preventOverwrite
-		 * @returns {Promise}
+		 * @returns {Promise.<Boolean>}
 		 */
 		_createItem(item, preventOverwrite) {
 			return Promise.resolve()
@@ -158,7 +158,7 @@ module.exports = (() => {
 		 *
 		 * @protected
 		 * @param {Array.<Object>} items
-		 * @returns {Promise}
+		 * @returns {Promise.<Boolean>}
 		 */
 		_createItems(items) {
 			return Promise.resolve()
@@ -182,7 +182,7 @@ module.exports = (() => {
 		 *
 		 * @protected
 		 * @param {Object} item
-		 * @returns {Promise}
+		 * @returns {Promise.<Boolean>}
 		 */
 		_deleteItem(item) {
 			return Promise.resolve()
@@ -204,7 +204,7 @@ module.exports = (() => {
 		 *
 		 * @protected
 		 * @param {Array.<Object>} items
-		 * @returns {Promise}
+		 * @returns {Promise.<Boolean>}
 		 */
 		_deleteItems(items) {
 			return Promise.resolve()
