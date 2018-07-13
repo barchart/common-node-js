@@ -23,6 +23,7 @@ module.exports = (() => {
 		/**
 		 * The number of empty "writes" which have been made.
 		 *
+		 * @public
 		 * @returns {Number}
 		 */
 		get count() {
