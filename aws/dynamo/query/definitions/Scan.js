@@ -21,15 +21,17 @@ module.exports = (() => {
 	 * @param {Filter} filter
 	 * @param {Array<Attribute>} attributes
 	 * @param {Number=} limit
+	 * @param {Boolean=} consistentRead
 	 * @param {String=} description
 	 */
 	class Scan extends Action {
-		constructor(table, index, filter, attributes, limit, description) {
+		constructor(table, index, filter, attributes, limit, consistentRead, description) {
 			super(table, index, (description || '[Unnamed Scan]'));
 
 			this._filter = filter || null;
 			this._attributes = attributes || [ ];
 			this._limit = limit || null;
+			this._consistentRead = consistentRead || false;
 		}
 
 		/**
@@ -46,7 +48,8 @@ module.exports = (() => {
 		 * The {@link Attribute} instances to select. If the array is empty, all
 		 * attributes will be selected.
 		 *
-		 * @returns {Array<Attribute>}
+		 * @public
+		 * @returns {Array.<Attribute>}
 		 */
 		get attributes() {
 			return [...this._attributes];
@@ -56,10 +59,21 @@ module.exports = (() => {
 		 * The maximum number of results to returns from the scan. A null value
 		 * will be interpreted as no limit.
 		 *
+		 * @public
 		 * @returns {Number|null}
 		 */
 		get limit() {
 			return this._limit;
+		}
+
+		/**
+		 * If true, a consistent read will be used.
+		 *
+		 * @public
+		 * @returns {Boolean}
+		 */
+		get consistentRead() {
+			return this._consistentRead;
 		}
 
 		/**
@@ -80,6 +94,10 @@ module.exports = (() => {
 				throw new Error('The index must belong to the table.');
 			}
 
+			if (this._index !== null && !this._index.type.allowsConsistentReads) {
+				throw new Error('Unable to apply consistent read to index.');
+			}
+
 			if (this._filter !== null) {
 				if (!(this._filter instanceof Filter)) {
 					throw new Error('Filter data type is invalid.');
@@ -97,6 +115,7 @@ module.exports = (() => {
 		 * Outputs an object suitable for running a "scan" operation using
 		 * the DynamoDB SDK.
 		 *
+		 * @public
 		 * @returns {Object}
 		 */
 		toScanSchema() {
@@ -135,6 +154,10 @@ module.exports = (() => {
 
 			if (this._limit !== null) {
 				schema.Limit = this._limit;
+			}
+
+			if (this._consistentRead) {
+				schema.ConsistentRead = true;
 			}
 
 			return schema;

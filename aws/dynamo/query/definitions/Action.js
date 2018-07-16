@@ -46,7 +46,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * A description of the scan (for logging purposes).
+		 * A description of the action (for logging purposes).
 		 *
 		 * @public
 		 * @returns {String}

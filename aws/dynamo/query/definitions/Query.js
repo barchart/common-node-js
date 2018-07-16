@@ -24,10 +24,11 @@ module.exports = (() => {
 	 * @param {Filter} resultsFilter
 	 * @param {Array<Attribute>} attributes
 	 * @param {OrderingType=} orderingType
+	 * @param {Boolean=} consistentRead
 	 * @param {String=} description
 	 */
 	class Query extends Action {
-		constructor(table, index, keyFilter, resultsFilter, attributes, limit, orderingType, description) {
+		constructor(table, index, keyFilter, resultsFilter, attributes, limit, orderingType, consistentRead, description) {
 			super(table, index, (description || '[Unnamed Query]'));
 
 			this._keyFilter = keyFilter || null;
@@ -35,6 +36,7 @@ module.exports = (() => {
 
 			this._attributes = attributes || [ ];
 			this._limit = limit || null;
+			this._consistentRead = consistentRead || false;
 			this._orderingType = orderingType || OrderingType.ASCENDING;
 		}
 
@@ -63,7 +65,8 @@ module.exports = (() => {
 		 * The {@link Attribute} instances to select. If the array is empty, all
 		 * attributes will be selected.
 		 *
-		 * @returns {Array<Attribute>}
+		 * @public
+		 * @returns {Array.<Attribute>}
 		 */
 		get attributes() {
 			return [...this._attributes];
@@ -73,6 +76,7 @@ module.exports = (() => {
 		 * The maximum number of results to returns from the query. A null value
 		 * will be interpreted as no limit.
 		 *
+		 * @public
 		 * @returns {Number|null}
 		 */
 		get limit() {
@@ -80,13 +84,23 @@ module.exports = (() => {
 		}
 
 		/**
-		 * If true, results will be returned in descending order. Otherwise, results
-		 * will be returned in ascending order.
+		 * The desired order of the results.
 		 *
+		 * @public
 		 * @returns {OrderingType}
 		 */
 		get orderingType() {
 			return this._orderingType;
+		}
+
+		/**
+		 * If true, a consistent read will be used.
+		 *
+		 * @public
+		 * @returns {Boolean}
+		 */
+		get consistentRead() {
+			return this._consistentRead;
 		}
 
 		/**
@@ -105,6 +119,10 @@ module.exports = (() => {
 
 			if (this.index !== null && !this.table.indicies.some(i => i.equals(this.index, true))) {
 				throw new Error('The index must belong to the table.');
+			}
+
+			if (this._index !== null && !this._index.type.allowsConsistentReads) {
+				throw new Error('Unable to apply consistent read to index.');
 			}
 
 			if (!(this._keyFilter instanceof Filter)) {
@@ -194,6 +212,10 @@ module.exports = (() => {
 
 			if (this._limit !== null) {
 				schema.Limit = this._limit;
+			}
+
+			if (this._consistentRead) {
+				schema.ConsistentRead = true;
 			}
 
 			return schema;

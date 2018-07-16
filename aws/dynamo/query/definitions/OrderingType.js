@@ -67,7 +67,7 @@ module.exports = (() => {
 	}
 
 	const orderingTypeAscending = new OrderingType('ascending', true);
-	const orderingTypeDescending = new OrderingType('decending', false);
+	const orderingTypeDescending = new OrderingType('descending', false);
 
 	return OrderingType;
 })();

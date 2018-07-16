@@ -12,19 +12,16 @@ module.exports = (() => {
 	 * @extends {Enum}
 	 */
 	class IndexType extends Enum {
-		constructor(code, description, schemaName, separateProvisioning) {
+		constructor(code, description, schemaName, separateProvisioning, allowsConsistentReads) {
 			super(code, description);
 
 			assert.argumentIsRequired(schemaName, 'schemaName', String);
 			assert.argumentIsRequired(separateProvisioning, 'separateProvisioning', Boolean);
+			assert.argumentIsRequired(allowsConsistentReads, 'allowsConsistentReads', Boolean);
 
-			this._description = description;
 			this._schemaName = schemaName;
 			this._separateProvisioning = separateProvisioning;
-		}
-
-		get description() {
-			return this._description;
+			this._allowsConsistentReads = allowsConsistentReads;
 		}
 
 		get schemaName() {
@@ -33,6 +30,16 @@ module.exports = (() => {
 
 		get separateProvisioning() {
 			return this._separateProvisioning;
+		}
+
+		/**
+		 * Indicates is a query or scan on the index supports consistent reads.
+		 *
+		 * @public
+		 * @returns {Boolean}
+		 */
+		get allowsConsistentReads() {
+			return this._allowsConsistentReads;
 		}
 
 		static get GLOBAL_SECONDARY() {
@@ -48,8 +55,8 @@ module.exports = (() => {
 		}
 	}
 
-	const indexTypeGlobal = new IndexType('GSI', 'GlobalSecondaryIndex', 'GlobalSecondaryIndexes', true);
-	const indexTypeLocal = new IndexType('LSI', 'LocalSecondaryIndex', 'LocalSecondaryIndexes', false);
+	const indexTypeGlobal = new IndexType('GSI', 'GlobalSecondaryIndex', 'GlobalSecondaryIndexes', true, false);
+	const indexTypeLocal = new IndexType('LSI', 'LocalSecondaryIndex', 'LocalSecondaryIndexes', false, true);
 
 	return IndexType;
 })();
