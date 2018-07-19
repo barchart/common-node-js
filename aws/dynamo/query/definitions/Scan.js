@@ -94,7 +94,7 @@ module.exports = (() => {
 				throw new Error('The index must belong to the table.');
 			}
 
-			if (this._index !== null && !this._index.type.allowsConsistentReads) {
+			if (this._index !== null && this._consistentRead && !this._index.type.allowsConsistentReads) {
 				throw new Error('Unable to apply consistent read to index.');
 			}
 
