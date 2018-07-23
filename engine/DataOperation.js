@@ -19,6 +19,8 @@ module.exports = (() => {
 			this._processed = false;
 
 			this._children = null;
+
+			this._enqueueOrder = null;
 		}
 
 		/**
@@ -30,6 +32,22 @@ module.exports = (() => {
 		 */
 		get stage() {
 			return DataOperationStage.PROCESS;
+		}
+
+		/**
+		 * @ignore
+		 * @returns {Number}
+		 */
+		get enqueueOrder() {
+			return this._enqueueOrder;
+		}
+
+		/**
+		 * @ignore
+		 * @param {Number} value
+		 */
+		set enqueueOrder(value) {
+			this._enqueueOrder = value;
 		}
 
 		/**

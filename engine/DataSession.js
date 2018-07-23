@@ -32,6 +32,8 @@ module.exports = (() => {
 			this._instanceCounter = ++instance;
 			this._instanceId = uuid.v4();
 
+			this._enqueueCounter = 0;
+
 			this._pending = new PriorityQueue(comparator || DataOperationComparator.INSTANCE);
 			this._processed = [ ];
 			this._userEnqueued = [ ];
@@ -224,6 +226,8 @@ module.exports = (() => {
 	}
 
 	function enqueue(operation) {
+		operation.enqueueOrder = ++this._enqueueCounter;
+
 		this._pending.enqueue(operation);
 
 		if (!this._flushed) {
