@@ -1,5 +1,4 @@
-const log4js = require('log4js'),
-	process = require('process');
+const log4js = require('log4js');
 
 const assert = require('@barchart/common-js/lang/assert'),
 	FailureReason = require('@barchart/common-js/api/failures/FailureReason'),
