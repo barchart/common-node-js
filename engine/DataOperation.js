@@ -105,7 +105,7 @@ module.exports = (() => {
 		 * @returns {DataOperationResult}
 		 */
 		transformResult(currentResult, spawnResults) {
-			return new DataOperationResult(currentResult.operation, this._transformResult(currentResult.result, spawnResults.map(spawnResult => spawnResult.result)), currentResult.children));
+			return new DataOperationResult(currentResult.operation, this._transformResult(currentResult.result, spawnResults.map(spawnResult => spawnResult.result)), currentResult.children);
 		}
 
 		/**
@@ -115,7 +115,7 @@ module.exports = (() => {
 		 * @returns {*}
 		 */
 		_transformResult(currentResult, spawnResults) {
-			return operationResult;
+			return currentResult;
 		}
 
 		/**
