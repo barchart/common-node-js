@@ -1,5 +1,4 @@
-const assert = require('@barchart/common-js/lang/assert'),
-	is = require('@barchart/common-js/lang/is');
+const assert = require('@barchart/common-js/lang/assert');
 
 const DataProvider = require('./DataProvider'),
 	DataOperationResult = require('./DataOperationResult'),
@@ -20,8 +19,6 @@ module.exports = (() => {
 			this._processed = false;
 
 			this._children = null;
-
-			this._enqueueOrder = null;
 		}
 
 		/**
@@ -33,22 +30,6 @@ module.exports = (() => {
 		 */
 		get stage() {
 			return DataOperationStage.PROCESS;
-		}
-
-		/**
-		 * @ignore
-		 * @returns {Number}
-		 */
-		get enqueueOrder() {
-			return this._enqueueOrder;
-		}
-
-		/**
-		 * @ignore
-		 * @param {Number} value
-		 */
-		set enqueueOrder(value) {
-			this._enqueueOrder = value;
 		}
 
 		/**
@@ -112,6 +93,29 @@ module.exports = (() => {
 			}
 
 			this._children.push(operation);
+		}
+
+		/**
+		 * Transforms the result of the current operation, given the results of any other
+		 * operations that were spawned during the current operation's processing.
+		 *
+		 * @public
+		 * @param {DataOperationResult} currentResult
+		 * @param {Array.<DataOperationResult>} }spawnResults
+		 * @returns {DataOperationResult}
+		 */
+		transformResult(currentResult, spawnResults) {
+			return new DataOperationResult(currentResult.operation, this._transformResult(currentResult.result, spawnResults.map(spawnResult => spawnResult.result)), currentResult.children));
+		}
+
+		/**
+		 * @@protected
+		 * @param {*} currentResult
+		 * @param {Array.<*>} }spawnResults
+		 * @returns {*}
+		 */
+		_transformResult(currentResult, spawnResults) {
+			return operationResult;
 		}
 
 		/**

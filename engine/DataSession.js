@@ -4,8 +4,7 @@ const log4js = require('log4js'),
 const assert = require('@barchart/common-js/lang/assert'),
 	is = require('@barchart/common-js/lang/is'),
 	array = require('@barchart/common-js/lang/array'),
-	PriorityQueue = require('@barchart/common-js/collections/specialized/PriorityQueue'),
-	promise = require('@barchart/common-js/lang/promise');
+	PriorityQueue = require('@barchart/common-js/collections/specialized/PriorityQueue');
 
 const DataProvider = require('./DataProvider'),
 	DataOperation = require('./DataOperation'),
@@ -33,10 +32,10 @@ module.exports = (() => {
 			this._instanceCounter = ++instance;
 			this._instanceId = uuid.v4();
 
-			this._enqueueCounter = 0;
-
 			this._pending = new PriorityQueue(comparator || DataOperationComparator.INSTANCE);
 			this._processed = [ ];
+			this._userEnqueued = [ ];
+
 			this._resultTypes = [ ];
 
 			this._flushed = false;
@@ -103,15 +102,16 @@ module.exports = (() => {
 						logger.warn('Session [', this._instanceCounter, '] has no operations.');
 					}
 
-					let userEnqueuedCount = this._enqueueCounter;
 					let operationCounter = 0;
 
-					let output;
+					const results = [ ];
+
+					let outputIndicies;
 
 					if (this._resultTypes.length === 0) {
-						output = [];
+						outputIndicies = [ ];
 					} else {
-						output = this._resultTypes.map(() => [ ]);
+						outputIndicies = this._resultTypes.map(() => [ ]);
 					}
 
 					const flushRecursive = (previousResult) => {
@@ -148,17 +148,21 @@ module.exports = (() => {
 											.then((result) => {
 												logger.debug('Session [', this._instanceCounter, '] operation [', operationCount, '][', operation.toString() ,'] complete.');
 
-												if (this._resultTypes.length === 0) {
-													if (!(operation.enqueueOrder > userEnqueuedCount)) {
-														const outputIndex = operation.enqueueOrder - 1;
+												results.push(result);
 
-														output[outputIndex] = result.result;
+												const operationIndex = results.length - 1;
+
+												if (this._resultTypes.length === 0) {
+													const resultIndex = this._userEnqueued.findIndex(o => o === result.operation);
+
+													if (!(resultIndex < 0)) {
+														outputIndicies[resultIndex] = operationIndex;
 													}
 												} else {
-													const resultTypeIndex = this._resultTypes.findIndex(t => operation instanceof t);
+													const resultIndex = this._resultTypes.findIndex(t => operation instanceof t);
 
-													if (!(resultTypeIndex < 0)) {
-														output[resultTypeIndex].push(result.result);
+													if (!(resultIndex < 0)) {
+														outputIndicies[resultIndex].push(operationIndex);
 													}
 												}
 
@@ -179,6 +183,30 @@ module.exports = (() => {
 
 					return flushRecursive(DataOperationResult.getInitial())
 						.then(() => {
+							const transformedResults = results.reduceRight((resolvedResults, result, i, a) => {
+								const spawnResults = result.children.map((spawnOperation) => {
+									return a.find((previousResult) => previousResult.operation === spawnOperation);
+								});
+
+								resolvedResults.push(result.operation.transformResult(result, spawnResults));
+
+								return resolvedResults;
+							}, [ ]);
+
+							const resolveOutput = (outputIndex) => {
+								const reversedIndex = results.length - outputIndex - 1;
+
+								return transformedResults[reversedIndex].result;
+							};
+
+							const output = outputIndicies.map((i) => {
+								if (is.array(i)) {
+									return i.map(j => resolveOutput(j));
+								} else {
+									return resolveOutput(i);
+								}
+							});
+
 							logger.info('Session [', this._instanceCounter, '] flush finished [', this._instanceId, ']');
 
 							if (output.length === 1) {
@@ -196,9 +224,11 @@ module.exports = (() => {
 	}
 
 	function enqueue(operation) {
-		operation.enqueueOrder = ++this._enqueueCounter;
-
 		this._pending.enqueue(operation);
+
+		if (!this._flushed) {
+			this._userEnqueued.push(operation);
+		}
 	}
 
 	return DataSession;
