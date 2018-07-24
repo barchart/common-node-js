@@ -109,6 +109,8 @@ module.exports = (() => {
 				}
 
 				error = null;
+			} else {
+				logger.error(error);
 			}
 
 			callback(error, null);
@@ -131,6 +133,8 @@ module.exports = (() => {
 
 					error = null;
 				} else {
+					logger.error(e);
+
 					error = e;
 				}
 
