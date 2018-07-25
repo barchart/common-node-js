@@ -25,6 +25,19 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Reads the Lambda's event object directly.
+		 *
+		 * @public
+		 * @param {String} key
+		 * @returns {*}
+		 */
+		read(key) {
+			assert.argumentIsRequired(key, 'key', String);
+
+			return read(this._event, key);
+		}
+
+		/**
 		 * Indicates if the consumer wants a plain text response, as evidenced
 		 * by a "mode=text" querystring value.
 		 *
