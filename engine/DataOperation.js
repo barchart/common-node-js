@@ -119,7 +119,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {DataOperationResult} currentResult
-		 * @param {Array.<DataOperationResult>} }spawnResults
+		 * @param {Array.<DataOperationResult>}} spawnResults
 		 * @returns {DataOperationResult}
 		 */
 		transformResult(currentResult, spawnResults) {
@@ -129,7 +129,7 @@ module.exports = (() => {
 		/**
 		 * @@protected
 		 * @param {*} currentResult
-		 * @param {Array.<*>} }spawnResults
+		 * @param {Array.<*>}} spawnResults
 		 * @returns {*}
 		 */
 		_transformResult(currentResult, spawnResults) {
