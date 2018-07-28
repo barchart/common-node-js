@@ -569,8 +569,8 @@ module.exports = (() => {
 
 										count += results.length;
 
-										if (data.LastEvaluatedKey && (!is.number(options.Limit) || count < options.Limit)) {
-											if (data.LastEvaluatedKey && (!is.number(options.Limit) || results.length < options.Limit)) {
+										if (results !== null) {
+											if (data.LastEvaluatedKey && (!is.number(options.Limit) || count < options.Limit)) {
 												runScanRecursive(data.LastEvaluatedKey)
 													.then((more) => {
 														resolveCallback(results.concat(more));
