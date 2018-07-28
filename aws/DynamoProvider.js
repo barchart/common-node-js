@@ -530,6 +530,8 @@ module.exports = (() => {
 
 					const options = scan.toScanSchema();
 
+					let count = 0;
+
 					const runScanRecursive = (previous) => {
 						return this._scheduler.backoff(() => {
 							return promise.build((resolveCallback, rejectCallback) => {
@@ -565,14 +567,24 @@ module.exports = (() => {
 											resolveCallback({ code: DYNAMO_RESULT.FAILURE, error: error });
 										}
 
-										if (results !== null) {
+										count += results.length;
+
+										if (data.LastEvaluatedKey && (!is.number(options.Limit) || count < options.Limit)) {
 											if (data.LastEvaluatedKey && (!is.number(options.Limit) || results.length < options.Limit)) {
 												runScanRecursive(data.LastEvaluatedKey)
 													.then((more) => {
 														resolveCallback(results.concat(more));
 													});
 											} else {
-												resolveCallback(results);
+												let truncated;
+
+												if (is.number(options.Limit) && results.length > options.Limit) {
+													truncated = results.slice(0, options.Limit);
+												} else {
+													truncated = results;
+												}
+
+												resolveCallback(truncated);
 											}
 										}
 									}
@@ -616,6 +628,8 @@ module.exports = (() => {
 
 					const options = query.toQuerySchema();
 
+					let count = 0;
+
 					const runQueryRecursive = (previous) => {
 						return this._scheduler.backoff(() => {
 							return promise.build((resolveCallback, rejectCallback) => {
@@ -652,13 +666,23 @@ module.exports = (() => {
 										}
 
 										if (results !== null) {
-											if (data.LastEvaluatedKey && (!is.number(options.Limit) || results.length < options.Limit)) {
+											count += results.length;
+
+											if (data.LastEvaluatedKey && (!is.number(options.Limit) || count < options.Limit)) {
 												runQueryRecursive(data.LastEvaluatedKey)
 													.then((more) => {
 														resolveCallback(results.concat(more));
 													});
 											} else {
-												resolveCallback(results);
+												let truncated;
+
+												if (is.number(options.Limit) && results.length > options.Limit) {
+													truncated = results.slice(0, options.Limit);
+												} else {
+													truncated = results;
+												}
+
+												resolveCallback(truncated);
 											}
 										}
 									}
