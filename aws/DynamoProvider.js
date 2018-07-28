@@ -542,6 +542,12 @@ module.exports = (() => {
 
 								if (maximum !== 0) {
 									options.Limit = maximum - count;
+
+									if (options.Limit === 0) {
+										resolveCallback([ ]);
+
+										return;
+									}
 								}
 
 								this._dynamo.scan(options, (error, data) => {
@@ -637,6 +643,12 @@ module.exports = (() => {
 
 								if (maximum !== 0) {
 									options.Limit = maximum - count;
+
+									if (options.Limit === 0) {
+										resolveCallback([ ]);
+
+										return;
+									}
 								}
 
 								this._dynamo.query(options, (error, data) => {
