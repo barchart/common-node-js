@@ -530,6 +530,7 @@ module.exports = (() => {
 
 					const options = scan.toScanSchema();
 
+					let maximum = options.Limit;
 					let count = 0;
 
 					const runScanRecursive = (previous, limit) => {
@@ -574,7 +575,7 @@ module.exports = (() => {
 										count += results.length;
 
 										if (results !== null) {
-											if (data.LastEvaluatedKey && (!is.number(options.Limit) || count < options.Limit)) {
+											if (data.LastEvaluatedKey && (!is.number(maximum) || count < maximum)) {
 												let remaining;
 												
 												if (is.number(options.Limit)) {
@@ -632,6 +633,7 @@ module.exports = (() => {
 
 					const options = query.toQuerySchema();
 
+					let maximum = options.Limit;
 					let count = 0;
 
 					const runQueryRecursive = (previous, limit) => {
@@ -676,7 +678,7 @@ module.exports = (() => {
 										if (results !== null) {
 											count += results.length;
 
-											if (data.LastEvaluatedKey && (!is.number(options.Limit) || count < options.Limit)) {
+											if (data.LastEvaluatedKey && (!is.number(maximum) || count < maximum)) {
 												let remaining;
 
 												if (is.number(options.Limit)) {
