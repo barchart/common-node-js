@@ -588,7 +588,7 @@ module.exports = (() => {
 														resolveCallback(results.concat(more));
 													});
 											} else {
-												resolveCallback(truncated);
+												resolveCallback(results);
 											}
 										}
 									}
@@ -690,15 +690,7 @@ module.exports = (() => {
 														resolveCallback(results.concat(more));
 													});
 											} else {
-												let truncated;
-
-												if (is.number(options.Limit) && results.length > options.Limit) {
-													truncated = results.slice(0, options.Limit);
-												} else {
-													truncated = results;
-												}
-
-												resolveCallback(truncated);
+												resolveCallback(results);
 											}
 										}
 									}
