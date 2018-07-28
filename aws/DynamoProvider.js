@@ -541,7 +541,7 @@ module.exports = (() => {
 								}
 
 								if (maximum !== 0) {
-									options.Limit = count - maximum;
+									options.Limit = maximum - count;
 								}
 
 								this._dynamo.scan(options, (error, data) => {
@@ -636,7 +636,7 @@ module.exports = (() => {
 								}
 
 								if (maximum !== 0) {
-									options.Limit = count - maximum;
+									options.Limit = maximum - count;
 								}
 
 								this._dynamo.query(options, (error, data) => {
