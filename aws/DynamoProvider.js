@@ -532,11 +532,15 @@ module.exports = (() => {
 
 					let count = 0;
 
-					const runScanRecursive = (previous) => {
+					const runScanRecursive = (previous, limit) => {
 						return this._scheduler.backoff(() => {
 							return promise.build((resolveCallback, rejectCallback) => {
 								if (previous) {
 									options.ExclusiveStartKey = previous;
+								}
+
+								if (is.number(limit)) {
+									options.Limit = limit;
 								}
 
 								this._dynamo.scan(options, (error, data) => {
@@ -571,19 +575,19 @@ module.exports = (() => {
 
 										if (results !== null) {
 											if (data.LastEvaluatedKey && (!is.number(options.Limit) || count < options.Limit)) {
-												runScanRecursive(data.LastEvaluatedKey)
+												let remaining;
+												
+												if (is.number(options.Limit)) {
+													remaining = options.Limit - count;
+												} else {
+													remaining = null;
+												}
+												
+												runScanRecursive(data.LastEvaluatedKey, remaining)
 													.then((more) => {
 														resolveCallback(results.concat(more));
 													});
 											} else {
-												let truncated;
-
-												if (is.number(options.Limit) && results.length > options.Limit) {
-													truncated = results.slice(0, options.Limit);
-												} else {
-													truncated = results;
-												}
-
 												resolveCallback(truncated);
 											}
 										}
@@ -594,7 +598,7 @@ module.exports = (() => {
 							if (results.code === DYNAMO_RESULT.FAILURE) {
 								return Promise.reject(results.error);
 							} else {
-								return Promise.resolve(results);
+								return Promise.resolve(results);	
 							}
 						});
 					};
@@ -630,11 +634,15 @@ module.exports = (() => {
 
 					let count = 0;
 
-					const runQueryRecursive = (previous) => {
+					const runQueryRecursive = (previous, limit) => {
 						return this._scheduler.backoff(() => {
 							return promise.build((resolveCallback, rejectCallback) => {
 								if (previous) {
 									options.ExclusiveStartKey = previous;
+								}
+
+								if (is.number(limit)) {
+									options.Limit = limit;
 								}
 
 								this._dynamo.query(options, (error, data) => {
@@ -669,7 +677,15 @@ module.exports = (() => {
 											count += results.length;
 
 											if (data.LastEvaluatedKey && (!is.number(options.Limit) || count < options.Limit)) {
-												runQueryRecursive(data.LastEvaluatedKey)
+												let remaining;
+
+												if (is.number(options.Limit)) {
+													remaining = options.Limit - count;
+												} else {
+													remaining = null;
+												}
+
+												runQueryRecursive(data.LastEvaluatedKey, remaining)
 													.then((more) => {
 														resolveCallback(results.concat(more));
 													});
