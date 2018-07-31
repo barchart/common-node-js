@@ -1,7 +1,6 @@
 const log4js = require('log4js');
 
-const assert = require('@barchart/common-js/lang/assert'),
-	is = require('@barchart/common-js/lang/is');
+const assert = require('@barchart/common-js/lang/assert');
 
 const FailureReason = require('@barchart/common-js/api/failures/FailureReason');
 

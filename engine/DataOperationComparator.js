@@ -1,6 +1,4 @@
-const array = require('@barchart/common-js/lang/array'),
-	assert = require('@barchart/common-js/lang/assert'),
-	comparators = require('@barchart/common-js/collections/sorting/comparators'),
+const comparators = require('@barchart/common-js/collections/sorting/comparators'),
 	ComparatorBuilder = require('@barchart/common-js/collections/sorting/ComparatorBuilder');
 
 module.exports = (() => {
