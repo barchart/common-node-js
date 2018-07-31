@@ -40,12 +40,24 @@ module.exports = (() => {
 			return;
 		}
 
+		/**
+		 * Returns a new {@link DataSession} to the callback and processes
+		 * it synchronously. The result of the session is returned via a
+		 * promise.
+		 *
+		 * @public
+		 * @param {DataSessionFactory~dataSessionCallback} callback - Provides the {@link DataSession}
+		 * @returns {Promise}
+		 */
 		startSession(callback) {
 			return Promise.resolve()
 				.then(() => {
 					if (!this._started) {
 						throw new Error('Unable to create session, the data provider factory must be started.');
 					}
+
+					assert.argumentIsRequired(callback, 'callback', Function);
+					assert.argumentIsOptional(name, 'name', String);
 
 					return this._getSession();
 				}).catch((e) => {
@@ -94,6 +106,10 @@ module.exports = (() => {
 				});
 		}
 
+		/**
+		 * @protected
+		 * @returns {Promise.<DataSession>|DataSession}
+		 */
 		_getSession() {
 			return null;
 		}
@@ -117,6 +133,14 @@ module.exports = (() => {
 			return '[DataSessionFactory]';
 		}
 	}
+
+	/**
+	 * A callback used to return a {@link DataSession}.
+	 *
+	 * @public
+	 * @callback DataSessionFactory~dataSessionCallback
+	 * @param {DataSession} dataSession
+	 */
 
 	return DataSessionFactory;
 })();

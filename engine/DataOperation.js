@@ -57,10 +57,11 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {DataProvider} dataProvider
-		 * @param {DataProvider} session
+		 * @param {String} session
+		 * @param {String|null} name
 		 * @returns {Promise}
 		 */
-		process(dataProvider, session) {
+		process(dataProvider, session, name) {
 			return Promise.resolve()
 				.then(() => {
 					this._validateDataProvider(dataProvider);
@@ -74,7 +75,7 @@ module.exports = (() => {
 
 					return Promise.resolve()
 						.then(() => {
-							return this._process(dataProvider, session);
+							return this._process(dataProvider, session, name);
 						}).then((result) => {
 							this._processing = false;
 							this._processed = true;
@@ -92,9 +93,11 @@ module.exports = (() => {
 		 * @protected
 		 * @ignore
 		 * @param {DataProvider} dataProvider
+		 * @param {String} session
+		 * @param {String|null} name
 		 * @returns {*}
 		 */
-		_process(dataProvider) {
+		_process(dataProvider, session, name) {
 			return;
 		}
 

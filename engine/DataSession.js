@@ -29,6 +29,8 @@ module.exports = (() => {
 		constructor(comparator) {
 			assert.argumentIsOptional(comparator, 'comparator', Function);
 
+			this._name = null;
+
 			this._instanceCounter = ++instance;
 			this._instanceId = uuid.v4();
 
@@ -41,6 +43,28 @@ module.exports = (() => {
 			this._resultTypes = [ ];
 
 			this._flushed = false;
+		}
+
+		/**
+		 * Returns a description of the session.
+		 *
+		 * @public
+		 * @returns {String|null}
+		 */
+		get name() {
+			return this._name;
+		}
+
+		/**
+		 * Sets a description for the session.
+		 *
+		 * @public
+		 * @param {String} value
+		 */
+		set name(value) {
+			assert.argumentIsRequired(value, 'value', String);
+
+			this._name = value;
 		}
 
 		/**
@@ -93,7 +117,7 @@ module.exports = (() => {
 					assert.argumentIsRequired(dataProvider, 'dataProvider', DataProvider, 'DataProvider');
 
 					if (this._flushed) {
-						throw new Error('Session [', this._instanceCounter, '] has already been flushed.');
+						throw new Error(`Session [ ${this._instanceCounter}  has already been flushed.`);
 					}
 
 					this._flushed = true;
@@ -146,7 +170,7 @@ module.exports = (() => {
 
 										logger.debug('Session [', this._instanceCounter, '] operation [', operationCount, '][', operation.toString() ,'] starting.');
 
-										processPromise = operation.process(dataProvider, this._instanceId)
+										processPromise = operation.process(dataProvider, this._instanceId, this._name)
 											.then((result) => {
 												logger.debug('Session [', this._instanceCounter, '] operation [', operationCount, '][', operation.toString() ,'] complete.');
 
