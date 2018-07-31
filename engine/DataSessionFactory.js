@@ -56,7 +56,6 @@ module.exports = (() => {
 					}
 
 					assert.argumentIsRequired(callback, 'callback', Function);
-					assert.argumentIsOptional(name, 'name', String);
 
 					return this._getSession();
 				}).catch((e) => {
