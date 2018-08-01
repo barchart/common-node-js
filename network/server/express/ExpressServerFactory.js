@@ -1027,7 +1027,7 @@ module.exports = (() => {
 						throw new Error('Unable to process request, validation failed.');
 					}
 
-					return requestInfo.commands.execution.process(request.data);
+					return requestInfo.commands.execution.process(request.request);
 				}).then((result) => {
 					const envelope = {
 						requestId: request.requestId,
