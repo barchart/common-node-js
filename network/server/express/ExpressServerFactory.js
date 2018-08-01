@@ -1021,7 +1021,18 @@ module.exports = (() => {
 
 			return Promise.resolve()
 				.then(() => {
-					return requestInfo.commands.validation.process(request.context || null);
+					let validationData;
+
+					if (request.context) {
+						validationData = {
+							context: request.context,
+							payload: request.request
+						};
+					} else {
+						validationData = null;
+					}
+
+					return requestInfo.commands.validation.process(validationData);
 				}).then((valid) => {
 					if (!valid) {
 						throw new Error('Unable to process request, validation failed.');
@@ -1052,14 +1063,26 @@ module.exports = (() => {
 
 			return Promise.resolve()
 				.then(() => {
-					return subscriptionInfo.commands.validation.process(request.context || null);
+					let validationData;
+
+					if (request.context) {
+						const context = request.context;
+						const payload = request;
+
+						delete request.context;
+
+						validationData = {
+							context: context,
+							payload: payload
+						};
+					} else {payload
+						validationData = null;
+					}
+
+					return subscriptionInfo.commands.validation.process(validationData);
 				}).then((valid) => {
 					if (!valid) {
 						throw new Error('Unable to process subscription, validation failed.');
-					}
-
-					if (request.context) {
-						delete request.context;
 					}
 
 					return subscriptionInfo.commands.rooms.process(request);
