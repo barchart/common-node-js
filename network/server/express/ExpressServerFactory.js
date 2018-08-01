@@ -1027,7 +1027,7 @@ module.exports = (() => {
 						throw new Error('Unable to process request, validation failed.');
 					}
 
-					return requestInfo.commands.process.process(request.data);
+					return requestInfo.commands.execution.process(request.data);
 				}).then((result) => {
 					const envelope = {
 						requestId: request.requestId,
@@ -1052,7 +1052,7 @@ module.exports = (() => {
 
 			return Promise.resolve()
 				.then(() => {
-					return requestInfo.commands.validation.process(request.context || null);
+					return subscriptionInfo.commands.validation.process(request.context || null);
 				}).then((valid) => {
 					if (!valid) {
 						throw new Error('Unable to process subscription, validation failed.');
