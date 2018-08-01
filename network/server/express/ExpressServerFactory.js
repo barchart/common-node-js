@@ -1062,7 +1062,7 @@ module.exports = (() => {
 						delete request.context;
 					}
 
-					return subscriptionInfo.commands.room.process(request);
+					return subscriptionInfo.commands.rooms.process(request);
 				}).then((qualifiers) => {
 					let qualifiersToJoin;
 
