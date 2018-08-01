@@ -726,7 +726,7 @@ module.exports = (() => {
 			const server = serverContainer.getServer(container.getPort(), container.getIsSecure(), false);
 
 			endpoints.forEach((endpoint) => {
-				server.addService(container.getPath(), endpoint.getPath(), endpoint.getRestAction().getVerb(), endpoint.getProcessCommand());
+				server.addService(container.getPath(), endpoint.getPath(), endpoint.getRestAction().getVerb(), endpoint.getExecutionCommand());
 			});
 
 			return true;
@@ -814,7 +814,7 @@ module.exports = (() => {
 			const server = serverContainer.getServer(container.getPort(), container.getIsSecure());
 
 			endpoints.forEach((endpoint) => {
-				server.addPage(container.getPath(), endpoint.getPath(), endpoint.getTemplate(), endpoint.getVerb(), endpoint.getProcessCommand(), endpoint.getCache(), container.getUsesSession(), endpoint.getAcceptFile(), container.getSecureRedirect() || endpoint.getSecureRedirect());
+				server.addPage(container.getPath(), endpoint.getPath(), endpoint.getTemplate(), endpoint.getVerb(), endpoint.getExecutionCommand(), endpoint.getCache(), container.getUsesSession(), endpoint.getAcceptFile(), container.getSecureRedirect() || endpoint.getSecureRedirect());
 			});
 
 			return true;
