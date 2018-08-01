@@ -1,28 +1,32 @@
-const log4js = require('log4js');
-
 const assert = require('@barchart/common-js/lang/assert'),
 	CommandHandler = require('@barchart/common-js/commands/CommandHandler');
 
 module.exports = (() => {
 	'use strict';
 
-	const logger = log4js.getLogger('common-node/network/server/endpoints/Endpoint');
-
 	class Endpoint {
-		constructor(command) {
-			assert.argumentIsRequired(command, 'command', CommandHandler, 'CommandHandler');
+		constructor(executionCommand, validationCommand) {
+			assert.argumentIsRequired(executionCommand, 'executionCommand', CommandHandler, 'CommandHandler');
+			assert.argumentIsOptional(validationCommand, 'validationCommand', CommandHandler, 'CommandHandler');
 
-			this._command = command;
+			this._executionCommand = executionCommand;
+			this._validationCommand = validationCommand || emptyValidationCommand;
 		}
 
-		getCommand() {
-			return this._command;
+		getExecutionCommand() {
+			return this._executionCommand;
+		}
+
+		getValidationCommand() {
+			return this._validationCommand;
 		}
 
 		toString() {
 			return '[Endpoint]';
 		}
 	}
+
+	const emptyValidationCommand = CommandHandler.fromFunction((context) => true);
 
 	return Endpoint;
 })();

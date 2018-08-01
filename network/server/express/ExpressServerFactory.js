@@ -187,10 +187,11 @@ module.exports = (() => {
 			this._serviceMap[basePath].handlers.push(handlerData);
 		}
 
-		addChannel(path, channel, command) {
+		addChannel(path, channel, executionCommand, validationCommand) {
 			assert.argumentIsRequired(path, 'path', String);
 			assert.argumentIsRequired(channel, 'channel', String);
-			assert.argumentIsRequired(command, 'command', CommandHandler, 'CommandHandler');
+			assert.argumentIsRequired(executionCommand, 'executionCommand', CommandHandler, 'CommandHandler');
+			assert.argumentIsRequired(validationCommand, 'validationCommand', CommandHandler, 'CommandHandler');
 
 			if (this._started) {
 				throw new Error('Unable to add request handler for socket.io channel, the server has already been started.');
@@ -202,7 +203,12 @@ module.exports = (() => {
 				throw new Error('Unable to add handler for socket.io channel, another handler is already using this channel.');
 			}
 
-			this._socketRequestMap[completePath] = command;
+			this._socketRequestMap[completePath] = {
+				commands: {
+					execution: executionCommand,
+					validation: validationCommand
+				}
+			};
 		}
 
 		addEmitter(path, channel, event, eventType, roomCommand) {
@@ -226,12 +232,13 @@ module.exports = (() => {
 			});
 		}
 
-		addSubscription(path, channel, roomsCommand, responseCommand, responseEventType) {
+		addSubscription(path, channel, roomsCommand, responseCommand, responseEventType, validationCommand) {
 			assert.argumentIsRequired(path, 'path', String);
 			assert.argumentIsRequired(channel, 'channel', String);
 			assert.argumentIsRequired(roomsCommand, 'roomsCommand', CommandHandler, 'CommandHandler');
 			assert.argumentIsRequired(responseCommand, 'responseCommand', CommandHandler, 'CommandHandler');
 			assert.argumentIsRequired(responseEventType, 'responseEventType', String);
+			assert.argumentIsRequired(validationCommand, 'validationCommand', CommandHandler, 'CommandHandler');
 
 			if (this._started) {
 				throw new Error('Unable to add subscription handler for socket.io channel, the server has already been started.');
@@ -244,12 +251,15 @@ module.exports = (() => {
 			}
 
 			const subscriptionInfo = {
+				commands: {
+					rooms: roomsCommand,
+					response: responseCommand,
+					validation: validationCommand
+				},
 				room: {
-					base: path + channel,
-					command: roomsCommand
+					base: path + channel
 				},
 				response: {
-					command: responseCommand,
 					eventType: responseEventType
 				}
 			};
@@ -496,9 +506,9 @@ module.exports = (() => {
 					});
 
 					socketRequestKeys.forEach((channel) => {
-						const command = this._socketRequestMap[channel];
+						const requestInfo = this._socketRequestMap[channel];
 
-						socket.on(channel, buildSocketRequestHandler(channel, command, socket));
+						socket.on(channel, buildSocketRequestHandler(channel, requestInfo, socket));
 					});
 
 					socketSubscriptionKeys.forEach((channel) => {
@@ -716,7 +726,7 @@ module.exports = (() => {
 			const server = serverContainer.getServer(container.getPort(), container.getIsSecure(), false);
 
 			endpoints.forEach((endpoint) => {
-				server.addService(container.getPath(), endpoint.getPath(), endpoint.getRestAction().getVerb(), endpoint.getCommand());
+				server.addService(container.getPath(), endpoint.getPath(), endpoint.getRestAction().getVerb(), endpoint.getProcessCommand());
 			});
 
 			return true;
@@ -738,7 +748,7 @@ module.exports = (() => {
 			const server = serverContainer.getServer(container.getPort(), container.getIsSecure());
 
 			endpoints.forEach((endpoint) => {
-				server.addChannel(container.getPath(), endpoint.getChannel(), endpoint.getCommand());
+				server.addChannel(container.getPath(), endpoint.getChannel(), endpoint.getExecutionCommand(), endpoint.getValidationCommand());
 			});
 
 			return true;
@@ -782,7 +792,7 @@ module.exports = (() => {
 			const server = serverContainer.getServer(container.getPort(), container.getIsSecure());
 
 			endpoints.forEach((endpoint) => {
-				server.addSubscription(container.getPath(), endpoint.getChannel(), endpoint.getRoomsCommand(), endpoint.getResponseCommand(), endpoint.getResponseEventType());
+				server.addSubscription(container.getPath(), endpoint.getChannel(), endpoint.getRoomsCommand(), endpoint.getResponseCommand(), endpoint.getResponseEventType(), endpoint.getValidationCommand());
 			});
 
 			return true;
@@ -804,7 +814,7 @@ module.exports = (() => {
 			const server = serverContainer.getServer(container.getPort(), container.getIsSecure());
 
 			endpoints.forEach((endpoint) => {
-				server.addPage(container.getPath(), endpoint.getPath(), endpoint.getTemplate(), endpoint.getVerb(), endpoint.getCommand(), endpoint.getCache(), container.getUsesSession(), endpoint.getAcceptFile(), container.getSecureRedirect() || endpoint.getSecureRedirect());
+				server.addPage(container.getPath(), endpoint.getPath(), endpoint.getTemplate(), endpoint.getVerb(), endpoint.getProcessCommand(), endpoint.getCache(), container.getUsesSession(), endpoint.getAcceptFile(), container.getSecureRedirect() || endpoint.getSecureRedirect());
 			});
 
 			return true;
@@ -997,7 +1007,7 @@ module.exports = (() => {
 		};
 	}
 
-	function buildSocketRequestHandler(channel, command, socket) {
+	function buildSocketRequestHandler(channel, requestInfo, socket) {
 		return (request) => {
 			const sequence = sequencer++;
 
@@ -1011,7 +1021,13 @@ module.exports = (() => {
 
 			return Promise.resolve()
 				.then(() => {
-					return command.process(request.request);
+					return requestInfo.commands.validation.process(request.context || null);
+				}).then((valid) => {
+					if (!valid) {
+						throw new Error('Unable to process request, validation failed.');
+					}
+
+					return requestInfo.commands.process.process(request.data);
 				}).then((result) => {
 					const envelope = {
 						requestId: request.requestId,
@@ -1036,7 +1052,17 @@ module.exports = (() => {
 
 			return Promise.resolve()
 				.then(() => {
-					return subscriptionInfo.room.command.process(request);
+					return requestInfo.commands.validation.process(request.context || null);
+				}).then((valid) => {
+					if (!valid) {
+						throw new Error('Unable to process subscription, validation failed.');
+					}
+
+					if (request.context) {
+						delete request.context;
+					}
+
+					return subscriptionInfo.commands.room.process(request);
 				}).then((qualifiers) => {
 					let qualifiersToJoin;
 
@@ -1061,7 +1087,7 @@ module.exports = (() => {
 					let responsePromise;
 
 					if (subscriptionInfo.response.eventType) {
-						responsePromise = subscriptionInfo.response.command.process(request)
+						responsePromise = subscriptionInfo.commands.response.process(request)
 							.then((response) => {
 								if (response) {
 									socket.emit(subscriptionInfo.response.eventType, response);

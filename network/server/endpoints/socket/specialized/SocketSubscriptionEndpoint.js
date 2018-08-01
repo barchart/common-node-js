@@ -1,6 +1,5 @@
 const CommandHandler = require('@barchart/common-js/commands/CommandHandler'),
-	assert = require('@barchart/common-js/lang/assert'),
-	Event = require('@barchart/common-js/messaging/Event');
+	assert = require('@barchart/common-js/lang/assert');
 
 const Endpoint = require('./../../Endpoint');
 
@@ -10,8 +9,8 @@ module.exports = (() => {
 	const emptyCommand = CommandHandler.fromFunction(() => null);
 
 	class SocketSubscriptionEndpoint extends Endpoint {
-		constructor(channel, roomsCommand, responseCommand, responseEventType) {
-			super(emptyCommand);
+		constructor(channel, roomsCommand, responseCommand, responseEventType, validationCommand) {
+			super(emptyCommand, validationCommand);
 
 			assert.argumentIsRequired(channel, 'channel', String);
 			assert.argumentIsRequired(roomsCommand, 'roomsCommand', CommandHandler, 'CommandHandler');

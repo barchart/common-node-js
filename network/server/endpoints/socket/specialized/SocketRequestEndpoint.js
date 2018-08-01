@@ -6,8 +6,8 @@ module.exports = (() => {
 	'use strict';
 
 	class SocketRequestEndpoint extends Endpoint {
-		constructor(channel, command) {
-			super(command);
+		constructor(channel, executionCommand, validationCommand) {
+			super(executionCommand, validationCommand);
 
 			assert.argumentIsRequired(channel, 'channel', String);
 
