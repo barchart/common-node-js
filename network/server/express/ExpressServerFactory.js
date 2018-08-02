@@ -1075,7 +1075,7 @@ module.exports = (() => {
 							context: context,
 							payload: payload
 						};
-					} else {payload
+					} else {
 						validationData = null;
 					}
 
