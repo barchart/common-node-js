@@ -56,15 +56,18 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Sets a description for the session.
+		 * Sets a name for the session.
 		 *
 		 * @public
-		 * @param {String} value
+		 * @param {String} name
+		 * @returns {DataSession}
 		 */
-		set name(value) {
-			assert.argumentIsRequired(value, 'value', String);
+		withName(name) {
+			assert.argumentIsRequired(name, 'name', String);
 
-			this._name = value;
+			this._name = name;
+
+			return this;
 		}
 
 		/**
