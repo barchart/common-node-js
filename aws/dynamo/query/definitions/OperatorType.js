@@ -143,6 +143,26 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Contains.
+		 *
+		 * @public
+		 * @returns {OperatorType}
+		 */
+		static get CONTAINS() {
+			return operatorTypeContains;
+		}
+
+		/**
+		 * Does not contain.
+		 *
+		 * @public
+		 * @returns {OperatorType}
+		 */
+		static get DOES_NOT_CONTAIN() {
+			return operatorTypeNotContains;
+		}
+
+		/**
 		 * Between.
 		 *
 		 * @public
@@ -198,6 +218,9 @@ module.exports = (() => {
 	const operatorTypeBetween = new OperatorType('Between', (f, o) => `${f} BETWEEN ${o[0]} AND ${o[1]}`, 2, [ KeyType.RANGE ]);
 
 	const operatorTypeBeginsWith = new OperatorType('Begins With', (f, o) => `begins_with(${f}, ${o})`, 1, [ KeyType.RANGE ]);
+
+	const operatorTypeContains = new OperatorType('Contains', (f, o) => `contains(${f}, ${o})`, 1, [ KeyType.RANGE ]);
+	const operatorTypeNotContains = new OperatorType('Does Not Contain', (f, o) => `NOT contains(${f}, ${o})`, 1, [ KeyType.RANGE ]);
 
 	const operatorTypeAttributeExists = new OperatorType('Attribute Exists', (f, o) => `attribute_exists(${f})`, 0, [ ]);
 	const operatorTypeAttributeNotExists = new OperatorType('Attribute Not Exists', (f, o) => `attribute_not_exists(${f})`, 0, [ KeyType.HASH, KeyType.RANGE ]);
