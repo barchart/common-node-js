@@ -31,7 +31,7 @@ module.exports = (() => {
 			if (logger === null) {
 				log4js.configure(configuration);
 
-				logger = log4js.getLogger();
+				logger = log4js.getLogger('LambdaHelper');
 			}
 
 			return logger;
