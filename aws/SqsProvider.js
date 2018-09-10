@@ -91,6 +91,7 @@ module.exports = (() => {
 		 * Returns a clone of the configuration object originally passed
 		 * to the constructor.
 		 *
+		 * @public
 		 * @returns {Object}
 		 */
 		getConfiguration() {
@@ -105,6 +106,7 @@ module.exports = (() => {
 		 * Returns a list of queue URL's where the queue names start with a
 		 * given prefix.
 		 *
+		 * @public
 		 * @param {string} queueNamePrefix - The prefix a queue name must have to be returned.
 		 * @returns {Promise.<string[]>}
 		 */
@@ -144,6 +146,7 @@ module.exports = (() => {
 		 * Given a queue's name, return the queue's URL. If no queue with the given
 		 * name exists, it will be created.
 		 *
+		 * @public
 		 * @param {string} queueName - The name of the queue to find.
 		 * @returns {Promise.<string>}
 		 */
@@ -176,6 +179,7 @@ module.exports = (() => {
 		 * Given a queue's name, return Amazon's unique identifier for the queue
 		 * (i.e. the ARN). If no queue with the given name exists, it will be created.
 		 *
+		 * @public
 		 * @param {string} queueName - The name of the queue to find.
 		 * @returns {Promise.<string>}
 		 */
@@ -230,6 +234,7 @@ module.exports = (() => {
 		 * the queue's URL. If the queue already exists, the URL of the existing
 		 * queue is returned.
 		 *
+		 * @public
 		 * @param {string} queueName - The name of the queue to create.
 		 * @param {Number=} retentionTime - The length of time a queue will retain a message in seconds.
 		 * @returns {Promise.<string>}
@@ -288,8 +293,8 @@ module.exports = (() => {
 		/**
 		 * Deletes a queue having the given name.
 		 *
+		 * @public
 		 * @param {string} queueName - The name of the queue to delete.
-		 *
 		 * @returns {Promise}
 		 */
 		deleteQueue(queueName) {
@@ -325,8 +330,8 @@ module.exports = (() => {
 		/**
 		 * Deletes a queue having the given URL.
 		 *
+		 * @public
 		 * @param {string} queueUrl - The URL of the queue to delete.
-		 *
 		 * @returns {Promise}
 		 */
 		deleteQueueUrl(queueUrl) {
@@ -342,9 +347,9 @@ module.exports = (() => {
 		 * Enqueues a message in the queue. If the queue doesn't exist, it will
 		 * be created.
 		 *
+		 * @public
 		 * @param {string} queueName - The name of the queue to add the message to.
 		 * @param {Object} payload - The message to enqueue (will be serialized to JSON).
-		 *
 		 * @returns {Promise}
 		 */
 		send(queueName, payload) {
@@ -397,11 +402,11 @@ module.exports = (() => {
 		 * Reads from the queue and deletes any messages that are read. After
 		 * the operation, the queue will not necessarily be empty.
 		 *
+		 * @public
 		 * @param {string} queueName - The name of the queue to read.
 		 * @param {Number=} waitDuration - The maximum amount of time the server-side long-poll will wait for messages to become available.
 		 * @param {Number=} maximumMessages - The maximum number of messages to read (cannot be more than 10).
 		 * @param {Boolean=} synchronousDelete - If true, the promise won't resolve until new messages have been read *and deleted* from the queue.
-		 *
 		 * @returns {Promise.<Object[]>}
 		 */
 		receive(queueName, waitDuration, maximumMessages, synchronousDelete) {
@@ -434,10 +439,10 @@ module.exports = (() => {
 		 * Reads all messages from queue (perhaps requiring multiple calls to the
 		 * AWS SDK) and returns an array of messages (use with caution).
 		 *
+		 * @public
 		 * @param {string} queueName - The name of the queue to read.
 		 * @param {Function=} mapper - A function that can be used to map messages into something else.
 		 * @param {Boolean=} synchronousDelete - If true, the promise won't resolve until new messages have been read *and deleted* from the queue.
-		 *
 		 * @returns {Promise.<Object[]>}
 		 */
 		drain(queueName, mapper, synchronousDelete) {
@@ -476,12 +481,12 @@ module.exports = (() => {
 		 * Makes repeated reads from a queue until canceled and returns messages
 		 * using the callback provided.
 		 *
+		 * @public
 		 * @param {string} queueName - The name of the queue to read.
 		 * @param {Function} callback - Invoked with a messages as they become available.
 		 * @param {Number=} pollInterval - The milliseconds to wait between polling the queue.
 		 * @param {Number=} pollDuration - The maximum amount of time the server-side long-poll will wait for messages to become available.
 		 * @param {Number=} maximumMessages - The maximum number of messages to read per request (cannot be more than 10).
-		 *
 		 * @returns {Disposable}
 		 */
 		observe(queueName, callback, pollInterval, pollDuration, batchSize) {
@@ -566,6 +571,7 @@ module.exports = (() => {
 		/**
 		 * Changes the policy on a Queue. The "policy" must conform to Amazon's schema.
 		 *
+		 * @public
 		 * @param {string} queueName - The name of the queue to adjust.
 		 * @param {Object} policy - The Amazon schema-compliant policy.
 		 * @returns {Promise}
