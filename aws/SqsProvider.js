@@ -386,7 +386,84 @@ module.exports = (() => {
 
 											resolveCallback();
 										} else {
-											logger.error('SQS queue send', counter, ' failed:', qualifiedQueueName);
+											logger.error('SQS queue send', counter, 'failed:', qualifiedQueueName);
+											logger.error(error);
+
+											rejectCallback('Failed to send message to SQS queue.');
+										}
+									});
+								}
+							);
+						});
+				});
+		}
+
+		/**
+		 * Enqueues b batch of messages (up to 10) in the queue. If the queue doesn't exist, it will
+		 * be created.
+		 *
+		 * @public
+		 * @param {string} queueName - The name of the queue to add the message to.
+		 * @param {Array.<Object>} batch - The messages to enqueue (each will be serialized to JSON).
+		 * @returns {Promise}
+		 */
+		sendBatch(queueName, batch) {
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsRequired(queueName, 'queueName', String);
+					assert.argumentIsArray(batch, 'batch);
+
+					if (batch.length === 0) {
+						return Promise.resolve();
+					}
+
+					if (batch.length > 10) {
+						return Promise.reject('The SQS provider is unable to enqueue more than 10 messages at once.');
+					}
+
+					if (this.getIsDisposed()) {
+						throw new Error('The SQS Provider has been disposed.');
+					}
+
+					if (!this._started) {
+						throw new Error('The SQS Provider has not been started.');
+					}
+
+					return this.getQueueUrl(queueName)
+						.then((queueUrl) => {
+							return promise.build(
+								(resolveCallback, rejectCallback) => {
+									this._counter + batch.length;
+
+									const start = this._counter - batch.length + 1;
+									const end = this._counter;
+
+									const qualifiedQueueName = getQualifiedQueueName(this._configuration.prefix, queueName);
+
+									logger.debug('Sending messages', start, 'through', end, 'to SQS queue:', qualifiedQueueName);
+									logger.trace(batch);
+
+									this._sqs.sendMessage({
+										QueueUrl: queueUrl,
+										Entries: batch.map((item, i) => {
+											return {
+												Id: i.toString(),
+												MessageBody: JSON.stringify(item)
+											};
+										})
+									}, (error, data) => {
+										if (error === null) {
+											if (data.Failed.length !=== 0) {
+												logger.error('SQS queue send (',  start, 'through', end, ') failed,', data.Failed.length, 'messages could not be enqueued:', qualifiedQueueName);
+
+												rejectCallback('Failed to send messages to SQS queue.');
+											} else {
+												logger.info('Sent messages', start, 'through', end, 'to SQS queue:', qualifiedQueueName);
+
+												resolveCallback();
+											}
+										} else {
+											logger.error('SQS queue send (',  start, 'through', end, ') failed,', batch.length, 'messages could not be enqueued:', qualifiedQueueName);
 											logger.error(error);
 
 											rejectCallback('Failed to send messages to SQS queue.');
