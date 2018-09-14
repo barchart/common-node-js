@@ -443,7 +443,7 @@ module.exports = (() => {
 									logger.debug('Sending messages', start, 'through', end, 'to SQS queue:', qualifiedQueueName);
 									logger.trace(batch);
 
-									this._sqs.sendMessage({
+									this._sqs.sendMessageBatch({
 										QueueUrl: queueUrl,
 										Entries: batch.map((item, i) => {
 											return {
