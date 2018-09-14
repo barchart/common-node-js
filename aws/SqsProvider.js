@@ -433,7 +433,7 @@ module.exports = (() => {
 						.then((queueUrl) => {
 							return promise.build(
 								(resolveCallback, rejectCallback) => {
-									this._counter + batch.length;
+									this._counter += batch.length;
 
 									const start = this._counter - batch.length + 1;
 									const end = this._counter;
