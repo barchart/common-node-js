@@ -411,7 +411,7 @@ module.exports = (() => {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(queueName, 'queueName', String);
-					assert.argumentIsArray(batch, 'batch);
+					assert.argumentIsArray(batch, 'batch');
 
 					if (batch.length === 0) {
 						return Promise.resolve();
