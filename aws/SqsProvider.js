@@ -453,7 +453,7 @@ module.exports = (() => {
 										})
 									}, (error, data) => {
 										if (error === null) {
-											if (data.Failed.length !=== 0) {
+											if (data.Failed.length !== 0) {
 												logger.error('SQS queue send (',  start, 'through', end, ') failed,', data.Failed.length, 'messages could not be enqueued:', qualifiedQueueName);
 
 												rejectCallback('Failed to send messages to SQS queue.');
