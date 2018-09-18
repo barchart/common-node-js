@@ -90,14 +90,14 @@ module.exports = (() => {
 
 					return flushPromise;
 				}).catch((e) => {
-					logger.error('Session flush failed', e);
-
 					if (e instanceof FailureReason) {
 						try {
 							logger.error('Session flush failure reason', e.format());
 						} catch (ignored) {
 
 						}
+					} else {
+						logger.error('Session flush failed', e);
 					}
 
 					return Promise.reject(e);
