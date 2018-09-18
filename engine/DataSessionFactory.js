@@ -92,7 +92,7 @@ module.exports = (() => {
 				}).catch((e) => {
 					if (e instanceof FailureReason) {
 						try {
-							logger.error('Session flush failure reason', e.format());
+							logger.error('Session flush failed', e.format());
 						} catch (ignored) {
 
 						}
