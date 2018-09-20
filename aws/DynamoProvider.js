@@ -613,6 +613,82 @@ module.exports = (() => {
 				});
 		}
 
+		scanChunk(scan, previous) {
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsRequired(scan, 'scan', Scan, 'Scan');
+
+					checkReady.call(this);
+
+					const options = scan.toScanSchema();
+
+					return this._scheduler.backoff(() => {
+						return promise.build((resolveCallback, rejectCallback) => {
+							if (previous && previous.startKey) {
+								options.ExclusiveStartKey = previous.startKey;
+							}
+
+							this._dynamo.scan(options, (error, data) => {
+								if (error) {
+									const dynamoError = Enum.fromCode(DynamoError, error.code);
+
+									if (dynamoError !== null && dynamoError.retryable) {
+										logger.debug('Encountered retryable error [', error.code, '] while scanning [', scan.table.name, ']');
+
+										rejectCallback(error);
+									} else {
+										resolveCallback({ code: DYNAMO_RESULT.FAILURE, error: error });
+									}
+								} else {
+									let results;
+
+									try {
+										results = data.Items.map(i => Serializer.deserialize(i, scan.table));
+									} catch (e) {
+										logger.error('Unable to deserialize scan results.', e);
+
+										if (data.Items) {
+											logger.error(data.Items);
+										}
+
+										results = null;
+
+										resolveCallback({ code: DYNAMO_RESULT.FAILURE, error: error });
+									}
+
+									if (results !== null) {
+										let wrapper = { };
+
+										if (data.LastEvaluatedKey) {
+											wrapper.startKey = data.LastEvaluatedKey;
+										}
+
+										wrapper.code = DYNAMO_RESULT.SUCCESS;
+										wrapper.results = results;
+
+										resolveCallback(wrapper);
+									}
+								}
+							});
+						});
+					}).then((results) => {
+						if (results.code === DYNAMO_RESULT.FAILURE) {
+							return Promise.reject(results.error);
+						} else {
+							return Promise.resolve(results);
+						}
+					});
+				}).then((results) => {
+					logger.debug('Ran [', scan.description, '] in chunk mode on [', scan.table.name + (scan.index ? '/ ' + scan.index.name : ''), '] and matched [', results.length ,'] results.');
+
+					return results;
+				}).catch((e) => {
+					logger.error('Failed to run [', scan.description, '] in chunk mode on [', scan.table.name + (scan.index ? '/' + scan.index.name : ''), ']', e);
+
+					return Promise.reject(e);
+				});
+		}
+
 		/**
 		 * Runs a query against a DynamoDB table (or index) and returns
 		 * all the items matching the query.
