@@ -31,9 +31,17 @@ module.exports = (() => {
 
 			this._previous = null;
 			this._scanned = 0;
+
+			this._reading = false;
 		}
 
 		_read(size) {
+			if (this._reading) {
+				return;
+			}
+
+			this._reading = true;
+
 			const scanChunkRecursive = () => {
 				this._provider.scanChunk(this._scan, this._previous)
 					.then((results) => {
@@ -41,13 +49,14 @@ module.exports = (() => {
 
 						if (results.results.length !== 0) {
 							this._scanned = this._scanned + results.results.length;
+							this._reading = this.push(results.results);
 
-							if (this.push(results.results)) {
-								if (this._scan.limit === null || this._scanned < this._scan.limit) {
-									scanChunkRecursive();
-								}
+							if (this._reading) {
+								scanChunkRecursive();
 							}
 						} else {
+							this._reading = false;
+
 							this.push(null);
 						}
 					});

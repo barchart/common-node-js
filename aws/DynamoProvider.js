@@ -679,7 +679,7 @@ module.exports = (() => {
 						}
 					});
 				}).then((results) => {
-					logger.debug('Ran [', scan.description, '] in chunk mode on [', scan.table.name + (scan.index ? '/ ' + scan.index.name : ''), '] and matched [', results.length ,'] results.');
+					logger.debug('Ran [', scan.description, '] in chunk mode on [', scan.table.name + (scan.index ? '/ ' + scan.index.name : ''), '] and matched [', results.results.length ,'] results.');
 
 					return results;
 				}).catch((e) => {
