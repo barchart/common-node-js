@@ -14,7 +14,7 @@ module.exports = (() => {
 	 * a target object, in the form required for saving to DynamoDB.
 	 *
 	 * @public
-	 * @extends Writer
+	 * @extends {Writer}
 	 */
 	class ComponentSerializationWriter extends Writer {
 		constructor(component) {

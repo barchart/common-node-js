@@ -15,7 +15,7 @@ module.exports = (() => {
 	 * DynamoDB, and writes it to the target object.
 	 *
 	 * @public
-	 * @extends Writer
+	 * @extends {Writer}
 	 */
 	class AttributeDeserializationWriter extends Writer {
 		constructor(attribute) {
