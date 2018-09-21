@@ -9,7 +9,7 @@ const DynamoProvider = require('./../../DynamoProvider'),
 module.exports = (() => {
 	'use strict';
 
-	const logger = log4js.getLogger('common-node/aws/dynamo/stream/DynamoScanStream');
+	const logger = log4js.getLogger('common-node/aws/dynamo/stream/DynamoScanReader');
 
 	/**
 	 * A Node.js {@link Stream.Readable} which returns results from a DynamoDB scan.
@@ -19,7 +19,7 @@ module.exports = (() => {
 	 * @param {Scan} scan
 	 * @param {DynamoProvider} provider
 	 */
-	class DynamoScanStream extends Stream.Readable {
+	class DynamoScanReader extends Stream.Readable {
 		constructor(scan, provider) {
 			super({ objectMode: true });
 
@@ -57,9 +57,9 @@ module.exports = (() => {
 		}
 
 		toString() {
-			return '[DynamoScanStream]';
+			return '[DynamoScanReader]';
 		}
 	}
 
-	return DynamoScanStream;
+	return DynamoScanReader;
 })();
