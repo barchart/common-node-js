@@ -20,13 +20,16 @@ module.exports = (() => {
 	 * @param {Table} table - The table schema which items must conform to.
 	 * @param {DynamoProvider} provider - The provider used to write records.
 	 * @param {Boolean} remove - If true, the items are deleted (instead of written) to the database.
+	 * @param {Boolean=} explicit - If true, attribute derivation is skipped (only applies when remove is true).
 	 */
 	class DynamoStreamWriter extends Stream.Writable {
-		constructor(table, provider, remove) {
+		constructor(table, provider, remove, explicit) {
 			super({ objectMode: true });
 
 			assert.argumentIsRequired(provider, 'provider', DynamoProvider, 'DynamoProvider');
 			assert.argumentIsRequired(table, 'table', Table, 'Table');
+			assert.argumentIsOptional(remove, 'remove', Boolean);
+			assert.argumentIsOptional(explicit, 'explicit', Boolean);
 
 			this._table = table;
 			this._provider = provider;
@@ -40,10 +43,12 @@ module.exports = (() => {
 			}
 
 			this._delegateFactory = delegateFactory;
+
+			this._explicit = is.boolean(explicit) && explicit;
 		}
 
 		_write(chunk, encoding, callback) {
-			let delegate = this._delegateFactory(chunk);
+			let delegate = this._delegateFactory(chunk, this._explicit);
 
 			delegate.call(this._provider, chunk, this._table)
 				.then(() => {
@@ -61,7 +66,7 @@ module.exports = (() => {
 		}
 	}
 
-	function getCreateDelegate(chunk) {
+	function getCreateDelegate(chunk, explicit) {
 		if (is.array(chunk)) {
 			return this._provider.createItems;
 		} else {
@@ -69,11 +74,11 @@ module.exports = (() => {
 		}
 	}
 
-	function getDeleteDelegate(chunk) {
+	function getDeleteDelegate(chunk, explicit) {
 		if (is.array(chunk)) {
-			return this._provider.deleteItems;
+			return (items, table) => this._provider.deleteItems(items, table, explicit);
 		} else {
-			return this._provider.deleteItem;
+			return (items, table) => this._provider.deleteItem(items, table, explicit);
 		}
 	}
 
