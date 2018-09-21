@@ -1,3 +1,5 @@
+const process = require('process');
+
 const log4js = require('log4js'),
 	Stream = require('stream');
 
@@ -33,10 +35,16 @@ module.exports = (() => {
 			this._scanned = 0;
 
 			this._reading = false;
+			this._error = false;
 		}
 
 		_read(size) {
 			if (this._reading) {
+				return;
+			}
+
+			if (this._error) {
+				logger.error('Unable to continue reading, an error was encountered.');
 				return;
 			}
 
@@ -59,6 +67,15 @@ module.exports = (() => {
 
 							this.push(null);
 						}
+					}).catch((e) => {
+						this._reading = false;
+						this._error = true;
+
+						this.push(null);
+
+						logger.error('Scan stopping, error encountered', e);
+
+						process.nextTick(() => this.emit('error', e));
 					});
 			};
 
