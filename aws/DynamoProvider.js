@@ -613,6 +613,15 @@ module.exports = (() => {
 				});
 		}
 
+		/**
+		 * Runs a scan, returning the first chunk of results, along with "key" that
+		 * allows the scan to continue at the place it left off.
+		 *
+		 * @public
+		 * @param scan
+		 * @param previous
+		 * @return {Promise}
+		 */
 		scanChunk(scan, previous) {
 			return Promise.resolve()
 				.then(() => {
@@ -785,6 +794,91 @@ module.exports = (() => {
 					return results;
 				}).catch((e) => {
 					logger.error('Failed to run [', query.description, '] on [', query.table.name + (query.index ? '/' + query.index.name : ''), ']', e);
+
+					return Promise.reject(e);
+				});
+		}
+
+		/**
+		 * Runs a query, returning the first chunk of results, along with "key" that
+		 * allows the query to continue at the place it left off.
+		 *
+		 * @public
+		 * @param query
+		 * @param previous
+		 * @return {Promise}
+		 */
+		queryChunk(query, previous) {
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsRequired(query, 'query', Query, 'Query');
+
+					checkReady.call(this);
+
+					const options = query.toQuerySchema();
+
+					return this._scheduler.backoff(() => {
+						return promise.build((resolveCallback, rejectCallback) => {
+							if (previous && previous.startKey) {
+								options.ExclusiveStartKey = previous.startKey;
+							}
+
+							this._dynamo.query(options, (error, data) => {
+								if (error) {
+									const dynamoError = Enum.fromCode(DynamoError, error.code);
+
+									if (dynamoError !== null && dynamoError.retryable) {
+										logger.debug('Encountered retryable error [', error.code, '] while querying [', scan.table.name, ']');
+
+										rejectCallback(error);
+									} else {
+										resolveCallback({ code: DYNAMO_RESULT.FAILURE, error: error });
+									}
+								} else {
+									let results;
+
+									try {
+										results = data.Items.map(i => Serializer.deserialize(i, query.table));
+									} catch (e) {
+										logger.error('Unable to deserialize query results.', e);
+
+										if (data.Items) {
+											logger.error(data.Items);
+										}
+
+										results = null;
+
+										resolveCallback({ code: DYNAMO_RESULT.FAILURE, error: error });
+									}
+
+									if (results !== null) {
+										let wrapper = { };
+
+										if (data.LastEvaluatedKey) {
+											wrapper.startKey = data.LastEvaluatedKey;
+										}
+
+										wrapper.code = DYNAMO_RESULT.SUCCESS;
+										wrapper.results = results;
+
+										resolveCallback(wrapper);
+									}
+								}
+							});
+						});
+					}).then((results) => {
+						if (results.code === DYNAMO_RESULT.FAILURE) {
+							return Promise.reject(results.error);
+						} else {
+							return Promise.resolve(results);
+						}
+					});
+				}).then((results) => {
+					logger.debug('Ran [', query.description, '] in chunk mode on [', query.table.name + (query.index ? '/ ' + query.index.name : ''), '] and matched [', results.results.length ,'] results.');
+
+					return results;
+				}).catch((e) => {
+					logger.error('Failed to run [', query.description, '] in chunk mode on [', query.table.name + (query.index ? '/' + query.index.name : ''), ']', e);
 
 					return Promise.reject(e);
 				});
