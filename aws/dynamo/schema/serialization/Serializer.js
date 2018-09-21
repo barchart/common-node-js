@@ -77,14 +77,14 @@ module.exports = (() => {
 		}
 	}
 
-	const serializersExplict = new Map();
+	const serializersExplicit = new Map();
 	const serializersNormal = new Map();
 
 	function getSerializationWriter(table, explicit) {
 		let map;
 
 		if (is.boolean(explicit) && explicit) {
-			map = serializersExplict;
+			map = serializersExplicit;
 		} else {
 			map = serializersNormal;
 		}
