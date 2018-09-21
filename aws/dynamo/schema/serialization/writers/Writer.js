@@ -4,6 +4,7 @@ module.exports = (() => {
 	/**
 	 * Base class for transforming data.
 	 *
+	 * @public
 	 * @interface
 	 */
 	class Writer {
@@ -14,6 +15,7 @@ module.exports = (() => {
 		/**
 		 * Reads a source object and transcribes it to the target object.
 		 *
+		 * @public
 		 * @param {Object} source
 		 * @param {Object} target
 		 * @returns {Object}
@@ -29,11 +31,20 @@ module.exports = (() => {
 		/**
 		 * @protected
 		 * @abstract
+		 * @param {Object} source
+		 * @param {Object} target
+		 * @returns {Object}
 		 */
 		_write(source, target) {
 			return;
 		}
 
+		/**
+		 * @public
+		 * @param {Object} source
+		 * @param {Object} target
+		 * @return {Boolean}
+		 */
 		canWrite(source, target) {
 			return this._canWrite(source, target);
 		}
@@ -41,6 +52,9 @@ module.exports = (() => {
 		/**
 		 * @protected
 		 * @abstract
+		 * @param {Object} source
+		 * @param {Object} target
+		 * @return {Boolean}
 		 */
 		_canWrite(source, target) {
 			return true;

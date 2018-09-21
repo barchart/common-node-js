@@ -12,6 +12,7 @@ module.exports = (() => {
 	 *
 	 * @public
 	 * @extends {Writer}
+	 * @param {Array.<Writer>} writers
 	 */
 	class CompositeWriter extends Writer {
 		constructor(writers) {

@@ -16,6 +16,7 @@ module.exports = (() => {
 	 *
 	 * @public
 	 * @extends {Writer}
+	 * @param {Attribute} attribute
 	 */
 	class AttributeSerializationWriter extends Writer {
 		constructor(attribute) {

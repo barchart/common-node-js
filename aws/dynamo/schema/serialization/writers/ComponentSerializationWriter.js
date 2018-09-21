@@ -15,6 +15,7 @@ module.exports = (() => {
 	 *
 	 * @public
 	 * @extends {Writer}
+	 * @param {Component} component
 	 */
 	class ComponentSerializationWriter extends Writer {
 		constructor(component) {
