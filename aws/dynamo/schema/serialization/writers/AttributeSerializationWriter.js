@@ -17,9 +17,10 @@ module.exports = (() => {
 	 * @public
 	 * @extends {Writer}
 	 * @param {Attribute} attribute
+	 * @param {Boolean=} explicit - If true, derivation is suppressed
 	 */
 	class AttributeSerializationWriter extends Writer {
-		constructor(attribute) {
+		constructor(attribute, explicit) {
 			super();
 
 			assert.argumentIsRequired(attribute, 'attribute', Attribute, 'Attribute');
@@ -30,7 +31,7 @@ module.exports = (() => {
 			let existsDelegate;
 			let readDelegate;
 
-			if (this._attribute.derivation === null) {
+			if (this._attribute.derivation === null || (is.boolean(explicit) && explicit)) {
 				const attributeDelegates = getDelegatesForAttribute(this._attribute);
 
 				existsDelegate = attributeDelegates.exists;
