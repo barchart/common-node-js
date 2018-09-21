@@ -448,12 +448,13 @@ module.exports = (() => {
 		 * @public
 		 * @param {Array<Object>} item - The items to write.
 		 * @param {Table} table - Describes the schema of the table to write to.
+		 * @param {Boolean=} explicit - If keys are derived, the item will be deleted as-is, without rederiving the key.
 		 * @returns {Promise.<Boolean>}
 		 */
-		deleteItems(items, table) {
+		deleteItems(items, table, explicit) {
 			return Promise.resolve()
 				.then(() => {
-					return processBatch.call(this, table, DynamoBatchType.DELETE, items);
+					return processBatch.call(this, table, DynamoBatchType.DELETE, items, explicit);
 				});
 		}
 
@@ -463,13 +464,15 @@ module.exports = (() => {
 		 * @public
 		 * @param {Object} item - The item to delete.
 		 * @param {Table} table - Describes the schema of the table to write to.
+		 * @param {Boolean=} explicit - If keys are derived, the item will be deleted as-is, without rederiving the key.
 		 * @returns {Promise.<Boolean>}
 		 */
-		deleteItem(item, table) {
+		deleteItem(item, table, explicit) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(table, 'table', Table, 'Table');
 					assert.argumentIsRequired(item, 'item', Object);
+					assert.argumentIsOptional(explicit, 'explicit', Boolean);
 
 					checkReady.call(this);
 
@@ -479,7 +482,7 @@ module.exports = (() => {
 						TableName: table.name
 					};
 
-					payload.Key = Serializer.serialize(item, table, true);
+					payload.Key = Serializer.serialize(item, table, true, explicit);
 
 					const deleteItem = () => {
 						return promise.build((resolveCallback, rejectCallback) => {
@@ -951,10 +954,11 @@ module.exports = (() => {
 		});
 	}
 
-	function processBatch(table, type, items) {
+	function processBatch(table, type, items, explicit) {
 		assert.argumentIsRequired(table, 'table', Table, 'Table');
 		assert.argumentIsRequired(type, 'type', DynamoBatchType, 'DynamoBatchType');
 		assert.argumentIsArray(items, 'items');
+		assert.argumentIsOptional(explicit, 'explicit', Boolean);
 
 		checkReady.call(this);
 
@@ -1019,7 +1023,7 @@ module.exports = (() => {
 					const request = { };
 					const wrapper = { };
 
-					wrapper[type.requestItemName] = Serializer.serialize(item, table, type.keysOnly);
+					wrapper[type.requestItemName] = Serializer.serialize(item, table, type.keysOnly, explicit);
 					request[type.requestTypeName] = wrapper;
 
 					return request;

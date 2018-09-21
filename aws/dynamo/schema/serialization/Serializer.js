@@ -33,13 +33,14 @@ module.exports = (() => {
 		 * @param {Object} item - The object to serialize (for DynamoDB).
 		 * @param {Table} table - The schema that controls serialization of the object.
 		 * @param {Boolean=} keysOnly - If true, only the item's key fields will be will be serialized.
+		 * @param {Boolean=} explicit - If true, derived properties will not be evaluated.
 		 * @returns {Object} - The serialized object.
 		 */
-		static serialize(item, table, keysOnly) {
+		static serialize(item, table, keysOnly, explicit) {
 			assert.argumentIsRequired(item, 'item', Object);
 			assert.argumentIsRequired(table, 'table', Table, 'Table');
 
-			let serialized = getSerializationWriter(table).write(item, { });
+			let serialized = getSerializationWriter(table, explicit).write(item, { });
 
 			if (is.boolean(keysOnly) && keysOnly) {
 				serialized = table.keys.reduce((accumulator, key) => {
@@ -76,19 +77,29 @@ module.exports = (() => {
 		}
 	}
 
-	const serializers = new Map();
-	const deserializers = new Map();
+	const serializersExplict = new Map();
+	const serializersNormal = new Map();
 
-	function getSerializationWriter(table) {
-		if (!serializers.has(table)) {
-			const attributeWriters = table.attributes.map(a => new AttributeSerializationWriter(a));
-			const componentWriters = table.components.map(c => new ComponentSerializationWriter(c));
+	function getSerializationWriter(table, explicit) {
+		let map;
 
-			serializers.set(table, new CompositeWriter(attributeWriters.concat(componentWriters)));
+		if (is.boolean(explicit) && explicit) {
+			map = serializersExplict;
+		} else {
+			map = serializersNormal;
 		}
 
-		return serializers.get(table);
+		if (!map.has(table)) {
+			const attributeWriters = table.attributes.map(a => new AttributeSerializationWriter(a, explicit));
+			const componentWriters = table.components.map(c => new ComponentSerializationWriter(c));
+
+			map.set(table, new CompositeWriter(attributeWriters.concat(componentWriters)));
+		}
+
+		return map.get(table);
 	}
+
+	const deserializers = new Map();
 
 	function getDeserializationWriter(table) {
 		if (!deserializers.has(table)) {
