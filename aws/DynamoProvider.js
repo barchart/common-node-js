@@ -572,7 +572,7 @@ module.exports = (() => {
 											logger.error('Unable to deserialize scan results.', e);
 
 											if (data.Items) {
-												logger.error(data.Items);
+												logger.error(JSON.stringify(data.Items, null, 2));
 											}
 
 											results = null;
@@ -660,17 +660,7 @@ module.exports = (() => {
 										logger.error('Unable to deserialize scan results.', e);
 
 										if (data.Items) {
-											logger.error(data.Items);
-										}
-
-										for (let i = 0; i < data.Items.length; i++) {
-											try {
-												Serializer.deserialize(data.Items[i], scan.table);
-											} catch (e) {
-												logger.error('Issue found with record', JSON.stringify(data.Items[i]));
-
-												break;
-											}
+											logger.error(JSON.stringify(data.Items, null, 2));
 										}
 
 										results = null;
@@ -768,7 +758,7 @@ module.exports = (() => {
 											logger.error('Unable to deserialize query results.', e);
 
 											if (data.Items) {
-												logger.error(data.Items);
+												logger.error(JSON.stringify(data.Items, null, 2));
 											}
 
 											results = null;
@@ -856,7 +846,7 @@ module.exports = (() => {
 										logger.error('Unable to deserialize query results.', e);
 
 										if (data.Items) {
-											logger.error(data.Items);
+											logger.error(JSON.stringify(data.Items, null, 2));
 										}
 
 										results = null;
