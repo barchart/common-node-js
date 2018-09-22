@@ -663,6 +663,16 @@ module.exports = (() => {
 											logger.error(data.Items);
 										}
 
+										for (let i = 0; i < data.Items.length; i++) {
+											try {
+												Serializer.deserialize(data.Items[i], scan.table);
+											} catch (e) {
+												logger.error('Issue found with record', JSON.stringify(data.Items[i], null, 2));
+
+												break;
+											}
+										}
+
 										results = null;
 
 										resolveCallback({ code: DYNAMO_RESULT.FAILURE, error: error });
