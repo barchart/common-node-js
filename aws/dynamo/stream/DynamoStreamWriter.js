@@ -24,7 +24,7 @@ module.exports = (() => {
 	 */
 	class DynamoStreamWriter extends Stream.Writable {
 		constructor(table, provider, remove, explicit) {
-			super({ objectMode: true });
+			super({ objectMode: true, highWaterMark: 100 });
 
 			assert.argumentIsRequired(provider, 'provider', DynamoProvider, 'DynamoProvider');
 			assert.argumentIsRequired(table, 'table', Table, 'Table');
