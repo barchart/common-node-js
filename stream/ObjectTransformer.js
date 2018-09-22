@@ -24,7 +24,7 @@ module.exports = (() => {
 	 */
 	class ObjectTransformer extends Stream.Transform {
 		constructor(transformations, description, silent) {
-			super({ objectMode: true, highWaterMark: 10000 });
+			super({ objectMode: true, highWaterMark: 1000 });
 
 			assert.argumentIsArray(transformations, 'transformations', Transformation);
 			assert.argumentIsOptional(description, 'description', String);
