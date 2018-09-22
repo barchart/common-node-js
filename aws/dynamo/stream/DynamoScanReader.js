@@ -23,7 +23,7 @@ module.exports = (() => {
 	 */
 	class DynamoScanReader extends Stream.Readable {
 		constructor(scan, provider) {
-			super({ objectMode: true });
+			super({ objectMode: true, highWaterMark: 100000 });
 
 			assert.argumentIsRequired(scan, 'scan', Scan, 'Scan');
 			assert.argumentIsRequired(provider, 'provider', DynamoProvider, 'DynamoProvider');
