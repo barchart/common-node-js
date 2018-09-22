@@ -667,7 +667,7 @@ module.exports = (() => {
 											try {
 												Serializer.deserialize(data.Items[i], scan.table);
 											} catch (e) {
-												logger.error('Issue found with record', JSON.stringify(data.Items[i], null, 2));
+												logger.error('Issue found with record', JSON.stringify(data.Items[i]));
 
 												break;
 											}
