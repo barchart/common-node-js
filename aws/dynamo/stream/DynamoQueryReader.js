@@ -50,33 +50,41 @@ module.exports = (() => {
 
 			this._reading = true;
 
-			const queryChunkRecursive = () => {
-				this._provider.queryChunk(this._query, this._previous)
-					.then((results) => {
-						this._previous = results;
+			logger.debug('Query stream started');
 
-						if (results.results.length !== 0) {
-							this._queried = this._queried + results.results.length;
-							this._reading = this.push(results.results);
+			const queryChunkRecursive = () => {
+				if (this._previous !== null && !this._previous.startKey) {
+					this._reading = false;
+
+					logger.debug('Query stream stopping, no more results');
+
+					this.push(null);
+				} else {
+					this._provider.queryChunk(this._query, this._previous)
+						.then((results) => {
+							this._previous = results;
+
+							if (results.results.length !== 0) {
+								this._queried = this._queried + results.results.length;
+								this._reading = this.push(results.results);
+							}
 
 							if (this._reading) {
 								queryChunkRecursive();
+							} else {
+								logger.debug('Query stream paused');
 							}
-						} else {
+						}).catch((e) => {
 							this._reading = false;
+							this._error = true;
 
 							this.push(null);
-						}
-					}).catch((e) => {
-						this._reading = false;
-						this._error = true;
 
-						this.push(null);
+							logger.error('Query stopping, error encountered', e);
 
-						logger.error('Query stopping, error encountered', e);
-
-						process.nextTick(() => this.emit('error', e));
-					});
+							process.nextTick(() => this.emit('error', e));
+						});
+				}
 			};
 
 			queryChunkRecursive();

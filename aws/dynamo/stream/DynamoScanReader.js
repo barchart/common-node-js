@@ -48,39 +48,43 @@ module.exports = (() => {
 				return;
 			}
 
-			logger.debug('Scan stream started');
-
 			this._reading = true;
 
-			const scanChunkRecursive = () => {
-				this._provider.scanChunk(this._scan, this._previous)
-					.then((results) => {
-						this._previous = results;
+			logger.debug('Scan stream started');
 
-						if (results.results.length !== 0) {
-							this._scanned = this._scanned + results.results.length;
-							this._reading = this.push(results.results);
+			const scanChunkRecursive = () => {
+				if (this._previous !== null && !this._previous.startKey) {
+					this._reading = false;
+
+					logger.debug('Scan stream stopping, no more results');
+
+					this.push(null);
+				} else {
+					this._provider.scanChunk(this._scan, this._previous)
+						.then((results) => {
+							this._previous = results;
+
+							if (results.results.length !== 0) {
+								this._scanned = this._scanned + results.results.length;
+								this._reading = this.push(results.results);
+							}
 
 							if (this._reading) {
 								scanChunkRecursive();
 							} else {
 								logger.debug('Scan stream paused');
 							}
-						} else {
+						}).catch((e) => {
 							this._reading = false;
+							this._error = true;
 
 							this.push(null);
-						}
-					}).catch((e) => {
-						this._reading = false;
-						this._error = true;
 
-						this.push(null);
+							logger.error('Scan stopping, error encountered', e);
 
-						logger.error('Scan stopping, error encountered', e);
-
-						process.nextTick(() => this.emit('error', e));
-					});
+							process.nextTick(() => this.emit('error', e));
+						});
+				}
 			};
 
 			scanChunkRecursive();
