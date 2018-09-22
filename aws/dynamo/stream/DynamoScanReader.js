@@ -48,6 +48,8 @@ module.exports = (() => {
 				return;
 			}
 
+			logger.debug('Scan stream started');
+
 			this._reading = true;
 
 			const scanChunkRecursive = () => {
@@ -61,6 +63,8 @@ module.exports = (() => {
 
 							if (this._reading) {
 								scanChunkRecursive();
+							} else {
+								logger.debug('Scan stream paused');
 							}
 						} else {
 							this._reading = false;
