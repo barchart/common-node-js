@@ -621,14 +621,15 @@ module.exports = (() => {
 		 * allows the scan to continue at the place it left off.
 		 *
 		 * @public
-		 * @param scan
-		 * @param previous
+		 * @param {Scan} scan
+		 * @param {Object} startKey
 		 * @return {Promise}
 		 */
-		scanChunk(scan, previous) {
+		scanChunk(scan, startKey) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(scan, 'scan', Scan, 'Scan');
+					assert.argumentIsOptional(startKey, 'startKey', Object);
 
 					checkReady.call(this);
 
@@ -636,8 +637,8 @@ module.exports = (() => {
 
 					return this._scheduler.backoff(() => {
 						return promise.build((resolveCallback, rejectCallback) => {
-							if (previous && previous.startKey) {
-								options.ExclusiveStartKey = Serializer.serialize(previous.startKey, scan.table, true, true);
+							if (startKey) {
+								options.ExclusiveStartKey = Serializer.serialize(startKey, scan.table, true, true);
 							}
 
 							this._dynamo.scan(options, (error, data) => {
