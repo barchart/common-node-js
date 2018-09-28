@@ -60,7 +60,15 @@ module.exports = (() => {
 
 					this.push(null);
 				} else {
-					this._provider.queryChunk(this._query, this._previous)
+					let startKey;
+
+					if (this._previous !== null && this._previous.startKey) {
+						startKey = this._previous.startKey;
+					} else {
+						startKey = null;
+					}
+
+					this._provider.queryChunk(this._query, startKey)
 						.then((results) => {
 							this._previous = results;
 

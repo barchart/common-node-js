@@ -808,14 +808,15 @@ module.exports = (() => {
 		 * allows the query to continue at the place it left off.
 		 *
 		 * @public
-		 * @param query
-		 * @param previous
+		 * @param {query} query
+		 * @param {Object} startKey
 		 * @return {Promise}
 		 */
-		queryChunk(query, previous) {
+		queryChunk(query, startKey) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(query, 'query', Query, 'Query');
+					assert.argumentIsOptional(startKey, 'startKey', Object);
 
 					checkReady.call(this);
 
@@ -823,8 +824,8 @@ module.exports = (() => {
 
 					return this._scheduler.backoff(() => {
 						return promise.build((resolveCallback, rejectCallback) => {
-							if (previous && previous.startKey) {
-								options.ExclusiveStartKey = previous.startKey;
+							if (startKey) {
+								options.ExclusiveStartKey = Serializer.serialize(startKey, query.table, true, true);
 							}
 
 							this._dynamo.query(options, (error, data) => {
@@ -859,7 +860,7 @@ module.exports = (() => {
 										let wrapper = { };
 
 										if (data.LastEvaluatedKey) {
-											wrapper.startKey = data.LastEvaluatedKey;
+											wrapper.startKey = Serializer.deserialize(data.LastEvaluatedKey, query.table);
 										}
 
 										wrapper.code = DYNAMO_RESULT.SUCCESS;
