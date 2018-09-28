@@ -259,6 +259,23 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Runs a scan, returning a page of results.
+		 *
+		 * @public
+		 * @param {Scan} scan
+		 * @param {Object=} startKey
+		 * @return {Promise}
+		 */
+		scanChunk(scan, startKey) {
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
+
+					return this._provider.scanChunk(scan, startKey);
+				});
+		}
+
+		/**
 		 * Runs a query on the table.
 		 *
 		 * @protected
@@ -272,6 +289,23 @@ module.exports = (() => {
 
 					return this._provider.query(query);
 				});
+		}
+
+		/**
+		 * Runs a query, returning a page of results.
+		 *
+		 * @public
+		 * @param {Query} query
+		 * @param {Object=} startKey
+		 * @return {Promise}
+		 */
+		queryChunk(query, startKey) {
+			return Promise.resolve()
+			.then(() => {
+				checkReady.call(this);
+
+				return this._provider.queryChunk(query, startKey);
+			});
 		}
 
 		_onDispose() {

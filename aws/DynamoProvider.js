@@ -617,12 +617,11 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Runs a scan, returning the first chunk of results, along with "key" that
-		 * allows the scan to continue at the place it left off.
+		 * Runs a scan, returning a page of results.
 		 *
 		 * @public
 		 * @param {Scan} scan
-		 * @param {Object} startKey
+		 * @param {Object=} startKey
 		 * @return {Promise}
 		 */
 		scanChunk(scan, startKey) {
@@ -804,12 +803,11 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Runs a query, returning the first chunk of results, along with "key" that
-		 * allows the query to continue at the place it left off.
+		 * Runs a query, returning a page of results.
 		 *
 		 * @public
-		 * @param {query} query
-		 * @param {Object} startKey
+		 * @param {Query} query
+		 * @param {Object=} startKey
 		 * @return {Promise}
 		 */
 		queryChunk(query, startKey) {
