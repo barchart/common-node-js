@@ -3,8 +3,7 @@ const log4js = require('log4js');
 const assert = require('@barchart/common-js/lang/assert'),
 	attributes = require('@barchart/common-js/lang/attributes'),
 	Disposable = require('@barchart/common-js/lang/Disposable'),
-	is = require('@barchart/common-js/lang/is'),
-	promise = require('@barchart/common-js/lang/promise');
+	is = require('@barchart/common-js/lang/is');
 
 const Definition = require('./schema/definitions/Table'),
 	DynamoProvider = require('./../DynamoProvider');
@@ -49,7 +48,27 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Given a record, return's the record's hash key value.
+		 * Returns a key, suitable as a starting point for queries and scans.
+		 *
+		 * @public
+		 * @param {*} hash
+		 * @param {*|null|undefined} range
+		 * @returns {Object}
+		 */
+		getPagingKey(hash, range) {
+			const pagingKey = { };
+
+			attributes.write(pagingKey, this._definition.hashKey.attribute.name, hash);
+
+			if (this._definition.rangeKey !== null) {
+				attributes.write(pagingKey, this._definition.rangeKey.attribute.name, range);
+			}
+
+			return pagingKey;
+		}
+
+		/**
+		 * Given a record, returns the record's hash key value.
 		 *
 		 * @public
 		 * @param {Object} record
@@ -62,7 +81,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Given a record, return's the record's range key value (or a null value).
+		 * Given a record, returns the record's range key value (or a null value).
 		 *
 		 * @public
 		 * @param {Object} record

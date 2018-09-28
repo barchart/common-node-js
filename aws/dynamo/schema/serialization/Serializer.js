@@ -1,5 +1,4 @@
 const assert = require('@barchart/common-js/lang/assert'),
-	attributes = require('@barchart/common-js/lang/attributes'),
 	is = require('@barchart/common-js/lang/is');
 
 const Table = require('./../../schema/definitions/Table');
