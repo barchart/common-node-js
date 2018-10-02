@@ -521,14 +521,12 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Scan} scan
-		 * @param {Boolean=} skipDeserialization
 		 * @returns {Promise.<Array.<Object>>}
 		 */
-		scan(scan, skipDeserialization) {
+		scan(scan) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(scan, 'scan', Scan, 'Scan');
-					assert.argumentIsOptional(skipDeserialization, 'skipDeserialization', Boolean);
 
 					checkReady.call(this);
 
@@ -569,7 +567,7 @@ module.exports = (() => {
 										let results;
 
 										try {
-											if (scan.skipDeserialization || (is.boolean(skipDeserialization) && skipDeserialization)) {
+											if (scan.skipDeserialization) {
 												results = data.Items;
 											} else {
 												results = data.Items.map(i => Serializer.deserialize(i, scan.table));
@@ -628,15 +626,13 @@ module.exports = (() => {
 		 * @public
 		 * @param {Scan} scan
 		 * @param {Object=} startKey
-		 * @param {Boolean=} skipDeserialization
 		 * @return {Promise}
 		 */
-		scanChunk(scan, startKey, skipDeserialization) {
+		scanChunk(scan, startKey) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(scan, 'scan', Scan, 'Scan');
 					assert.argumentIsOptional(startKey, 'startKey', Object);
-					assert.argumentIsOptional(skipDeserialization, 'skipDeserialization', Boolean);
 
 					checkReady.call(this);
 
@@ -663,7 +659,7 @@ module.exports = (() => {
 									let results;
 
 									try {
-										if (scan.skipDeserialization || (is.boolean(skipDeserialization) && skipDeserialization)) {
+										if (scan.skipDeserialization) {
 											results = data.Items;
 										} else {
 											results = data.Items.map(i => Serializer.deserialize(i, scan.table));
@@ -719,14 +715,12 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Query} query
-		 * @param {Boolean=} skipDeserialization
 		 * @returns {Promise.<Array.<Object>>}
 		 */
-		query(query, skipDeserialization) {
+		query(query) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(query, 'query', Query, 'Query');
-					assert.argumentIsOptional(skipDeserialization, 'skipDeserialization', Boolean);
 
 					checkReady.call(this);
 
@@ -767,7 +761,7 @@ module.exports = (() => {
 										let results;
 
 										try {
-											if (query.skipDeserialization || (is.boolean(skipDeserialization) && skipDeserialization)) {
+											if (query.skipDeserialization) {
 												results = data.Items;
 											} else {
 												results = data.Items.map(i => Serializer.deserialize(i, query.table));
@@ -826,15 +820,13 @@ module.exports = (() => {
 		 * @public
 		 * @param {Query} query
 		 * @param {Object=} startKey
-		 * @param {Boolean=} skipDeserialization
 		 * @return {Promise}
 		 */
-		queryChunk(query, startKey, skipDeserialization) {
+		queryChunk(query, startKey) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(query, 'query', Query, 'Query');
 					assert.argumentIsOptional(startKey, 'startKey', Object);
-					assert.argumentIsOptional(skipDeserialization, 'skipDeserialization', Boolean);
 
 					checkReady.call(this);
 
@@ -861,7 +853,7 @@ module.exports = (() => {
 									let results;
 
 									try {
-										if (query.skipDeserialization || (is.boolean(skipDeserialization) && skipDeserialization)) {
+										if (query.skipDeserialization) {
 											results = data.Items;
 										} else {
 											results = data.Items.map(i => Serializer.deserialize(i, query.table));
