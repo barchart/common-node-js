@@ -521,12 +521,14 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Scan} scan
+		 * @param {Boolean=} skipDeserialization
 		 * @returns {Promise.<Array.<Object>>}
 		 */
-		scan(scan) {
+		scan(scan, skipDeserialization) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(scan, 'scan', Scan, 'Scan');
+					assert.argumentIsOptional(skipDeserialization, 'skipDeserialization', Boolean);
 
 					checkReady.call(this);
 
@@ -567,7 +569,11 @@ module.exports = (() => {
 										let results;
 
 										try {
-											results = data.Items.map(i => Serializer.deserialize(i, scan.table));
+											if (scan.skipDeserialization || (is.boolean(skipDeserialization) && skipDeserialization)) {
+												results = data.Items;
+											} else {
+												results = data.Items.map(i => Serializer.deserialize(i, scan.table));
+											}
 										} catch (e) {
 											logger.error('Unable to deserializeUnable to deserialize scan results.', e);
 
@@ -622,13 +628,15 @@ module.exports = (() => {
 		 * @public
 		 * @param {Scan} scan
 		 * @param {Object=} startKey
+		 * @param {Boolean=} skipDeserialization
 		 * @return {Promise}
 		 */
-		scanChunk(scan, startKey) {
+		scanChunk(scan, startKey, skipDeserialization) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(scan, 'scan', Scan, 'Scan');
 					assert.argumentIsOptional(startKey, 'startKey', Object);
+					assert.argumentIsOptional(skipDeserialization, 'skipDeserialization', Boolean);
 
 					checkReady.call(this);
 
@@ -655,7 +663,11 @@ module.exports = (() => {
 									let results;
 
 									try {
-										results = data.Items.map(i => Serializer.deserialize(i, scan.table));
+										if (scan.skipDeserialization || (is.boolean(skipDeserialization) && skipDeserialization)) {
+											results = data.Items;
+										} else {
+											results = data.Items.map(i => Serializer.deserialize(i, scan.table));
+										}
 									} catch (e) {
 										logger.error('Unable to deserialize scan results.', e);
 
@@ -707,12 +719,14 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Query} query
+		 * @param {Boolean=} skipDeserialization
 		 * @returns {Promise.<Array.<Object>>}
 		 */
-		query(query) {
+		query(query, skipDeserialization) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(query, 'query', Query, 'Query');
+					assert.argumentIsOptional(skipDeserialization, 'skipDeserialization', Boolean);
 
 					checkReady.call(this);
 
@@ -753,7 +767,11 @@ module.exports = (() => {
 										let results;
 
 										try {
-											results = data.Items.map(i => Serializer.deserialize(i, query.table));
+											if (query.skipDeserialization || (is.boolean(skipDeserialization) && skipDeserialization)) {
+												results = data.Items;
+											} else {
+												results = data.Items.map(i => Serializer.deserialize(i, query.table));
+											}
 										} catch (e) {
 											logger.error('Unable to deserialize query results.', e);
 
@@ -808,13 +826,15 @@ module.exports = (() => {
 		 * @public
 		 * @param {Query} query
 		 * @param {Object=} startKey
+		 * @param {Boolean=} skipDeserialization
 		 * @return {Promise}
 		 */
-		queryChunk(query, startKey) {
+		queryChunk(query, startKey, skipDeserialization) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(query, 'query', Query, 'Query');
 					assert.argumentIsOptional(startKey, 'startKey', Object);
+					assert.argumentIsOptional(skipDeserialization, 'skipDeserialization', Boolean);
 
 					checkReady.call(this);
 
@@ -841,7 +861,11 @@ module.exports = (() => {
 									let results;
 
 									try {
-										results = data.Items.map(i => Serializer.deserialize(i, query.table));
+										if (query.skipDeserialization || (is.boolean(skipDeserialization) && skipDeserialization)) {
+											results = data.Items;
+										} else {
+											results = data.Items.map(i => Serializer.deserialize(i, query.table));
+										}
 									} catch (e) {
 										logger.error('Unable to deserialize query results.', e);
 

@@ -59,7 +59,7 @@ module.exports = (() => {
 
 			callback(filterBuilder);
 
-			this._scan = new Scan(this._scan.table, this._scan.index, filterBuilder.filter, this._scan.attributes, this._scan.limit, this._scan.consistentRead, this._scan.description);
+			this._scan = new Scan(this._scan.table, this._scan.index, filterBuilder.filter, this._scan.attributes, this._scan.limit, this._scan.consistentRead, this._scan.skipDeserialization, this._scan.description);
 
 			return this;
 		}
@@ -75,7 +75,7 @@ module.exports = (() => {
 		withIndex(indexName) {
 			assert.argumentIsRequired(indexName, 'indexName', String);
 
-			this._scan = new Scan(this._scan.table, getIndex(indexName, this._scan.table), this._scan.filter, this._scan.attributes, this._scan.limit, this._scan.consistentRead, this._scan.description);
+			this._scan = new Scan(this._scan.table, getIndex(indexName, this._scan.table), this._scan.filter, this._scan.attributes, this._scan.limit, this._scan.consistentRead, this._scan.skipDeserialization, this._scan.description);
 
 			return this;
 		}
@@ -98,7 +98,7 @@ module.exports = (() => {
 				if (!attributes.some(a => a.name === attribute.name)) {
 					attributes.push(attribute);
 
-					this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, attributes, this._scan.limit, this._scan.consistentRead, this._scan.description);
+					this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, attributes, this._scan.limit, this._scan.consistentRead, this._scan.skipDeserialization, this._scan.description);
 				}
 			}
 
@@ -115,7 +115,7 @@ module.exports = (() => {
 		withLimit(limit) {
 			assert.argumentIsRequired(limit, 'limit', Number);
 
-			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, this._scan.attributes, limit, this._scan.consistentRead, this._scan.description);
+			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, this._scan.attributes, limit, this._scan.consistentRead, this._scan.skipDeserialization, this._scan.description);
 
 			return this;
 		}
@@ -130,7 +130,7 @@ module.exports = (() => {
 		withDescription(description) {
 			assert.argumentIsRequired(description, 'description', String);
 
-			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, this._scan.attributes, this._scan.limit, this._scan.consistentRead, description);
+			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, this._scan.attributes, this._scan.limit, this._scan.consistentRead, this._scan.skipDeserialization, description);
 
 			return this;
 		}
@@ -142,7 +142,20 @@ module.exports = (() => {
 		 * @returns {ScanBuilder}
 		 */
 		withConsistentRead() {
-			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, this._scan.attributes, this._scan.limit, true, this._scan.description);
+			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, this._scan.attributes, this._scan.limit, true, this._scan.skipDeserialization, this._scan.description);
+
+			return this;
+		}
+
+		/**
+		 * Adds a directive to skip deserialization and return records in
+		 * DynamoDB format.
+		 *
+		 * @public
+		 * @returns {ScanBuilder}
+		 */
+		withDeserializationSkipped() {
+			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, this._scan.attributes, this._scan.limit, this._scan.consistentRead, true, this._scan.description);
 
 			return this;
 		}

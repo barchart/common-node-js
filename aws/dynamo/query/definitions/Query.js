@@ -1,6 +1,4 @@
-const array = require('@barchart/common-js/lang/array'),
-	assert = require('@barchart/common-js/lang/assert'),
-	is = require('@barchart/common-js/lang/is'),
+const is = require('@barchart/common-js/lang/is'),
 	object = require('@barchart/common-js/lang/object');
 
 const Action = require('./Action'),
@@ -25,10 +23,11 @@ module.exports = (() => {
 	 * @param {Array<Attribute>} attributes
 	 * @param {OrderingType=} orderingType
 	 * @param {Boolean=} consistentRead
+	 * @param {Boolean=} skipDeserialization
 	 * @param {String=} description
 	 */
 	class Query extends Action {
-		constructor(table, index, keyFilter, resultsFilter, attributes, limit, orderingType, consistentRead, description) {
+		constructor(table, index, keyFilter, resultsFilter, attributes, limit, orderingType, consistentRead, skipDeserialization, description) {
 			super(table, index, (description || '[Unnamed Query]'));
 
 			this._keyFilter = keyFilter || null;
@@ -37,6 +36,7 @@ module.exports = (() => {
 			this._attributes = attributes || [ ];
 			this._limit = limit || null;
 			this._consistentRead = consistentRead || false;
+			this._skipDeserialization = skipDeserialization || false;
 			this._orderingType = orderingType || OrderingType.ASCENDING;
 		}
 
@@ -101,6 +101,17 @@ module.exports = (() => {
 		 */
 		get consistentRead() {
 			return this._consistentRead;
+		}
+
+		/**
+		 * If true, the query will return records in DynamoDB format, skipping
+		 * the conversion to normal objects.
+		 *
+		 * @public
+		 * @returns {Boolean}
+		 */
+		get skipDeserialization() {
+			return this._skipDeserialization;
 		}
 
 		/**

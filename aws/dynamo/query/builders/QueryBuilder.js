@@ -55,7 +55,7 @@ module.exports = (() => {
 		withIndex(indexName) {
 			assert.argumentIsRequired(indexName, 'indexName', String);
 
-			this._query = new Query(this._query.table, getIndex(indexName, this._query.table), this._query.keyFilter, this._query.resultsFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.description);
+			this._query = new Query(this._query.table, getIndex(indexName, this._query.table), this._query.keyFilter, this._query.resultsFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.description);
 
 			return this;
 		}
@@ -75,7 +75,7 @@ module.exports = (() => {
 
 			callback(filterBuilder);
 
-			this._query = new Query(this._query.table, this._query.index, filterBuilder.filter, this._query.resultsFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.description);
+			this._query = new Query(this._query.table, this._query.index, filterBuilder.filter, this._query.resultsFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.description);
 
 			return this;
 		}
@@ -95,7 +95,7 @@ module.exports = (() => {
 
 			callback(filterBuilder);
 
-			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, filterBuilder.filter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.description);
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, filterBuilder.filter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.description);
 
 			return this;
 		}
@@ -118,7 +118,7 @@ module.exports = (() => {
 				if (!attributes.some(a => a.name === attribute.name)) {
 					attributes.push(attribute);
 
-					this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.description);
+					this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.description);
 				}
 			}
 
@@ -135,7 +135,7 @@ module.exports = (() => {
 		withLimit(limit) {
 			assert.argumentIsRequired(limit, 'limit', Number);
 
-			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.attributes, limit, this._query.orderingType, this._query.consistentRead, this._query.description);
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.attributes, limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.description);
 
 			return this;
 		}
@@ -150,7 +150,7 @@ module.exports = (() => {
 		withDescription(description) {
 			assert.argumentIsRequired(description, 'description', String);
 
-			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, description);
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, description);
 
 			return this;
 		}
@@ -165,7 +165,7 @@ module.exports = (() => {
 		withOrderingType(orderingType) {
 			assert.argumentIsRequired(orderingType, 'orderingType', OrderingType, 'OrderingType');
 
-			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.attributes, this._query.limit, orderingType, this._query.consistentRead, this._query.description);
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.attributes, this._query.limit, orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.description);
 
 			return this;
 		}
@@ -177,7 +177,20 @@ module.exports = (() => {
 		 * @returns {QueryBuilder}
 		 */
 		withConsistentRead() {
-			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.attributes, this._query.limit, this._query.orderingType, true, this._query.description);
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.attributes, this._query.limit, this._query.orderingType, true, this._query.skipDeserialization, this._query.description);
+
+			return this;
+		}
+
+		/**
+		 * Adds a directive to skip deserialization and return records in
+		 * DynamoDB format.
+		 *
+		 * @public
+		 * @returns {ScanBuilder}
+		 */
+		withDeserializationSkipped() {
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, true, this._query.description);
 
 			return this;
 		}

@@ -1,6 +1,4 @@
-const array = require('@barchart/common-js/lang/array'),
-	assert = require('@barchart/common-js/lang/assert'),
-	is = require('@barchart/common-js/lang/is'),
+const is = require('@barchart/common-js/lang/is'),
 	object = require('@barchart/common-js/lang/object');
 
 const Action = require('./Action'),
@@ -22,15 +20,17 @@ module.exports = (() => {
 	 * @param {Array<Attribute>} attributes
 	 * @param {Number=} limit
 	 * @param {Boolean=} consistentRead
+	 * @param {Boolean=} skipDeserialization
 	 * @param {String=} description
 	 */
 	class Scan extends Action {
-		constructor(table, index, filter, attributes, limit, consistentRead, description) {
+		constructor(table, index, filter, attributes, limit, consistentRead, skipDeserialization, description) {
 			super(table, index, (description || '[Unnamed Scan]'));
 
 			this._filter = filter || null;
 			this._attributes = attributes || [ ];
 			this._limit = limit || null;
+			this._skipDeserialization = skipDeserialization || false;
 			this._consistentRead = consistentRead || false;
 		}
 
@@ -74,6 +74,17 @@ module.exports = (() => {
 		 */
 		get consistentRead() {
 			return this._consistentRead;
+		}
+
+		/**
+		 * If true, the scan will return records in DynamoDB format, skipping
+		 * the conversion to normal objects.
+		 *
+		 * @public
+		 * @returns {Boolean}
+		 */
+		get skipDeserialization() {
+			return this._skipDeserialization;
 		}
 
 		/**
