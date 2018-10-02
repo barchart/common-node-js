@@ -38,6 +38,16 @@ module.exports = (() => {
 			this._error = false;
 		}
 
+		/**
+		 * Returns the number of records scanned (so far).
+		 *
+		 * @public
+		 * @returns {Number}
+		 */
+		get scanned() {
+			return this._scanned;
+		}
+
 		_read(size) {
 			if (this._reading) {
 				return;

@@ -38,6 +38,16 @@ module.exports = (() => {
 			this._error = false;
 		}
 
+		/**
+		 * Returns the number of records queried (so far).
+		 *
+		 * @public
+		 * @returns {Number}
+		 */
+		get queried() {
+			return this._queried;
+		}
+
 		_read(size) {
 			if (this._reading) {
 				return;
