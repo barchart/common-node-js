@@ -154,7 +154,7 @@ module.exports = (() => {
 		 *
 		 * @protected
 		 * @param {Object} item
-		 * @param {Boolean} preventOverwrite
+		 * @param {Boolean=} preventOverwrite
 		 * @returns {Promise.<Boolean>}
 		 */
 		_createItem(item, preventOverwrite) {
