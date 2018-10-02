@@ -993,7 +993,7 @@ module.exports = (() => {
 		return workQueue.enqueue(() => {
 			const batchNumber =  workQueue.getCurrent();
 
-			logger.debug('Starting batch', type.description, 'into [', qualifiedTableName, '] for batch number [', batchNumber, '] with [', items.length, '] items');
+			logger.debug('Starting batch', type.description, 'on [', qualifiedTableName, '] for batch number [', batchNumber, '] with [', items.length, '] items');
 
 			const writeBatch = (currentPayload) => {
 				return promise.build((resolveCallback, rejectCallback) => {
