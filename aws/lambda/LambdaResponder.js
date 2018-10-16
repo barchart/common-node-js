@@ -124,6 +124,7 @@ module.exports = (() => {
 		sendPdf(buffer) {
 			this.setHeader('Content-Type', 'application/pdf');
 			this.sendRaw(buffer);
+		}
 	}
 
 	return LambdaResponder;
