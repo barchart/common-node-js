@@ -130,7 +130,7 @@ module.exports = (() => {
 		 * Sets and transmits the response as base-64 encoded data.
 		 *
 		 * @public
-		 * @param {Buffer} bugger
+		 * @param {Buffer} buffer
 		 * @param {String=} contextType
 		 */
 		sendBinary(buffer, contentType) {
