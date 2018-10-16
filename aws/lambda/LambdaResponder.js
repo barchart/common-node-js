@@ -67,6 +67,16 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Sets a response header for a PDF document.
+		 *
+		 * @public
+		 * @returns {LambdaResponder}
+		 */
+		setPdf() {
+			return this.setHeader('Content-Type', 'application/pdf');
+		}
+
+		/**
 		 * Sets an error and transmit the response.
 		 *
 		 * @public
