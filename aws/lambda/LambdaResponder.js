@@ -82,9 +82,14 @@ module.exports = (() => {
 		/**
 		 * Sends a raw response payload
 		 *
+		 * @public
 		 * @param {Object|String} response
 		 */
 		sendRaw(response) {
+			if (this.complete) {
+				return;
+			}
+
 			this._complete = true;
 
 			this._callback(null, response);
@@ -121,9 +126,26 @@ module.exports = (() => {
 			this._callback(null, payload);
 		}
 
-		sendPdf(buffer) {
-			this.setHeader('Content-Type', 'application/pdf');
-			this.sendRaw(buffer);
+		/**
+		 * Sets and transmits the response as a base-64 encoded data.
+		 *
+		 * @public
+		 * @param {Buffer} bugger
+		 * @param {String=} contextType
+		 */
+		sendBinary(buffer, contentType) {
+			const payload = { };
+
+			if (is.string(contentType)) {
+				this.setHeader('Content-Type', contentType);
+			}
+
+			payload.statusCode = 200;
+			payload.body = buffer.toString('base64');
+			payload.isBase64Encoded = true;
+			payload.headers = this._headers;
+
+			this.sendRaw(payload);
 		}
 	}
 
