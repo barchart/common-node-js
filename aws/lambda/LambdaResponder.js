@@ -127,7 +127,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Sets and transmits the response as a base-64 encoded data.
+		 * Sets and transmits the response as base-64 encoded data.
 		 *
 		 * @public
 		 * @param {Buffer} bugger
