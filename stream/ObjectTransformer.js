@@ -57,7 +57,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Adds a new {@link Transformer} intstance.
+		 * Adds a new {@link Transformer} instance.
 		 *
 		 * @public
 		 * @param {Transformation}
@@ -84,19 +84,15 @@ module.exports = (() => {
 		let error = null;
 		let transformed = chunk;
 
-		if (is.object(chunk)) {
-			this._tranformations.every((t) => {
-				try {
-					transformed = t.transform(transformed);
-				} catch (e) {
-					error = e;
-				}
+		this._tranformations.every((t) => {
+			try {
+				transformed = t.transform(transformed);
+			} catch (e) {
+				error = e;
+			}
 
-				return error === null;
-			});
-		} else {
-			error = new Error(`Transformation [ ${this._counter} ] for [ ${this._description} ] failed, unexpected input type.`);
-		}
+			return error === null;
+		});
 
 		if (error === null) {
 			callback(null, transformed);
