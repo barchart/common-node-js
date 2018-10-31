@@ -5,8 +5,9 @@ module.exports = (() => {
 	 * The result of a {@link DataOperation#process} invocation.
 	 *
 	 * @public
-	 * @param {*} - The result of the operation
-	 * @param {Array<DataOperation>} - Additional data operations triggered during processing of the current operation.
+	 * @param {DataOperation} operation - The operation.
+	 * @param {*} result - The operation's result.
+	 * @param {Array<DataOperation>} children - Operations spawned during processing of the current operation.
 	 */
 	class DataOperationResult {
 		constructor(operation, result, children) {
@@ -16,10 +17,10 @@ module.exports = (() => {
 		}
 
 		/**
-		 * The operation which was processed.
+		 * The operation.
 		 *
 		 * @public
-		 * @returns {*}
+		 * @returns {DataOperation}
 		 */
 		get operation() {
 			return this._operation;
@@ -36,7 +37,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * The additional data operations that were spawned during processing of the operation.
+		 * Operations spawned during processing of the current operation.
 		 *
 		 * @public
 		 * @returns {Array<DataOperation>}
