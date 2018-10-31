@@ -5,7 +5,8 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * An enumeration used to classify {@link DataOperation} instances.
+	 * An enumeration used to describe the processing priority of
+	 * {@link DataOperation} instances.
 	 *
 	 * @public
 	 * @extends {Enum}
@@ -23,7 +24,7 @@ module.exports = (() => {
 
 		/**
 		 * The relative order in which operations should be processed (lower
-		 * means sooner).
+		 * means sooner, higher means later).
 		 *
 		 * @public
 		 * @returns {Boolean}
@@ -33,7 +34,8 @@ module.exports = (() => {
 		}
 
 		/**
-		 * An operation that should run immediately after the current operation.
+		 * Highest priority. An operation with this priority level will be added
+		 * to the beginning of the queue.
 		 *
 		 * @public
 		 * @static
@@ -44,7 +46,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * A normal operation.
+		 * Normal priority level -- occurring before any persistence level operations.
 		 *
 		 * @public
 		 * @static
@@ -55,7 +57,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Occurs after normal processing.
+		 * Normal priority level -- occurring after any {@link DataOperationStage.PROCESS} operations.
 		 *
 		 * @public
 		 * @static
@@ -66,7 +68,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Writes a new object to the database.
+		 * Persistence priority level -- occurring after all normal priority operations.
 		 *
 		 * @public
 		 * @static
@@ -77,7 +79,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Writes updated object to the database.
+		 * Persistence priority level -- occurring after any {@link DataOperationStage.SAVE} operations.
 		 *
 		 * @public
 		 * @static
@@ -88,7 +90,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Deletes an existing object from the database.
+		 * Persistence priority level -- occurring after any {@link DataOperationStage.UPDATE} operations.
 		 *
 		 * @public
 		 * @static
@@ -99,8 +101,19 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Outputs results from session, after all other operations have
-		 * been completed.
+		 * Low priority. Occurs after all persistence priority operations but before any
+		 * {@link DataOperationStage.RESULTS} operations.
+		 *
+		 * @public
+		 * @static
+		 * @returns {DataOperationStage}
+		 */
+		static get POSTPONE() {
+			return postpone;
+		}
+
+		/**
+		 * Low priority. Occurs after all other types of operations.
 		 *
 		 * @public
 		 * @static
@@ -121,7 +134,8 @@ module.exports = (() => {
 	const save = new DataOperationStage('SAVE', 2);
 	const update = new DataOperationStage('UPDATE', 3);
 	const purge = new DataOperationStage('DELETE', 4);
-	const results = new DataOperationStage('RESULTS', 5);
+	const postpone = new DataOperationStage('TERMINAL', 5);
+	const results = new DataOperationStage('RESULTS', 6);
 
 	return DataOperationStage;
 })();
