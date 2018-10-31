@@ -5,7 +5,7 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * Comparators which can be used to sort {@link DataOperation} instances.
+	 * Comparators which can be used to sort {@link DataOperationContainer} instances.
 	 *
 	 * @public
 	 */
@@ -15,7 +15,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * The default comparator for {@link DataOperation} instances.
+		 * The default comparator for {@link DataOperationContainer} instances.
 		 *
 		 * @public
 		 * @static
@@ -30,8 +30,9 @@ module.exports = (() => {
 		}
 	}
 
-	const instance = ComparatorBuilder.startWith((a, b) => comparators.compareNumbers(a.stage.priority, b.stage.priority))
-		.thenBy((a, b) => comparators.compareNumbers(a.enqueueOrder, b.enqueueOrder))
+	const instance = ComparatorBuilder
+		.startWith((a, b) => comparators.compareNumbers(a.stage.priority, b.stage.priority))
+		.thenBy((a, b) => comparators.compareNumbers(a.order, b.order))
 		.toComparator();
 
 	return DataOperationComparators;

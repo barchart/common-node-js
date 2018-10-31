@@ -1,6 +1,7 @@
 const assert = require('@barchart/common-js/lang/assert');
 
 const DataProvider = require('./DataProvider'),
+	DataOperationContainer = require('./DataOperationContainer'),
 	DataOperationResult = require('./DataOperationResult'),
 	DataOperationStage = require('./DataOperationStage');
 
@@ -19,8 +20,6 @@ module.exports = (() => {
 			this._processed = false;
 
 			this._children = null;
-
-			this._enqueueOrder = null;
 		}
 
 		/**
@@ -31,22 +30,6 @@ module.exports = (() => {
 		 */
 		get stage() {
 			return DataOperationStage.PROCESS;
-		}
-
-		/**
-		 * @ignore
-		 * @returns {Number}
-		 */
-		get enqueueOrder() {
-			return this._enqueueOrder;
-		}
-
-		/**
-		 * @ignore
-		 * @param {Number} value
-		 */
-		set enqueueOrder(value) {
-			this._enqueueOrder = value;
 		}
 
 		/**
@@ -81,8 +64,6 @@ module.exports = (() => {
 
 							const children = this._children;
 
-							this._children = null;
-
 							return new DataOperationResult(this, result, children);
 						});
 				});
@@ -106,13 +87,14 @@ module.exports = (() => {
 		 *
 		 * @protected
 		 * @param {DataOperation} operation
+		 * @param {DataOperationStage=} priority
 		 */
-		_spawn(operation) {
+		_spawn(operation, priority) {
 			if (!this._processing) {
 				throw new Error('A new data operation can only be spawned during the processing of the operation.');
 			}
 
-			this._children.push(operation);
+			this._children.push(new DataOperationContainer(operation, priority || operation.stage));
 		}
 
 		/**
@@ -121,7 +103,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {DataOperationResult} currentResult
-		 * @param {Array.<DataOperationResult>}} spawnResults
+		 * @param {Array.<DataOperationResult>} spawnResults
 		 * @returns {DataOperationResult}
 		 */
 		transformResult(currentResult, spawnResults) {
@@ -131,7 +113,7 @@ module.exports = (() => {
 		/**
 		 * @protected
 		 * @param {*} currentResult
-		 * @param {Array.<*>}} spawnResults
+		 * @param {Array.<*>} spawnResults
 		 * @returns {*}
 		 */
 		_transformResult(currentResult, spawnResults) {

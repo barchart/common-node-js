@@ -8,6 +8,7 @@ const assert = require('@barchart/common-js/lang/assert'),
 
 const DataProvider = require('./DataProvider'),
 	DataOperation = require('./DataOperation'),
+	DataOperationContainer = require('./DataOperationContainer'),
 	DataOperationComparators = require('./DataOperationComparators'),
 	DataOperationResult = require('./DataOperationResult');
 
@@ -102,7 +103,7 @@ module.exports = (() => {
 				throw new Error('Unable to add operation to session, it has been flushed.');
 			}
 
-			enqueue.call(this, operation);
+			enqueue.call(this, new DataOperationContainer(operation, operation.stage));
 
 			return this;
 		}
@@ -155,7 +156,7 @@ module.exports = (() => {
 									let operationCount;
 
 									while (operation === null && !this._pending.empty()) {
-										const candidate = this._pending.dequeue();
+										const candidate = this._pending.dequeue().operation;
 
 										operationCount = ++operationCounter;
 
@@ -252,13 +253,13 @@ module.exports = (() => {
 		}
 	}
 
-	function enqueue(operation) {
-		operation.enqueueOrder = ++this._enqueueCounter;
+	function enqueue(container) {
+		container.order = ++this._enqueueCounter;
 
-		this._pending.enqueue(operation);
+		this._pending.enqueue(container);
 
 		if (!this._flushed) {
-			this._userEnqueued.push(operation);
+			this._userEnqueued.push(container.operation);
 		}
 	}
 
