@@ -301,11 +301,11 @@ module.exports = (() => {
 		 */
 		queryChunk(query, startKey) {
 			return Promise.resolve()
-			.then(() => {
-				checkReady.call(this);
+				.then(() => {
+					checkReady.call(this);
 
-				return this._provider.queryChunk(query, startKey);
-			});
+					return this._provider.queryChunk(query, startKey);
+				});
 		}
 
 		_onDispose() {
