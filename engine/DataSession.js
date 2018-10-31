@@ -8,7 +8,7 @@ const assert = require('@barchart/common-js/lang/assert'),
 
 const DataProvider = require('./DataProvider'),
 	DataOperation = require('./DataOperation'),
-	DataOperationComparator = require('./DataOperationComparator'),
+	DataOperationComparators = require('./DataOperationComparators'),
 	DataOperationResult = require('./DataOperationResult');
 
 module.exports = (() => {
@@ -36,7 +36,7 @@ module.exports = (() => {
 
 			this._enqueueCounter = 0;
 
-			this._pending = new PriorityQueue(comparator || DataOperationComparator.INSTANCE);
+			this._pending = new PriorityQueue(comparator || DataOperationComparators.DEFAULT);
 			this._processed = [ ];
 			this._userEnqueued = [ ];
 

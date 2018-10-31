@@ -5,20 +5,28 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * The comparator used to sort {@link DataOperation} instances in the 
-	 * {@link DataSession} priority queue.
+	 * Comparators which can be used to sort {@link DataOperation} instances.
+	 *
+	 * @public
 	 */
-	class DataOperationComparator {
+	class DataOperationComparators {
 		constructor() {
 
 		}
 
-		static get INSTANCE() {
+		/**
+		 * The default comparator for {@link DataOperation} instances.
+		 *
+		 * @public
+		 * @static
+		 * @returns {Function}
+		 */
+		static get DEFAULT() {
 			return instance;
 		}
 
 		toString() {
-			return '[DataOperationComparator]';
+			return '[DataOperationComparators]';
 		}
 	}
 
@@ -26,5 +34,5 @@ module.exports = (() => {
 		.thenBy((a, b) => comparators.compareNumbers(a.enqueueOrder, b.enqueueOrder))
 		.toComparator();
 
-	return DataOperationComparator;
+	return DataOperationComparators;
 })();
