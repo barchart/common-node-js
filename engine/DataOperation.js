@@ -24,8 +24,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Classification of the operation, helps when determining the order
-		 * to process operations.
+		 * Priority of the operation.
 		 *
 		 * @public
 		 * @returns {DataOperationStage}
@@ -130,7 +129,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * @@protected
+		 * @protected
 		 * @param {*} currentResult
 		 * @param {Array.<*>}} spawnResults
 		 * @returns {*}
