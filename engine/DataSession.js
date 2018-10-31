@@ -196,7 +196,7 @@ module.exports = (() => {
 													}
 												}
 
-												result.children.forEach(operation => enqueue.call(this, operation));
+												result.children.forEach(container => enqueue.call(this, container));
 
 												return result;
 											});
