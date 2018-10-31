@@ -144,7 +144,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {DataOperation=} other
-		 * @returns {*}
+		 * @returns {Boolean}
 		 */
 		equals(other) {
 			assert.argumentIsOptional(other, 'other', DataOperation, 'DataOperation');
@@ -158,7 +158,8 @@ module.exports = (() => {
 		 * be discarded).
 		 *
 		 * @protected
-		 * @param {DataOperation=} operation
+		 * @param {DataOperation=} other
+		 * @returns {Boolean}
 		 */
 		_equals(other) {
 			return other === this;
