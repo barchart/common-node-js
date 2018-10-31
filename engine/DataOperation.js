@@ -139,8 +139,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Indicates if the operation is effectively the same as another {@link DataOperation}
-		 * instance; allowing the manager to skip execution.
+		 * Indicates if the operation is "equal" to another {@link DataOperation}.
 		 *
 		 * @public
 		 * @param {DataOperation=} other
@@ -153,10 +152,6 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Used by the operation manager to determine if a data operation is
-		 * a duplicate of the previously executed operation (allowing it to
-		 * be discarded).
-		 *
 		 * @protected
 		 * @param {DataOperation=} other
 		 * @returns {Boolean}
