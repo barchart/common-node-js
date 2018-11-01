@@ -536,7 +536,9 @@ module.exports = (() => {
 
 					const options = scan.toScanSchema();
 
-					if (this._options.preferConsistentReads && scan.index === null) {
+					if (!scan.consistentRead && scan.index === null && this._options.preferConsistentReads) {
+						logger.debug('Overriding scan definition, setting consistent reads to true for [', (scan.description || 'unnamed scan'), '] on [', scan.table.name, ']');
+
 						options.ConsistentRead = true;
 					}
 
@@ -646,7 +648,9 @@ module.exports = (() => {
 
 					const options = scan.toScanSchema();
 
-					if (this._options.preferConsistentReads && scan.index === null) {
+					if (!scan.consistentRead && scan.index === null && this._options.preferConsistentReads) {
+						logger.debug('Overriding scan definition, setting consistent reads to true for [', (scan.description || 'unnamed scan'), '] on [', scan.table.name, ']');
+
 						options.ConsistentRead = true;
 					}
 
@@ -738,7 +742,9 @@ module.exports = (() => {
 
 					const options = query.toQuerySchema();
 
-					if (this._options.preferConsistentReads && query.index === null) {
+					if (!query.consistentRead && query.index === null && this._options.preferConsistentReads) {
+						logger.debug('Overriding query definition, setting consistent reads to true for [', (query.description || 'unnamed query'), '] on [', query.table.name, ']');
+
 						options.ConsistentRead = true;
 					}
 
@@ -848,7 +854,9 @@ module.exports = (() => {
 
 					const options = query.toQuerySchema();
 
-					if (this._options.preferConsistentReads && query.index === null) {
+					if (!query.consistentRead && query.index === null && this._options.preferConsistentReads) {
+						logger.debug('Overriding query definition, setting consistent reads to true for [', (query.description || 'unnamed query'), '] on [', query.table.name, ']');
+
 						options.ConsistentRead = true;
 					}
 
