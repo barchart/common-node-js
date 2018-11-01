@@ -35,9 +35,11 @@ module.exports = (() => {
 	 * @param {string} configuration.region - The AWS region (e.g. "us-east-1").
 	 * @param {string} configuration.prefix - The prefix to automatically append to table names.
 	 * @param {string=} configuration.apiVersion - The DynamoDB API version (defaults to "2012-08-10").
+	 * @param {object=} options
+	 * @param {Boolean=} preferConsistentReads
 	 */
 	class DynamoProvider extends Disposable {
-		constructor(configuration) {
+		constructor(configuration, options) {
 			super();
 
 			assert.argumentIsRequired(configuration, 'configuration');
@@ -46,6 +48,8 @@ module.exports = (() => {
 			assert.argumentIsOptional(configuration.apiVersion, 'configuration.apiVersion', String);
 
 			this._configuration = configuration;
+
+			this._options = Object.assign({ preferConsistentReads: false }, options || { });
 
 			this._startPromise = null;
 			this._started = false;
@@ -532,6 +536,10 @@ module.exports = (() => {
 
 					const options = scan.toScanSchema();
 
+					if (this._options.preferConsistentReads && scan.index === null) {
+						options.ConsistentRead = true;
+					}
+
 					let maximum = options.Limit || 0;
 					let count = 0;
 
@@ -638,6 +646,10 @@ module.exports = (() => {
 
 					const options = scan.toScanSchema();
 
+					if (this._options.preferConsistentReads && scan.index === null) {
+						options.ConsistentRead = true;
+					}
+
 					return this._scheduler.backoff(() => {
 						return promise.build((resolveCallback, rejectCallback) => {
 							if (startKey) {
@@ -725,6 +737,10 @@ module.exports = (() => {
 					checkReady.call(this);
 
 					const options = query.toQuerySchema();
+
+					if (this._options.preferConsistentReads && query.index === null) {
+						options.ConsistentRead = true;
+					}
 
 					let maximum = options.Limit || 0;
 					let count = 0;
@@ -831,6 +847,10 @@ module.exports = (() => {
 					checkReady.call(this);
 
 					const options = query.toQuerySchema();
+
+					if (this._options.preferConsistentReads && query.index === null) {
+						options.ConsistentRead = true;
+					}
 
 					return this._scheduler.backoff(() => {
 						return promise.build((resolveCallback, rejectCallback) => {
