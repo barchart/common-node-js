@@ -657,7 +657,7 @@ module.exports = (() => {
 					return this._scheduler.backoff(() => {
 						return promise.build((resolveCallback, rejectCallback) => {
 							if (startKey) {
-								options.ExclusiveStartKey = Serializer.serialize(startKey, scan.table, true, true);
+								options.ExclusiveStartKey = Serializer.serialize(startKey, scan.table, false, true);
 							}
 
 							this._dynamo.scan(options, (error, data) => {
@@ -863,7 +863,7 @@ module.exports = (() => {
 					return this._scheduler.backoff(() => {
 						return promise.build((resolveCallback, rejectCallback) => {
 							if (startKey) {
-								options.ExclusiveStartKey = Serializer.serialize(startKey, query.table, true, true);
+								options.ExclusiveStartKey = Serializer.serialize(startKey, query.table, false, true);
 							}
 
 							this._dynamo.query(options, (error, data) => {
