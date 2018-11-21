@@ -871,7 +871,7 @@ module.exports = (() => {
 									const dynamoError = Enum.fromCode(DynamoError, error.code);
 
 									if (dynamoError !== null && dynamoError.retryable) {
-										logger.debug('Encountered retryable error [', error.code, '] while querying [', scan.table.name, ']');
+										logger.debug('Encountered retryable error [', error.code, '] while querying [', query.table.name, ']');
 
 										rejectCallback(error);
 									} else {
