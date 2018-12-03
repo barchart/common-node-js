@@ -48,6 +48,22 @@ module.exports = (() => {
 			return this._scanned;
 		}
 
+    get startKey() {
+      if (!this._previous) {
+        return null;
+      }
+      
+      return this._previous.startKey;
+    }
+
+    set startKey(startKey) {
+      if (!this._previous) {
+        this._previous = {};
+      }
+      
+      this._previous.startKey = startKey;
+    }
+
 		_read(size) {
 			if (this._reading) {
 				return;
@@ -111,6 +127,12 @@ module.exports = (() => {
 		toString() {
 			return '[DynamoScanReader]';
 		}
+
+    pause() {
+      this._reading = false;
+      
+      super.pause();
+    }
 	}
 
 	return DynamoScanReader;
