@@ -73,6 +73,10 @@ module.exports = (() => {
 		set startKey(startKey) {
 			assert.argumentIsRequired(startKey, 'startKey', Object);
 
+			if (this._reading) {
+				throw new Error('Unable to set start key while reading.');
+			}
+
 			if (!this._previous) {
 				this._previous = {};
 			}
