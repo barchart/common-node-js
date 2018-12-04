@@ -48,21 +48,37 @@ module.exports = (() => {
 			return this._scanned;
 		}
 
-    get startKey() {
-      if (!this._previous) {
-        return null;
-      }
-      
-      return this._previous.startKey;
-    }
+		/**
+		 * Gets the location, in the Dynamo table, at which the next read will
+		 * begin.
+		 *
+		 * @public
+		 * @returns {Object|null} - An object with one or two properties -- table key names and values (see {@link TableContainer#getPagingKey})
+		 */
+		get startKey() {
+			if (!this._previous) {
+				return null;
+			}
 
-    set startKey(startKey) {
-      if (!this._previous) {
-        this._previous = {};
-      }
-      
-      this._previous.startKey = startKey;
-    }
+			return this._previous.startKey;
+		}
+
+		/**
+		 * Sets the location, in the Dynamo table, at which the next read will
+		 * begin.
+		 *
+		 * @public
+		 * @param {Object} startKey - An object with one or two properties -- table key names and values (see {@link TableContainer#getPagingKey})
+		 */
+		set startKey(startKey) {
+			assert.argumentIsRequired(startKey, 'startKey', Object);
+
+			if (!this._previous) {
+				this._previous = {};
+			}
+
+			this._previous.startKey = startKey;
+		}
 
 		_read(size) {
 			if (this._reading) {
@@ -95,44 +111,44 @@ module.exports = (() => {
 					}
 
 					this._provider.scanChunk(this._scan, startKey)
-						.then((results) => {
-							this._previous = results;
+					.then((results) => {
+						this._previous = results;
 
-							if (results.results.length !== 0) {
-								this._scanned = this._scanned + results.results.length;
-								this._reading = this.push(results.results);
-							}
+						if (results.results.length !== 0) {
+							this._scanned = this._scanned + results.results.length;
+							this._reading = this.push(results.results);
+						}
 
-							if (this._reading) {
-								scanChunkRecursive();
-							} else {
-								logger.debug('Scan stream paused');
-							}
-						}).catch((e) => {
-							this._reading = false;
-							this._error = true;
+						if (this._reading) {
+							scanChunkRecursive();
+						} else {
+							logger.debug('Scan stream paused');
+						}
+					}).catch((e) => {
+						this._reading = false;
+						this._error = true;
 
-							this.push(null);
+						this.push(null);
 
-							logger.error('Scan stopping, error encountered', e);
+						logger.error('Scan stopping, error encountered', e);
 
-							process.nextTick(() => this.emit('error', e));
-						});
+						process.nextTick(() => this.emit('error', e));
+					});
 				}
 			};
 
 			scanChunkRecursive();
 		}
 
+		pause() {
+			this._reading = false;
+
+			super.pause();
+		}
+
 		toString() {
 			return '[DynamoScanReader]';
 		}
-
-    pause() {
-      this._reading = false;
-      
-      super.pause();
-    }
 	}
 
 	return DynamoScanReader;

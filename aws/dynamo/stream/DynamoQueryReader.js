@@ -48,6 +48,38 @@ module.exports = (() => {
 			return this._queried;
 		}
 
+		/**
+		 * Gets the location, in the Dynamo table, at which the next read will
+		 * begin.
+		 *
+		 * @public
+		 * @returns {Object|null} - An object with one or two properties -- table key names and values (see {@link TableContainer#getPagingKey})
+		 */
+		get startKey() {
+			if (!this._previous) {
+				return null;
+			}
+
+			return this._previous.startKey;
+		}
+
+		/**
+		 * Sets the location, in the Dynamo table, at which the next read will
+		 * begin.
+		 *
+		 * @public
+		 * @param {Object} startKey - An object with one or two properties -- table key names and values (see {@link TableContainer#getPagingKey})
+		 */
+		set startKey(startKey) {
+			assert.argumentIsRequired(startKey, 'startKey', Object);
+
+			if (!this._previous) {
+				this._previous = {};
+			}
+
+			this._previous.startKey = startKey;
+		}
+
 		_read(size) {
 			if (this._reading) {
 				return;
@@ -106,6 +138,12 @@ module.exports = (() => {
 			};
 
 			queryChunkRecursive();
+		}
+
+		pause() {
+			this._reading = false;
+
+			super.pause();
 		}
 
 		toString() {
