@@ -87,7 +87,7 @@ module.exports = (() => {
 				if (process.env.NODE_ENV) {
 					instance = new LambdaEnvironment(process.env.NODE_ENV);
 				} else {
-					const matches = process.env.AWS_LAMBDA_FUNCTION_NAME.match(/^(.*)-(dev|stage|prod)$/);
+					const matches = process.env.AWS_LAMBDA_FUNCTION_NAME.match(/^(.*)-(dev|stage|prod|tgam)$/);
 
 					if (Array.isArray(matches) && matches.length === 3) {
 						instance = new LambdaEnvironment(matches[2], matches[1]);
