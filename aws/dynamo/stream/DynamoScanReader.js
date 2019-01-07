@@ -115,29 +115,29 @@ module.exports = (() => {
 					}
 
 					this._provider.scanChunk(this._scan, startKey)
-					.then((results) => {
-						this._previous = results;
+						.then((results) => {
+							this._previous = results;
 
-						if (results.results.length !== 0) {
-							this._scanned = this._scanned + results.results.length;
-							this._reading = this.push(results.results);
-						}
+							if (results.results.length !== 0) {
+								this._scanned = this._scanned + results.results.length;
+								this._reading = this.push(results.results);
+							}
 
-						if (this._reading) {
-							scanChunkRecursive();
-						} else {
-							logger.debug('Scan stream paused');
-						}
-					}).catch((e) => {
-						this._reading = false;
-						this._error = true;
+							if (this._reading) {
+								scanChunkRecursive();
+							} else {
+								logger.debug('Scan stream paused');
+							}
+						}).catch((e) => {
+							this._reading = false;
+							this._error = true;
 
-						this.push(null);
+							this.push(null);
 
-						logger.error('Scan stopping, error encountered', e);
+							logger.error('Scan stopping, error encountered', e);
 
-						process.nextTick(() => this.emit('error', e));
-					});
+							process.nextTick(() => this.emit('error', e));
+						});
 				}
 			};
 
