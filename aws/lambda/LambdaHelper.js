@@ -47,6 +47,19 @@ module.exports = (() => {
 		static getEventParser(event) {
 			return new LambdaEventParser(event);
 		}
+		
+		/**
+		 * Returns true if lambda exceed it's time limit
+		 *
+		 * @param {Object} lambdaContext
+		 * @param {Number} thresholdValue - seconds
+		 * @returns {boolean}
+		 */
+		static isTimeLimitExceeded(lambdaContext, thresholdValue) {
+			const second = 1000;
+			
+			return !(lambdaContext.getRemainingTimeInMillis() > thresholdValue * second);
+		}
 
 		/**
 		 * Builds and returns a new {@link LambdaResponder}.
