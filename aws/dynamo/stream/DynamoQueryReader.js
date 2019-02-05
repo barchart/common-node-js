@@ -125,7 +125,8 @@ module.exports = (() => {
 
 							if (results.results.length !== 0) {
 								this._queried = this._queried + results.results.length;
-								this._reading = this.push(results.results);
+
+								this.push(results.results);
 							}
 
 							if (this._reading) {
