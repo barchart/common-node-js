@@ -33,6 +33,7 @@ module.exports = (() => {
 
 			this._previous = null;
 			this._scanned = 0;
+			this._batch = 0;
 
 			this._started = false;
 			this._stopping = false;
@@ -130,6 +131,10 @@ module.exports = (() => {
 						startKey = null;
 					}
 
+					const currentBatch = this._batch = this._batch + 1;
+
+					logger.debug(`Starting batch [ ${currentBatch} ]`);
+
 					this._readPromise = this._provider.scanChunk(this._scan, startKey)
 						.then((results) => {
 							this._readPromise = null;
@@ -138,9 +143,10 @@ module.exports = (() => {
 
 							if (results.results.length !== 0) {
 								this._scanned = this._scanned + results.results.length;
-
-								this.push(results.results);
+								this._reading = this.push(results.results);
 							}
+
+							logger.debug(`Completed batch [ ${currentBatch} ]`);
 
 							if (this._reading) {
 								scanChunkRecursive();
@@ -163,12 +169,6 @@ module.exports = (() => {
 			};
 
 			scanChunkRecursive();
-		}
-
-		pause() {
-			this._reading = false;
-
-			super.pause();
 		}
 
 		/**
