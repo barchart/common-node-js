@@ -36,6 +36,8 @@ module.exports = (() => {
 
 			this._reading = false;
 			this._error = false;
+
+			this._readPromise = null;
 		}
 
 		/**
@@ -50,13 +52,14 @@ module.exports = (() => {
 
 		/**
 		 * Gets the location, in the Dynamo table, at which the next read will
-		 * begin.
+		 * begin. If the stream has not started, or the stream has completed,
+		 * a null value is returned.
 		 *
 		 * @public
 		 * @returns {Object|null} - An object with one or two properties -- table key names and values (see {@link TableContainer#getPagingKey})
 		 */
 		get startKey() {
-			if (!this._previous) {
+			if (!this._previous || !this._previous.startKey) {
 				return null;
 			}
 
@@ -114,8 +117,10 @@ module.exports = (() => {
 						startKey = null;
 					}
 
-					this._provider.queryChunk(this._query, startKey)
+					this._readPromise = this._provider.queryChunk(this._query, startKey)
 						.then((results) => {
+							this._readPromise = null;
+
 							this._previous = results;
 
 							if (results.results.length !== 0) {
@@ -129,6 +134,8 @@ module.exports = (() => {
 								logger.debug('Query stream paused');
 							}
 						}).catch((e) => {
+							this._readPromise = null;
+
 							this._reading = false;
 							this._error = true;
 
@@ -148,6 +155,34 @@ module.exports = (() => {
 			this._reading = false;
 
 			super.pause();
+		}
+
+		/**
+		 * Gracefully interrupts reading. Any current reads will continue and their results
+		 * will be placed onto the queue. However, once any reads that are in progress complete,
+		 * no further reading will occur and the stream will end normally. Once reading has actually
+		 * stopped, the returned promise resolves.
+		 *
+		 * @public
+		 * @return {Promise<Object|null>}
+		 */
+		stop() {
+			this.pause();
+
+			let readPromise;
+
+			if (this._readPromise === null) {
+				readPromise = Promise.resolve()
+					.then(() => {
+						this.push(null);
+					});
+			} else {
+				readPromise = this._readPromise;
+			}
+
+			return readPromise.then(() => {
+				return this.startKey;
+			});
 		}
 
 		toString() {
