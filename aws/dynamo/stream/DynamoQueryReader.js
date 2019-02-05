@@ -34,7 +34,10 @@ module.exports = (() => {
 			this._previous = null;
 			this._queried = 0;
 
+			this._started = false;
+			this._stopping = false;
 			this._reading = false;
+
 			this._error = false;
 
 			this._readPromise = null;
@@ -76,8 +79,8 @@ module.exports = (() => {
 		set startKey(startKey) {
 			assert.argumentIsRequired(startKey, 'startKey', Object);
 
-			if (this._reading) {
-				throw new Error('Unable to set start key while reading.');
+			if (this._started) {
+				throw new Error('Once the stream has started, the start key cannot be set.');
 			}
 
 			if (!this._previous) {
@@ -97,15 +100,25 @@ module.exports = (() => {
 				return;
 			}
 
+			if (!this._started) {
+				logger.debug('Query stream started');
+
+				this._started = true;
+			} else {
+				logger.debug('Query stream resumed');
+			}
+
 			this._reading = true;
 
-			logger.debug('Query stream started');
-
 			const queryChunkRecursive = () => {
-				if (this._previous !== null && !this._previous.startKey) {
+				if (this._stopping || (this._previous !== null && !this._previous.startKey)) {
 					this._reading = false;
 
-					logger.debug('Query stream stopping, no more results');
+					if (this._stopping) {
+						logger.debug('Query stream stopping, stream stopped');
+					} else {
+						logger.debug('Query stream stopping, no more results');
+					}
 
 					this.push(null);
 				} else {
@@ -168,15 +181,12 @@ module.exports = (() => {
 		 * @return {Promise<Object|null>}
 		 */
 		stop() {
-			this.pause();
+			this._stopping = true;
 
 			let readPromise;
 
 			if (this._readPromise === null) {
-				readPromise = Promise.resolve()
-					.then(() => {
-						this.push(null);
-					});
+				readPromise = Promise.resolve();
 			} else {
 				readPromise = this._readPromise;
 			}
