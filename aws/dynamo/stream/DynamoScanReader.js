@@ -100,12 +100,12 @@ module.exports = (() => {
 				return;
 			}
 
-			if (!this._started) {
+			if (this._started) {
+				logger.debug('Scan stream resumed');
+			} else {
 				logger.debug('Scan stream started');
 
 				this._started = true;
-			} else {
-				logger.debug('Scan stream resumed');
 			}
 
 			this._reading = true;

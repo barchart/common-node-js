@@ -100,12 +100,12 @@ module.exports = (() => {
 				return;
 			}
 
-			if (!this._started) {
+			if (this._started) {
+				logger.debug('Query stream resumed');
+			} else {
 				logger.debug('Query stream started');
 
 				this._started = true;
-			} else {
-				logger.debug('Query stream resumed');
 			}
 
 			this._reading = true;
