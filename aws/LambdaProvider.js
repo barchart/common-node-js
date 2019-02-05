@@ -90,7 +90,7 @@ module.exports = (() => {
 							resolveCallback(data);
 						});
 					});
-				})
+				});
 		}
 		
 		_onDispose() {
