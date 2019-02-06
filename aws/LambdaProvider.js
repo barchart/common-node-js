@@ -50,39 +50,49 @@ module.exports = (() => {
 			
 			if (this._startPromise === null) {
 				this._startPromise = Promise.resolve()
-				.then(() => {
-					aws.config.update({region: this._configuration.region});
-					
-					this._lambda = new aws.Lambda({apiVersion: this._configuration.apiVersion || '2015-03-31'});
-				}).then(() => {
-					logger.info('Lambda provider started');
-					
-					this._started = true;
-					
-					return this._started;
-				}).catch((e) => {
-					logger.error('Lambda provider failed to start', e);
-					
-					throw e;
-				});
+					.then(() => {
+						aws.config.update({region: this._configuration.region});
+
+						this._lambda = new aws.Lambda({apiVersion: this._configuration.apiVersion || '2015-03-31'});
+					}).then(() => {
+						logger.info('Lambda provider started');
+
+						this._started = true;
+
+						return this._started;
+					}).catch((e) => {
+						logger.error('Lambda provider failed to start', e);
+
+						throw e;
+					});
 			}
 			
 			return this._startPromise;
 		}
-		
-		invoke(functionName, newEvent) {
-			assert.argumentIsRequired(functionName, 'functionName', String);
-			
+
+		/**
+		 * Triggers a lambda function.
+		 *
+		 * @param {String} functionName
+		 * @param {Object} event
+		 * @return {Promise<Object>}
+		 */
+		invoke(functionName, event) {
 			return Promise.resolve()
 				.then(() => {
+					assert.argumentIsRequired(functionName, 'functionName', String);
+					assert.argumentIsRequired(event, 'event');
+
 					checkReady.call(this);
 					
 					return promise.build((resolveCallback, rejectCallback) => {
-						this._lambda.invoke({
+						const payload = {
 							FunctionName: functionName,
+							Payload: JSON.stringify(event),
 							InvocationType: 'Event',
-							Payload: JSON.stringify(newEvent),
-						}, (err, data) => {
+						};
+
+						this._lambda.invoke(payload, (err, data) => {
 							if (err) {
 								rejectCallback(err);
 							}
