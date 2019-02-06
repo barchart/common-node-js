@@ -55,8 +55,20 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Indicates if the scans have been completed and no more records will
-		 * be produced.
+		 * Indicates if the {@link DynamoScanReader#stop} function has been
+		 * invoked. If true, the stream has stopped producing data or will
+		 * stop producing data soon.
+		 *
+		 * @public
+		 * @returns {Boolean}
+		 */
+		get stopping() {
+			return this._stopping;
+		}
+
+		/**
+		 * Indicates if the scan has run to completion -- without being stopped --
+		 * and all possible records have been enqueued.
 		 *
 		 * @public
 		 * @return {Boolean}
@@ -184,9 +196,9 @@ module.exports = (() => {
 
 		/**
 		 * Gracefully interrupts reading. Any current reads will continue and their results
-		 * will be placed onto the queue. However, once any reads that are in progress complete,
+		 * will be placed onto the queue. However, once any reads, that are in progress complete,
 		 * no further reading will occur and the stream will end normally. Once reading has actually
-		 * stopped, the returned promise resolves.
+		 * stopped, and no more data will be produced, the returned promise resolves.
 		 *
 		 * @public
 		 * @return {Promise<Object|null>}
