@@ -55,6 +55,17 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Indicates if the scans have been completed and no more records will
+		 * be produced.
+		 *
+		 * @public
+		 * @return {Boolean}
+		 */
+		get completed() {
+			 return this._previous !== null && !this._previous.startKey;
+		}
+
+		/**
 		 * Gets the location, in the Dynamo table, at which the next read will
 		 * begin. If the stream has not started, or the stream has completed,
 		 * a null value is returned.
@@ -112,7 +123,7 @@ module.exports = (() => {
 			this._reading = true;
 
 			const scanChunkRecursive = () => {
-				if (this._stopping || (this._previous !== null && !this._previous.startKey)) {
+				if (this._stopping || this.completed) {
 					this._reading = false;
 
 					if (this._stopping) {
