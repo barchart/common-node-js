@@ -20,16 +20,22 @@ module.exports = (() => {
 	 * @extends {Stream.Readable}
 	 * @param {Scan} scan
 	 * @param {DynamoProvider} provider
+	 * @param {Number=} highWaterMark
+	 * @param {Boolean=} discrete
 	 */
 	class DynamoScanReader extends Stream.Readable {
-		constructor(scan, provider) {
-			super({ objectMode: true, highWaterMark: 10 });
+		constructor(scan, provider, highWaterMark, discrete) {
+			super({ objectMode: true, highWaterMark: highWaterMark || 10 });
 
 			assert.argumentIsRequired(scan, 'scan', Scan, 'Scan');
 			assert.argumentIsRequired(provider, 'provider', DynamoProvider, 'DynamoProvider');
+			assert.argumentIsOptional(highWaterMark, 'highWaterMark', Number);
+			assert.argumentIsOptional(discrete, 'discrete', Boolean);
 
 			this._scan = scan;
 			this._provider = provider;
+
+			this._discrete = discrete || false;
 
 			this._previous = null;
 			this._scanned = 0;
@@ -166,7 +172,14 @@ module.exports = (() => {
 
 							if (results.results.length !== 0) {
 								this._scanned = this._scanned + results.results.length;
-								this._reading = this.push(results.results);
+
+								if (this._discrete) {
+									this._reading = results.results.reduce((accumulator, item) => {
+										return this.push(item);
+									});
+								} else {
+									this._reading = this.push(results.results);
+								}
 							}
 
 							logger.debug(`Completed batch [ ${currentBatch} ]`);

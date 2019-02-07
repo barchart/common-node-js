@@ -20,9 +20,11 @@ module.exports = (() => {
 	 * @extends {Stream.Readable}
 	 * @param {Query} query
 	 * @param {DynamoProvider} provider
+	 * @param {Number=} highWaterMark
+	 * @param {Boolean=} discrete
 	 */
 	class DynamoQueryReader extends Stream.Readable {
-		constructor(query, provider) {
+		constructor(query, provider, highWaterMark, discrete) {
 			super({ objectMode: true, highWaterMark: 10 });
 
 			assert.argumentIsRequired(query, 'query', Query, 'Query');
@@ -30,6 +32,8 @@ module.exports = (() => {
 
 			this._query = query;
 			this._provider = provider;
+
+			this._discrete = discrete || false;
 
 			this._previous = null;
 			this._queried = 0;
@@ -166,7 +170,14 @@ module.exports = (() => {
 
 							if (results.results.length !== 0) {
 								this._queried = this._queried + results.results.length;
-								this._reading = this.push(results.results);
+
+								if (this._discrete) {
+									this._reading = results.results.reduce((accumulator, item) => {
+										return this.push(item);
+									});
+								} else {
+									this._reading = this.push(results.results);
+								}
 							}
 
 							logger.debug(`Completed batch [ ${currentBatch} ]`);
