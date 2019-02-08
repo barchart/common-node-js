@@ -176,7 +176,7 @@ module.exports = (() => {
 								if (this._discrete) {
 									this._reading = results.results.reduce((accumulator, item) => {
 										return this.push(item);
-									});
+									}, this._reading);
 								} else {
 									this._reading = this.push(results.results);
 								}
