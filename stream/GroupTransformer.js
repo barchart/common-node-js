@@ -3,10 +3,7 @@ const log4js = require('log4js'),
 
 const assert = require('@barchart/common-js/lang/assert'),
 	is = require('@barchart/common-js/lang/is'),
-	object = require('@barchart/common-js/lang/object'),
-	promise = require('@barchart/common-js/lang/promise');
-
-const Transformation = require('./transformations/Transformation');
+	object = require('@barchart/common-js/lang/object');
 
 module.exports = (() => {
 	'use strict';
