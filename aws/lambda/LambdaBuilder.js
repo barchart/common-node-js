@@ -41,6 +41,8 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('lambda/LambdaBuilder');
 
+	const LOG_EVENT = is.string(process.env.LOG_EVENT) && process.env.LOG_EVENT === 'true';
+
 	/**
 	 * A builder pattern for assembling the AWS lambda functions (using the Node.js 4.3 or 6.10).
 	 *
@@ -206,8 +208,8 @@ module.exports = (() => {
 			const componentInitializers = Array.from(this._componentInitializers);
 
 			return (event, context, callback) => {
-				if (logger.isTraceEnabled()) {
-					logger.trace(JSON.stringify(event, null, 2));
+				if (LOG_EVENT) {
+					logger.info(JSON.stringify(event, null, 2));
 				}
 
 				const start = new Date();
