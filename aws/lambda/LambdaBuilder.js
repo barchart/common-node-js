@@ -206,6 +206,10 @@ module.exports = (() => {
 			const componentInitializers = Array.from(this._componentInitializers);
 
 			return (event, context, callback) => {
+				if (logger.isTraceEnabled()) {
+					logger.trace(JSON.stringify(event, null, 2));
+				}
+
 				const start = new Date();
 
 				let run = ++runCounter;
