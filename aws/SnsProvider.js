@@ -81,6 +81,7 @@ module.exports = (() => {
 		 * Returns a clone of the configuration object originally passed
 		 * to the constructor.
 		 *
+		 * @public
 		 * @returns {Object}
 		 */
 		getConfiguration() {
@@ -95,6 +96,7 @@ module.exports = (() => {
 		 * Given a topic's name, return Amazon's unique identifier for the topic
 		 * (i.e. the ARN). If no topc with the given name exists, it will be created.
 		 *
+		 * @public
 		 * @param {string} topicName - The name of the topic to find.
 		 * @returns {Promise.<string>}
 		 */
@@ -121,6 +123,7 @@ module.exports = (() => {
 		 * Creates a topic with the given name  and returns the topic's ARN. If the topic already
 		 * exists, the ARN of the existing topic is returned.
 		 *
+		 * @public
 		 * @param {string} topicName - The name of the topic to create.
 		 * @returns {Promise.<string>}
 		 */
@@ -159,8 +162,8 @@ module.exports = (() => {
 		/**
 		 * Deletes a topic having the given name.
 		 *
+		 * @public
 		 * @param {string} topicName - The name of the topic to delete.
-		 *
 		 * @returns {Promise}
 		 */
 		deleteTopic(topicName) {
@@ -182,10 +185,10 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Deletes a tiouc having the given URL.
+		 * Deletes a topic having the given URL.
 		 *
+		 * @public
 		 * @param {string} topicArn - The ARN the topic to delete.
-		 *
 		 * @returns {Promise}
 		 */
 		deleteTopicArn(topicArn) {
@@ -221,9 +224,9 @@ module.exports = (() => {
 		/**
 		 * Publishes a message to a topic. The message will be serialized as JSON.
 		 *
+		 * @public
 		 * @param {string} topicName - The name of the topic to publish to.
 		 * @param {Object} payload - The message to publish (which will be serialized as JSON).
-		 *
 		 * @returns {Promise}
 		 */
 		publish(topicName, payload) {
@@ -271,9 +274,9 @@ module.exports = (() => {
 		 * The promise will return a Disposable instance. Call the
 		 * dispose method to delete the subscription.
 		 *
+		 * @public
 		 * @param {string} topicName - The name of the topic to subscribe to.
 		 * @param {Object} queueArn - The ARN of the queue to receive notifications (see {@link SqsProvider#getQueueArn}).
-		 *
 		 * @returns {Promise.<Disposable>}
 		 */
 		subscribe(topicName, queueArn) {
@@ -340,6 +343,7 @@ module.exports = (() => {
 		/**
 		 * Returns a list of topic ARN's that match a given prefix.
 		 *
+		 * @public
 		 * @param {string} topicNamePrefix - The prefix a topic name must have to be returned.
 		 * @returns {Promise.<string[]>}
 		 */
@@ -350,77 +354,64 @@ module.exports = (() => {
 
 					checkReady.call(this);
 
+					let batchCount = 0;
+
 					const getTopicBatch = (token) => {
-						return promise.build(
-							(resolveCallback, rejectCallback) => {
-								logger.debug('Requesting batch of SNS topics');
+						return promise.build((resolveCallback, rejectCallback) => {
+							logger.debug('Requesting batch of SNS topics');
 
-								const params = { };
+							const params = { };
 
-								if (token) {
-									params.NextToken = token;
-								}
-
-								this._sns.listTopics(params, (error, data) => {
-									if (error === null) {
-										logger.info('SNS topic list batch received.');
-
-										if (data.NextToken) {
-											logger.debug('Another batch of SNS topics is available.');
-										} else {
-											logger.info('Batch of SNS topics is final, no more topics exist.');
-										}
-
-										resolveCallback(data);
-									} else {
-										logger.error('SNS topic list lookup failed');
-										logger.error(error);
-
-										rejectCallback('Failed to retrieve list of SNS topics.');
-									}
-								});
+							if (token) {
+								params.NextToken = token;
 							}
-						);
+
+							this._sns.listTopics(params, (error, data) => {
+								if (error === null) {
+									logger.info('SNS topic list batch [', ++batchCount, '] received.');
+
+									resolveCallback(data);
+								} else {
+									logger.info('SNS topic list batch [', ++batchCount, '] failed.', error);
+
+									rejectCallback('Failed to retrieve list of SNS topics.');
+								}
+							});
+						});
 					};
 
-					return promise.build((resolveCallback, rejectCallback) => {
-						let topics = [ ];
-
-						let topicArnRegex = new RegExp(`^arn:aws:sns:.*:[0-9]*:${this._configuration.prefix}${(topicNamePrefix || '')}`);
-
-						const processBatch = (data) => {
-							let batchPromise;
-
-							if (data.Topics) {
-								data.Topics.forEach(topic => {
-									if (topicArnRegex.test(topic.TopicArn)) {
-										topics.push(topic.TopicArn);
-									}
-								});
-
-								logger.debug('Received', topics.length, 'SNS topics.');
-							}
-
-							if (data.NextToken) {
-								batchPromise = getTopicBatch(data.NextToken)
-									.then((data) => {
-										return processBatch(data);
-									});
-							} else {
-								batchPromise = resolveCallback(topics);
-							}
-
-							return batchPromise;
-						};
-
-						getTopicBatch()
+					const getTopicBatches = (topics, token) => {
+						return getTopicBatch(token || null)
 							.then((data) => {
-								return processBatch(data)
-									.then((topics) => {
-										resolveCallback(topics);
-									});
+								const previousTopics = topics || [ ];
+
+								let nextTopics = previousTopics.concat(data.Topics || [ ]);
+								let nextPromise = null;
+
+								if (data.NextToken) {
+									nextPromise = getTopicBatches(nextTopics, data.NextToken);
+								} else {
+									logger.info('Final SNS topic batch complete, [', nextTopics.length, '] topics received.');
+
+									nextPromise = Promise.resolve(nextTopics);
+								}
+
+								return nextPromise;
 							});
-					});
+					};
+
+					return getTopicBatches()
+						.then((topics) => {
+							const topicArnRegex = new RegExp(`^arn:aws:sns:.*:[0-9]*:${this._configuration.prefix}${(topicNamePrefix || '')}`);
+
+							return topics.reduce((accumulator, topic) => {
+								if (topicArnRegex.test(topic.TopicArn)) {
+									accumulator.push(topic.TopicArn);
+								}
+
+								return accumulator;
+							}, [ ]);
+						});
 				});
 		}
 
