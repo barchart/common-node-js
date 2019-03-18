@@ -163,6 +163,8 @@ module.exports = (() => {
 		/**
 		 * Creates a new {@link ScanBuilder}.
 		 *
+		 * @public
+		 * @static
 		 * @param {String} name - Name of the table.
 		 * @returns {ScanBuilder}
 		 */

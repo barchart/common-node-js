@@ -199,6 +199,7 @@ module.exports = (() => {
 		 * Creates a new {@link QueryBuilder}.
 		 *
 		 * @public
+		 * @static
 		 * @param {Table} table
 		 * @returns {QueryBuilder}
 		 */
