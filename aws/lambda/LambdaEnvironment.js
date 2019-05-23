@@ -60,7 +60,7 @@ module.exports = (() => {
 		 * Reads the function's config.yml file and returns the contents.
 		 *
 		 * @public
-		 * @returns {Promise.<Object>}
+		 * @returns {Promise<Object>}
 		 */
 		getConfiguration() {
 			if (this._configurationPromise === null) {

@@ -58,7 +58,7 @@ module.exports = (() => {
 		 * functions.
 		 *
 		 * @public
-		 * @returns {Promise.<Boolean>}
+		 * @returns {Promise<Boolean>}
 		 */
 		start() {
 			if (this.getIsDisposed()) {
@@ -108,7 +108,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {string} queueNamePrefix - The prefix a queue name must have to be returned.
-		 * @returns {Promise.<string[]>}
+		 * @returns {Promise<String[]>}
 		 */
 		getQueues(queueNamePrefix) {
 			return Promise.resolve()
@@ -148,7 +148,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {string} queueName - The name of the queue to find.
-		 * @returns {Promise.<string>}
+		 * @returns {Promise<String>}
 		 */
 		getQueueUrl(queueName) {
 			return Promise.resolve()
@@ -181,7 +181,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {string} queueName - The name of the queue to find.
-		 * @returns {Promise.<string>}
+		 * @returns {Promise<String>}
 		 */
 		getQueueArn(queueName) {
 			return Promise.resolve()
@@ -237,7 +237,7 @@ module.exports = (() => {
 		 * @public
 		 * @param {string} queueName - The name of the queue to create.
 		 * @param {Number=} retentionTime - The length of time a queue will retain a message in seconds.
-		 * @returns {Promise.<string>}
+		 * @returns {Promise<String>}
 		 */
 		createQueue(queueName, retentionTime) {
 			return Promise.resolve()
@@ -404,7 +404,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {string} queueName - The name of the queue to add the message to.
-		 * @param {Array.<Object>} batch - The messages to enqueue (each will be serialized to JSON).
+		 * @param {Object[]} batch - The messages to enqueue (each will be serialized to JSON).
 		 * @returns {Promise}
 		 */
 		sendBatch(queueName, batch) {
@@ -484,7 +484,7 @@ module.exports = (() => {
 		 * @param {Number=} waitDuration - The maximum amount of time the server-side long-poll will wait for messages to become available.
 		 * @param {Number=} maximumMessages - The maximum number of messages to read (cannot be more than 10).
 		 * @param {Boolean=} synchronousDelete - If true, the promise won't resolve until new messages have been read *and deleted* from the queue.
-		 * @returns {Promise.<Object[]>}
+		 * @returns {Promise<Object[]>}
 		 */
 		receive(queueName, waitDuration, maximumMessages, synchronousDelete) {
 			return Promise.resolve()
@@ -520,7 +520,7 @@ module.exports = (() => {
 		 * @param {string} queueName - The name of the queue to read.
 		 * @param {Function=} mapper - A function that can be used to map messages into something else.
 		 * @param {Boolean=} synchronousDelete - If true, the promise won't resolve until new messages have been read *and deleted* from the queue.
-		 * @returns {Promise.<Object[]>}
+		 * @returns {Promise<Object[]>}
 		 */
 		drain(queueName, mapper, synchronousDelete) {
 			return Promise.resolve()

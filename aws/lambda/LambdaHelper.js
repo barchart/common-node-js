@@ -69,7 +69,7 @@ module.exports = (() => {
 		 * @param {Object} event - The Lambda's event data.
 		 * @param {Function} callback - The Lambda's callback function.
 		 * @param {LambdaHelper~processor} processor - The processor that is invoked to perform the work.
-		 * @returns {Promise.<TResult>}
+		 * @returns {Promise<TResult>}
 		 */
 		static process(description, event, callback, processor) {
 			let parser;

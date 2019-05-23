@@ -55,7 +55,7 @@ module.exports = (() => {
 		 * functions.
 		 *
 		 * @public
-		 * @returns {Promise.<boolean>}
+		 * @returns {Promise<Boolean>}
 		 */
 		start() {
 			if (this.getIsDisposed()) {
@@ -104,7 +104,7 @@ module.exports = (() => {
 		 * @param {string} bucket
 		 *
 		 * @public
-		 * @returns {Promise.<object>}
+		 * @returns {Promise<Object>}
 		 */
 		getBucketContents(bucket) {
 			return Promise.resolve()
@@ -136,7 +136,7 @@ module.exports = (() => {
 		 * @param {string=} mimeType = Defaults to "text/plain"
 		 * @param {boolean=} secure = Indicates if the "private" ACL applies to the object
 		 *
-		 * @returns {Promise.<object>}
+		 * @returns {Promise<Object>}
 		 */
 		upload(filename, content, mimeType, secure) {
 			return this.uploadObject(this._configuration.bucket, S3Provider.getQualifiedFilename(this._configuration.folder, filename), content, mimeType, secure);
@@ -152,7 +152,7 @@ module.exports = (() => {
 		 * @param {string=} mimeType = Defaults to "text/plain"
 		 * @param {boolean=} secure = Indicates if the "private" ACL applies to the object
 		 *
-		 * @returns {Promise.<object>}
+		 * @returns {Promise<Object>}
 		 */
 		uploadObject(bucket, filename, content, mimeType, secure) {
 			return Promise.resolve()
@@ -213,7 +213,7 @@ module.exports = (() => {
 		 * @param {string=} mimeType = Defaults to "text/plain"
 		 * @param {boolean=} secure = Indicates if the "private" ACL applies to the object
 		 *
-		 * @returns {Promise.<object>}
+		 * @returns {Promise<Object>}
 		 */
 		download(filename) {
 			return this.downloadObject(this._configuration.bucket, S3Provider.getQualifiedFilename(this._configuration.folder, filename));
@@ -226,7 +226,7 @@ module.exports = (() => {
 		 * @param {string} bucket
 		 * @param {string} filename
 		 *
-		 * @returns {Promise.<object>}
+		 * @returns {Promise<Object>}
 		 */
 		downloadObject(bucket, filename) {
 			return Promise.resolve()
@@ -253,7 +253,7 @@ module.exports = (() => {
 		 * @param {string} bucket
 		 * @param {string} filename
 		 *
-		 * @returns {Promise.<object>}
+		 * @returns {Promise<Object>}
 		 */
 		deleteObject(bucket, filename) {
 			return Promise.resolve()
@@ -279,7 +279,7 @@ module.exports = (() => {
 		 * @static
 		 * @public
 		 *
-		 * @param {...string|Array.<string>} components
+		 * @param {...string|string[]} components
 		 *
 		 * @returns {string}
 		 */

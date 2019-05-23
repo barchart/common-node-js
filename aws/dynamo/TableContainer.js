@@ -99,7 +99,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Boolean=} skipVerification - If true, verification of table's existence and schema is skipped. This could be considered unsafe, but startup will be faster.
-		 * @returns {Promise.<Boolean>}
+		 * @returns {Promise<Boolean>}
 		 */
 		start(skipVerification) {
 			if (this._startPromise === null) {
@@ -155,7 +155,7 @@ module.exports = (() => {
 		 * @protected
 		 * @param {Object} item
 		 * @param {Boolean=} preventOverwrite
-		 * @returns {Promise.<Boolean>}
+		 * @returns {Promise<Boolean>}
 		 */
 		_createItem(item, preventOverwrite) {
 			return Promise.resolve()
@@ -176,8 +176,8 @@ module.exports = (() => {
 		 * Creates multiple items, in an batch operation.
 		 *
 		 * @protected
-		 * @param {Array.<Object>} items
-		 * @returns {Promise.<Boolean>}
+		 * @param {Object[]} items
+		 * @returns {Promise<Boolean>}
 		 */
 		_createItems(items) {
 			return Promise.resolve()
@@ -201,7 +201,7 @@ module.exports = (() => {
 		 *
 		 * @protected
 		 * @param {Object} item
-		 * @returns {Promise.<Boolean>}
+		 * @returns {Promise<Boolean>}
 		 */
 		_deleteItem(item) {
 			return Promise.resolve()
@@ -222,8 +222,8 @@ module.exports = (() => {
 		 * Deletes multiple items, in an batch operation.
 		 *
 		 * @protected
-		 * @param {Array.<Object>} items
-		 * @returns {Promise.<Boolean>}
+		 * @param {Object[]} items
+		 * @returns {Promise<Boolean>}
 		 */
 		_deleteItems(items) {
 			return Promise.resolve()
@@ -247,7 +247,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Scan} scan
-		 * @returns {Promise.<Array.<Object>>}
+		 * @returns {Promise<Array.<Object>>}
 		 */
 		scan(scan) {
 			return Promise.resolve()
@@ -280,7 +280,7 @@ module.exports = (() => {
 		 *
 		 * @protected
 		 * @param {Query} query
-		 * @returns {Promise.<Array.<Object>>}
+		 * @returns {Promise<Object[]>}
 		 */
 		query(query) {
 			return Promise.resolve()

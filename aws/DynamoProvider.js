@@ -64,7 +64,7 @@ module.exports = (() => {
 		 * functions.
 		 *
 		 * @public
-		 * @returns {Promise.<Boolean>}
+		 * @returns {Promise<Boolean>}
 		 */
 		start() {
 			if (this.getIsDisposed()) {
@@ -116,7 +116,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {string} name - The (unqualified) name of the table.
-		 * @returns {Promise.<Table>}
+		 * @returns {Promise<Table>}
 		 */
 		getTable(name) {
 			return Promise.resolve()
@@ -140,7 +140,7 @@ module.exports = (() => {
 		 * @public
 		 * @param {string} tableName
 		 * @param {string} backupName
-		 * @returns {Promise.<Object>}
+		 * @returns {Promise<Object>}
 		 */
 		createBackup(tableName, backupName) {
 			return Promise.resolve()
@@ -174,7 +174,7 @@ module.exports = (() => {
 		 * @param {string} tableName
 		 * @param {string=} lowerBound
 		 * @param {string=} upperBound
-		 * @returns {Promise.<Object>}
+		 * @returns {Promise<Object>}
 		 */
 		listBackups(tableName, lowerBound, upperBound) {
 			return Promise.resolve()
@@ -213,7 +213,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {string} arn
-		 * @returns {Promise.<Object>}
+		 * @returns {Promise<Object>}
 		 */
 		deleteBackup(arn) {
 			return Promise.resolve()
@@ -243,7 +243,7 @@ module.exports = (() => {
 		 * Gets a list of all table names.
 		 *
 		 * @public
-		 * @returns {Promise.<String>}
+		 * @returns {Promise<String>}
 		 */
 		getTables() {
 			return Promise.resolve()
@@ -291,7 +291,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Table} definition - Describes the schema of the table to create.
-		 * @returns {Promise.<Table>}
+		 * @returns {Promise<Table>}
 		 */
 		createTable(definition) {
 			return Promise.resolve()
@@ -364,7 +364,7 @@ module.exports = (() => {
 		 * @param {Object} item - The item to write.
 		 * @param {Table} table - Describes the schema of the table to write to.
 		 * @param {Boolean=} preventOverwrite - If true, the resulting promise will reject if another item shares the same key.
-		 * @returns {Promise.<Boolean>}
+		 * @returns {Promise<Boolean>}
 		 */
 		saveItem(item, table, preventOverwrite) {
 			return Promise.resolve()
@@ -435,7 +435,7 @@ module.exports = (() => {
 		 * @public
 		 * @param {Array<Object>} item - The items to write.
 		 * @param {Table} table - Describes the schema of the table to write to.
-		 * @returns {Promise.<Boolean>}
+		 * @returns {Promise<Boolean>}
 		 */
 		createItems(items, table) {
 			return Promise.resolve()
@@ -453,7 +453,7 @@ module.exports = (() => {
 		 * @param {Array<Object>} item - The items to write.
 		 * @param {Table} table - Describes the schema of the table to write to.
 		 * @param {Boolean=} explicit - If keys are derived, the item will be deleted as-is, without rederiving the key.
-		 * @returns {Promise.<Boolean>}
+		 * @returns {Promise<Boolean>}
 		 */
 		deleteItems(items, table, explicit) {
 			return Promise.resolve()
@@ -469,7 +469,7 @@ module.exports = (() => {
 		 * @param {Object} item - The item to delete.
 		 * @param {Table} table - Describes the schema of the table to write to.
 		 * @param {Boolean=} explicit - If keys are derived, the item will be deleted as-is, without rederiving the key.
-		 * @returns {Promise.<Boolean>}
+		 * @returns {Promise<Boolean>}
 		 */
 		deleteItem(item, table, explicit) {
 			return Promise.resolve()
@@ -525,7 +525,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Scan} scan
-		 * @returns {Promise.<Array.<Object>>}
+		 * @returns {Promise<Object[]>}
 		 */
 		scan(scan) {
 			return Promise.resolve()
@@ -731,7 +731,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Query} query
-		 * @returns {Promise.<Array.<Object>>}
+		 * @returns {Promise<Object[]>}
 		 */
 		query(query) {
 			return Promise.resolve()

@@ -59,7 +59,7 @@ module.exports = (() => {
 		 * functions.
 		 *
 		 * @public
-		 * @returns {Promise.<Boolean>}
+		 * @returns {Promise<Boolean>}
 		 */
 		start() {
 			if (this.getIsDisposed()) {

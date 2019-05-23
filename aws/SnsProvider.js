@@ -48,7 +48,7 @@ module.exports = (() => {
 		 * functions.
 		 *
 		 * @public
-		 * @returns {Promise.<Boolean>}
+		 * @returns {Promise<Boolean>}
 		 */
 		start() {
 			if (this.getIsDisposed()) {
@@ -98,7 +98,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {string} topicName - The name of the topic to find.
-		 * @returns {Promise.<string>}
+		 * @returns {Promise<String>}
 		 */
 		getTopicArn(topicName) {
 			return Promise.resolve()
@@ -125,7 +125,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {string} topicName - The name of the topic to create.
-		 * @returns {Promise.<string>}
+		 * @returns {Promise<String>}
 		 */
 		createTopic(topicName) {
 			return Promise.resolve()
@@ -277,7 +277,7 @@ module.exports = (() => {
 		 * @public
 		 * @param {string} topicName - The name of the topic to subscribe to.
 		 * @param {Object} queueArn - The ARN of the queue to receive notifications (see {@link SqsProvider#getQueueArn}).
-		 * @returns {Promise.<Disposable>}
+		 * @returns {Promise<Disposable>}
 		 */
 		subscribe(topicName, queueArn) {
 			return Promise.resolve()
@@ -345,7 +345,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {string} topicNamePrefix - The prefix a topic name must have to be returned.
-		 * @returns {Promise.<string[]>}
+		 * @returns {Promise<String[]>}
 		 */
 		getTopics(topicNamePrefix) {
 			return Promise.resolve()

@@ -49,7 +49,7 @@ module.exports = (() => {
 		 * attributes will be selected.
 		 *
 		 * @public
-		 * @returns {Array.<Attribute>}
+		 * @returns {Attribute[]}
 		 */
 		get attributes() {
 			return [...this._attributes];
