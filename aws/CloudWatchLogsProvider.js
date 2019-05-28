@@ -1,7 +1,7 @@
 const aws = require('aws-sdk'),
 	log4js = require('log4js');
 
-const	assert = require('@barchart/common-js/lang/assert'),
+const assert = require('@barchart/common-js/lang/assert'),
 	Disposable = require('@barchart/common-js/lang/Disposable'),
 	promise = require('@barchart/common-js/lang/promise');
 
@@ -16,10 +16,10 @@ module.exports = (() => {
 	 * abstract knowledge of the AWS API.
 	 *
 	 * @public
-	 * @extends Disposable
+	 * @extends {Disposable}
 	 * @param {object} configuration
-	 * @param {string} configuration.region - The AWS region (e.g. "us-east-1").
-	 * @param {string=} configuration.apiVersion - The CloudWatchLogs version (defaults to "2014-03-28").
+	 * @param {String} configuration.region - The AWS region (e.g. "us-east-1").
+	 * @param {String=} configuration.apiVersion - The CloudWatchLogs version (defaults to "2014-03-28").
 	 */
 	class CloudWatchLogsProvider extends Disposable {
 		constructor(configuration) {
@@ -51,21 +51,21 @@ module.exports = (() => {
 
 			if (this._startPromise === null) {
 				this._startPromise = Promise.resolve()
-				.then(() => {
-					aws.config.update({region: this._configuration.region});
+					.then(() => {
+						aws.config.update({region: this._configuration.region});
 
-					this._cloudWatchLogs = new aws.CloudWatchLogs({apiVersion: this._configuration.apiVersion || '2014-03-28'});
-				}).then(() => {
-					logger.info('CloudWatchLogs provider started');
+						this._cloudWatchLogs = new aws.CloudWatchLogs({apiVersion: this._configuration.apiVersion || '2014-03-28'});
+					}).then(() => {
+						logger.info('CloudWatchLogs provider started');
 
-					this._started = true;
+						this._started = true;
 
-					return this._started;
-				}).catch((e) => {
-					logger.error('CloudWatchLogs provider failed to start', e);
+						return this._started;
+					}).catch((e) => {
+						logger.error('CloudWatchLogs provider failed to start', e);
 
-					throw e;
-				});
+						throw e;
+					});
 			}
 
 			return this._startPromise;
@@ -74,11 +74,12 @@ module.exports = (() => {
 		/**
 		 * Starts a query.
 		 *
-		 * @param {string} name - The name of log group to query.
-		 * @param {string} query - The query string.
-		 * @param {number} startTime - The beginning of the time range to query. The number of seconds since January 1, 1970, 00:00:00 UTC.
-		 * @param {number} endTime - The end of the time range to query. The number of seconds since January 1, 1970, 00:00:00 UTC.
-		 * @param {number=} limit - The maximum number of log events to return in the query.
+		 * @public
+		 * @param {String} name - The name of log group to query.
+		 * @param {String} query - The query string.
+		 * @param {Number} startTime - The beginning of the time range to query. The number of seconds since January 1, 1970, 00:00:00 UTC.
+		 * @param {Number} endTime - The end of the time range to query. The number of seconds since January 1, 1970, 00:00:00 UTC.
+		 * @param {Number=} limit - The maximum number of log events to return in the query.
 		 * @returns {Promise<Object>}
 		 */
 		startQuery(name, query, startTime, endTime, limit) {
@@ -120,7 +121,8 @@ module.exports = (() => {
 		/**
 		 * Gets a result for query by id.
 		 *
-		 * @param {string} queryId - The id of query.
+		 * @public
+		 * @param {String} queryId - The id of query.
 		 * @returns {Promise<Object>}
 		 */
 		getQueryResults(queryId) {
@@ -147,7 +149,8 @@ module.exports = (() => {
 		/**
 		 * Lists the specified log groups by prefix.
 		 *
-		 * @param {string} logGroupNamePrefix
+		 * @public
+		 * @param {String} logGroupNamePrefix
 		 * @returns {Promise<Object>}
 		 */
 		describeLogGroups(logGroupNamePrefix) {
