@@ -119,10 +119,10 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Gets a result for query by id.
+		 * Gets a result for query.
 		 *
 		 * @public
-		 * @param {String} queryId - The id of query.
+		 * @param {String} queryId - The identifier returned from {@link CloudWatchLogsProvider#startQuery}
 		 * @returns {Promise<Object>}
 		 */
 		getQueryResults(queryId) {
