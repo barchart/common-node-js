@@ -122,7 +122,7 @@ module.exports = (() => {
 						}
 						return createPromise;
 					}).then(() => {
-						logger.info('Dynamo table wrapper for', this._definition.name, 'initialized');
+						logger.debug('Dynamo table wrapper for', this._definition.name, 'initialized');
 
 						this._started = true;
 
@@ -165,7 +165,7 @@ module.exports = (() => {
 					if (!this._validate(item)) {
 						logger.trace('Failed to create item in [', this.definition.name, '] table', item);
 
-						throw new Error(`Unable to insert item into [${this.definition.name}] table.`);
+						throw new Error(`Unable to insert item into [ ${this.definition.name} ] table.`);
 					}
 
 					return this._provider.saveItem(item, this.definition, preventOverwrite);
@@ -188,7 +188,7 @@ module.exports = (() => {
 						if (!this._validate(item)) {
 							logger.trace('Failed to create item in [', this.definition.name, '] table', item);
 
-							throw new Error(`Unable to insert items into [${this.definition.name}] table.`);
+							throw new Error(`Unable to insert items into [ ${this.definition.name} ] table.`);
 						}
 					});
 
@@ -211,7 +211,7 @@ module.exports = (() => {
 					if (!this._validate(item)) {
 						logger.trace('Failed to delete item from [', this.definition.name, '] table', item);
 
-						throw new Error(`Unable to delete item from [${this.definition.name}] table.`);
+						throw new Error(`Unable to delete item from [ ${this.definition.name} ] table.`);
 					}
 
 					return this._provider.deleteItem(item, this.definition);
@@ -234,7 +234,7 @@ module.exports = (() => {
 						if (!this._validate(item)) {
 							logger.trace('Failed to create delete item from [', this.definition.name, '] table', item);
 
-							throw new Error(`Unable to delete items from [${this.definition.name}] table.`);
+							throw new Error(`Unable to delete items from [ ${this.definition.name} ] table.`);
 						}
 					});
 
