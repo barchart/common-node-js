@@ -80,7 +80,7 @@ module.exports = (() => {
 
 						this._dynamo = new aws.DynamoDB({apiVersion: this._configuration.apiVersion || '2012-08-10'});
 					}).then(() => {
-						logger.info('Dynamo Provider started');
+						logger.debug('Dynamo Provider started');
 
 						this._started = true;
 
