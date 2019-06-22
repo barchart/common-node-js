@@ -1,6 +1,7 @@
 const log4js = require('log4js');
 
 const assert = require('@barchart/common-js/lang/assert'),
+	is = require('@barchart/common-js/lang/is'),
 	FailureReason = require('@barchart/common-js/api/failures/FailureReason'),
 	FailureType = require('@barchart/common-js/api/failures/FailureType');
 
@@ -32,6 +33,7 @@ module.exports = (() => {
 				log4js.configure(configuration);
 
 				logger = log4js.getLogger('LambdaHelper');
+				eventLogger = log4js.getLogger('LambdaHelper/Event');
 			}
 
 			return logger;
@@ -87,12 +89,24 @@ module.exports = (() => {
 						responder.setPlainText();
 					}
 
+					if (is.object(event)) {
+						if (eventLogger && eventLogger.isTraceEnabled()) {
+							eventLogger.trace(JSON.stringify(event, null, 2));
+						}
+					}
+
 					return Promise.resolve(processor(parser, responder));
 				}).then((response) => {
 					responder.send(response);
 				}).catch((e) => {
 					if (logger) {
 						logger.error(e);
+					}
+
+					if (is.object(event)) {
+						if (eventLogger && !eventLogger.isTraceEnabled()) {
+							eventLogger.error(JSON.stringify(event, null, 2));
+						}
 					}
 
 					let failure;
@@ -113,13 +127,14 @@ module.exports = (() => {
 					}
 				});
 		}
-		
+
 		toString() {
 			return 'LambdaHelper';
 		}
 	}
 
 	let logger = null;
+	let eventLogger = null;
 
 	/**
 	 * A callback used to execute the Lambda operation's work.
