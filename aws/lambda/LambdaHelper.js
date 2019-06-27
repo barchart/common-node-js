@@ -103,14 +103,14 @@ module.exports = (() => {
 						failure = e;
 
 						if (lambdaLogger) {
-							lambdaLogger.error(e);
+							lambdaLogger.error(failure.format());
 						}
 					} else {
 						failure = FailureReason.forRequest({ endpoint: { description: description }})
 							.addItem(FailureType.REQUEST_GENERAL_FAILURE);
 
 						if (lambdaLogger) {
-							lambdaLogger.error(failure.format());
+							lambdaLogger.error(e);
 						}
 					}
 
