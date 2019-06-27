@@ -22,21 +22,21 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Configures and returns a log4js logger.
+		 * Configures and returns a log4js lambdaLogger.
 		 *
 		 * @public
 		 * @param {Object=|String=} configuration - Configuration path (as string) or a configuration data (as object).
 		 * @returns {Object}
 		 */
 		static getLogger(configuration) {
-			if (logger === null) {
+			if (lambdaLogger === null) {
 				log4js.configure(configuration);
 
-				logger = log4js.getLogger('LambdaHelper');
+				lambdaLogger = log4js.getLogger('LambdaHelper');
 				eventLogger = log4js.getLogger('LambdaHelper/Event');
 			}
 
-			return logger;
+			return lambdaLogger;
 		}
 
 		/**
@@ -89,37 +89,33 @@ module.exports = (() => {
 						responder.setPlainText();
 					}
 
-					if (is.object(event)) {
-						if (eventLogger && eventLogger.isTraceEnabled()) {
-							eventLogger.trace(JSON.stringify(event, null, 2));
-						}
+					if (is.object(event) && eventLogger && eventLogger.isTraceEnabled()) {
+						eventLogger.trace(JSON.stringify(event, null, 2));
 					}
 
 					return Promise.resolve(processor(parser, responder));
 				}).then((response) => {
 					responder.send(response);
 				}).catch((e) => {
-					if (logger) {
-						logger.error(e);
-					}
-
-					if (is.object(event)) {
-						if (eventLogger && !eventLogger.isTraceEnabled()) {
-							eventLogger.error(JSON.stringify(event, null, 2));
-						}
-					}
-
 					let failure;
 
 					if (e instanceof FailureReason) {
 						failure = e;
+
+						if (lambdaLogger) {
+							lambdaLogger.error(e);
+						}
 					} else {
 						failure = FailureReason.forRequest({ endpoint: { description: description }})
 							.addItem(FailureType.REQUEST_GENERAL_FAILURE);
+
+						if (lambdaLogger) {
+							lambdaLogger.error(failure.format());
+						}
 					}
 
-					if (logger) {
-						logger.error(failure.format());
+					if (is.object(event) && eventLogger && !eventLogger.isTraceEnabled()) {
+						eventLogger.error(JSON.stringify(event, null, 2));
 					}
 
 					if (responder) {
@@ -133,7 +129,7 @@ module.exports = (() => {
 		}
 	}
 
-	let logger = null;
+	let lambdaLogger = null;
 	let eventLogger = null;
 
 	/**
