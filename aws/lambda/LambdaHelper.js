@@ -115,7 +115,7 @@ module.exports = (() => {
 					}
 
 					if (is.object(event) && eventLogger && !eventLogger.isTraceEnabled()) {
-						eventLogger.error(JSON.stringify(event, null, 2));
+						eventLogger.warn(JSON.stringify(event, null, 2));
 					}
 
 					if (responder) {
