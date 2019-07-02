@@ -583,7 +583,7 @@ module.exports = (() => {
 												results = data.Items.map(i => Serializer.deserialize(i, scan.table));
 											}
 										} catch (e) {
-											logger.error('Unable to deserializeUnable to deserialize scan results.', e);
+											logger.error('Unable to deserialize scan results.', e);
 
 											if (data.Items) {
 												logger.error(JSON.stringify(data.Items, null, 2));
