@@ -308,11 +308,11 @@ module.exports = (() => {
 								if (tableData.TableStatus === 'ACTIVE') {
 									logger.info('Table ready [', qualifiedTableName, ']');
 
-									return tableData;
+									return Promise.resolve(tableData);
 								} else {
 									logger.debug('Table not yet ready [', qualifiedTableName, ']');
 
-									return null;
+									return Promise.reject();
 								}
 							});
 					};
