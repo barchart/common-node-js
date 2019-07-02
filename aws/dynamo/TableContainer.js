@@ -247,7 +247,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Scan} scan
-		 * @returns {Promise<Array.<Object>>}
+		 * @returns {Promise<Array<Object>>}
 		 */
 		scan(scan) {
 			return Promise.resolve()

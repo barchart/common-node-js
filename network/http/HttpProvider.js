@@ -80,7 +80,7 @@ module.exports = (() => {
 		 * @param {Number=} port
 		 * @param {Object=} data
 		 * @param {Object=} headers
-		 * @returns {Promise.<String>}
+		 * @returns {Promise<String>}
 		 */
 		callEndpoint(host, path, query, method, secure, port, data, headers) {
 			return Promise.resolve()
@@ -189,7 +189,7 @@ module.exports = (() => {
 		 * @param {String} uri
 		 * @param {String=} method
 		 * @param {Object=} data
-		 * @returns {Promise.<String>}
+		 * @returns {Promise<String>}
 		 */
 		callEndpointUri(uri, method, data, headers) {
 			return Promise.resolve()

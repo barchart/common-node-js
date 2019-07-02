@@ -12,8 +12,8 @@ module.exports = (() => {
 	 * properties from the input object.
 	 *
 	 * @public
-	 * @param {Array.<String>} inputPropertyNames - The property names to select from input object.
-	 * @param {Array.<String>=} outputPropertyNames - The property names write to the output object. If omitted, the "input" property names are used.
+	 * @param {Array<String>} inputPropertyNames - The property names to select from input object.
+	 * @param {Array<String>=} outputPropertyNames - The property names write to the output object. If omitted, the "input" property names are used.
 	 * @extends {Transformation}
 	 */
 	class SelectTransformation extends Transformation {

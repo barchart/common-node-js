@@ -106,7 +106,7 @@ module.exports = (() => {
 
 		/**
 		 * @protected
-		 * @returns {Promise.<DataSession>|DataSession}
+		 * @returns {Promise<DataSession>|DataSession}
 		 */
 		_getSession() {
 			return null;
