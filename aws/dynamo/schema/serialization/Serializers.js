@@ -14,6 +14,7 @@ const AttributeSerializer = require('./attributes/AttributeSerializer'),
 	JsonSerializer = require('./attributes/JsonSerializer'),
 	NumberSerializer = require('./attributes/NumberSerializer'),
 	StringSerializer = require('./attributes/StringSerializer'),
+	StringSetSerializer = require('./attributes/StringSetSerializer'),
 	TimestampSerializer = require('./attributes/TimestampSerializer');
 
 const CompressedAdHocSerializer = require('./attributes/CompressedAdHocSerializer'),
@@ -54,7 +55,7 @@ module.exports = (() => {
 		static registerAttributeSerializer(dataType, serializer) {
 			assert.argumentIsRequired(dataType, 'dataType', DataType, 'DataType');
 			assert.argumentIsRequired(serializer, 'serializer', AttributeSerializer, 'AttributeSerializer');
-			
+
 			if (attributeSerializers.has(dataType)) {
 				throw new Error('An attribute serializer has already been registered for the data type (' + dataType.toString() + ')');
 			}
@@ -80,7 +81,7 @@ module.exports = (() => {
 
 			attributeSerializerFactories.set(dataType, serializerFactory);
 		}
-		
+
 		/**
 		 * Returns the appropriate {@link AttributeSerializer} given an {@link Attribute}.
 		 *
@@ -154,7 +155,7 @@ module.exports = (() => {
 
 			componentSerializers.set(componentType, serializer);
 		}
-		
+
 		/**
 		 * Returns the appropriate {@link ComponentSerializer} given a {@link Component}.
 		 *
@@ -196,6 +197,7 @@ module.exports = (() => {
 	Serializers.registerAttributeSerializer(DataType.BOOLEAN, BooleanSerializer.INSTANCE);
 	Serializers.registerAttributeSerializer(DataType.NUMBER, NumberSerializer.INSTANCE);
 	Serializers.registerAttributeSerializer(DataType.STRING, StringSerializer.INSTANCE);
+	Serializers.registerAttributeSerializer(DataType.STRING_SET, StringSetSerializer.INSTANCE);
 	Serializers.registerAttributeSerializer(DataType.JSON, JsonSerializer.INSTANCE);
 	Serializers.registerAttributeSerializer(DataType.DAY, DaySerializer.INSTANCE);
 	Serializers.registerAttributeSerializer(DataType.DECIMAL, DecimalSerializer.INSTANCE);

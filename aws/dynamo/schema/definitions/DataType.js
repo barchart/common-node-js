@@ -145,6 +145,17 @@ module.exports = (() => {
 		}
 
 		/**
+		 * References a string set.
+		 *
+		 * @public
+		 * @static
+		 * @return {DataType}
+		 */
+		static get STRING_SET() {
+			return dataTypeStringSet;
+		}
+
+		/**
 		 * References an object (serialized as JSON).
 		 *
 		 * @public
@@ -292,6 +303,7 @@ module.exports = (() => {
 	const dataTypeBoolean = new DataType('BOOL', 'Boolean');
 	const dataTypeNumber = new DataType('N', 'Number');
 	const dataTypeString = new DataType('S', 'String');
+	const dataTypeStringSet = new DataType('SS', 'String Set');
 
 	const dataTypeJson = new DataType('S', 'Json');
 
@@ -315,6 +327,7 @@ module.exports = (() => {
 		dataTypeString,
 		dataTypeStringCompressed,
 		dataTypeStringEncrypted,
+		dataTypeStringSet,
 		dataTypeJson,
 		dataTypeJsonCompressed,
 		dataTypeJsonEncrypted,
