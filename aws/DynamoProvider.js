@@ -36,7 +36,7 @@ module.exports = (() => {
 	 * @param {string} configuration.prefix - The prefix to automatically append to table names.
 	 * @param {string=} configuration.apiVersion - The DynamoDB API version (defaults to "2012-08-10").
 	 * @param {object=} options
-	 * @param {Boolean=} preferConsistentReads
+	 * @param {Boolean=} options.preferConsistentReads
 	 */
 	class DynamoProvider extends Disposable {
 		constructor(configuration, options) {
