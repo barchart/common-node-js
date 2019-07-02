@@ -24,6 +24,9 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('common-node/aws/DynamoProvider');
 
+	const READ_MILLISECOND_BACKOFF = 500;
+	const WRITE_MILLISECOND_BACKOFF = 500;
+
 	/**
 	 * A facade for Amazon's DynamoDB service. The constructor accepts
 	 * configuration options. The promise-based instance functions
@@ -416,7 +419,7 @@ module.exports = (() => {
 						});
 					};
 
-					return this._scheduler.backoff(putItem)
+					return this._scheduler.backoff(putItem, WRITE_MILLISECOND_BACKOFF)
 						.then((result) => {
 							if (result.code === DYNAMO_RESULT.FAILURE) {
 								throw result.error;
@@ -508,7 +511,7 @@ module.exports = (() => {
 						});
 					};
 
-					return this._scheduler.backoff(deleteItem)
+					return this._scheduler.backoff(deleteItem, WRITE_MILLISECOND_BACKOFF)
 						.then((result) => {
 							if (result.code === DYNAMO_RESULT.FAILURE) {
 								throw result.error;
@@ -546,7 +549,7 @@ module.exports = (() => {
 					let count = 0;
 
 					const runScanRecursive = (previous) => {
-						return this._scheduler.backoff(() => {
+						const executeScan = () => {
 							return promise.build((resolveCallback, rejectCallback) => {
 								if (previous) {
 									options.ExclusiveStartKey = previous;
@@ -594,9 +597,9 @@ module.exports = (() => {
 											resolveCallback({ code: DYNAMO_RESULT.FAILURE, error: error });
 										}
 
-										count += results.length;
-
 										if (results !== null) {
+											count += results.length;
+
 											if (data.LastEvaluatedKey && (maximum === 0 || count < maximum)) {
 												runScanRecursive(data.LastEvaluatedKey)
 													.then((more) => {
@@ -609,13 +612,16 @@ module.exports = (() => {
 									}
 								});
 							});
-						}).then((results) => {
-							if (results.code === DYNAMO_RESULT.FAILURE) {
-								return Promise.reject(results.error);
-							} else {
-								return Promise.resolve(results);	
-							}
-						});
+						};
+
+						return this._scheduler.backoff(executeScan, READ_MILLISECOND_BACKOFF)
+							.then((results) => {
+								if (results.code === DYNAMO_RESULT.FAILURE) {
+									return Promise.reject(results.error);
+								} else {
+									return Promise.resolve(results);
+								}
+							});
 					};
 
 					return runScanRecursive();
@@ -654,7 +660,7 @@ module.exports = (() => {
 						options.ConsistentRead = true;
 					}
 
-					return this._scheduler.backoff(() => {
+					const executeScan = () => {
 						return promise.build((resolveCallback, rejectCallback) => {
 							if (startKey) {
 								options.ExclusiveStartKey = Serializer.serialize(startKey, scan.table, false, true);
@@ -707,13 +713,16 @@ module.exports = (() => {
 								}
 							});
 						});
-					}).then((results) => {
-						if (results.code === DYNAMO_RESULT.FAILURE) {
-							return Promise.reject(results.error);
-						} else {
-							return Promise.resolve(results);
-						}
-					});
+					};
+
+					return this._scheduler.backoff(executeScan, READ_MILLISECOND_BACKOFF)
+						.then((results) => {
+							if (results.code === DYNAMO_RESULT.FAILURE) {
+								return Promise.reject(results.error);
+							} else {
+								return Promise.resolve(results);
+							}
+						});
 				}).then((results) => {
 					logger.debug('Ran [', scan.description, '] in chunk mode on [', scan.table.name + (scan.index ? '/ ' + scan.index.name : ''), '] and matched [', results.results.length ,'] results.');
 
@@ -752,7 +761,7 @@ module.exports = (() => {
 					let count = 0;
 
 					const runQueryRecursive = (previous) => {
-						return this._scheduler.backoff(() => {
+						const executeQuery = () => {
 							return promise.build((resolveCallback, rejectCallback) => {
 								if (previous) {
 									options.ExclusiveStartKey = previous;
@@ -815,13 +824,16 @@ module.exports = (() => {
 									}
 								});
 							});
-						}).then((results) => {
-							if (results.code === DYNAMO_RESULT.FAILURE) {
-								return Promise.reject(results.error);
-							} else {
-								return Promise.resolve(results);
-							}
-						});
+						};
+
+						return this._scheduler.backoff(executeQuery, READ_MILLISECOND_BACKOFF)
+							.then((results) => {
+								if (results.code === DYNAMO_RESULT.FAILURE) {
+									return Promise.reject(results.error);
+								} else {
+									return Promise.resolve(results);
+								}
+							});
 					};
 
 					return runQueryRecursive();
@@ -860,7 +872,7 @@ module.exports = (() => {
 						options.ConsistentRead = true;
 					}
 
-					return this._scheduler.backoff(() => {
+					const executeQuery = () => {
 						return promise.build((resolveCallback, rejectCallback) => {
 							if (startKey) {
 								options.ExclusiveStartKey = Serializer.serialize(startKey, query.table, false, true);
@@ -913,7 +925,9 @@ module.exports = (() => {
 								}
 							});
 						});
-					}).then((results) => {
+					};
+
+					return this._scheduler.backoff(executeQuery, READ_MILLISECOND_BACKOFF).then((results) => {
 						if (results.code === DYNAMO_RESULT.FAILURE) {
 							return Promise.reject(results.error);
 						} else {
@@ -1052,7 +1066,7 @@ module.exports = (() => {
 
 								const continuePayload = getBatchPayload(qualifiedTableName, unprocessedItems);
 
-								this._scheduler.backoff(() => writeBatch(continuePayload))
+								this._scheduler.backoff(() => writeBatch(continuePayload), WRITE_MILLISECOND_BACKOFF)
 									.then((continueResult) => {
 										resolveCallback(continueResult);
 									});
@@ -1074,7 +1088,7 @@ module.exports = (() => {
 				})
 			);
 
-			return this._scheduler.backoff(() => writeBatch(originalPayload))
+			return this._scheduler.backoff(() => writeBatch(originalPayload), WRITE_MILLISECOND_BACKOFF)
 				.then((result) => {
 					if (result.code === DYNAMO_RESULT.FAILURE) {
 						logger.error('Failed batch', type.description, 'on [', qualifiedTableName, '] for batch number [', batchNumber,'] with [', items.length, '] items');
