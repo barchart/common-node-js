@@ -2,26 +2,14 @@ const assert = require('@barchart/common-js/lang/assert'),
 	is = require('@barchart/common-js/lang/is');
 
 const AttributeSerializer = require('./AttributeSerializer'),
-	DataType = require('./../../definitions/DataType'),
-	Serializers = require('./../Serializers');
+	BooleanSerializer = require('./BooleanSerializer'),
+	NumberSerializer = require('./NumberSerializer'),
+	StringSerializer = require('./StringSerializer');
+
+const	DataType = require('./../../definitions/DataType');
 
 module.exports = (() => {
 	'use strict';
-
-	const SUPPORTED_DATA_TYPES = [
-		{
-			type: DataType.BOOLEAN,
-			is: (value) => is.boolean(value),
-		},
-		{
-			type: DataType.NUMBER,
-			is: (value) => is.number(value),
-		},
-		{
-			type: DataType.STRING,
-			is: (value) => is.string(value),
-		},
-	];
 
 	/**
 	 * Converts a list into (and back from) the representation used
@@ -43,13 +31,11 @@ module.exports = (() => {
 			const serialized = list.reduce((acc, item) => {
 				const dt = SUPPORTED_DATA_TYPES.find((sdt) => sdt.is(item));
 
-				if (!dt.type) {
+				if (!dt) {
 					throw new Error(`Failed to serialize list item. Provided type for [ ${item} ] is not supported.`);
 				}
 
-				const serializer = Serializers.forDataType(dt.type);
-
-				acc.push(serializer.serialize(item));
+				acc.push(dt.serializer.serialize(item));
 
 				return acc;
 			}, [ ]);
@@ -65,13 +51,11 @@ module.exports = (() => {
 			return deserialized.reduce((acc, item) => {
 				const dt = SUPPORTED_DATA_TYPES.find((sdt) => !is.undefined(item[sdt.type.code]));
 
-				if (!dt.type) {
+				if (!dt) {
 					throw new Error(`Failed to deserialize list item. Provided type for [ ${item} ] is not supported.`);
 				}
 
-				const serializer = Serializers.forDataType(dt.type);
-
-				acc.push(serializer.deserialize(item));
+				acc.push(dt.serializer.deserialize(item));
 
 				return acc;
 			}, [ ]);
@@ -94,6 +78,29 @@ module.exports = (() => {
 	}
 
 	const instance = new ListSerializer();
+
+	const SUPPORTED_DATA_TYPES = [
+		{
+			type: DataType.BOOLEAN,
+			is: (value) => is.boolean(value),
+			serializer: BooleanSerializer.INSTANCE,
+		},
+		{
+			type: DataType.LIST,
+			is: (value) => is.array(value),
+			serializer: ListSerializer.INSTANCE,
+		},
+		{
+			type: DataType.NUMBER,
+			is: (value) => is.number(value),
+			serializer: NumberSerializer.INSTANCE,
+		},
+		{
+			type: DataType.STRING,
+			is: (value) => is.string(value),
+			serializer: StringSerializer.INSTANCE,
+		},
+	];
 
 	return ListSerializer;
 })();
