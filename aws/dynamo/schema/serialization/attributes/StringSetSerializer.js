@@ -20,11 +20,7 @@ module.exports = (() => {
 		}
 
 		serialize(items) {
-			assert.argumentIsArray(items, 'items');
-
-			items.forEach((item) => {
-				assert.argumentIsRequired(item, 'item', String);
-			});
+			assert.argumentIsArray(items, 'items', String);
 
 			if (items.length !== array.unique(items).length) {
 				throw new Error('Could not serialize set of strings. Items must be unique.');
