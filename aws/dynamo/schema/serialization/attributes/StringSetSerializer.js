@@ -1,4 +1,5 @@
-const assert = require('@barchart/common-js/lang/assert');
+const array = require('@barchart/common-js/lang/array'),
+	assert = require('@barchart/common-js/lang/assert');
 
 const AttributeSerializer = require('./AttributeSerializer'),
 	DataType = require('./../../definitions/DataType');
@@ -18,12 +19,20 @@ module.exports = (() => {
 			super();
 		}
 
-		serialize(set) {
-			assert.argumentIsArray(set, 'set');
+		serialize(items) {
+			assert.argumentIsArray(items, 'items');
+
+			items.forEach((item) => {
+				assert.argumentIsRequired(item, 'item', String);
+			});
+
+			if (items.length !== array.unique(items).length) {
+				throw new Error('Could not serialize set of strings. Items must be unique.');
+			}
 
 			const wrapper = { };
 
-			wrapper[DataType.STRING_SET.code] = set;
+			wrapper[DataType.STRING_SET.code] = items;
 
 			return wrapper;
 		}
