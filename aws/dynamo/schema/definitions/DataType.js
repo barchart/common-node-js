@@ -156,6 +156,17 @@ module.exports = (() => {
 		}
 
 		/**
+		 * References a list.
+		 *
+		 * @public
+		 * @static
+		 * @return {DataType}
+		 */
+		static get LIST() {
+			return dataTypeList;
+		}
+
+		/**
 		 * References an object (serialized as JSON).
 		 *
 		 * @public
@@ -303,6 +314,7 @@ module.exports = (() => {
 	const dataTypeBoolean = new DataType('BOOL', 'Boolean');
 	const dataTypeNumber = new DataType('N', 'Number');
 	const dataTypeString = new DataType('S', 'String');
+	const dataTypeList = new DataType('L', 'List');
 	const dataTypeStringSet = new DataType('SS', 'String Set');
 
 	const dataTypeJson = new DataType('S', 'Json');
@@ -327,6 +339,7 @@ module.exports = (() => {
 		dataTypeString,
 		dataTypeStringCompressed,
 		dataTypeStringEncrypted,
+		dataTypeList,
 		dataTypeStringSet,
 		dataTypeJson,
 		dataTypeJsonCompressed,
