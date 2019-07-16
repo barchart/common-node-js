@@ -204,6 +204,25 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Uploads an object through the stream.
+		 *
+		 * @public
+		 * @param {string} bucket
+		 * @param {string} key
+		 * @param {stream} reader
+		 *
+		 * @return {Promise<Object>}
+		 */
+		uploadStream(bucket, key, reader) {
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
+
+					return this._s3.upload({ Bucket: bucket, Key: key, Body: reader }).promise();
+				});
+		}
+
+		/**
 		 * Downloads an object, using the bucket (and folder) specified
 		 * in the provider's configuration.
 		 *
@@ -243,6 +262,24 @@ module.exports = (() => {
 							}
 						});
 					});
+				});
+		}
+
+		/**
+		 * Creates a readable stream for s3 object.
+		 *
+		 * @public
+		 * @param {string} bucket
+		 * @param {string} key
+		 *
+		 * @return {Promise<stream.Readable>}
+		 */
+		createReadStream(bucket, key) {
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
+
+					return this._s3.getObject({ Bucket: bucket, Key: key }).createReadStream();
 				});
 		}
 
