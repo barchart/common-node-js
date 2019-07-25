@@ -198,10 +198,14 @@ module.exports = (() => {
 				messages = this._event.Records.map((record) => {
 					let message;
 
-					if (is.boolean(text) && text) {
-						message = record.Message;
+					if (record.EventSource === 'aws:sns') {
+						message = record.Sns.Message;
 					} else {
-						message = JSON.parse(record.Message);
+						message = null;
+					}
+
+					if (message && (!is.boolean(text) || !text)) {
+						message = JSON.parse(message);
 					}
 
 					return message;
