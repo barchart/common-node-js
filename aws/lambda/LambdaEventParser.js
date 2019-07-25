@@ -183,6 +183,35 @@ module.exports = (() => {
 					});
 				});
 		}
+
+		/**
+		 * Returns messages included with an SNS-based invocation of the Lambda function.
+		 *
+		 * @public
+		 * @param {Boolean=} text
+		 * @return {*}
+		 */
+		getMessages(text) {
+			let messages;
+
+			if (is.array(this._event.Records)) {
+				messages = this._event.Records.map((record) => {
+					let message;
+
+					if (is.boolean(text) && text) {
+						message = record.Message;
+					} else {
+						message = JSON.parse(record.Message);
+					}
+
+					return message;
+				});
+			} else {
+				messages = [ ];
+			}
+
+			return messages;
+		}
 	}
 
 	function read(object, key) {
