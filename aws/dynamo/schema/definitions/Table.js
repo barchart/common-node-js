@@ -280,7 +280,7 @@ module.exports = (() => {
 					returnVal = returnVal && this._attributes.length === other.attributes.length;
 					returnVal = returnVal && this._attributes.every(a => other.attributes.some(oa => oa.equals(a, relaxed)));
 
-					if (this._provisionedThroughput) {
+					if (this._provisionedThroughput && other.provisionedThroughput) {
 						returnVal = returnVal && this._provisionedThroughput.compareTo(other.provisionedThroughput);
 					} else {
 						returnVal = returnVal && this._provisionedThroughput === other.provisionedThroughput;
