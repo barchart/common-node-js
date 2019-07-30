@@ -3,6 +3,7 @@ const array = require('@barchart/common-js/lang/array'),
 	is = require('@barchart/common-js/lang/is');
 
 const Attribute = require('./Attribute'),
+	BillingMode = require('./BillingMode'),
 	Component = require('./Component'),
 	Key = require('./Key'),
 	KeyType = require('./KeyType'),
@@ -200,7 +201,9 @@ module.exports = (() => {
 			this._indices.forEach(i => i.validate());
 			this._components.forEach(c => c.validate());
 
-			this._provisionedThroughput.validate();
+			if (this._provisionedThroughput) {
+				this._provisionedThroughput.validate();
+			}
 		}
 
 		/**
@@ -217,7 +220,13 @@ module.exports = (() => {
 			};
 
 			schema.KeySchema = this._keys.map(k => k.toKeySchema());
-			schema.ProvisionedThroughput = this._provisionedThroughput.toProvisionedThroughputSchema();
+
+			if (this._provisionedThroughput) {
+				schema.BillingMode = BillingMode.PROVISIONED.code;
+				schema.ProvisionedThroughput = this._provisionedThroughput.toProvisionedThroughputSchema();
+			} else {
+				schema.BillingMode = BillingMode.PAY_PER_REQUEST.code;
+			}
 
 			const globalIndicies = this._indices.filter(i => i.type === IndexType.GLOBAL_SECONDARY);
 			const localIndicies = this._indices.filter(i => i.type === IndexType.LOCAL_SECONDARY);
@@ -271,7 +280,11 @@ module.exports = (() => {
 					returnVal = returnVal && this._attributes.length === other.attributes.length;
 					returnVal = returnVal && this._attributes.every(a => other.attributes.some(oa => oa.equals(a, relaxed)));
 
-					returnVal = returnVal && this._provisionedThroughput.compareTo(other.provisionedThroughput);
+					if (this._provisionedThroughput) {
+						returnVal = returnVal && this._provisionedThroughput.compareTo(other.provisionedThroughput);
+					} else {
+						returnVal = returnVal && this._provisionedThroughput === other.provisionedThroughput;
+					}
 				}
 			}
 
