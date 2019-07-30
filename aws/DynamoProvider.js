@@ -394,7 +394,7 @@ module.exports = (() => {
 							logger.error(err);
 
 							return Promise.reject(`Failed to delete [ ${tableName} ] table`);
-						})
+						});
 				});
 		}
 
