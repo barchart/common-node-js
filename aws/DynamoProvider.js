@@ -361,6 +361,44 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Deletes a table.
+		 *
+		 * @public
+		 * @param {string} tableName - the name.
+		 * @param {boolean} wait - If true, waits for the table will be created.
+		 * @returns {Promise<Object>}
+		 */
+		deleteTable(tableName, wait) {
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsRequired(tableName, 'tableName', String);
+					assert.argumentIsOptional(wait, 'wait', Boolean);
+
+					const params = { TableName: tableName };
+
+					logger.info(`Deleting table [ ${tableName} ]`);
+
+					return this._dynamo.deleteTable(params).promise()
+						.then((data) => {
+							if (!wait) {
+								return data;
+							}
+
+							return this._dynamo.waitFor('tableNotExists', params).promise()
+								.then((data) => {
+									logger.info(`Table [ ${tableName} ] successfully deleted`);
+
+									return data;
+								});
+						}).catch((err) => {
+							logger.error(err);
+
+							return Promise.reject(`Failed to delete [ ${tableName} ] table`);
+						})
+				});
+		}
+
+		/**
 		 * Adds a new item to a table. If the item already exists, it is overwritten.
 		 *
 		 * @public

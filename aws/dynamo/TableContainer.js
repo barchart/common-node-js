@@ -243,6 +243,26 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Deletes a table.
+		 *
+		 * @public
+		 * @returns {Promise<Object>}
+		 */
+		delete() {
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
+
+					return this._provider.deleteTable(this.definition.name, true)
+						.then((data) => {
+							this.dispose();
+
+							return data;
+						});
+				});
+		}
+
+		/**
 		 * Runs a scan on the table.
 		 *
 		 * @public
