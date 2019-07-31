@@ -1,8 +1,4 @@
-const assert = require('@barchart/common-js/lang/assert'),
-	is = require('@barchart/common-js/lang/is');
-
-const DataType = require('./DataType'),
-	KeyType = require('./KeyType');
+const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
 	'use strict';
