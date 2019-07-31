@@ -1,12 +1,14 @@
 const log4js = require('log4js');
 
 const assert = require('@barchart/common-js/lang/assert'),
+	Enum = require('@barchart/common-js/lang/Enum'),
 	is = require('@barchart/common-js/lang/is'),
 	FailureReason = require('@barchart/common-js/api/failures/FailureReason'),
 	FailureType = require('@barchart/common-js/api/failures/FailureType');
 
 const LambdaEventParser = require('./LambdaEventParser'),
-	LambdaResponder = require('./LambdaResponder');
+	LambdaResponder = require('./LambdaResponder'),
+	LambdaStage = require('./LambdaStage');
 
 module.exports = (() => {
 	'use strict';
@@ -59,6 +61,19 @@ module.exports = (() => {
 		 */
 		static getResponder(callback) {
 			return new LambdaResponder(callback);
+		}
+
+		/**
+		 * Builds and returns a new {@link LambdaStage}.
+		 *
+		 * @public
+		 * @param {String} stage
+		 * @return {LambdaStage}
+		 */
+		static getStage(stage) {
+			assert.argumentIsRequired(stage, 'stage', String);
+
+			return Enum.fromCode(LambdaStage, stage);
 		}
 
 		/**
