@@ -30,9 +30,8 @@ module.exports = (() => {
 	 * @param {String} name - Name of the table.
 	 */
 	class TableBuilder {
-		constructor(name, stage) {
+		constructor(name) {
 			assert.argumentIsRequired(name, 'name', String);
-			assert.argumentIsOptional(stage, 'stage', LambdaStage, 'LambdaStage');
 
 			this._stage = stage;
 
@@ -43,6 +42,7 @@ module.exports = (() => {
 		 * The {@link Table}, given all the information provided thus far.
 		 *
 		 * @public
+		 * @returns {Table}
 		 */
 		get table() {
 			return this._table;
@@ -79,7 +79,7 @@ module.exports = (() => {
 		 * @param {Function} callback
 		 * @return {TableBuilder}
 		 */
-		for(stage, callback) {
+		forStage(stage, callback) {
 			assert.argumentIsRequired(stage, 'stage', LambdaStage, 'LambdaStage');
 			assert.argumentIsRequired(callback, 'callback', Function);
 
@@ -282,6 +282,7 @@ module.exports = (() => {
 		/**
 		 * Defines a streaming behavior for the table.
 		 *
+		 * @public
 		 * @param {StreamViewType} streamViewType
 		 */
 		withStreamViewType(streamViewType) {

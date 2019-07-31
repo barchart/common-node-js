@@ -45,7 +45,7 @@ module.exports = (() => {
 		 * @param {Function} callback
 		 * @return {IndexBuilder}
 		 */
-		for(stage, callback) {
+		forStage(stage, callback) {
 			assert.argumentIsRequired(stage, 'stage', LambdaStage, 'LambdaStage');
 			assert.argumentIsRequired(callback, 'callback', Function);
 
@@ -174,18 +174,6 @@ module.exports = (() => {
 			assert.argumentIsRequired(provisionedThroughputBuilder, 'provisionedThroughputBuilder', ProvisionedThroughputBuilder, 'ProvisionedThroughputBuilder');
 
 			this._index = new Index(this._index.name, this._index.type, this._index.keys, this._index.projection, provisionedThroughputBuilder.provisionedThroughput);
-
-			return this;
-		}
-
-		/**
-		 * Defines an 'On-demand' throughput.
-		 *
-		 * @public
-		 * @returns {TableBuilder}
-		 */
-		withOnDemandThroughput() {
-			this._index = new Index(this._index.name, this._index.type, this._index.keys, this._index.projection, null);
 
 			return this;
 		}
