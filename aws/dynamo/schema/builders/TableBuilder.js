@@ -221,6 +221,18 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Defines an 'On-demand' throughput.
+		 *
+		 * @public
+		 * @returns {TableBuilder}
+		 */
+		withOnDemandThroughput() {
+			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, this._table.components, null, this._table.streamViewType);
+
+			return this;
+		}
+
+		/**
 		 * Defines a streaming behavior for the table.
 		 *
 		 * @param {StreamViewType} streamViewType
