@@ -159,6 +159,18 @@ module.exports = (() => {
 			return this;
 		}
 
+		/**
+		 * Defines an 'On-demand' throughput.
+		 *
+		 * @public
+		 * @returns {TableBuilder}
+		 */
+		withOnDemandThroughput() {
+			this._index = new Index(this._index.name, this._index.type, this._index.keys, this._index.projection, null);
+
+			return this;
+		}
+
 		toString() {
 			return '[IndexBuilder]';
 		}
