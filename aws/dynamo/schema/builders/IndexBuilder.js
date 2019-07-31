@@ -38,6 +38,25 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Adds a logic for specific stage.
+		 *
+		 * @public
+		 * @param {LambdaStage} stage
+		 * @param {Function} callback
+		 * @return {IndexBuilder}
+		 */
+		for(stage, callback) {
+			assert.argumentIsRequired(stage, 'stage', LambdaStage, 'LambdaStage');
+			assert.argumentIsRequired(callback, 'callback', Function);
+
+			if (this._parent.stage === stage) {
+				callback(this);
+			}
+
+			return this;
+		}
+
+		/**
 		 * Sets the {@link IndexType} and returns the current instance.
 		 *
 		 * @public
