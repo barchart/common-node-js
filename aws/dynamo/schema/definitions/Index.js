@@ -117,7 +117,9 @@ module.exports = (() => {
 			this._projection.validate();
 
 			if (this._type.separateProvisioning) {
-				this._provisionedThroughput.validate();
+				if (this._provisionedThroughput) {
+					this._provisionedThroughput.validate();
+				}
 			} else if (this._provisionedThroughput !== null) {
 				throw new Error('Index type does not require separate throughput provisioning');
 			}
@@ -139,7 +141,7 @@ module.exports = (() => {
 			schema.KeySchema = this._keys.map(k => k.toKeySchema());
 			schema.Projection = this._projection.toProjectionSchema();
 
-			if (this.type.separateProvisioning) {
+			if (this.type.separateProvisioning && this._provisionedThroughput) {
 				schema.ProvisionedThroughput = this._provisionedThroughput.toProvisionedThroughputSchema();
 			}
 
@@ -171,7 +173,11 @@ module.exports = (() => {
 				returnVal = returnVal && this._projection.equals(other.projection, relaxed);
 
 				if (!(is.boolean(relaxed) && relaxed) && this.type.separateProvisioning) {
-					returnVal = returnVal && this._provisionedThroughput.equals(other.provisionedThroughput);
+					if (this._provisionedThroughput && other.provisionedThroughput) {
+						returnVal = returnVal && this._provisionedThroughput.equals(other.provisionedThroughput);
+					} else {
+						returnVal = returnVal && this._provisionedThroughput === other.provisionedThroughput;
+					}
 				}
 			}
 
