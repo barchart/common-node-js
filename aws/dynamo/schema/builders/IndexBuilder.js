@@ -51,7 +51,7 @@ module.exports = (() => {
 			assert.argumentIsRequired(stage, 'stage', LambdaStage, 'LambdaStage');
 			assert.argumentIsRequired(callback, 'callback', Function);
 
-			if (LambdaStage.getStageFromName(this._parent.name) === stage) {
+			if (LambdaStage.getStageFromName(this._parent.table.name) === stage) {
 				callback(this);
 			}
 

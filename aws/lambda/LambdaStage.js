@@ -1,4 +1,5 @@
-const Enum = require('@barchart/common-js/lang/Enum'),
+const assert = require('@barchart/common-js/lang/assert'),
+	Enum = require('@barchart/common-js/lang/Enum'),
 	is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -65,6 +66,8 @@ module.exports = (() => {
 		 * @returns {LambdaStage}
 		 */
 		static getStageFromName(name) {
+			assert.argumentIsRequired(name, 'name', String);
+
 			const matches = name.match(/^(.+)-(dev|stage|prod|demo)(-.+|$)$/);
 
 			if (is.array(matches) && matches.length >= 2) {
