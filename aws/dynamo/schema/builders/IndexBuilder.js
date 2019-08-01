@@ -9,6 +9,8 @@ const KeyBuilder = require('./KeyBuilder'),
 	ProjectionBuilder = require('./ProjectionBuilder'),
 	ProvisionedThroughputBuilder = require('./ProvisionedThroughputBuilder');
 
+const LambdaStage = require('../../../lambda/LambdaStage');
+
 module.exports = (() => {
 	'use strict';
 
@@ -49,7 +51,7 @@ module.exports = (() => {
 			assert.argumentIsRequired(stage, 'stage', LambdaStage, 'LambdaStage');
 			assert.argumentIsRequired(callback, 'callback', Function);
 
-			if (this._parent.stage === stage) {
+			if (LambdaStage.getStageFromName(this._parent.name) === stage) {
 				callback(this);
 			}
 
