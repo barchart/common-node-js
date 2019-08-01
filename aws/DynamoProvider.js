@@ -365,25 +365,19 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {string} tableName - the name.
-		 * @param {boolean} wait - If true, waits for the table will be created.
 		 * @returns {Promise<Object>}
 		 */
-		deleteTable(tableName, wait) {
+		deleteTable(tableName) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(tableName, 'tableName', String);
-					assert.argumentIsOptional(wait, 'wait', Boolean);
 
 					const params = { TableName: tableName };
 
-					logger.info(`Deleting table [ ${tableName} ]`);
+					logger.debug(`Deleting table [ ${tableName} ]`);
 
 					return this._dynamo.deleteTable(params).promise()
-						.then((data) => {
-							if (!wait) {
-								return data;
-							}
-
+						.then(() => {
 							return this._dynamo.waitFor('tableNotExists', params).promise()
 								.then((data) => {
 									logger.info(`Table [ ${tableName} ] successfully deleted`);
