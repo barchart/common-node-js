@@ -1,4 +1,5 @@
-const Enum = require('@barchart/common-js/lang/Enum');
+const Enum = require('@barchart/common-js/lang/Enum'),
+	is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
 	'use strict';
@@ -20,7 +21,7 @@ module.exports = (() => {
 		 * Development.
 		 *
 		 * @static
-		 * @return {LambdaStage}
+		 * @returns {LambdaStage}
 		 */
 		static get DEV() {
 			return dev;
@@ -30,7 +31,7 @@ module.exports = (() => {
 		 * Demo.
 		 *
 		 * @static
-		 * @return {LambdaStage}
+		 * @returns {LambdaStage}
 		 */
 		static get DEMO() {
 			return demo;
@@ -40,7 +41,7 @@ module.exports = (() => {
 		 * Stage.
 		 *
 		 * @static
-		 * @return {LambdaStage}
+		 * @returns {LambdaStage}
 		 */
 		static get STAGE() {
 			return stage;
@@ -50,10 +51,29 @@ module.exports = (() => {
 		 * Production.
 		 *
 		 * @static
-		 * @return {LambdaStage}
+		 * @returns {LambdaStage}
 		 */
 		static get PROD() {
 			return prod;
+		}
+
+		/**
+		 * Returns a stage from name string.
+		 *
+		 * @static
+		 * @param name
+		 * @returns {LambdaStage}
+		 */
+		static getStageFromName(name) {
+			const matches = name.match(/^(.+)-(dev|stage|prod|demo)(-.+|$)$/);
+
+			if (is.array(matches) && matches.length >= 2) {
+				const stage = matches[2];
+
+				return Enum.fromCode(LambdaStage, stage);
+			} else {
+				return LambdaStage.DEV;
+			}
 		}
 
 		toString() {

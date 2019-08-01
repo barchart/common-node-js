@@ -33,8 +33,6 @@ module.exports = (() => {
 		constructor(name) {
 			assert.argumentIsRequired(name, 'name', String);
 
-			this._stage = stage;
-
 			this._table = new Table(name, [ ], [ ], [ ], [ ], null, null);
 		}
 
@@ -49,29 +47,6 @@ module.exports = (() => {
 		}
 
 		/**
-		 * The {@link LambdaStage}.
-		 *
-		 * @public
-		 */
-		get stage() {
-			return this._stage;
-		}
-
-		/**
-		 * Adds the {@link LambdaStage}.
-		 *
-		 * @public
-		 * @param stage
-		 */
-		withStage(stage) {
-			assert.argumentIsRequired(stage, 'stage', LambdaStage, 'LambdaStage');
-
-			this._stage = stage;
-
-			return this;
-		}
-
-		/**
 		 * Adds a logic for specific stage.
 		 *
 		 * @public
@@ -83,7 +58,7 @@ module.exports = (() => {
 			assert.argumentIsRequired(stage, 'stage', LambdaStage, 'LambdaStage');
 			assert.argumentIsRequired(callback, 'callback', Function);
 
-			if (this._stage === stage) {
+			if (LambdaStage.getStageFromName(this._table.name) === stage) {
 				callback(this);
 			}
 
