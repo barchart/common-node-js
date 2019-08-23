@@ -200,7 +200,7 @@ module.exports = (() => {
 
 					if (record.EventSource === 'aws:sns') {
 						message = record.Sns.Message;
-					} else if (record.EventSource === 'aws:sqs') {
+					} else if (record.eventSource === 'aws:sqs') {
 						message = record.body;
 					} else {
 						message = null;
