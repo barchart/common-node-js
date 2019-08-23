@@ -185,7 +185,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Returns messages included with an SNS-based invocation of the Lambda function.
+		 * Returns messages included with an SNS-based or SQS-based invocation of the Lambda function.
 		 *
 		 * @public
 		 * @param {Boolean=} text
@@ -200,6 +200,8 @@ module.exports = (() => {
 
 					if (record.EventSource === 'aws:sns') {
 						message = record.Sns.Message;
+					} else if (record.EventSource === 'aws:sqs') {
+						message = record.body;
 					} else {
 						message = null;
 					}
