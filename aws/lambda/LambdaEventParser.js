@@ -157,7 +157,7 @@ module.exports = (() => {
 		 * @param {String} jsonString
 		 * @param {Object} schema
 		 * @param {String} description
-		 * @returns {Promise<String>}
+		 * @returns {Promise<Object>}
 		 */
 		parseSchema(jsonString, schema, description) {
 			return Promise.resolve()
