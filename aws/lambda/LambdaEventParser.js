@@ -155,7 +155,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {String} jsonString
-		 * @param {Schema} schema
+		 * @param {Object} schema
 		 * @param {String} description
 		 * @returns {Promise<String>}
 		 */
