@@ -168,8 +168,6 @@ module.exports = (() => {
 					assert.argumentIsOptional(description, 'description', String);
 				}).then(() => {
 					return promise.build((resolve, reject) => {
-						let serialized;
-
 						try {
 							const reviver = schema.schema.getReviver();
 
