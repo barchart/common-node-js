@@ -9,12 +9,9 @@ module.exports = (() => {
 	 * Lambda function bound to the API Gateway.
 	 *
 	 * @public
+	 * @param {Function} callback - The Lambda's callback.
 	 */
 	class LambdaResponder {
-		/**
-		 * @public
-		 * @param {Function} callback - The Lambda's callback.
-		 */
 		constructor(callback) {
 			assert.argumentIsRequired(callback, 'callback', Function);
 

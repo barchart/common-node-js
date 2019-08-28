@@ -1,12 +1,14 @@
 const log4js = require('log4js');
 
 const assert = require('@barchart/common-js/lang/assert'),
-	is = require('@barchart/common-js/lang/is'),
-	FailureReason = require('@barchart/common-js/api/failures/FailureReason'),
-	FailureType = require('@barchart/common-js/api/failures/FailureType');
+	is = require('@barchart/common-js/lang/is');
 
 const LambdaEventParser = require('./LambdaEventParser'),
 	LambdaResponder = require('./LambdaResponder');
+
+const FailureReason = require('@barchart/common-js/api/failures/FailureReason'),
+	FailureType = require('@barchart/common-js/api/failures/FailureType'),
+	LambdaFailureType = require('./LambdaFailureType');
 
 module.exports = (() => {
 	'use strict';
@@ -55,35 +57,35 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Function} callback
-		 * @returns {LambdaEventParser}
+		 * @returns {LambdaResponder}
 		 */
 		static getResponder(callback) {
 			return new LambdaResponder(callback);
 		}
 
 		/**
-		 * Starts a promise chain for the Lambda function, invoking the processor,
-		 * responding with the processor's result, and, if necessary, responding with
-		 * any uncaught exceptions.
+		 * Starts a promise chain for the Lambda function, invoking the suppressor, then
+		 * the processor, and responding with the processor's result.
 		 *
 		 * @public
 		 * @param {String} description - Human-readable description of the operation.
 		 * @param {Object} event - The Lambda's event data.
 		 * @param {Function} callback - The Lambda's callback function.
 		 * @param {LambdaHelper~processor} processor - The processor that is invoked to perform the work.
-		 * @returns {Promise<TResult>}
+		 * @param {LambdaHelper~suppressor=} suppressor - An optional delegate which determines if processing should be skipped.
+		 * @returns {Promise}
 		 */
-		static process(description, event, callback, processor) {
+		static process(description, event, callback, processor, suppressor) {
 			let parser;
 			let responder;
 
 			return Promise.resolve()
 				.then(() => {
-					parser = LambdaHelper.getEventParser(event);
-					responder = LambdaHelper.getResponder(callback);
-
 					assert.argumentIsRequired(description, 'description', String);
 					assert.argumentIsRequired(processor, 'processor', Function);
+
+					parser = LambdaHelper.getEventParser(event);
+					responder = LambdaHelper.getResponder(callback);
 
 					if (parser.plainText) {
 						responder.setPlainText();
@@ -93,7 +95,25 @@ module.exports = (() => {
 						eventLogger.trace(JSON.stringify(event, null, 2));
 					}
 
-					return Promise.resolve(processor(parser, responder));
+					let suppressionPromise;
+
+					if (is.fn(suppressor)) {
+						suppressionPromise = Promise.resolve(suppressor(parser, responder, lambdaLogger));
+					} else {
+						suppressionPromise = Promise.resolve(false);
+					}
+
+					return suppressionPromise
+						.then((suppressed) => {
+							if (suppressed) {
+								const reason = new FailureReason()
+									.addItem(LambdaFailureType.LAMBDA_INVOCATION_SUPPRESSED);
+
+								return Promise.reject(reason);
+							} else {
+								return processor(parser, responder);
+							}
+						});
 				}).then((response) => {
 					responder.send(response);
 				}).catch((e) => {
@@ -139,6 +159,17 @@ module.exports = (() => {
 	 * @callback LambdaHelper~processor
 	 * @param {LambdaEventParser} parser
 	 * @param {LambdaResponder} responder
+	 */
+
+	/**
+	 * A callback used to determine if processing should be suppressed.
+	 *
+	 * @public
+	 * @callback LambdaHelper~suppressor
+	 * @param {LambdaEventParser} parser
+	 * @param {LambdaResponder} responder
+	 * @param {Object=} logger
+	 * @returns {Promise}
 	 */
 
 	return LambdaHelper;
