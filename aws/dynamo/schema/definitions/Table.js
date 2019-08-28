@@ -1,5 +1,4 @@
 const array = require('@barchart/common-js/lang/array'),
-	assert = require('@barchart/common-js/lang/assert'),
 	is = require('@barchart/common-js/lang/is');
 
 const Attribute = require('./Attribute'),
@@ -8,6 +7,7 @@ const Attribute = require('./Attribute'),
 	KeyType = require('./KeyType'),
 	Index = require('./Index'),
 	IndexType = require('./IndexType'),
+	ProvisioningType = require('./ProvisioningType'),
 	StreamViewType = require('./StreamViewType');
 
 module.exports = (() => {
@@ -100,6 +100,20 @@ module.exports = (() => {
 		 */
 		get components() {
 			return [...this._components];
+		}
+
+		/**
+		 * The provisioning (payment) method for the table.
+		 *
+		 * @public
+		 * @returns {ProvisioningType}
+		 */
+		get provisioningType() {
+			if (this._provisionedThroughput === null) {
+				return ProvisioningType.ON_DEMAND;
+			} else {
+				return ProvisioningType.PROVISIONED;
+			}
 		}
 
 		/**
@@ -200,7 +214,9 @@ module.exports = (() => {
 			this._indices.forEach(i => i.validate());
 			this._components.forEach(c => c.validate());
 
-			this._provisionedThroughput.validate();
+			if (this._provisionedThroughput) {
+				this._provisionedThroughput.validate();
+			}
 		}
 
 		/**
@@ -217,7 +233,13 @@ module.exports = (() => {
 			};
 
 			schema.KeySchema = this._keys.map(k => k.toKeySchema());
-			schema.ProvisionedThroughput = this._provisionedThroughput.toProvisionedThroughputSchema();
+
+			if (this.provisioningType === ProvisioningType.PROVISIONED) {
+				schema.BillingMode = ProvisioningType.PROVISIONED.key;
+				schema.ProvisionedThroughput = this._provisionedThroughput.toProvisionedThroughputSchema();
+			} else {
+				schema.BillingMode = ProvisioningType.ON_DEMAND.key;
+			}
 
 			const globalIndicies = this._indices.filter(i => i.type === IndexType.GLOBAL_SECONDARY);
 			const localIndicies = this._indices.filter(i => i.type === IndexType.LOCAL_SECONDARY);
@@ -248,6 +270,7 @@ module.exports = (() => {
 		 * Returns true of the other table shares the same name, keys, indicies, and
 		 * attributes.
 		 *
+		 * @public
 		 * @param {Table} other - The table to compare.
 		 * @param {Boolean} relaxed - If true, certain aspects of the data structures are ignored. This is because a definition received from the AWS SDK omits some information (e.g. non-key attributes, etc).
 		 */
@@ -271,7 +294,11 @@ module.exports = (() => {
 					returnVal = returnVal && this._attributes.length === other.attributes.length;
 					returnVal = returnVal && this._attributes.every(a => other.attributes.some(oa => oa.equals(a, relaxed)));
 
-					returnVal = returnVal && this._provisionedThroughput.compareTo(other.provisionedThroughput);
+					if (this._provisionedThroughput && other.provisionedThroughput) {
+						returnVal = returnVal && this._provisionedThroughput.compareTo(other.provisionedThroughput);
+					} else {
+						returnVal = returnVal && this._provisionedThroughput === other.provisionedThroughput;
+					}
 				}
 			}
 

@@ -9,6 +9,8 @@ const KeyBuilder = require('./KeyBuilder'),
 	ProjectionBuilder = require('./ProjectionBuilder'),
 	ProvisionedThroughputBuilder = require('./ProvisionedThroughputBuilder');
 
+const LambdaStage = require('../../../lambda/LambdaStage');
+
 module.exports = (() => {
 	'use strict';
 
@@ -35,6 +37,26 @@ module.exports = (() => {
 		 */
 		get index() {
 			return this._index;
+		}
+
+		/**
+		 * Adds a logic for specific environment (via a callback that fires
+		 * if the current configuration applies to the desired environment).
+		 *
+		 * @public
+		 * @param {LambdaStage} stage
+		 * @param {IndexBuilder~stageCallback} callback
+		 * @return {IndexBuilder}
+		 */
+		forStage(stage, callback) {
+			assert.argumentIsRequired(stage, 'stage', LambdaStage, 'LambdaStage');
+			assert.argumentIsRequired(callback, 'callback', Function);
+
+			if (LambdaStage.getStageFromName(this._parent.table.name) === stage) {
+				callback(this);
+			}
+
+			return this;
 		}
 
 		/**
@@ -163,6 +185,15 @@ module.exports = (() => {
 			return '[IndexBuilder]';
 		}
 	}
+
+	/**
+	 * A callback that provides the consumer with an {@link IndexBuilder} -- assuming
+	 * the configuration applies to the correct environment (i.e. {@link LambdaStage}).
+	 *
+	 * @public
+	 * @callback IndexBuilder~stageCallback
+	 * @param {IndexBuilder} indexBuilder
+	 */
 
 	return IndexBuilder;
 })();

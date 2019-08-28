@@ -18,6 +18,8 @@ const AttributeBuilder = require('./AttributeBuilder'),
 	ProjectionBuilder = require('./ProjectionBuilder'),
 	ProvisionedThroughputBuilder = require('./ProvisionedThroughputBuilder');
 
+const LambdaStage = require('../../../lambda/LambdaStage');
+
 module.exports = (() => {
 	'use strict';
 
@@ -38,9 +40,30 @@ module.exports = (() => {
 		 * The {@link Table}, given all the information provided thus far.
 		 *
 		 * @public
+		 * @returns {Table}
 		 */
 		get table() {
 			return this._table;
+		}
+
+		/**
+		 * Adds a logic for specific environment (via a callback that fires
+		 * if the current configuration applies to the desired environment).
+		 *
+		 * @public
+		 * @param {LambdaStage} stage
+		 * @param {TableBuilder~stageCallback} callback
+		 * @return {TableBuilder}
+		 */
+		forStage(stage, callback) {
+			assert.argumentIsRequired(stage, 'stage', LambdaStage, 'LambdaStage');
+			assert.argumentIsRequired(callback, 'callback', Function);
+
+			if (LambdaStage.getStageFromName(this._table.name) === stage) {
+				callback(this);
+			}
+
+			return this;
 		}
 
 		/**
@@ -187,7 +210,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Adds a {@link ProvisionedThroughpu} specification and returns the
+		 * Adds a {@link ProvisionedThroughput} specification and returns the
 		 * current instance.
 		 *
 		 * @public
@@ -221,8 +244,22 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Indicates the table should use on-demand throughput (i.e. pricing), instead of
+		 * provisioned throughput.
+		 *
+		 * @public
+		 * @returns {TableBuilder}
+		 */
+		withOnDemandThroughput() {
+			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, this._table.components, null, this._table.streamViewType);
+
+			return this;
+		}
+
+		/**
 		 * Defines a streaming behavior for the table.
 		 *
+		 * @public
 		 * @param {StreamViewType} streamViewType
 		 */
 		withStreamViewType(streamViewType) {
@@ -236,6 +273,8 @@ module.exports = (() => {
 		/**
 		 * Creates a new {@link TableBuilder}.
 		 *
+		 * @public
+		 * @static
 		 * @param {String} name - Name of the table.
 		 * @returns {TableBuilder}
 		 */
@@ -244,8 +283,11 @@ module.exports = (() => {
 		}
 
 		static fromDefinition(definition) {
-			let tableBuilder = TableBuilder.withName(definition.TableName)
-				.withProvisionedThroughput(definition.ProvisionedThroughput.ReadCapacityUnits, definition.ProvisionedThroughput.WriteCapacityUnits);
+			let tableBuilder = TableBuilder.withName(definition.TableName);
+
+			if (definition.ProvisionedThroughput) {
+				tableBuilder.withProvisionedThroughput(definition.ProvisionedThroughput.ReadCapacityUnits, definition.ProvisionedThroughput.WriteCapacityUnits);
+			}
 
 			definition.AttributeDefinitions.reduce((tb, ad) => tb.withAttribute(ad.AttributeName, DataType.fromCode(ad.AttributeType)), tableBuilder);
 			definition.KeySchema.reduce((tb, ks) => tb.withKey(ks.AttributeName, Enum.fromCode(KeyType, ks.KeyType)), tableBuilder);
@@ -284,17 +326,28 @@ module.exports = (() => {
 	}
 
 	/**
-	 * A callback that provides the user with an {@link AttributeBuilder}
+	 * A callback that provides the consumer with an {@link AttributeBuilder}
 	 *
+	 * @public
 	 * @callback TableBuilder~attributeBuilderCallback
 	 * @param {AttributeBuilder} attributeBuilder
 	 */
 
 	/**
-	 * A callback that provides the user with a {@link ComponentBuilder}
+	 * A callback that provides the consumer with a {@link ComponentBuilder}
 	 *
+	 * @public
 	 * @callback TableBuilder~componentBuilderCallback
 	 * @param {AttributeBuilder} attributeBuilder
+	 */
+
+	/**
+	 * A callback that provides the consumer with a {@link TableBuilder} -- assuming
+	 * the configuration applies to the correct environment (i.e. {@link LambdaStage}).
+	 *
+	 * @public
+	 * @callback TableBuilder~stageCallback
+	 * @param {TableBuilder} tableBuilder
 	 */
 
 	return TableBuilder;

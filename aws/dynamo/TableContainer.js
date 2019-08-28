@@ -253,7 +253,7 @@ module.exports = (() => {
 				.then(() => {
 					checkReady.call(this);
 
-					return this._provider.deleteTable(this.definition.name, true)
+					return this._provider.deleteTable(this.definition.name)
 						.then((data) => {
 							this.dispose();
 
