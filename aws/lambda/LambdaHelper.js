@@ -70,7 +70,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {String} stage
-		 * @return {LambdaStage}
+		 * @returns {LambdaStage}
 		 */
 		static getStage(stage) {
 			assert.argumentIsRequired(stage, 'stage', String);
