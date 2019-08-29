@@ -248,7 +248,7 @@ module.exports = (() => {
 		 * @public
 		 * @returns {Promise<Object>}
 		 */
-		delete() {
+		deleteTable() {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
