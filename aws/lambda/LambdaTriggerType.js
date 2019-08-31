@@ -10,17 +10,17 @@ module.exports = (() => {
 	 * @extends {Enum}
 	 * @param {String} code
 	 * @param {Boolean} multiple
-	 * @param {String} schemaName
+	 * @param {Function} matchPredicate
 	 * @param {Function} schemaExtractor
 	 */
 	class LambdaTriggerType extends Enum {
-		constructor(code, multiple, schemaName, schemaExtractor) {
+		constructor(code, multiple, matchPredicate, idExtractor) {
 			super(code, code);
 
 			this._multiple = multiple;
 
-			this._schemaName = schemaName;
-			this._schemaExtractor = schemaExtractor;
+			this._matchPredicate = matchPredicate;
+			this._idExtractor = idExtractor;
 		}
 
 		/**
@@ -30,19 +30,63 @@ module.exports = (() => {
 		 * @public
 		 * @returns {Boolean}
 		 */
-		getMultiple() {
+		get multiple() {
 			return this._multiple;
 		}
 
 		/**
-		 * The string used to describe in the invocation type in a
-		 * Lambda event.
+		 * A function, accepting a trigger message, which returns true if the message
+		 * matches the current {@link LambdaTriggerType}.
 		 *
 		 * @public
-		 * @returns {String}
+		 * @returns {Function}
 		 */
-		getSchemaName() {
-			return this._schemaName;
+		get matchPredicate() {
+			return this._matchPredicate;
+		}
+
+		/**
+		 * A function, accepting a trigger message, which returns the message's unique identifier.
+		 *
+		 * @public
+		 * @returns {Function}
+		 */
+		get idExtractor() {
+			return this._idExtractor;
+		}
+
+		/**
+		 * Given a message, returns the {@LambdaTriggerType} which matches the message.
+		 *
+		 * @public
+		 * @static
+		 * @param {Object} message
+		 * @returns {LambdaTriggerType|null}
+		 */
+		static fromMessage(message) {
+			return Enum.getItems(LambdaTriggerType).find(t => t.matchPredicate(message)) || null;
+		}
+
+		/**
+		 * Given a message, returns the message's unique identifier.
+		 *
+		 * @public
+		 * @static
+		 * @param {Object} message
+		 * @returns {String|null}
+		 */
+		static getIdentifier(message) {
+			const type = LambdaTriggerType.fromMessage(message);
+
+			let identifier;
+
+			if (type !== null) {
+				identifier = type.idExtractor(message);
+			} else {
+				identifier = null;
+			}
+
+			return identifier;
 		}
 
 		/**
@@ -94,10 +138,10 @@ module.exports = (() => {
 		}
 	}
 
-	const cloudwatch = new LambdaTriggerType('CRON', false, 'aws.events', e => e.source);
-	const dynamo = new LambdaTriggerType('DYNAMO', true, 'aws:dynamodb', e => e.eventSource);
-	const sns = new LambdaTriggerType('SNS', true, 'aws:sns', e => e.EventSource);
-	const sqs = new LambdaTriggerType('SQS', true, 'aws:sqs',  e => e.eventSource);
+	const cloudwatch = new LambdaTriggerType('CRON', false, e => e.source === 'aws.events', e => e.id);
+	const dynamo = new LambdaTriggerType('DYNAMO', true, e => e.eventSource === 'aws:dynamodb', e => e.eventID);
+	const sns = new LambdaTriggerType('SNS', true, e => e.EventSource === 'aws:sns', e => e.MessageId);
+	const sqs = new LambdaTriggerType('SQS', true, e => e.eventSource === 'aws:sqs', e => e.messageId);
 
 	return LambdaTriggerType;
 })();
