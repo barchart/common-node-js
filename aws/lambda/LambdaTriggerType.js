@@ -9,15 +9,29 @@ module.exports = (() => {
 	 * @public
 	 * @extends {Enum}
 	 * @param {String} code
+	 * @param {Boolean} multiple
 	 * @param {String} schemaName
 	 * @param {Function} schemaExtractor
 	 */
 	class LambdaTriggerType extends Enum {
-		constructor(code, schemaName, schemaExtractor) {
+		constructor(code, multiple, schemaName, schemaExtractor) {
 			super(code, code);
+
+			this._multiple = multiple;
 
 			this._schemaName = schemaName;
 			this._schemaExtractor = schemaExtractor;
+		}
+
+		/**
+		 * Indicates if the invocation type can contain more than one triggering
+		 * message (i.e. an array of messages).
+		 *
+		 * @public
+		 * @returns {Boolean}
+		 */
+		getMultiple() {
+			return this._multiple;
 		}
 
 		/**
@@ -80,10 +94,10 @@ module.exports = (() => {
 		}
 	}
 
-	const cloudwatch = new LambdaTriggerType('CRON', 'aws.events', e => e.source);
-	const dynamo = new LambdaTriggerType('DYNAMO', 'aws:dynamodb', e => e.eventSource);
-	const sns = new LambdaTriggerType('SNS', 'aws:sns', e => e.EventSource);
-	const sqs = new LambdaTriggerType('SQS', 'aws:sqs',  e => e.eventSource);
+	const cloudwatch = new LambdaTriggerType('CRON', false, 'aws.events', e => e.source);
+	const dynamo = new LambdaTriggerType('DYNAMO', true, 'aws:dynamodb', e => e.eventSource);
+	const sns = new LambdaTriggerType('SNS', true, 'aws:sns', e => e.EventSource);
+	const sqs = new LambdaTriggerType('SQS', true, 'aws:sqs',  e => e.eventSource);
 
 	return LambdaTriggerType;
 })();
