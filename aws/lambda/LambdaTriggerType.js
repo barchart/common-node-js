@@ -9,7 +9,6 @@ module.exports = (() => {
 	 * @public
 	 * @extends {Enum}
 	 * @param {String} code
-	 * @param {Boolean} multiple
 	 * @param {Function} matchPredicate
 	 * @param {Function} schemaExtractor
 	 */
@@ -17,21 +16,8 @@ module.exports = (() => {
 		constructor(code, multiple, matchPredicate, idExtractor) {
 			super(code, code);
 
-			this._multiple = multiple;
-
 			this._matchPredicate = matchPredicate;
 			this._idExtractor = idExtractor;
-		}
-
-		/**
-		 * Indicates if the invocation type can contain more than one triggering
-		 * message (i.e. an array of messages).
-		 *
-		 * @public
-		 * @returns {Boolean}
-		 */
-		get multiple() {
-			return this._multiple;
 		}
 
 		/**
@@ -138,10 +124,10 @@ module.exports = (() => {
 		}
 	}
 
-	const cloudwatch = new LambdaTriggerType('CRON', false, e => e.source === 'aws.events', e => e.id);
-	const dynamo = new LambdaTriggerType('DYNAMO', true, e => e.eventSource === 'aws:dynamodb', e => e.eventID);
-	const sns = new LambdaTriggerType('SNS', true, e => e.EventSource === 'aws:sns', e => e.MessageId);
-	const sqs = new LambdaTriggerType('SQS', true, e => e.eventSource === 'aws:sqs', e => e.messageId);
+	const cloudwatch = new LambdaTriggerType('CRON', m => m.source === 'aws.events', m => m.id);
+	const dynamo = new LambdaTriggerType('DYNAMO', m => m.eventSource === 'aws:dynamodb' m => m.eventID);
+	const sns = new LambdaTriggerType('SNS', m => m.EventSource === 'aws:sns', m => m.MessageId);
+	const sqs = new LambdaTriggerType('SQS', m => m.eventSource === 'aws:sqs', m => m.messageId);
 
 	return LambdaTriggerType;
 })();
