@@ -8,6 +8,8 @@ const assert = require('@barchart/common-js/lang/assert'),
 const FailureReason = require('@barchart/common-js/api/failures/FailureReason'),
 	FailureType = require('@barchart/common-js/api/failures/FailureType');
 
+const LambdaTriggerType = require('./LambdaTriggerType');
+
 module.exports = (() => {
 	'use strict';
 
@@ -22,6 +24,7 @@ module.exports = (() => {
 			assert.argumentIsRequired(event, 'event', Object);
 
 			this._event = event;
+			this._suppressed = new Set();
 		}
 
 		/**
@@ -183,38 +186,76 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Returns messages included with an SNS-based or SQS-based invocation of the Lambda function.
+		 * Adds a message identifier to a suppression list. Any identifier
+		 * found in the suppression list will not be returned by the
+		 * {@link LambdaEventParser#getMessages} function.
+		 *
+		 * @public
+		 * @param {String} id
+		 */
+		setSuppressed(id) {
+			assert.argumentIsRequired(id, 'id', String);
+
+			this._suppressed.add(id);
+		}
+
+		/**
+		 * Indicates if a message identifier has been suppressed.
+		 *
+		 * @public
+		 * @param {String} id
+		 * @return {Boolean}
+		 */
+		getSuppressed(id) {
+			return this._suppressed.has(id);
+		}
+
+		/**
+		 * Returns an array of all messages included within the event, filtering
+		 * any message which has been flagged as suppressed.
 		 *
 		 * @public
 		 * @param {Boolean=} text
-		 * @return {*}
+		 * @return {Array<Object>}
 		 */
 		getMessages(text) {
 			let messages;
 
-			if (is.array(this._event.Records)) {
-				messages = this._event.Records.map((record) => {
-					let message;
-
-					if (record.EventSource === 'aws:sns') {
-						message = record.Sns.Message;
-					} else if (record.eventSource === 'aws:sqs') {
-						message = record.body;
-					} else {
-						message = null;
-					}
-
-					if (message && (!is.boolean(text) || !text)) {
-						message = JSON.parse(message);
-					}
-
-					return message;
-				});
+			if (is.array(event.Records)) {
+				messages = event.Records;
 			} else {
-				messages = [ ];
+				messages = [ event ];
 			}
 
-			return messages;
+			return messages.reduce((accumulator, message) => {
+				const type = LambdaTriggerType.fromMessage(message);
+
+				let id;
+
+				if (type !== null) {
+					id = type.getId(message);
+				} else {
+					id = null;
+				}
+
+				if (id === null || !this._suppressed.has(id)) {
+					let content;
+
+					if (type !== null) {
+						content = type.getContent(message);
+					} else {
+						content = null;
+					}
+
+					if (content && (!is.boolean(text) || !text)) {
+						content = JSON.parse(content);
+					}
+
+					accumulator.push(content);
+				}
+
+				return accumulator;
+			}, [ ]);
 		}
 	}
 

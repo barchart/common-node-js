@@ -23,34 +23,36 @@ module.exports = (() => {
 		}
 
 		/**
-		 * A function, accepting a trigger message, which returns true if the message
-		 * matches the current {@link LambdaTriggerType}.
+		 * Returns true if the message matches the trigger type; otherwise false.
 		 *
 		 * @public
-		 * @returns {Function}
+		 * @param {Object}
+		 * @returns {Boolean}
 		 */
-		get matchPredicate() {
-			return this._matchPredicate;
+		getMatch(message) {
+			return this._matchPredicate(message);
 		}
 
 		/**
-		 * A function, accepting a trigger message, which returns the message's unique identifier.
+		 * Extracts and returns the message's identifier.
 		 *
 		 * @public
-		 * @returns {Function}
+		 * @param {Object}
+		 * @returns {String|null}
 		 */
-		get idExtractor() {
-			return this._idExtractor;
+		getId(message) {
+			return this._idExtractor(message) || null;
 		}
 
 		/**
-		 * A function, accepting a trigger message, which returns the message's content.
+		 * Extracts and returns the message's content.
 		 *
 		 * @public
-		 * @returns {Function}
+		 * @param {Object}
+		 * @returns {String|null}
 		 */
-		get contentExtractor() {
-			return this._contentExtractor;
+		getContent(message) {
+			return this._contentExtractor(message) || null;
 		}
 
 		/**
@@ -62,51 +64,7 @@ module.exports = (() => {
 		 * @returns {LambdaTriggerType|null}
 		 */
 		static fromMessage(message) {
-			return Enum.getItems(LambdaTriggerType).find(t => t.matchPredicate(message)) || null;
-		}
-
-		/**
-		 * Given a message, returns the message's unique identifier.
-		 *
-		 * @public
-		 * @static
-		 * @param {Object} message
-		 * @returns {String|null}
-		 */
-		static getIdentifier(message) {
-			const type = LambdaTriggerType.fromMessage(message);
-
-			let identifier;
-
-			if (type !== null) {
-				identifier = type.idExtractor(message);
-			} else {
-				identifier = null;
-			}
-
-			return identifier;
-		}
-
-		/**
-		 * Given a message, returns the message's content.
-		 *
-		 * @public
-		 * @static
-		 * @param {Object} message
-		 * @returns {String|null}
-		 */
-		static getContent(message) {
-			const type = LambdaTriggerType.fromMessage(message);
-
-			let identifier;
-
-			if (type !== null) {
-				identifier = type.contentExtractor(message);
-			} else {
-				identifier = null;
-			}
-
-			return identifier;
+			return Enum.getItems(LambdaTriggerType).find(t => t.match(message)) || null;
 		}
 
 		/**
@@ -132,7 +90,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * A SNS message.
+		 * An SNS message.
 		 *
 		 * @public
 		 * @static
@@ -143,7 +101,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * A SQS message.
+		 * An SQS message.
 		 *
 		 * @public
 		 * @static
