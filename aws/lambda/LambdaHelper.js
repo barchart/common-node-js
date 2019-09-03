@@ -12,7 +12,7 @@ const FailureReason = require('@barchart/common-js/api/failures/FailureReason'),
 	FailureType = require('@barchart/common-js/api/failures/FailureType'),
 	LambdaFailureType = require('./LambdaFailureType');
 
-const LambdaEventValidator = require('./LambdaEventValidator');
+const LambdaValidator = require('./LambdaValidator');
 
 module.exports = (() => {
 	'use strict';
@@ -57,13 +57,13 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Builds and returns a new {@link LambdaEventValidator}.
+		 * Builds and returns a new {@link LambdaValidator}.
 		 *
 		 * @public
-		 * @returns {LambdaEventValidator}
+		 * @returns {LambdaValidator}
 		 */
-		static getEventValidator() {
-			return new LambdaEventValidator();
+		static getValidator() {
+			return new LambdaValidator();
 		}
 
 		/**
@@ -113,7 +113,7 @@ module.exports = (() => {
 
 					parser = LambdaHelper.getEventParser(event);
 					responder = LambdaHelper.getResponder(callback);
-					validator = LambdaHelper.getEventValidator();
+					validator = LambdaHelper.getValidator();
 
 					if (parser.plainText) {
 						responder.setPlainText();

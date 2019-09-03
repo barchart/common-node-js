@@ -11,7 +11,7 @@ module.exports = (() => {
 	 *
 	 * @public
 	 */
-	class LambdaEventValidator {
+	class LambdaValidator {
 		constructor() {
 		}
 
@@ -78,7 +78,7 @@ module.exports = (() => {
 		}
 		
 		toString() {
-			return '[LambdaEventValidator]';
+			return '[LambdaValidator]';
 		}
 	}
 
@@ -93,5 +93,5 @@ module.exports = (() => {
 	 * @property {Boolean} valid
 	 */
 	
-	return LambdaEventValidator;
+	return LambdaValidator;
 })();
