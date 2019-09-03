@@ -125,13 +125,19 @@ module.exports = (() => {
 
 					return validator.process(event)
 						.then((messages) => {
-							if (messages.some(m => m.valid)) {
-								return processor(parser, responder);
-							} else {
+							const suppressed = messages.filter((message) => !message.valid);
+
+							if (lambdaLogger) {
+								logger.warn(`Some messages have been flagged as invalid [ ${suppressed.map(s => s.id).join(',')} ]`);
+							}
+
+							if (suppressed.length === messages.length) {
 								const reason = new FailureReason()
 									.addItem(LambdaFailureType.LAMBDA_INVOCATION_SUPPRESSED);
 
 								return Promise.reject(reason);
+							} else {
+								return processor(parser, responder);
 							}
 						});
 				}).then((response) => {
