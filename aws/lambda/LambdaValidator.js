@@ -49,7 +49,7 @@ module.exports = (() => {
 						let validatePromise;
 						
 						if (result.type !== null && result.id !== null) {
-							validatePromise = this._validate(process.env.AWS_LAMBDA_FUNCTION_NAME, result.type, result.id)
+							validatePromise = Promise.resolve(this._validate(process.env.AWS_LAMBDA_FUNCTION_NAME, result.type, result.id))
 								.catch(() => {
 									return false;
 								});
