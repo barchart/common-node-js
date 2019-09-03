@@ -64,7 +64,7 @@ module.exports = (() => {
 		 * @returns {LambdaTriggerType|null}
 		 */
 		static fromMessage(message) {
-			return Enum.getItems(LambdaTriggerType).find(t => t.match(message)) || null;
+			return Enum.getItems(LambdaTriggerType).find(t => t.getMatch(message)) || null;
 		}
 
 		/**
