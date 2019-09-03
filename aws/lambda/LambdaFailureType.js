@@ -29,7 +29,7 @@ module.exports = (() => {
 		}
 	}
 
-	const lambdaInvocationSuppressed = new FailureType('LAMBDA_INVOCATION_SUPPRESSED', 'Processing of this operation was suppressed.');
+	const lambdaInvocationSuppressed = new FailureType('LAMBDA_INVOCATION_SUPPRESSED', 'Processing of this operation was suppressed.', false);
 
 	return LambdaFailureType;
 })();
