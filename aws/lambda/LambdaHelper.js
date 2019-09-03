@@ -62,7 +62,7 @@ module.exports = (() => {
 		 * @public
 		 * @returns {LambdaEventValidator}
 		 */
-		static getEventValidator(context) {
+		static getEventValidator() {
 			return new LambdaEventValidator();
 		}
 
