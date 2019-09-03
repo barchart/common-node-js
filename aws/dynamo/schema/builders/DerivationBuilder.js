@@ -1,5 +1,3 @@
-const assert = require('@barchart/common-js/lang/assert');
-
 const Attribute = require('./../definitions/Attribute'),
 	Derivation = require('./../definitions/Derivation');
 
