@@ -1,4 +1,4 @@
-const is = require('@barchart/common-js/lang/array');
+const is = require('@barchart/common-js/lang/is');
 
 const LambdaTriggerType = require('./LambdaTriggerType');
 
