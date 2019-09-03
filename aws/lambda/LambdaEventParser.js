@@ -222,9 +222,9 @@ module.exports = (() => {
 			let messages;
 
 			if (is.array(event.Records)) {
-				messages = event.Records;
+				messages = this._event.Records;
 			} else {
-				messages = [ event ];
+				messages = [ this._event ];
 			}
 
 			return messages.reduce((accumulator, message) => {
