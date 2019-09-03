@@ -14,7 +14,7 @@ module.exports = (() => {
 	 * @param {Function} contentExtractor
 	 */
 	class LambdaTriggerType extends Enum {
-		constructor(code, multiple, matchPredicate, idExtractor, contentExtractor) {
+		constructor(code, matchPredicate, idExtractor, contentExtractor) {
 			super(code, code);
 
 			this._matchPredicate = matchPredicate;
