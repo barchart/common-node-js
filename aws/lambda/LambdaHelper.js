@@ -127,7 +127,7 @@ module.exports = (() => {
 						.then((messages) => {
 							const suppressed = messages.filter((message) => !message.valid);
 
-							if (lambdaLogger) {
+							if (lambdaLogger && suppressed.length !== 0) {
 								lambdaLogger.warn(`Some messages have been flagged as invalid [ ${suppressed.map(s => s.id).join(',')} ]`);
 							}
 
