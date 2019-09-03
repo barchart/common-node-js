@@ -187,5 +187,16 @@ module.exports = (() => {
 	 * @returns {Promise}
 	 */
 
+	/**
+	 * A callback used to determine if processing should be suppressed.
+	 *
+	 * @public
+	 * @callback LambdaHelper~suppressor
+	 * @param {LambdaEventParser} parser
+	 * @param {LambdaResponder} responder
+	 * @param {Object=} logger
+	 * @returns {Promise}
+	 */
+
 	return LambdaHelper;
 })();
