@@ -143,7 +143,11 @@ module.exports = (() => {
 						failure = e;
 
 						if (lambdaLogger) {
-							lambdaLogger.error(failure.format());
+							if (e.getIsSevere()) {
+								lambdaLogger.error(failure.format());
+							} else {
+								lambdaLogger.warn(failure.format());
+							}
 						}
 					} else {
 						failure = FailureReason.forRequest({ endpoint: { description: description }})
