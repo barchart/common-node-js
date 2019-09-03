@@ -68,7 +68,7 @@ module.exports = (() => {
 			if (this._derivation) {
 				attributes = this._derivation.attributes;
 			} else {
-				attributes = null;
+				attributes = [ ];
 			}
 
 			this._derivation = new Derivation(attributes, generator);

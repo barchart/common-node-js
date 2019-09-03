@@ -1,12 +1,10 @@
-const assert = require('@barchart/common-js/lang/assert'),
-	is = require('@barchart/common-js/lang/is');
-
 module.exports = (() => {
 	'use strict';
 
 	/**
-	 * An attributes value can be derived from other attributes. This object
-	 * describes the input required and the function needed to derive said value.
+	 * An attribute value can be derived from other attributes. This object
+	 * describes the input required and the function needed to derive an
+	 * attribute value.
 	 *
 	 * @public
 	 * @param {Array<Attribute>} name - The attributes used by the generator. Each attribute will be read, then passed to the generator as an array.
@@ -29,7 +27,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * The function which derives the vaue.
+		 * The function which derives the value.
 		 *
 		 * @public
 		 * @returns {Function}
