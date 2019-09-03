@@ -221,7 +221,7 @@ module.exports = (() => {
 		getMessages(text) {
 			let messages;
 
-			if (is.array(event.Records)) {
+			if (is.array(this._event.Records)) {
 				messages = this._event.Records;
 			} else {
 				messages = [ this._event ];
