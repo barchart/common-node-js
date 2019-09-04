@@ -118,7 +118,7 @@ module.exports = (() => {
 
 	const cloudwatch = new LambdaTriggerType('CRON', m => m.source === 'aws.events', m => m.id, m => m.detail);
 	const dynamo = new LambdaTriggerType('DYNAMO', m => m.eventSource === 'aws:dynamodb', m => m.eventID, m => m.dynamodb);
-	const sns = new LambdaTriggerType('SNS', m => m.EventSource === 'aws:sns', m => m.MessageId, m => m.Sns.Message);
+	const sns = new LambdaTriggerType('SNS', m => m.EventSource === 'aws:sns', m => m.Sns.MessageId, m => m.Sns.Message);
 	const sqs = new LambdaTriggerType('SQS', m => m.eventSource === 'aws:sqs', m => m.messageId, m => m.body);
 
 	return LambdaTriggerType;
