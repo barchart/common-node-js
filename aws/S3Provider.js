@@ -127,6 +127,34 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Gets a signed url.
+		 *
+		 * @param {string} operation
+		 * @param {string} key
+		 *
+		 * @public
+		 * @returns {Promise<string>}
+		 */
+		getSignedUrl(operation, key) {
+			return Promise.resolve()
+			.then(() => {
+				checkReady.call(this);
+
+				return promise.build((resolveCallback, rejectCallback) => {
+					this._s3.getSignedUrl(operation, { Bucket: this._configuration.bucket, Key: key }, function(err, url) {
+						if (err) {
+							logger.error('S3 failed to get signed url: ', err);
+
+							rejectCallback(err);
+						} else {
+							resolveCallback(url);
+						}
+					});
+				});
+			});
+		}
+
+		/**
 		 * Uploads an object, using the bucket (and folder) specified
 		 * in the provider's configuration.
 		 *
