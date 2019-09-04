@@ -167,6 +167,17 @@ module.exports = (() => {
 		}
 
 		/**
+		 * References a map.
+		 *
+		 * @public
+		 * @static
+		 * @return {DataType}
+		 */
+		static get MAP() {
+			return dataTypeMap;
+		}
+
+		/**
 		 * References an object (serialized as JSON).
 		 *
 		 * @public
@@ -315,6 +326,7 @@ module.exports = (() => {
 	const dataTypeNumber = new DataType('N', 'Number');
 	const dataTypeString = new DataType('S', 'String');
 	const dataTypeList = new DataType('L', 'List');
+	const dataTypeMap = new DataType('M', 'Map');
 	const dataTypeStringSet = new DataType('SS', 'String Set');
 
 	const dataTypeJson = new DataType('S', 'Json');
@@ -340,6 +352,7 @@ module.exports = (() => {
 		dataTypeStringCompressed,
 		dataTypeStringEncrypted,
 		dataTypeList,
+		dataTypeMap,
 		dataTypeStringSet,
 		dataTypeJson,
 		dataTypeJsonCompressed,

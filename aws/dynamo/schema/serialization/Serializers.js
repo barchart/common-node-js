@@ -13,6 +13,7 @@ const AttributeSerializer = require('./attributes/AttributeSerializer'),
 	EnumSerializer = require('./attributes/EnumSerializer'),
 	JsonSerializer = require('./attributes/JsonSerializer'),
 	ListSerializer = require('./attributes/ListSerializer'),
+	MapSerializer = require('./attributes/MapSerializer'),
 	NumberSerializer = require('./attributes/NumberSerializer'),
 	StringSerializer = require('./attributes/StringSerializer'),
 	StringSetSerializer = require('./attributes/StringSetSerializer'),
@@ -199,6 +200,7 @@ module.exports = (() => {
 	Serializers.registerAttributeSerializer(DataType.NUMBER, NumberSerializer.INSTANCE);
 	Serializers.registerAttributeSerializer(DataType.STRING, StringSerializer.INSTANCE);
 	Serializers.registerAttributeSerializer(DataType.LIST, ListSerializer.INSTANCE);
+	Serializers.registerAttributeSerializer(DataType.MAP, MapSerializer.INSTANCE);
 	Serializers.registerAttributeSerializer(DataType.STRING_SET, StringSetSerializer.INSTANCE);
 	Serializers.registerAttributeSerializer(DataType.JSON, JsonSerializer.INSTANCE);
 	Serializers.registerAttributeSerializer(DataType.DAY, DaySerializer.INSTANCE);
