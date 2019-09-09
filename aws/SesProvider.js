@@ -71,7 +71,7 @@ module.exports = (() => {
 					.then(() => {
 						aws.config.update({region: this._configuration.region});
 
-						this.transport = nodemailer.createTransport({
+						this._transport = nodemailer.createTransport({
 							SES: new aws.SES({
 								apiVersion: '2010-12-01'
 							})
@@ -122,7 +122,7 @@ module.exports = (() => {
 						return promise.build((resolve, reject) => {
 							logger.debug('Sending email to', options.recipientAddress);
 
-							this.transport.sendMail({
+							this._transport.sendMail({
 								from: options.senderAddress,
 								to: options.recipientAddress,
 								subject: options.subject,
