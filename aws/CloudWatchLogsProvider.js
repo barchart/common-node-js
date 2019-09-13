@@ -174,6 +174,34 @@ module.exports = (() => {
 				});
 		}
 
+		/**
+		 * Lists the log streams contained within a log group.
+		 *
+		 * @public
+		 * @string {String} logGroupName
+		 * @returns {Promise<Object>}
+		 */
+		describeLogStreams(logGroupName) {
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsRequired(logGroupName, 'logGroupName', String);
+
+					checkReady.call(this);
+
+					return promise.build((resolve, reject) => {
+						this._cloudWatchLogs.describeLogStreams({ logGroupName: logGroupName, orderBy: 'LastEventTime' }, (err, data) => {
+							if (err) {
+								logger.error(err);
+
+								reject(err);
+							} else {
+								resolve(data);
+							}
+						});
+					});
+				});
+		}
+
 		_onDispose() {
 			logger.debug('CloudWatchLogs provider disposed');
 		}
