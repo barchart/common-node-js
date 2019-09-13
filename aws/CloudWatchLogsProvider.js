@@ -3,6 +3,7 @@ const aws = require('aws-sdk'),
 
 const assert = require('@barchart/common-js/lang/assert'),
 	Disposable = require('@barchart/common-js/lang/Disposable'),
+	is = require('@barchart/common-js/lang/is'),
 	promise = require('@barchart/common-js/lang/promise');
 
 module.exports = (() => {
@@ -175,30 +176,25 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Lists the log streams contained within a log group.
+		 * Indicates if the log group has at least one log stream.
 		 *
 		 * @public
 		 * @string {String} logGroupName
-		 * @returns {Promise<Object>}
+		 * @returns {Promise<Boolean>}
 		 */
-		describeLogStreams(logGroupName) {
+		getLogStreamExists(logGroupName) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(logGroupName, 'logGroupName', String);
 
 					checkReady.call(this);
 
-					return promise.build((resolve, reject) => {
-						this._cloudWatchLogs.describeLogStreams({ logGroupName: logGroupName, orderBy: 'LastEventTime' }, (err, data) => {
-							if (err) {
-								logger.error(err);
-
-								reject(err);
-							} else {
-								resolve(data);
-							}
+					return describeLogStreams(logGroupName, 1)
+						.then((results) => {
+							return results.logStreams.length !== 0;
+						}).catch((e) =>{
+							return false;
 						});
-					});
 				});
 		}
 
@@ -219,6 +215,28 @@ module.exports = (() => {
 		if (!this._started) {
 			throw new Error('The CloudWatchLogs Provider has not been started.');
 		}
+	}
+
+	function describeLogStreams(logGroupName, limit) {
+		return promise.build((resolve, reject) => {
+			const payload = { };
+
+			payload.logGroupName = logGroupName;
+
+			if (is.integer(limit)) {
+				payload.limit = limit;
+			}
+
+			this._cloudWatchLogs.describeLogStreams(payload, (err, data) => {
+				if (err) {
+					logger.error(err);
+
+					reject(err);
+				} else {
+					resolve(data);
+				}
+			});
+		});
 	}
 
 	return CloudWatchLogsProvider;
