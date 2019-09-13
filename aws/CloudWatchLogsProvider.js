@@ -192,7 +192,7 @@ module.exports = (() => {
 					return describeLogStreams.call(this, logGroupName, 1)
 						.then((results) => {
 							return results.logStreams.length !== 0;
-						}).catch((e) =>{
+						}).catch((e) => {
 							return false;
 						});
 				});
