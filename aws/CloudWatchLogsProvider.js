@@ -189,7 +189,7 @@ module.exports = (() => {
 
 					checkReady.call(this);
 
-					return describeLogStreams(logGroupName, 1)
+					return describeLogStreams.call(this, logGroupName, 1)
 						.then((results) => {
 							return results.logStreams.length !== 0;
 						}).catch((e) =>{
