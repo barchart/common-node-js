@@ -5,9 +5,7 @@ const bump = require('gulp-bump'),
     git = require('gulp-git'),
     gitStatus = require('git-get-status'),
     jasmine = require('gulp-jasmine'),
-    jshint = require('gulp-jshint'),
-    runSequence = require('run-sequence'),
-    util = require('gulp-util');
+    jshint = require('gulp-jshint');
 
 const fs = require('fs');
 
@@ -15,21 +13,23 @@ function getVersionFromPackage() {
     return JSON.parse(fs.readFileSync('./package.json', 'utf8')).version;
 }
 
-gulp.task('ensure-clean-working-directory', () => {
-    gitStatus(function(err, status) {
+gulp.task('ensure-clean-working-directory', (cb) => {
+    gitStatus((err, status) => {
         if (err, !status.clean) {
             throw new Error('Unable to proceed, your working directory is not clean.');
         }
+
+        cb();
     });
 });
 
 gulp.task('bump-version', () => {
     return gulp.src([ './package.json' ])
-        .pipe(bump({ type: 'patch' }).on('error', util.log))
+        .pipe(bump({ type: 'patch' }))
         .pipe(gulp.dest('./'));
 });
 
-gulp.task('document', function (cb) {
+gulp.task('document', (cb) => {
 	exec('jsdoc . -c jsdoc.json -r -d docs', (error, stdout, stderr) => {
 		console.log(stdout);
 		console.log(stderr);
@@ -51,7 +51,7 @@ gulp.task('push-changes', (cb) => {
 gulp.task('create-tag', (cb) => {
     const version = getVersionFromPackage();
 
-    git.tag(version, 'Release ' + version, function (error) {
+    git.tag(version, 'Release ' + version, (error) => {
         if (error) {
             return cb(error);
         }
@@ -65,39 +65,17 @@ gulp.task('execute-node-tests', () => {
         .pipe(jasmine());
 });
 
-gulp.task('execute-tests', (callback) => {
-    runSequence(
-        'execute-node-tests',
+gulp.task('execute-tests', gulp.series('execute-node-tests'));
 
-        function (error) {
-            if (error) {
-                console.log(error.message);
-            }
-
-            callback(error);
-        });
-});
-
-gulp.task('release', (callback) => {
-    runSequence(
-        'ensure-clean-working-directory',
-        'execute-node-tests',
-        'document',
-        'bump-version',
-        'commit-changes',
-        'push-changes',
-        'create-tag',
-
-        function (error) {
-            if (error) {
-                console.log(error.message);
-            } else {
-                console.log('Release complete');
-            }
-
-            callback(error);
-        });
-});
+gulp.task('release', gulp.series(
+	'ensure-clean-working-directory',
+	'execute-node-tests',
+	'document',
+	'bump-version',
+	'commit-changes',
+	'push-changes',
+	'create-tag'
+));
 
 gulp.task('lint', () => {
     return gulp.src([ './**/*.js', './test/specs/**/*.js', '!./node_modules/**', '!./test/dist/**', '!./docs/**' ])
@@ -105,6 +83,6 @@ gulp.task('lint', () => {
         .pipe(jshint.reporter('default'));
 });
 
-gulp.task('test', [ 'execute-tests' ]);
+gulp.task('test', gulp.series('execute-tests'));
 
-gulp.task('default', [ 'lint' ]);
+gulp.task('default', gulp.series('lint'));

@@ -8,7 +8,7 @@
     "url": "http://www.barchart.com"
   },
   "scripts": {
-    "test": "echo \"Error: Please use gulp to run tests\" && exit 1"
+    "test": "gulp test"
   },
   "repository": {
     "type": "git",
@@ -50,15 +50,13 @@
   },
   "devDependencies": {
     "git-get-status": "^1.0.5",
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.2",
     "gulp-bump": "~1.0.0",
     "gulp-git": "^2.9.0",
     "gulp-jasmine": "^2.2.1",
     "gulp-jshint": "~2.1.0",
-    "gulp-util": "^3.0.7",
     "jsdoc": "^3.5.5",
-    "jshint": "2.9.5",
-    "run-sequence": "~1.1.4"
+    "jshint": "2.9.5"
   },
   "license": "MIT",
   "bugs": {
