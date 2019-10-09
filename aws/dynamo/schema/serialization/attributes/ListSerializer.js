@@ -6,7 +6,7 @@ const AttributeSerializer = require('./AttributeSerializer'),
 	NumberSerializer = require('./NumberSerializer'),
 	StringSerializer = require('./StringSerializer');
 
-const	DataType = require('./../../definitions/DataType');
+const DataType = require('./../../definitions/DataType');
 
 module.exports = (() => {
 	'use strict';
