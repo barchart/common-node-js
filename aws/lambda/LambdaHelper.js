@@ -123,6 +123,10 @@ module.exports = (() => {
 						eventLogger.trace(JSON.stringify(event, null, 2));
 					}
 
+					if (process.env.NODE_ENV === 'dev') {
+						return processor(parser, responder);
+					}
+
 					return validator.process(event)
 						.then((messages) => {
 							const suppressed = messages.filter((message) => !message.valid);
