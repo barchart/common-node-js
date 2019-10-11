@@ -19,7 +19,7 @@ module.exports = (() => {
 	 * @public
 	 */
 	class Table {
-		constructor(name, keys, indicies, attributes, components, provisionedThroughput, streamViewType) {
+		constructor(name, keys, indicies, attributes, components, provisionedThroughput, streamViewType, ttlAttribute) {
 			this._name = name;
 
 			this._keys = keys || [ ];
@@ -30,6 +30,8 @@ module.exports = (() => {
 			this._provisionedThroughput = provisionedThroughput;
 
 			this._streamViewType = streamViewType || null;
+
+			this._ttlAttribute = ttlAttribute || null;
 		}
 
 		/**
@@ -137,6 +139,16 @@ module.exports = (() => {
 		}
 
 		/**
+		 * The name of the attribute which defines time-to-live for the record.
+		 *
+		 * @public
+		 * @returns {String|null}
+		 */
+		get ttlAttribute() {
+			return this._ttlAttribute;
+		}
+
+		/**
 		 * Throws an {@link Error} if the instance is invalid.
 		 *
 		 * @public
@@ -210,6 +222,10 @@ module.exports = (() => {
 				throw new Error('Table steaming type is invalid.');
 			}
 
+			if (this._ttlAttribute !== null && this._attributes.filter(a => a.name === this._ttlAttribute).length === 0) {
+				throw new Error('A time-to-live attribute was specified, but it does not exist in the attribute list.');
+			}
+
 			this._keys.forEach(k => k.validate());
 			this._indices.forEach(i => i.validate());
 			this._components.forEach(c => c.validate());
@@ -267,6 +283,27 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Generates an object which is suitable for use by the AWS SDK.
+		 *
+		 * @public
+		 * @returns {Object}
+		 */
+		toTtlSchema() {
+			const schema = { };
+
+			schema.TableName = this._name;
+
+			if (this._ttlAttribute) {
+				schema.TimeToLiveSpecification = {
+					AttributeName: this._ttlAttribute,
+					Enabled: true
+				};
+			}
+
+			return schema;
+		}
+
+		/**
 		 * Returns true of the other table shares the same name, keys, indicies, and
 		 * attributes.
 		 *
@@ -291,6 +328,8 @@ module.exports = (() => {
 				returnVal = returnVal && this._indices.every(i => other.indicies.some(oi => oi.equals(i, relaxed)));
 
 				if (!(is.boolean(relaxed) && relaxed)) {
+					returnVal = returnVal && this._ttlAttribute === other.ttlAttribute;
+
 					returnVal = returnVal && this._attributes.length === other.attributes.length;
 					returnVal = returnVal && this._attributes.every(a => other.attributes.some(oa => oa.equals(a, relaxed)));
 
