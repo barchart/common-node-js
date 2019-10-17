@@ -11,7 +11,7 @@ module.exports = (() => {
 	let instance = null;
 
 	/**
-	 * An object that is used to store environment 	iables for the current process.
+	 * An object that is used to store environment variables for the current process.
 	 *
 	 * @public
 	 * @param {string} environmentName - The name of the environment mode (e.g. "development" or "production").
