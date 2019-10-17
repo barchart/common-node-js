@@ -37,7 +37,7 @@
     "express-http-proxy": "0.10.1",
     "http-digest-client": "0.0.3",
     "log4js": "^5.1.0",
-    "moment-timezone": "0.5.11",
+    "moment-timezone": "0.5.26",
     "multer": "1.2.1",
     "mysql": "2.16.0",
     "node-yaml-config": "0.0.4",
