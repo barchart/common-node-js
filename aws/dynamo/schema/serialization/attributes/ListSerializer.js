@@ -5,6 +5,7 @@ const AttributeSerializer = require('./AttributeSerializer'),
 	BooleanSerializer = require('./BooleanSerializer'),
 	NumberSerializer = require('./NumberSerializer'),
 	StringSerializer = require('./StringSerializer');
+	MapSerializer = require('./MapSerializer');
 
 const DataType = require('./../../definitions/DataType');
 
@@ -99,6 +100,11 @@ module.exports = (() => {
 			type: DataType.STRING,
 			is: (value) => is.string(value),
 			serializer: StringSerializer.INSTANCE,
+		},
+		{
+			type: DataType.MAP,
+			is: (value) => is.object(value),
+			serializer: MapSerializer.INSTANCE,
 		},
 	];
 

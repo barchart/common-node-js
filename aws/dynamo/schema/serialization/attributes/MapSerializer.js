@@ -89,6 +89,11 @@ module.exports = (() => {
 			is: (value) => is.string(value),
 			serializer: StringSerializer.INSTANCE,
 		},
+		{
+			type: DataType.MAP,
+			is: (value) => is.object(value),
+			serializer: MapSerializer.INSTANCE,
+		},
 	];
 
 	return MapSerializer;

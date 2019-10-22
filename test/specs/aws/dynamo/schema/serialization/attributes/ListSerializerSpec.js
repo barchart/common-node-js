@@ -44,4 +44,16 @@ describe('When a ListSerializer is instantiated', function() {
 
 		expect(deserialized).toEqual([true, 'String 1']);
 	});
+
+	it('it serializes [{"Name": "Joe", "Age": 35}, "String 1"] as { "L": [ { "M": {"Name": {"S": "Joe"}, "Age": {"N": "35"}} }, { "S": "String 1" } ] }', function() {
+		var serialized = serializer.serialize([{Name: "Joe", Age: 35}, "String 1"]);
+
+		expect(serialized).toEqual({ L: [ { M: {Name: {S: "Joe"}, Age: {N: "35"}} }, { S: "String 1" } ] });
+	});
+
+	it('it deserializes { "L": [ { "M": {"Name": {"S": "Joe"}, "Age": {"N": "35"}} }, { "S": "String 1" } ] } as [{"Name": "Joe", "Age": 35}, "String 1"]', function() {
+		var deserialized = serializer.deserialize({ L: [ { M: {Name: {S: "Joe"}, Age: {N: "35"}} }, { S: "String 1" } ] });
+
+		expect(deserialized).toEqual([{Name: "Joe", Age: 35}, "String 1"]);
+	});
 });
