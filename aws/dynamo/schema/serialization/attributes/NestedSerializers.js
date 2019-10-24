@@ -163,7 +163,7 @@ module.exports = (() => {
 		},
 		{
 			type: DataType.MAP,
-			is: (value) => is.object(value),
+			is: (value) => is.object(value) && !is.array(value),
 			serializer: MapSerializer.INSTANCE,
 		},
 	];

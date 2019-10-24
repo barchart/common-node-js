@@ -1,4 +1,4 @@
-var { MapSerializer } = require('../../../../../../../aws/dynamo/schema/serialization/attributes/NestedSerializers');
+var MapSerializer = require('../../../../../../../aws/dynamo/schema/serialization/attributes/NestedSerializers').MapSerializer;
 
 describe('When a MapSerializer is instantiated', function() {
 	'use strict';
