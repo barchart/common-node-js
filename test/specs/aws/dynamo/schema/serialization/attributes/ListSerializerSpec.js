@@ -1,4 +1,4 @@
-var ListSerializer = require('./../../../../../../../aws/dynamo/schema/serialization/attributes/ListSerializer');
+var { ListSerializer } = require('./../../../../../../../aws/dynamo/schema/serialization/attributes/NestedSerializers');
 
 describe('When a ListSerializer is instantiated', function() {
 	'use strict';
