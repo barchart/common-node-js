@@ -43,7 +43,7 @@
     "node-yaml-config": "0.0.4",
     "nodemailer": "^6.3.0",
     "numeral": "2.0.6",
-    "socket.io": "2.0.3",
+    "socket.io": "2.1.1",
     "twilio": "2.11.1",
     "uuid": "3.1.0",
     "xml2js": "0.4.17"
