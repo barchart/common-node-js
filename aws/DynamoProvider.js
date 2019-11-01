@@ -309,9 +309,24 @@ module.exports = (() => {
 						return getTable.call(this, qualifiedTableName)
 							.then((tableData) => {
 								if (tableData.TableStatus === 'ACTIVE') {
-									logger.info('Table ready [', qualifiedTableName, ']');
+									return getTimeToLiveSettings.call(this, qualifiedTableName)
+										.then((ttlData) => {
+											logger.info('Table ready [', qualifiedTableName, ']');
 
-									return Promise.resolve(tableData);
+											return Promise.resolve(Object.assign({ }, tableData, ttlData));
+										}).catch((error) => {
+											let promise;
+
+											if (is.string(error) && error.includes('AccessDeniedException') && error.includes('dynamodb:DescribeTimeToLive')) {
+												logger.error(error);
+
+												promise = Promise.resolve(tableData);
+											} else {
+												promise = Promise.reject(error);
+											}
+
+											return promise;
+										});
 								} else {
 									logger.debug('Table not yet ready [', qualifiedTableName, ']');
 
@@ -328,7 +343,7 @@ module.exports = (() => {
 								if (is.string(error.message) && error.message === `Table already exists: ${qualifiedTableName}`) {
 									logger.info('Unable to create table [', qualifiedTableName, '], table already exists');
 
-									getTableForCreate.call(this, qualifiedTableName)
+									return getTableForCreate.call(this, qualifiedTableName)
 										.then((tableData) => {
 											const serverDefinition = TableBuilder.fromDefinition(tableData);
 
@@ -350,7 +365,26 @@ module.exports = (() => {
 
 								return this._scheduler.backoff(() => getTableForCreate.call(this, qualifiedTableName), 2000)
 									.then((tableData) => {
-										resolveCallback(TableBuilder.fromDefinition(tableData));
+										let ttlPromise;
+
+										if (definition.ttlAttribute) {
+											logger.info(`Updating time-to-live configuration for table [ ${definition.name} ]`);
+
+											ttlPromise = this._dynamo.updateTimeToLive(definition.toTtlSchema()).promise()
+												.then((ttlData) => {
+													logger.info(`Updated time-to-live configuration for table [ ${definition.name} ]`);
+
+													return ttlData;
+												});
+										} else {
+											ttlPromise = Promise.resolve(null);
+										}
+
+										return ttlPromise.then((ttlData) => {
+											const adjusted = Object.assign({ }, tableData, ttlData || { });
+
+											resolveCallback(TableBuilder.fromDefinition(adjusted));
+										});
 									}).catch((e) => {
 										rejectCallback(e);
 									});
@@ -1042,6 +1076,15 @@ module.exports = (() => {
 				}
 			});
 		});
+	}
+
+	function getTimeToLiveSettings(qualifiedTableName) {
+		return this._dynamo.describeTimeToLive({ TableName: qualifiedTableName }).promise()
+			.catch((error) => {
+				logger.error(error);
+
+				return Promise.reject(`Failed to retrieve DynamoDB time-to-live settings, ${error}`);
+			});
 	}
 
 	function processBatch(table, type, items, explicit) {
