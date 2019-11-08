@@ -52,7 +52,7 @@ module.exports = (() => {
 			return Promise.resolve()
 				.then(() => {
 					if (!this._started) {
-						throw new Error('Unable to create session, the data provider factory must be started.');
+						throw new Error('Unable to create session, the data session factory must be started.');
 					}
 
 					assert.argumentIsRequired(callback, 'callback', Function);
@@ -116,7 +116,7 @@ module.exports = (() => {
 			return Promise.resolve()
 				.then(() => {
 					if (!this._started) {
-						throw new Error('Unable to create session, the data provider factory must be started.');
+						throw new Error('Unable to create session, the data session factory must be started.');
 					}
 
 					return this._getDataProvider();
