@@ -8,10 +8,21 @@ module.exports = (() => {
 	 *
 	 * @public
 	 * @interface
+	 * @param {Object=} options
 	 */
 	class DataProvider {
-		constructor() {
+		constructor(options) {
+			this._options = options || null;
+		}
 
+		/**
+		 * Return configuration options.
+		 *
+		 * @public
+		 * @return {Object|null}
+		 */
+		getOptions() {
+			return this._options;
 		}
 
 		toString() {
