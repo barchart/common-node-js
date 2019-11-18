@@ -24,10 +24,10 @@ describe('When a FilterEqualsResultProcessor is created', () => {
 			let processor;
 			let result;
 
-			beforeEach(function(done) {
+			beforeEach((done) => {
 				processor = new FilterEqualsResultProcessor({ conditions: [ { propertyName: 'vendor', value: 'JetBrains' } ] });
 
-				processor.process(tools).then(function(r) {
+				processor.process(tools).then((r) => {
 					result = r;
 
 					done();
@@ -55,10 +55,10 @@ describe('When a FilterEqualsResultProcessor is created', () => {
 			let processor;
 			let result;
 
-			beforeEach(function(done) {
+			beforeEach((done) => {
 				processor = new FilterEqualsResultProcessor({ conditions: [ { propertyName: 'vendor', value: 'JetBrains', inverse: true } ] });
 
-				processor.process(tools).then(function(r) {
+				processor.process(tools).then((r) => {
 					result = r;
 
 					done();
@@ -142,10 +142,10 @@ describe('When a FilterEqualsResultProcessor is created', () => {
 			let processor;
 			let result;
 
-			beforeEach(function(done) {
+			beforeEach((done) => {
 				processor = new FilterEqualsResultProcessor({ sourceRef: 'ide', conditions: [ { propertyName: 'vendor', valueRef: 'query' } ] });
 
-				processor.process({ ide: tools, query: 'JetBrains' }).then(function(r) {
+				processor.process({ ide: tools, query: 'JetBrains' }).then((r) => {
 					result = r;
 
 					done();

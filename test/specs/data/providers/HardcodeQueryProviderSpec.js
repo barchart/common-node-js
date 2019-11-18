@@ -13,7 +13,7 @@ describe('When configured with an object representing a chess game', () => {
 	describe('and executed', () => {
 		let results;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			results = processor.runQuery({ completely: 'ignored' })
 				.then((r) => {
 					results = r;

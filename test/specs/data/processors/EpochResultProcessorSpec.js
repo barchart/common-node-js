@@ -13,7 +13,7 @@ describe('When converting a date milliseconds using the EpochResultProcessor', (
 		let result;
 		let now;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(now = new Date()).then((r) => {
 				result = r;
 

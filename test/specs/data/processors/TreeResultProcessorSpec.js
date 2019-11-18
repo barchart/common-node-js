@@ -17,7 +17,7 @@ describe('When a TreePathResultProcessor is used to group animals (using a stati
 		let items;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [
 				arcticFox = {
 					taxonomy: [
@@ -43,7 +43,7 @@ describe('When a TreePathResultProcessor is used to group animals (using a stati
 					species: 'C. latrans',
 					commonName: 'Coyote'
 				}
-			]).then(function(r) {
+			]).then((r) => {
 				result = r;
 
 				done();
@@ -142,7 +142,7 @@ describe('When a TreePathResultProcessor is used to group animals (using a dynam
 		let items;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [
 				arcticFox = {
 					family: 'Canidae',
@@ -162,7 +162,7 @@ describe('When a TreePathResultProcessor is used to group animals (using a dynam
 					species: 'C. latrans',
 					commonName: 'Coyote'
 				}
-			]).then(function(r) {
+			]).then((r) => {
 				result = r;
 
 				done();

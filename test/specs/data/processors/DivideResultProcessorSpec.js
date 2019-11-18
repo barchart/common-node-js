@@ -13,9 +13,9 @@ describe('When a DivideResultProcessor is created, using a denominator reference
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { hours: 2 })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -39,9 +39,9 @@ describe('When a DivideResultProcessor is created, using a denominator reference
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { hours: 0 })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -61,9 +61,9 @@ describe('When a DivideResultProcessor is created, using a denominator reference
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -93,9 +93,9 @@ describe('When a DivideResultProcessor is created, using a numerator reference',
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { miles: 120 })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -119,9 +119,9 @@ describe('When a DivideResultProcessor is created, using a numerator reference',
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { miles: 0 })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -145,9 +145,9 @@ describe('When a DivideResultProcessor is created, using a numerator reference',
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -177,9 +177,9 @@ describe('When a DivideResultProcessor is created, repeating the operation multi
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { a: 2000, b: 10 })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();

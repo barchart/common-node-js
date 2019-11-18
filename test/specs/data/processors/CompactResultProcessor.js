@@ -18,9 +18,9 @@ describe('When a CompactResultProcessor is used to process an array', () => {
 		let three;
 		let four;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ one = null, two = 'hello', three = { }, four = undefined ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -53,9 +53,9 @@ describe('When a CompactResultProcessor is used to process an array', () => {
 		let three;
 		let four;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ one ='hello', two = [], three = { }, four = 4 ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();

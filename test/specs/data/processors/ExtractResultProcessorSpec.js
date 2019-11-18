@@ -19,7 +19,7 @@ describe('When a ExtractResultProcessor is created', () => {
 
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			input = [
 				{ thing: one = '1'},
 				{ thing: two = '2'},
@@ -27,7 +27,7 @@ describe('When a ExtractResultProcessor is created', () => {
 			];
 
 			processor.process(input)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();

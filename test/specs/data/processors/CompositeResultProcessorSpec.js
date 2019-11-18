@@ -38,9 +38,9 @@ describe('When a CompositeResultProcessor is created with two children', () => {
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();

@@ -13,9 +13,9 @@ describe('When a ReplaceResultProcessor is created with select and replace refer
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { test: 'abcdef-ABCDEF-abcdef', select: '(abc)', replace: 'def' })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 					done();
 				});
@@ -44,9 +44,9 @@ describe('When a ReplaceResultProcessor is created to replace "abc" with "def"',
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { test: 'abcdef-ABCDEF-abcdef' })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 					done();
 				});
@@ -75,9 +75,9 @@ describe('When a ReplaceResultProcessor in case-insensitive mode is created to r
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { test: 'abcdef-ABCDEF-abcdef' })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 					done();
 				});
@@ -106,9 +106,9 @@ describe('When a ReplaceResultProcessor in non-global mode is created to replace
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { test: 'abcdef-ABCDEF-abcdef' })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 					done();
 				});
@@ -137,9 +137,9 @@ describe('When a ReplaceResultProcessor is created adding a dash to any "a" or "
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { test: 'abcdef-ABCDEF-abcdef' })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 					done();
 				});

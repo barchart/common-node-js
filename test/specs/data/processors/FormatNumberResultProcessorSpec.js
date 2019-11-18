@@ -13,9 +13,9 @@ describe('When a FormatNumberResultProcessor is created for formatting a "price"
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { price: 1234.567 })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -49,9 +49,9 @@ describe('When a FormatNumberResultProcessor is created for formatting a "change
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { change: 0.56789 })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();

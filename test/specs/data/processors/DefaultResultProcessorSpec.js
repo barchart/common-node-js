@@ -13,9 +13,9 @@ describe('When a DefaultResultProcessor is created, specifying a default "name" 
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { name: 'Robert' })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -35,9 +35,9 @@ describe('When a DefaultResultProcessor is created, specifying a default "name" 
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();

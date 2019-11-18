@@ -12,9 +12,9 @@ describe('When a FlattenResultProcessor is created', () => {
 	describe('and a null value is processed', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(null)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -33,9 +33,9 @@ describe('When a FlattenResultProcessor is created', () => {
 	describe('and an undefined value is processed', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process()
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -62,7 +62,7 @@ describe('When a FlattenResultProcessor is created', () => {
 
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			input = [
 				[
 					one = 1,
@@ -78,7 +78,7 @@ describe('When a FlattenResultProcessor is created', () => {
 			];
 
 			result = processor.process(input)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();

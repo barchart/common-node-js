@@ -22,7 +22,7 @@ describe('When a UnitConversionResultProcessor is created, using references', ()
 		let original;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			ratio = {
 				value: 1.61,
 				numerator: 'kilometers',
@@ -56,7 +56,7 @@ describe('When a UnitConversionResultProcessor is created, using references', ()
 		let original;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			ratio = {
 				value: 0.62,
 				numerator: 'miles',

@@ -13,9 +13,9 @@ describe('When a ConcatenateResultProcessor is created with the following source
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { name: { first: 'Bryan' } })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -43,9 +43,9 @@ describe('When a ConcatenateResultProcessor is created with the following source
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { name: { last: 'Ingle' } })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 					done();
 				});

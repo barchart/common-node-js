@@ -35,7 +35,7 @@ describe('When a IteratorReadStream is created', () => {
 			let writable;
 			let spy;
 
-			beforeEach(function(done) {
+			beforeEach((done) => {
 				writable = new SpyWriteStream(spy = jasmine.createSpy('write'));
 
 				readable.pipe(writable);

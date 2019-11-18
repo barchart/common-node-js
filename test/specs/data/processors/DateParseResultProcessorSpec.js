@@ -12,7 +12,7 @@ describe('When parsing a date using the DateResultParser', () => {
 	describe('a date string formatted as yyyy-MM-dd hh:mm:ss is processed', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process({
 				d: '2017-10-31 23:59:59'
 			}).then((r) => {

@@ -13,9 +13,9 @@ describe('When a ConvertResultProcessor is created to convert "age" property to 
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { age: 42 })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -49,9 +49,9 @@ describe('When a ConvertResultProcessor is created to convert "age" property to 
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { age: '42' })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();

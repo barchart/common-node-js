@@ -17,9 +17,9 @@ describe('When a CoalesceResultProcessor is used to process an array', () => {
 		let two;
 		let three;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ one = null, two = 'hello', three = { } ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -40,9 +40,9 @@ describe('When a CoalesceResultProcessor is used to process an array', () => {
 		let two;
 		let three;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ one = undefined, two = [ ], three = 14 ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -62,9 +62,9 @@ describe('When a CoalesceResultProcessor is used to process an array', () => {
 		let two;
 		let three;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ one = { }, two = 'test', three = 1234 ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();

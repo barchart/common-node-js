@@ -13,9 +13,9 @@ describe('When a FormatPriceResultProcessor using property references', () => {
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { price: 1234.5, baseCode: -1, fractionSeparator: '-' })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -39,9 +39,9 @@ describe('When a FormatPriceResultProcessor using property references', () => {
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { price: 1234.5, baseCode: -1, fractionSeparator: '-' })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -75,9 +75,9 @@ describe('When a FormatPriceResultProcessor using property references and parent
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { price: 1234.5, baseCode: -1, fractionSeparator: '-' })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -101,9 +101,9 @@ describe('When a FormatPriceResultProcessor using property references and parent
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { price: -1234.5, baseCode: -1, fractionSeparator: '-' })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();

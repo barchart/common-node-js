@@ -13,9 +13,9 @@ describe('When a AverageResultProcessor is used to process an array of objects',
 		let items;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ { a: 5 }, { a: 15 }, { a: 40 } ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -35,9 +35,9 @@ describe('When a AverageResultProcessor is used to process an array of objects',
 		let items;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ { a: 5 }, { a: 15 }, { b: 40 } ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -63,9 +63,9 @@ describe('When a AverageResultProcessor is used to process an array of numbers',
 		let items;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ 5, 15, 40 ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -85,9 +85,9 @@ describe('When a AverageResultProcessor is used to process an array of numbers',
 		let items;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ 5, 15, null ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -113,9 +113,9 @@ describe('When a AverageResultProcessor is used to process an array of strings',
 		let items;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ "5", "15", "40" ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -135,9 +135,9 @@ describe('When a AverageResultProcessor is used to process an array of strings',
 		let items;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ 5, 'fifteen', 40 ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();

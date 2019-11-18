@@ -12,7 +12,7 @@ describe('When comparing a range to a set of one candidate ranges (using referen
 	describe('where 0-to-5 is compared to 0-3', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process({
 				a: 0,
 				b: 5,
@@ -34,7 +34,7 @@ describe('When comparing a range to a set of one candidate ranges (using referen
 	describe('where 0-to-5 is compared to 3-5', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process({
 				a: 0,
 				b: 5,
@@ -56,7 +56,7 @@ describe('When comparing a range to a set of one candidate ranges (using referen
 	describe('where 0-to-5 is compared to 3-4', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process({
 				a: 0,
 				b: 5,
@@ -78,7 +78,7 @@ describe('When comparing a range to a set of one candidate ranges (using referen
 	describe('where 0-to-5 is compared to -1-to-0', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process({
 				a: 0,
 				b: 5,
@@ -100,7 +100,7 @@ describe('When comparing a range to a set of one candidate ranges (using referen
 	describe('where 0-to-5 is compared to 5-to-7', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process({
 				a: 0,
 				b: 5,
@@ -122,7 +122,7 @@ describe('When comparing a range to a set of one candidate ranges (using referen
 	describe('where 0-to-5 is compared to -1-to-7', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process({
 				a: 0,
 				b: 5,
@@ -144,7 +144,7 @@ describe('When comparing a range to a set of one candidate ranges (using referen
 	describe('where 0-to-5 is compared to -5-to--3', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process({
 				a: 0,
 				b: 5,
@@ -166,7 +166,7 @@ describe('When comparing a range to a set of one candidate ranges (using referen
 	describe('where 0-to-5 is compared to 9-to-11', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process({
 				a: 0,
 				b: 5,

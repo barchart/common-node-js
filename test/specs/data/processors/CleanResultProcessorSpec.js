@@ -25,9 +25,9 @@ describe('When a CleanResultProcessor is used on an object', () => {
 	describe('properties that are null should be deleted', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -46,9 +46,9 @@ describe('When a CleanResultProcessor is used on an object', () => {
 	describe('properties that are undefined should be deleted', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -63,9 +63,9 @@ describe('When a CleanResultProcessor is used on an object', () => {
 	describe('properties that are numbers should not be affected', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -80,9 +80,9 @@ describe('When a CleanResultProcessor is used on an object', () => {
 	describe('properties that are numbers should not be affected', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -97,9 +97,9 @@ describe('When a CleanResultProcessor is used on an object', () => {
 	describe('properties that are objects should not be affected', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -114,9 +114,9 @@ describe('When a CleanResultProcessor is used on an object', () => {
 	describe('properties that are arrays should not be affected', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -157,9 +157,9 @@ describe('When a CleanResultProcessor is used on a single property (that is an o
 	describe('the wrapper property should be unaffected', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -178,9 +178,9 @@ describe('When a CleanResultProcessor is used on a single property (that is an o
 	describe('properties that are null should be deleted', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -195,9 +195,9 @@ describe('When a CleanResultProcessor is used on a single property (that is an o
 	describe('properties that are undefined should be deleted', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -212,9 +212,9 @@ describe('When a CleanResultProcessor is used on a single property (that is an o
 	describe('properties that are numbers should not be affected', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -229,9 +229,9 @@ describe('When a CleanResultProcessor is used on a single property (that is an o
 	describe('properties that are numbers should not be affected', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -246,9 +246,9 @@ describe('When a CleanResultProcessor is used on a single property (that is an o
 	describe('properties that are objects should not be affected', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -263,9 +263,9 @@ describe('When a CleanResultProcessor is used on a single property (that is an o
 	describe('properties that are arrays should not be affected', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -307,9 +307,9 @@ describe('When a CleanResultProcessor is used on a single property (that is null
 	describe('the wrapper property should be unaffected', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();

@@ -23,16 +23,16 @@ describe('When using the JoinResultProcessor a source array', () => {
 			});
 		});
 
-		it('the promised result be the target object', function(done) {
-			resultPromise.then(function(result) {
+		it('the promised result be the target object', (done) => {
+			resultPromise.then((result) => {
 				expect(result).toBe(context.myTarget);
 
 				done();
 			});
 		});
 
-		it('an alias property, containing the joined data, should be found on each property', function(done) {
-			resultPromise.then(function(result) {
+		it('an alias property, containing the joined data, should be found on each property', (done) => {
+			resultPromise.then((result) => {
 				expect(result[0].other).toBe(context.mySource[0]);
 				expect(result[1].other).toBe(context.mySource[1]);
 				expect(result[2].other).toBe(context.mySource[0]);
@@ -62,16 +62,16 @@ describe('When using the JoinResultProcessor a source array', () => {
 			});
 		});
 
-		it('the promised result be the target object', function(done) {
-			resultPromise.then(function(result) {
+		it('the promised result be the target object', (done) => {
+			resultPromise.then((result) => {
 				expect(result).toBe(context.myTarget);
 
 				done();
 			});
 		});
 
-		it('an alias property, having an "undefined" value, should be found on each property', function(done) {
-			resultPromise.then(function(result) {
+		it('an alias property, having an "undefined" value, should be found on each property', (done) => {
+			resultPromise.then((result) => {
 				expect(result[0].other).toBe(undefined);
 				expect(result[1].other).toBe(undefined);
 				expect(result[2].other).toBe(undefined);
@@ -101,16 +101,16 @@ describe('When using the JoinResultProcessor a source array', () => {
 			});
 		});
 
-		it('the promised result be the target object', function(done) {
-			resultPromise.then(function(result) {
+		it('the promised result be the target object', (done) => {
+			resultPromise.then((result) => {
 				expect(result).toBe(context.myTarget);
 
 				done();
 			});
 		});
 
-		it('an alias property, having an "undefined" value, should be found on each property', function(done) {
-			resultPromise.then(function(result) {
+		it('an alias property, having an "undefined" value, should be found on each property', (done) => {
+			resultPromise.then((result) => {
 				expect(result[0].other).toBe(undefined);
 				expect(result[1].other).toBe(undefined);
 				expect(result[2].other).toBe(undefined);
@@ -183,16 +183,16 @@ describe('When using the JoinResultProcessor with a source map', () => {
 			});
 		});
 
-		it('the promised result be the target object', function(done) {
-			resultPromise.then(function(result) {
+		it('the promised result be the target object', (done) => {
+			resultPromise.then((result) => {
 				expect(result).toBe(context.myTarget);
 
 				done();
 			});
 		});
 
-		it('an alias property, having an "undefined" value, should be found on each property', function(done) {
-			resultPromise.then(function(result) {
+		it('an alias property, having an "undefined" value, should be found on each property', (done) => {
+			resultPromise.then((result) => {
 				expect(result[0].other).toBe(undefined);
 				expect(result[1].other).toBe(undefined);
 				expect(result[2].other).toBe(undefined);
@@ -222,16 +222,16 @@ describe('When using the JoinResultProcessor with a source map', () => {
 			});
 		});
 
-		it('the promised result be the target object', function(done) {
-			resultPromise.then(function(result) {
+		it('the promised result be the target object', (done) => {
+			resultPromise.then((result) => {
 				expect(result).toBe(context.myTarget);
 
 				done();
 			});
 		});
 
-		it('an alias property, having an "undefined" value, should be found on each property', function(done) {
-			resultPromise.then(function(result) {
+		it('an alias property, having an "undefined" value, should be found on each property', (done) => {
+			resultPromise.then((result) => {
 				expect(result[0].other).toBe(undefined);
 				expect(result[1].other).toBe(undefined);
 				expect(result[2].other).toBe(undefined);

@@ -13,9 +13,9 @@ describe('When a SumResultProcessor is used to process an array of objects', () 
 		let items;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ { a: 2 }, { a: 3 }, { a: 5 } ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -35,9 +35,9 @@ describe('When a SumResultProcessor is used to process an array of objects', () 
 		let items;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ { a: 2 }, { a: 3 }, { b: 5 } ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -63,9 +63,9 @@ describe('When a SumResultProcessor is used to process an array of numbers', () 
 		let items;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ 2, 3, 5 ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -85,9 +85,9 @@ describe('When a SumResultProcessor is used to process an array of numbers', () 
 		let items;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ 2, null, 5 ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -113,9 +113,9 @@ describe('When a SumResultProcessor is used process a zero-length array', () => 
 		let items;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();

@@ -13,7 +13,7 @@ describe('When a SelectResultProcessor is created, selecting properties "a" as "
 		let result;
 		let input;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(input = { a: { }, c: { }})
 				.then((r) => {
 					result = r;
@@ -39,7 +39,7 @@ describe('When a SelectResultProcessor is created, selecting properties "a" as "
 		let result;
 		let input;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(input = [ { a: { }, c: { } }, { a: { }, c: { } } ])
 				.then((r) => {
 					result = r;

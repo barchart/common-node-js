@@ -13,9 +13,9 @@ describe('When a FindResultProcessor is used to process an array of objects', ()
 		let items;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ { a: 2 }, { a: 3 }, { a: 5 } ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -35,9 +35,9 @@ describe('When a FindResultProcessor is used to process an array of objects', ()
 		let items;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ { a: 3 }, { a: 3 }, { a: 5 } ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -57,9 +57,9 @@ describe('When a FindResultProcessor is used to process an array of objects', ()
 		let items;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ { a: 2 }, { a: 4 }, { a: 6 } ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();

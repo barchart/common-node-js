@@ -13,9 +13,9 @@ describe('When a NullCoalescingResultProcessor is created', () => {
 	describe('and a target object with a null property is processed', () => {
 		let target;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(target = { testProperty: null })
-				.then(function(r) {
+				.then((r) => {
 					done();
 				});
 		});
@@ -28,9 +28,9 @@ describe('When a NullCoalescingResultProcessor is created', () => {
 	describe('and a target object with a non-null property is processed', () => {
 		let target;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(target = { testProperty: 'bob' })
-				.then(function(r) {
+				.then((r) => {
 					done();
 				});
 		});
@@ -43,9 +43,9 @@ describe('When a NullCoalescingResultProcessor is created', () => {
 	describe('and a target object without the property is processed', () => {
 		let target;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(target = { })
-				.then(function(r) {
+				.then((r) => {
 					done();
 				});
 		});

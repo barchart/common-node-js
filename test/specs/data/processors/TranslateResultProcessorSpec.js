@@ -13,9 +13,9 @@ describe('When a TranslateResultProcessor is used on a property with string-base
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { name: 'Eero' })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 					done();
 				});
@@ -34,9 +34,9 @@ describe('When a TranslateResultProcessor is used on a property with string-base
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { name: 'Steve' })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 					done();
 				});
@@ -66,9 +66,9 @@ describe('When a TranslateResultProcessor is used on a property with numeric val
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { count: 1 })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 					done();
 				});
@@ -87,9 +87,9 @@ describe('When a TranslateResultProcessor is used on a property with numeric val
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { count: 3 })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 					done();
 				});

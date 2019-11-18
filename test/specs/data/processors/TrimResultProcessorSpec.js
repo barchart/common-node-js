@@ -13,9 +13,9 @@ describe('When a TrimResultProcessor is used on a string-based property', () => 
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 					done();
 				});
@@ -34,9 +34,9 @@ describe('When a TrimResultProcessor is used on a string-based property', () => 
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { hair: 'yes' })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 					done();
 				});
@@ -55,9 +55,9 @@ describe('When a TrimResultProcessor is used on a string-based property', () => 
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { hair: ' club for men ' })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 					done();
 				});
@@ -76,9 +76,9 @@ describe('When a TrimResultProcessor is used on a string-based property', () => 
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { hair: ' ' })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 					done();
 				});

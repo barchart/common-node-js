@@ -40,11 +40,11 @@ describe('When presented with some goods', () => {
 		let processor;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor = new FilterOptionsResultProcessor({ sourceRef: 'things', conditions: [ { optionsRef: 'goods.durable', propertyName: 'type' } ] });
 
 			processor.process(context)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -72,11 +72,11 @@ describe('When presented with some goods', () => {
 		let processor;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor = new FilterOptionsResultProcessor({ sourceRef: 'things', conditions: [ { optionsRef: 'goods.durable', propertyName: 'type', inverse: true } ] });
 
 			processor.process(context)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -104,11 +104,11 @@ describe('When presented with some goods', () => {
 		let processor;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor = new FilterOptionsResultProcessor({ sourceRef: 'things', conditions: [ { options: [ 'Tesla', 'Chevron' ], propertyName: 'brand'} ] });
 
 			processor.process(context)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -136,11 +136,11 @@ describe('When presented with some goods', () => {
 		let processor;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor = new FilterOptionsResultProcessor({ sourceRef: 'things', conditions: [ { options: [ 'Tesla' ], propertyName: 'brand' }, { optionsRef: 'goods.durable', propertyName: 'type' } ] });
 
 			processor.process(context)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();

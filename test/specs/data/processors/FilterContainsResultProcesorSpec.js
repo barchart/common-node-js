@@ -20,7 +20,7 @@ describe('When a filtering an array based on containment of a single value', () 
 		let orca;
 		let damsel;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			context = {
 				desiredColor: 'white',
 				things: [
@@ -48,7 +48,7 @@ describe('When a filtering an array based on containment of a single value', () 
 			};
 
 			processor.process(context)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -97,7 +97,7 @@ describe('When a filtering an array based on containment of a set of possible va
 		let orca;
 		let damsel;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			context = {
 				desiredColors:  [ 'yellow', 'gold' ],
 				things: [
@@ -125,7 +125,7 @@ describe('When a filtering an array based on containment of a set of possible va
 			};
 
 			processor.process(context)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -170,7 +170,7 @@ describe('When a filtering an array based on matching exact values', () => {
 		let orca;
 		let damsel;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			context = {
 				desiredColors:  [ 'black', 'white' ],
 				things: [
@@ -198,7 +198,7 @@ describe('When a filtering an array based on matching exact values', () => {
 			};
 
 			processor.process(context)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();

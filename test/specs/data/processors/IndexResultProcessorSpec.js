@@ -18,9 +18,9 @@ describe('When a IndexResultProcessor is used to index an array of word definiti
 
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ coffee = { word: 'coffee', definition: 'A drink made from beans' }, tea = { word: 'tea', definition: 'A drink made from leaves' }, milk = { word: 'milk', definition: 'A drink made from cows' } ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();

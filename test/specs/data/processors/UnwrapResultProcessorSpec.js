@@ -14,9 +14,9 @@ describe('When a UnwrapResultProcessor is created', () => {
 		let context;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(context = { a: { b: { c: { } } } })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();

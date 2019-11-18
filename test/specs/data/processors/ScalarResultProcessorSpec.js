@@ -16,9 +16,9 @@ describe('When a ScalarResultProcessor is used to process an array', () => {
 		let items;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -35,9 +35,9 @@ describe('When a ScalarResultProcessor is used to process an array', () => {
 		let item;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ item = { } ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -55,9 +55,9 @@ describe('When a ScalarResultProcessor is used to process an array', () => {
 
 		let threw;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ { }, { } ])
-				.then(function(r) {
+				.then((r) => {
 					threw = false;
 
 					done();

@@ -13,9 +13,9 @@ describe('When a SubtractResultProcessor is created, using a right reference', (
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { right: 2 })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -39,9 +39,9 @@ describe('When a SubtractResultProcessor is created, using a right reference', (
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -71,9 +71,9 @@ describe('When a SubtractResultProcessor is created, using a left reference', ()
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { left: 1 })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -97,9 +97,9 @@ describe('When a SubtractResultProcessor is created, using a left reference', ()
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();

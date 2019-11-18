@@ -22,10 +22,10 @@ describe('When a FilterExistsResultProcessor is created', () => {
 			let processor;
 			let result;
 
-			beforeEach(function(done) {
+			beforeEach((done) => {
 				processor = new FilterExistsResultProcessor({ conditions: [ { propertyName: 'tail' } ] });
 
-				processor.process(things).then(function(r) {
+				processor.process(things).then((r) => {
 					result = r;
 
 					done();
@@ -55,10 +55,10 @@ describe('When a FilterExistsResultProcessor is created', () => {
 			let processor;
 			let result;
 
-			beforeEach(function(done) {
+			beforeEach((done) => {
 				processor = new FilterExistsResultProcessor({ conditions: [ { propertyName: 'tail', inverse: true } ] });
 
-				processor.process(things).then(function(r) {
+				processor.process(things).then((r) => {
 					result = r;
 
 					done();
@@ -84,10 +84,10 @@ describe('When a FilterExistsResultProcessor is created', () => {
 			let processor;
 			let result;
 
-			beforeEach(function(done) {
+			beforeEach((done) => {
 				processor = new FilterExistsResultProcessor({ conditions: [ { propertyName: 'tail'}, { propertyName: 'paws', inverse: true }  ] });
 
-				processor.process(things).then(function(r) {
+				processor.process(things).then((r) => {
 					result = r;
 
 					done();

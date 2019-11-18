@@ -17,8 +17,8 @@ describe('When running a ContextQueryProvider, configured read a single property
 			resultPromise = processor.runQuery(context = { a: { b : { c: { } } } });
 		});
 
-		it('the promised result should match the context passed to the provider', function(done) {
-			resultPromise.then(function(result) {
+		it('the promised result should match the context passed to the provider', (done) => {
+			resultPromise.then((result) => {
 				expect(result).toBe(context.a.b.c);
 
 				done();
@@ -34,8 +34,8 @@ describe('When running a ContextQueryProvider, configured read a single property
 			resultPromise = processor.runQuery(context = { x: { y : { z: { } } } });
 		});
 
-		it('the promised result should match the context passed to the provider', function(done) {
-			resultPromise.then(function(result) {
+		it('the promised result should match the context passed to the provider', (done) => {
+			resultPromise.then((result) => {
 				expect(result).toEqual(undefined);
 
 				done();
@@ -61,16 +61,16 @@ describe('When running a ContextQueryProvider, configured read two properties', 
 			resultPromise = processor.runQuery(context = { a: { }, b: { } });
 		});
 
-		it('the promised result should have the first property', function(done) {
-			resultPromise.then(function(result) {
+		it('the promised result should have the first property', (done) => {
+			resultPromise.then((result) => {
 				expect(result.a).toBe(context.a);
 
 				done();
 			});
 		});
 
-		it('the promised result should have the second property', function(done) {
-			resultPromise.then(function(result) {
+		it('the promised result should have the second property', (done) => {
+			resultPromise.then((result) => {
 				expect(result.b).toBe(context.b);
 
 				done();
@@ -86,16 +86,16 @@ describe('When running a ContextQueryProvider, configured read two properties', 
 			resultPromise = processor.runQuery(context = { a: { } });
 		});
 
-		it('the promised result should have the first property', function(done) {
-			resultPromise.then(function(result) {
+		it('the promised result should have the first property', (done) => {
+			resultPromise.then((result) => {
 				expect(result.a).toBe(context.a);
 
 				done();
 			});
 		});
 
-		it('the promised result should not have the second property', function(done) {
-			resultPromise.then(function(result) {
+		it('the promised result should not have the second property', (done) => {
+			resultPromise.then((result) => {
 				expect(result.hasOwnProperty(('b'))).toEqual(false);
 
 				done();
@@ -116,8 +116,8 @@ describe('When running a ContextQueryProvider, without specifying particular pro
 		resultPromise = processor.runQuery(context = { });
 	});
 
-	it('the promised result should match the context passed to the provider', function(done) {
-		resultPromise.then(function(result) {
+	it('the promised result should match the context passed to the provider', (done) => {
+		resultPromise.then((result) => {
 			expect(result).toBe(context);
 
 			done();

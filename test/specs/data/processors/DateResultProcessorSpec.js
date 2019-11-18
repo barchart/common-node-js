@@ -12,7 +12,7 @@ describe('When getting the start of the month (using references)', () => {
 	describe('and a context, with the referenced properties, is passed', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process({
 				m: 11,
 				y: 2017
@@ -45,7 +45,7 @@ describe('When getting the end of the month (using references)', () => {
 	describe('and a context, with the referenced properties, is passed', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process({
 				m: 11,
 				y: 2017

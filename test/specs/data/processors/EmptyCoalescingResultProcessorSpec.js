@@ -13,9 +13,9 @@ describe('When a EmptyCoalescingResultProcessor is created, specifying a replace
 	describe('and a target object with a null property is processed', () => {
 		let target;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(target = { testProperty: null })
-				.then(function(r) {
+				.then((r) => {
 					done();
 				});
 		});
@@ -28,9 +28,9 @@ describe('When a EmptyCoalescingResultProcessor is created, specifying a replace
 	describe('and a target object with an undefined property is processed', () => {
 		let target;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(target = { testProperty: undefined })
-				.then(function(r) {
+				.then((r) => {
 					done();
 				});
 		});
@@ -43,9 +43,9 @@ describe('When a EmptyCoalescingResultProcessor is created, specifying a replace
 	describe('and a target object with an zero-length string property is processed', () => {
 		let target;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(target = { testProperty: '' })
-				.then(function(r) {
+				.then((r) => {
 					done();
 				});
 		});
@@ -58,9 +58,9 @@ describe('When a EmptyCoalescingResultProcessor is created, specifying a replace
 	describe('and a target object with a non-null property is processed', () => {
 		let target;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(target = { testProperty: 'bob' })
-				.then(function(r) {
+				.then((r) => {
 					done();
 				});
 		});
@@ -73,9 +73,9 @@ describe('When a EmptyCoalescingResultProcessor is created, specifying a replace
 	describe('and a target object without the property is processed', () => {
 		let target;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(target = { })
-				.then(function(r) {
+				.then((r) => {
 					done();
 				});
 		});
@@ -99,9 +99,9 @@ describe('When a EmptyCoalescingResultProcessor is created, specifying a replace
 	describe('and a target object with a null property is processed', () => {
 		let target;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(target = { testProperty: null, otherProperty: 'otherValue' })
-				.then(function(r) {
+				.then((r) => {
 					done();
 				});
 		});
@@ -114,9 +114,9 @@ describe('When a EmptyCoalescingResultProcessor is created, specifying a replace
 	describe('and a target object with an undefined property is processed', () => {
 		let target;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(target = { testProperty: undefined, otherProperty: 'otherValue' })
-				.then(function(r) {
+				.then((r) => {
 					done();
 				});
 		});
@@ -129,9 +129,9 @@ describe('When a EmptyCoalescingResultProcessor is created, specifying a replace
 	describe('and a target object with an zero-length string property is processed', () => {
 		let target;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(target = { testProperty: '', otherProperty: 'otherValue' })
-				.then(function(r) {
+				.then((r) => {
 					done();
 				});
 		});
@@ -144,9 +144,9 @@ describe('When a EmptyCoalescingResultProcessor is created, specifying a replace
 	describe('and a target object with a non-null property is processed', () => {
 		let target;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(target = { testProperty: 'bob', otherProperty: 'otherValue' })
-				.then(function(r) {
+				.then((r) => {
 					done();
 				});
 		});
@@ -159,9 +159,9 @@ describe('When a EmptyCoalescingResultProcessor is created, specifying a replace
 	describe('and a target object without the property is processed', () => {
 		let target;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(target = { otherProperty: 'otherValue' })
-				.then(function(r) {
+				.then((r) => {
 					done();
 				});
 		});

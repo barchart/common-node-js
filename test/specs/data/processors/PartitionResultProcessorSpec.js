@@ -13,9 +13,9 @@ describe('When a PartitionResultProcessor is created with no configuration', () 
 	describe('and a null value is processed', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(null)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -34,9 +34,9 @@ describe('When a PartitionResultProcessor is created with no configuration', () 
 	describe('and an undefined value is processed', () => {
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(null)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -56,7 +56,7 @@ describe('When a PartitionResultProcessor is created with no configuration', () 
 		let input;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			input = [ ];
 
 			for (let i = 0; i < 21; i++) {
@@ -64,7 +64,7 @@ describe('When a PartitionResultProcessor is created with no configuration', () 
 			}
 
 			result = processor.process(input)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -107,7 +107,7 @@ describe('When a PartitionResultProcessor is created for partitions with 15 item
 		let input;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			input = [ ];
 
 			for (let i = 0; i < 21; i++) {
@@ -115,7 +115,7 @@ describe('When a PartitionResultProcessor is created for partitions with 15 item
 			}
 
 			result = processor.process(input)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();

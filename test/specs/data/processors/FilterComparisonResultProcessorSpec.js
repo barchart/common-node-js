@@ -21,10 +21,10 @@ describe('When a FilterComparisonResultProcessor is created', () => {
 		let processor;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor = new FilterComparisonResultProcessor({ conditions: [ { propertyName: 'age', value: 100, greater: true } ] });
 
-			processor.process(trees).then(function(r) {
+			processor.process(trees).then((r) => {
 				result = r;
 
 				done();
@@ -48,10 +48,10 @@ describe('When a FilterComparisonResultProcessor is created', () => {
 		let processor;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor = new FilterComparisonResultProcessor({ conditions: [ { propertyName: 'age', value: 1, greater: true, inverse: true } ] });
 
-			processor.process(trees).then(function(r) {
+			processor.process(trees).then((r) => {
 				result = r;
 
 				done();

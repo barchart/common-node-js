@@ -27,10 +27,10 @@ describe('When a FilterRegexResultProcessor is created', () => {
 		let processor;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor = new FilterRegexResultProcessor({ conditions: [ { propertyName: 'name', expression:  '[aeiou]{2}' } ] });
 
-			processor.process(pieces).then(function(r) {
+			processor.process(pieces).then((r) => {
 				result = r;
 
 				done();
@@ -58,10 +58,10 @@ describe('When a FilterRegexResultProcessor is created', () => {
 		let processor;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor = new FilterRegexResultProcessor({ conditions: [ { propertyName: 'name', expression:  '[aeiou]{2}' }, { propertyName: 'name', expression:  '^q' } ] });
 
-			processor.process(pieces).then(function(r) {
+			processor.process(pieces).then((r) => {
 				result = r;
 
 				done();
@@ -85,10 +85,10 @@ describe('When a FilterRegexResultProcessor is created', () => {
 		let processor;
 		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor = new FilterRegexResultProcessor({ conditions: [ { propertyName: 'name', expression:  '[aeiou]{2}', inverse: true } ] });
 
-			processor.process(pieces).then(function(r) {
+			processor.process(pieces).then((r) => {
 				result = r;
 
 				done();

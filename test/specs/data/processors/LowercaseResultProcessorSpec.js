@@ -13,9 +13,9 @@ describe('When a LowercaseResultProcessor is used on a string-based property', (
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 					done();
 				});
@@ -34,9 +34,9 @@ describe('When a LowercaseResultProcessor is used on a string-based property', (
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { volume: 'quiet' })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 					done();
 				});
@@ -55,9 +55,9 @@ describe('When a LowercaseResultProcessor is used on a string-based property', (
 		let result;
 		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { volume: 'LOUD' })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 					done();
 				});
@@ -77,9 +77,9 @@ describe('When a LowercaseResultProcessor is used on a string-based property', (
 		let original;
 		let volume;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { volume: volume = { decibels: 110 } })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 					done();
 				});
