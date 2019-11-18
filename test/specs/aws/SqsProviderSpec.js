@@ -1,24 +1,24 @@
-var SqsProvider = require('./../../../aws/SqsProvider');
+const SqsProvider = require('./../../../aws/SqsProvider');
 
-describe('When an SQS Provider created', function() {
+describe('When an SQS Provider created', () => {
 	'use strict';
 
-	var provider;
-	var configuration;
+	let provider;
+	let configuration;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		provider = new SqsProvider(configuration = {
 			region: 'somewhere',
 			prefix: 'suffix'
 		});
 	});
 
-	describe('and it is disposed', function() {
-		beforeEach(function() {
+	describe('and it is disposed', () => {
+		beforeEach(() => {
 			provider.dispose();
 		});
 
-		it('should be disposed', function() {
+		it('should be disposed', () => {
 			expect(provider.getIsDisposed()).toEqual(true);
 		});
 	});

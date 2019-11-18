@@ -1,18 +1,18 @@
-var UnwrapResultProcessor = require('./../../../../data/processors/UnwrapResultProcessor');
+const UnwrapResultProcessor = require('./../../../../data/processors/UnwrapResultProcessor');
 
-describe('When a UnwrapResultProcessor is created', function() {
+describe('When a UnwrapResultProcessor is created', () => {
 	'use strict';
 
-	var processor;
-	var configuration;
+	let processor;
+	let configuration;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new UnwrapResultProcessor(configuration = { propertyName: 'a.b.c' });
 	});
 
-	describe('and an object, having the property name, is unwrapped', function() {
-		var context;
-		var result;
+	describe('and an object, having the property name, is unwrapped', () => {
+		let context;
+		let result;
 
 		beforeEach(function(done) {
 			processor.process(context = { a: { b: { c: { } } } })
@@ -23,11 +23,11 @@ describe('When a UnwrapResultProcessor is created', function() {
 				});
 		});
 
-		it('the result should be an object', function() {
+		it('the result should be an object', () => {
 			expect(result instanceof Object).toEqual(true);
 		});
 
-		it('the result should be a reference to the context object', function() {
+		it('the result should be a reference to the context object', () => {
 			expect(result).toBe(context.a.b.c);
 		});
 	});

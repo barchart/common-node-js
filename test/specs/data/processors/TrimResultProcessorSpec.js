@@ -1,17 +1,17 @@
-var TrimResultProcessor = require('./../../../../data/processors/TrimResultProcessor');
+const TrimResultProcessor = require('./../../../../data/processors/TrimResultProcessor');
 
-describe('When a TrimResultProcessor is used on a string-based property', function() {
+describe('When a TrimResultProcessor is used on a string-based property', () => {
 	'use strict';
 
-	var processor;
+	let processor;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new TrimResultProcessor({ propertyName: 'hair' });
 	});
 
-	describe('and the property does not exist', function() {
-		var result;
-		var original;
+	describe('and the property does not exist', () => {
+		let result;
+		let original;
 
 		beforeEach(function(done) {
 			processor.process(original = { })
@@ -21,18 +21,18 @@ describe('When a TrimResultProcessor is used on a string-based property', functi
 				});
 		});
 
-		it('the original object should be returned', function() {
+		it('the original object should be returned', () => {
 			expect(result).toBe(original);
 		});
 
-		it('the object should not have a "hair" property defined', function() {
+		it('the object should not have a "hair" property defined', () => {
 			expect(result.hasOwnProperty('hair')).toEqual(false);
 		});
 	});
 
-	describe('and the property value has no leading or trailing spaces', function() {
-		var result;
-		var original;
+	describe('and the property value has no leading or trailing spaces', () => {
+		let result;
+		let original;
 
 		beforeEach(function(done) {
 			processor.process(original = { hair: 'yes' })
@@ -42,18 +42,18 @@ describe('When a TrimResultProcessor is used on a string-based property', functi
 				});
 		});
 
-		it('the original object should be returned', function() {
+		it('the original object should be returned', () => {
 			expect(result).toBe(original);
 		});
 
-		it('the "hair" property value should be unchanged', function() {
+		it('the "hair" property value should be unchanged', () => {
 			expect(result.hair).toEqual('yes');
 		});
 	});
 
-	describe('and the property value has leading and trailing spaces', function() {
-		var result;
-		var original;
+	describe('and the property value has leading and trailing spaces', () => {
+		let result;
+		let original;
 
 		beforeEach(function(done) {
 			processor.process(original = { hair: ' club for men ' })
@@ -63,18 +63,18 @@ describe('When a TrimResultProcessor is used on a string-based property', functi
 				});
 		});
 
-		it('the original object should be returned', function() {
+		it('the original object should be returned', () => {
 			expect(result).toBe(original);
 		});
 
-		it('the "hair" property value should be trimmed', function() {
+		it('the "hair" property value should be trimmed', () => {
 			expect(result.hair).toEqual('club for men');
 		});
 	});
 
-	describe('and the property value is a single space', function() {
-		var result;
-		var original;
+	describe('and the property value is a single space', () => {
+		let result;
+		let original;
 
 		beforeEach(function(done) {
 			processor.process(original = { hair: ' ' })
@@ -84,11 +84,11 @@ describe('When a TrimResultProcessor is used on a string-based property', functi
 				});
 		});
 
-		it('the original object should be returned', function() {
+		it('the original object should be returned', () => {
 			expect(result).toBe(original);
 		});
 
-		it('the "hair" property value should be a zero-length string', function() {
+		it('the "hair" property value should be a zero-length string', () => {
 			expect(result.hair).toEqual('');
 		});
 	});

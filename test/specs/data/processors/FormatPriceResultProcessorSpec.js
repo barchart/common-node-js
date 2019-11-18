@@ -1,17 +1,17 @@
-var FormatPriceResultProcessor = require('./../../../../data/processors/FormatPriceResultProcessor');
+const FormatPriceResultProcessor = require('./../../../../data/processors/FormatPriceResultProcessor');
 
-describe('When a FormatPriceResultProcessor using property references', function() {
+describe('When a FormatPriceResultProcessor using property references', () => {
 	'use strict';
 
-	var processor;
+	let processor;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new FormatPriceResultProcessor({ propertyName: 'price', baseCodePropertyName: 'baseCode', fractionSeparatorPropertyName: 'fractionSeparator'  });
 	});
 
-	describe('and an object with a price of 1234.5, unit code of -1, and a dash fraction separator', function() {
-		var result;
-		var original;
+	describe('and an object with a price of 1234.5, unit code of -1, and a dash fraction separator', () => {
+		let result;
+		let original;
 
 		beforeEach(function(done) {
 			processor.process(original = { price: 1234.5, baseCode: -1, fractionSeparator: '-' })
@@ -22,22 +22,22 @@ describe('When a FormatPriceResultProcessor using property references', function
 				});
 		});
 
-		it('the original object should be returned', function() {
+		it('the original object should be returned', () => {
 			expect(result).toBe(original);
 		});
 
-		it('the price property should now be a string', function() {
+		it('the price property should now be a string', () => {
 			expect(typeof result.price).toEqual('string');
 		});
 
-		it('the price property should be formatted as "1234-4"', function() {
+		it('the price property should be formatted as "1234-4"', () => {
 			expect(result.price).toEqual('1234-4');
 		});
 	});
 
-	describe('and an object with a price of -1234.5, unit code of -1, and a dash fraction separator', function() {
-		var result;
-		var original;
+	describe('and an object with a price of -1234.5, unit code of -1, and a dash fraction separator', () => {
+		let result;
+		let original;
 
 		beforeEach(function(done) {
 			processor.process(original = { price: 1234.5, baseCode: -1, fractionSeparator: '-' })
@@ -48,32 +48,32 @@ describe('When a FormatPriceResultProcessor using property references', function
 				});
 		});
 
-		it('the original object should be returned', function() {
+		it('the original object should be returned', () => {
 			expect(result).toBe(original);
 		});
 
-		it('the price property should now be a string', function() {
+		it('the price property should now be a string', () => {
 			expect(typeof result.price).toEqual('string');
 		});
 
-		it('the price property should be formatted as "1234-4"', function() {
+		it('the price property should be formatted as "1234-4"', () => {
 			expect(result.price).toEqual('1234-4');
 		});
 	});
 });
 
-describe('When a FormatPriceResultProcessor using property references and parenthetical negatives', function() {
+describe('When a FormatPriceResultProcessor using property references and parenthetical negatives', () => {
 	'use strict';
 
-	var processor;
+	let processor;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new FormatPriceResultProcessor({ propertyName: 'price', baseCodePropertyName: 'baseCode', fractionSeparatorPropertyName: 'fractionSeparator', useParenthesis: true });
 	});
 
-	describe('and an object with a price of 1234.5, unit code of -1, and a dash fraction separator', function() {
-		var result;
-		var original;
+	describe('and an object with a price of 1234.5, unit code of -1, and a dash fraction separator', () => {
+		let result;
+		let original;
 
 		beforeEach(function(done) {
 			processor.process(original = { price: 1234.5, baseCode: -1, fractionSeparator: '-' })
@@ -84,22 +84,22 @@ describe('When a FormatPriceResultProcessor using property references and parent
 				});
 		});
 
-		it('the original object should be returned', function() {
+		it('the original object should be returned', () => {
 			expect(result).toBe(original);
 		});
 
-		it('the price property should now be a string', function() {
+		it('the price property should now be a string', () => {
 			expect(typeof result.price).toEqual('string');
 		});
 
-		it('the price property should be formatted as "1234-4"', function() {
+		it('the price property should be formatted as "1234-4"', () => {
 			expect(result.price).toEqual('1234-4');
 		});
 	});
 
-	describe('and an object with a price of -1234.5, unit code of -1, and a dash fraction separator', function() {
-		var result;
-		var original;
+	describe('and an object with a price of -1234.5, unit code of -1, and a dash fraction separator', () => {
+		let result;
+		let original;
 
 		beforeEach(function(done) {
 			processor.process(original = { price: -1234.5, baseCode: -1, fractionSeparator: '-' })
@@ -110,15 +110,15 @@ describe('When a FormatPriceResultProcessor using property references and parent
 				});
 		});
 
-		it('the original object should be returned', function() {
+		it('the original object should be returned', () => {
 			expect(result).toBe(original);
 		});
 
-		it('the price property should now be a string', function() {
+		it('the price property should now be a string', () => {
 			expect(typeof result.price).toEqual('string');
 		});
 
-		it('the price property should be formatted as "(1234-4)"', function() {
+		it('the price property should be formatted as "(1234-4)"', () => {
 			expect(result.price).toEqual('(1234-4)');
 		});
 	});

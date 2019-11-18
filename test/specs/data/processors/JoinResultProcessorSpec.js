@@ -1,14 +1,14 @@
-var JoinResultProcessor = require('./../../../../data/processors/JoinResultProcessor');
+const JoinResultProcessor = require('./../../../../data/processors/JoinResultProcessor');
 
-describe('When using the JoinResultProcessor a source array', function() {
+describe('When using the JoinResultProcessor a source array', () => {
 	'use strict';
 
-	describe('and the source and target properties both exist', function() {
-		var context;
-		var resultPromise;
+	describe('and the source and target properties both exist', () => {
+		let context;
+		let resultPromise;
 
-		beforeEach(function() {
-			var processor = new JoinResultProcessor({ target: 'myTarget', targetProperty: 'letter', source: 'mySource', sourceProperty: 'symbol', alias: 'other' });
+		beforeEach(() => {
+			let processor = new JoinResultProcessor({ target: 'myTarget', targetProperty: 'letter', source: 'mySource', sourceProperty: 'symbol', alias: 'other' });
 
 			resultPromise = processor.process(context = {
 				myTarget: [
@@ -42,12 +42,12 @@ describe('When using the JoinResultProcessor a source array', function() {
 		});
 	});
 
-	describe('and the target property is missing (i.e. does not exist, has an "undefined" value, or has a "null" value)', function() {
-		var context;
-		var resultPromise;
+	describe('and the target property is missing (i.e. does not exist, has an "undefined" value, or has a "null" value)', () => {
+		let context;
+		let resultPromise;
 
-		beforeEach(function() {
-			var processor = new JoinResultProcessor({ target: 'myTarget', targetProperty: 'missing', source: 'mySource', sourceProperty: 'symbol', alias: 'other' });
+		beforeEach(() => {
+			let processor = new JoinResultProcessor({ target: 'myTarget', targetProperty: 'missing', source: 'mySource', sourceProperty: 'symbol', alias: 'other' });
 
 			resultPromise = processor.process(context = {
 				myTarget: [
@@ -81,12 +81,12 @@ describe('When using the JoinResultProcessor a source array', function() {
 		});
 	});
 
-	describe('and the source property does not exist', function() {
-		var context;
-		var resultPromise;
+	describe('and the source property does not exist', () => {
+		let context;
+		let resultPromise;
 
-		beforeEach(function() {
-			var processor = new JoinResultProcessor({ target: 'myTarget', targetProperty: 'letter', source: 'mySource', sourceProperty: 'symbol', alias: 'other' });
+		beforeEach(() => {
+			let processor = new JoinResultProcessor({ target: 'myTarget', targetProperty: 'letter', source: 'mySource', sourceProperty: 'symbol', alias: 'other' });
 
 			resultPromise = processor.process(context = {
 				myTarget: [
@@ -121,15 +121,15 @@ describe('When using the JoinResultProcessor a source array', function() {
 	});
 });
 
-describe('When using the JoinResultProcessor with a source map', function() {
+describe('When using the JoinResultProcessor with a source map', () => {
 	'use strict';
 
-	describe('and the target property exists with a matching source entry', function() {
-		var context;
-		var resultPromise;
+	describe('and the target property exists with a matching source entry', () => {
+		let context;
+		let resultPromise;
 
-		beforeEach(function () {
-			var processor = new JoinResultProcessor({ target: 'myTarget', targetProperty: 'letter', source: 'ascii', sourceProperty: 'symbol', alias: 'code' });
+		beforeEach(() => {
+			let processor = new JoinResultProcessor({ target: 'myTarget', targetProperty: 'letter', source: 'ascii', sourceProperty: 'symbol', alias: 'code' });
 
 			resultPromise = processor.process(context = {
 				myTarget: [
@@ -163,12 +163,12 @@ describe('When using the JoinResultProcessor with a source map', function() {
 		});
 	});
 
-	describe('and the target property is missing (i.e. does not exist, has an "undefined" value, or has a "null" value)', function() {
-		var context;
-		var resultPromise;
+	describe('and the target property is missing (i.e. does not exist, has an "undefined" value, or has a "null" value)', () => {
+		let context;
+		let resultPromise;
 
-		beforeEach(function() {
-			var processor = new JoinResultProcessor({ target: 'myTarget', targetProperty: 'missing', source: 'ascii', sourceProperty: 'symbol', alias: 'code' });
+		beforeEach(() => {
+			let processor = new JoinResultProcessor({ target: 'myTarget', targetProperty: 'missing', source: 'ascii', sourceProperty: 'symbol', alias: 'code' });
 
 			resultPromise = processor.process(context = {
 				myTarget: [
@@ -202,12 +202,12 @@ describe('When using the JoinResultProcessor with a source map', function() {
 		});
 	});
 
-	describe('and the source entry does not exist', function() {
-		var context;
-		var resultPromise;
+	describe('and the source entry does not exist', () => {
+		let context;
+		let resultPromise;
 
-		beforeEach(function() {
-			var processor = new JoinResultProcessor({ target: 'myTarget', targetProperty: 'missing', source: 'ascii', sourceProperty: 'symbol', alias: 'code' });
+		beforeEach(() => {
+			let processor = new JoinResultProcessor({ target: 'myTarget', targetProperty: 'missing', source: 'ascii', sourceProperty: 'symbol', alias: 'code' });
 
 			resultPromise = processor.process(context = {
 				myTarget: [

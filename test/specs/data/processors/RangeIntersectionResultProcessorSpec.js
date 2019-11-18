@@ -1,16 +1,16 @@
-var RangeIntersectionResultProcessor = require('./../../../../data/processors/RangeIntersectionResultProcessor');
+const RangeIntersectionResultProcessor = require('./../../../../data/processors/RangeIntersectionResultProcessor');
 
-describe('When comparing a range to a set of one candidate ranges (using references)', function() {
+describe('When comparing a range to a set of one candidate ranges (using references)', () => {
 	'use strict';
 
-	var processor;
+	let processor;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new RangeIntersectionResultProcessor({ startRef: 'a', endRef: 'b', candidates: [ { startRef: 'c', endRef: 'd' }] });
 	});
 
-	describe('where 0-to-5 is compared to 0-3', function() {
-		var result;
+	describe('where 0-to-5 is compared to 0-3', () => {
+		let result;
 
 		beforeEach(function(done) {
 			processor.process({
@@ -26,13 +26,13 @@ describe('When comparing a range to a set of one candidate ranges (using referen
 		});
 
 
-		it('the range should intersect', function() {
+		it('the range should intersect', () => {
 			expect(result).toEqual(true);
 		});
 	});
 
-	describe('where 0-to-5 is compared to 3-5', function() {
-		var result;
+	describe('where 0-to-5 is compared to 3-5', () => {
+		let result;
 
 		beforeEach(function(done) {
 			processor.process({
@@ -48,13 +48,13 @@ describe('When comparing a range to a set of one candidate ranges (using referen
 		});
 
 
-		it('the range should intersect', function() {
+		it('the range should intersect', () => {
 			expect(result).toEqual(true);
 		});
 	});
 
-	describe('where 0-to-5 is compared to 3-4', function() {
-		var result;
+	describe('where 0-to-5 is compared to 3-4', () => {
+		let result;
 
 		beforeEach(function(done) {
 			processor.process({
@@ -70,13 +70,13 @@ describe('When comparing a range to a set of one candidate ranges (using referen
 		});
 
 
-		it('the range should intersect', function() {
+		it('the range should intersect', () => {
 			expect(result).toEqual(true);
 		});
 	});
 
-	describe('where 0-to-5 is compared to -1-to-0', function() {
-		var result;
+	describe('where 0-to-5 is compared to -1-to-0', () => {
+		let result;
 
 		beforeEach(function(done) {
 			processor.process({
@@ -92,13 +92,13 @@ describe('When comparing a range to a set of one candidate ranges (using referen
 		});
 
 
-		it('the range should intersect', function() {
+		it('the range should intersect', () => {
 			expect(result).toEqual(true);
 		});
 	});
 
-	describe('where 0-to-5 is compared to 5-to-7', function() {
-		var result;
+	describe('where 0-to-5 is compared to 5-to-7', () => {
+		let result;
 
 		beforeEach(function(done) {
 			processor.process({
@@ -114,13 +114,13 @@ describe('When comparing a range to a set of one candidate ranges (using referen
 		});
 
 
-		it('the range should intersect', function() {
+		it('the range should intersect', () => {
 			expect(result).toEqual(true);
 		});
 	});
 
-	describe('where 0-to-5 is compared to -1-to-7', function() {
-		var result;
+	describe('where 0-to-5 is compared to -1-to-7', () => {
+		let result;
 
 		beforeEach(function(done) {
 			processor.process({
@@ -136,13 +136,13 @@ describe('When comparing a range to a set of one candidate ranges (using referen
 		});
 
 
-		it('the range should intersect', function() {
+		it('the range should intersect', () => {
 			expect(result).toEqual(true);
 		});
 	});
 
-	describe('where 0-to-5 is compared to -5-to--3', function() {
-		var result;
+	describe('where 0-to-5 is compared to -5-to--3', () => {
+		let result;
 
 		beforeEach(function(done) {
 			processor.process({
@@ -158,13 +158,13 @@ describe('When comparing a range to a set of one candidate ranges (using referen
 		});
 
 
-		it('the range should intersect', function() {
+		it('the range should intersect', () => {
 			expect(result).toEqual(false);
 		});
 	});
 
-	describe('where 0-to-5 is compared to 9-to-11', function() {
-		var result;
+	describe('where 0-to-5 is compared to 9-to-11', () => {
+		let result;
 
 		beforeEach(function(done) {
 			processor.process({
@@ -180,18 +180,18 @@ describe('When comparing a range to a set of one candidate ranges (using referen
 		});
 
 
-		it('the range should intersect', function() {
+		it('the range should intersect', () => {
 			expect(result).toEqual(false);
 		});
 	});
 });
 
-describe('When comparing a range to a set of two candidate ranges (using references)', function() {
+describe('When comparing a range to a set of two candidate ranges (using references)', () => {
 	'use strict';
 
-	var processor;
+	let processor;
 
-	beforeEach(function () {
+	beforeEach(() => {
 		processor = new RangeIntersectionResultProcessor({
 			startRef: 'a',
 			endRef: 'b',
@@ -199,8 +199,8 @@ describe('When comparing a range to a set of two candidate ranges (using referen
 		});
 	});
 
-	describe('where only one candidate range intersects', function () {
-		var result;
+	describe('where only one candidate range intersects', () => {
+		let result;
 
 		beforeEach(function (done) {
 			processor.process({
@@ -218,13 +218,13 @@ describe('When comparing a range to a set of two candidate ranges (using referen
 		});
 
 
-		it('the range should intersect', function () {
+		it('the range should intersect', () => {
 			expect(result).toEqual(true);
 		});
 	});
 
-	describe('where only both candidate ranges intersects', function () {
-		var result;
+	describe('where only both candidate ranges intersects', () => {
+		let result;
 
 		beforeEach(function (done) {
 			processor.process({
@@ -242,13 +242,13 @@ describe('When comparing a range to a set of two candidate ranges (using referen
 		});
 
 
-		it('the range should intersect', function () {
+		it('the range should intersect', () => {
 			expect(result).toEqual(true);
 		});
 	});
 
-	describe('where neither candidate ranges intersect', function () {
-		var result;
+	describe('where neither candidate ranges intersect', () => {
+		let result;
 
 		beforeEach(function (done) {
 			processor.process({
@@ -266,7 +266,7 @@ describe('When comparing a range to a set of two candidate ranges (using referen
 		});
 
 
-		it('the range should intersect', function () {
+		it('the range should intersect', () => {
 			expect(result).toEqual(false);
 		});
 	});

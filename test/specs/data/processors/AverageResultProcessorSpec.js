@@ -1,17 +1,17 @@
-var AverageResultProcessor = require('./../../../../data/processors/AverageResultProcessor');
+const AverageResultProcessor = require('./../../../../data/processors/AverageResultProcessor');
 
-describe('When a AverageResultProcessor is used to process an array of objects', function() {
+describe('When a AverageResultProcessor is used to process an array of objects', () => {
 	'use strict';
 
-	var processor;
+	let processor;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new AverageResultProcessor({ propertyName: 'a' });
 	});
 
-	describe('where each item has a numeric property', function() {
-		var items;
-		var result;
+	describe('where each item has a numeric property', () => {
+		let items;
+		let result;
 
 		beforeEach(function(done) {
 			processor.process(items = [ { a: 5 }, { a: 15 }, { a: 40 } ])
@@ -22,18 +22,18 @@ describe('When a AverageResultProcessor is used to process an array of objects',
 				});
 		});
 
-		it('the result should be a number', function() {
+		it('the result should be a number', () => {
 			expect(typeof result).toEqual('number');
 		});
 
-		it('the result should be the correct average', function() {
+		it('the result should be the correct average', () => {
 			expect(result).toEqual(20);
 		});
 	});
 
-	describe('where an item is missing the numeric property', function() {
-		var items;
-		var result;
+	describe('where an item is missing the numeric property', () => {
+		let items;
+		let result;
 
 		beforeEach(function(done) {
 			processor.process(items = [ { a: 5 }, { a: 15 }, { b: 40 } ])
@@ -44,24 +44,24 @@ describe('When a AverageResultProcessor is used to process an array of objects',
 				});
 		});
 
-		it('the result should be null', function() {
+		it('the result should be null', () => {
 			expect(result).toEqual(null);
 		});
 	});
 });
 
-describe('When a AverageResultProcessor is used to process an array of numbers', function() {
+describe('When a AverageResultProcessor is used to process an array of numbers', () => {
 	'use strict';
 
-	var processor;
+	let processor;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new AverageResultProcessor({ });
 	});
 
-	describe('where each item is numeric', function() {
-		var items;
-		var result;
+	describe('where each item is numeric', () => {
+		let items;
+		let result;
 
 		beforeEach(function(done) {
 			processor.process(items = [ 5, 15, 40 ])
@@ -72,18 +72,18 @@ describe('When a AverageResultProcessor is used to process an array of numbers',
 				});
 		});
 
-		it('the result should be a number', function() {
+		it('the result should be a number', () => {
 			expect(typeof result).toEqual('number');
 		});
 
-		it('the result should be the correct sum', function() {
+		it('the result should be the correct sum', () => {
 			expect(result).toEqual(20);
 		});
 	});
 
-	describe('where an item is not numeric property', function() {
-		var items;
-		var result;
+	describe('where an item is not numeric property', () => {
+		let items;
+		let result;
 
 		beforeEach(function(done) {
 			processor.process(items = [ 5, 15, null ])
@@ -94,24 +94,24 @@ describe('When a AverageResultProcessor is used to process an array of numbers',
 				});
 		});
 
-		it('the result should be null', function() {
+		it('the result should be null', () => {
 			expect(result).toEqual(null);
 		});
 	});
 });
 
-describe('When a AverageResultProcessor is used to process an array of strings', function() {
+describe('When a AverageResultProcessor is used to process an array of strings', () => {
 	'use strict';
 
-	var processor;
+	let processor;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new AverageResultProcessor({ });
 	});
 
-	describe('where each item is can be converted to a number', function() {
-		var items;
-		var result;
+	describe('where each item is can be converted to a number', () => {
+		let items;
+		let result;
 
 		beforeEach(function(done) {
 			processor.process(items = [ "5", "15", "40" ])
@@ -122,18 +122,18 @@ describe('When a AverageResultProcessor is used to process an array of strings',
 				});
 		});
 
-		it('the result should be a number', function() {
+		it('the result should be a number', () => {
 			expect(typeof result).toEqual('number');
 		});
 
-		it('the result should be the correct sum', function() {
+		it('the result should be the correct sum', () => {
 			expect(result).toEqual(20);
 		});
 	});
 
-	describe('where an item cannot be converted to a number', function() {
-		var items;
-		var result;
+	describe('where an item cannot be converted to a number', () => {
+		let items;
+		let result;
 
 		beforeEach(function(done) {
 			processor.process(items = [ 5, 'fifteen', 40 ])
@@ -144,7 +144,7 @@ describe('When a AverageResultProcessor is used to process an array of strings',
 				});
 		});
 
-		it('the result should be null', function() {
+		it('the result should be null', () => {
 			expect(result).toEqual(null);
 		});
 	});

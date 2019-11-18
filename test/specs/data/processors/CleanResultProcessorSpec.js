@@ -1,15 +1,15 @@
-var CleanResultProcessor = require('./../../../../data/processors/CleanResultProcessor');
+const CleanResultProcessor = require('./../../../../data/processors/CleanResultProcessor');
 
-describe('When a CleanResultProcessor is used on an object', function() {
+describe('When a CleanResultProcessor is used on an object', () => {
 	'use strict';
 
-	var processor;
-	var original;
+	let processor;
+	let original;
 
-	var e;
-	var f;
+	let e;
+	let f;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new CleanResultProcessor({ });
 
 		original = {
@@ -22,8 +22,8 @@ describe('When a CleanResultProcessor is used on an object', function() {
 		};
 	});
 
-	describe('properties that are null should be deleted', function() {
-		var result;
+	describe('properties that are null should be deleted', () => {
+		let result;
 
 		beforeEach(function(done) {
 			processor.process(original)
@@ -34,17 +34,17 @@ describe('When a CleanResultProcessor is used on an object', function() {
 				});
 		});
 
-		it('the original object should be returned', function() {
+		it('the original object should be returned', () => {
 			expect(result).toBe(original);
 		});
 
-		it('the original object should not have an "a" property', function() {
+		it('the original object should not have an "a" property', () => {
 			expect(result.hasOwnProperty('a')).toEqual(false);
 		});
 	});
 
-	describe('properties that are undefined should be deleted', function() {
-		var result;
+	describe('properties that are undefined should be deleted', () => {
+		let result;
 
 		beforeEach(function(done) {
 			processor.process(original)
@@ -55,13 +55,13 @@ describe('When a CleanResultProcessor is used on an object', function() {
 				});
 		});
 
-		it('the original object should not have an "b" property', function() {
+		it('the original object should not have an "b" property', () => {
 			expect(result.hasOwnProperty('b')).toEqual(false);
 		});
 	});
 
-	describe('properties that are numbers should not be affected', function() {
-		var result;
+	describe('properties that are numbers should not be affected', () => {
+		let result;
 
 		beforeEach(function(done) {
 			processor.process(original)
@@ -72,13 +72,13 @@ describe('When a CleanResultProcessor is used on an object', function() {
 				});
 		});
 
-		it('the original object should have an "c" property', function() {
+		it('the original object should have an "c" property', () => {
 			expect(result.c).toEqual(3);
 		});
 	});
 
-	describe('properties that are numbers should not be affected', function() {
-		var result;
+	describe('properties that are numbers should not be affected', () => {
+		let result;
 
 		beforeEach(function(done) {
 			processor.process(original)
@@ -89,13 +89,13 @@ describe('When a CleanResultProcessor is used on an object', function() {
 				});
 		});
 
-		it('the original object should have an "d" property', function() {
+		it('the original object should have an "d" property', () => {
 			expect(result.d).toEqual('four');
 		});
 	});
 
-	describe('properties that are objects should not be affected', function() {
-		var result;
+	describe('properties that are objects should not be affected', () => {
+		let result;
 
 		beforeEach(function(done) {
 			processor.process(original)
@@ -106,13 +106,13 @@ describe('When a CleanResultProcessor is used on an object', function() {
 				});
 		});
 
-		it('the original object should have an "e" property', function() {
+		it('the original object should have an "e" property', () => {
 			expect(result.e).toBe(e);
 		});
 	});
 
-	describe('properties that are arrays should not be affected', function() {
-		var result;
+	describe('properties that are arrays should not be affected', () => {
+		let result;
 
 		beforeEach(function(done) {
 			processor.process(original)
@@ -123,23 +123,23 @@ describe('When a CleanResultProcessor is used on an object', function() {
 				});
 		});
 
-		it('the original object should have an "f" property', function() {
+		it('the original object should have an "f" property', () => {
 			expect(result.f).toBe(f);
 		});
 	});
 });
 
-describe('When a CleanResultProcessor is used on a single property (that is an object)', function() {
+describe('When a CleanResultProcessor is used on a single property (that is an object)', () => {
 	'use strict';
 
-	var processor;
-	var original;
+	let processor;
+	let original;
 
-	var xyz;
-	var e;
-	var f;
+	let xyz;
+	let e;
+	let f;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new CleanResultProcessor({ propertyName: 'xyz' });
 
 		original = {
@@ -154,8 +154,8 @@ describe('When a CleanResultProcessor is used on a single property (that is an o
 		};
 	});
 
-	describe('the wrapper property should be unaffected', function() {
-		var result;
+	describe('the wrapper property should be unaffected', () => {
+		let result;
 
 		beforeEach(function(done) {
 			processor.process(original)
@@ -166,17 +166,17 @@ describe('When a CleanResultProcessor is used on a single property (that is an o
 				});
 		});
 
-		it('the original object should be returned', function() {
+		it('the original object should be returned', () => {
 			expect(result).toBe(original);
 		});
 
-		it('the original object should not have an "xyz" property', function() {
+		it('the original object should not have an "xyz" property', () => {
 			expect(result.xyz).toBe(xyz);
 		});
 	});
 
-	describe('properties that are null should be deleted', function() {
-		var result;
+	describe('properties that are null should be deleted', () => {
+		let result;
 
 		beforeEach(function(done) {
 			processor.process(original)
@@ -187,13 +187,13 @@ describe('When a CleanResultProcessor is used on a single property (that is an o
 				});
 		});
 
-		it('the original object should not have an "xyz.a" property', function() {
+		it('the original object should not have an "xyz.a" property', () => {
 			expect(result.xyz.hasOwnProperty('a')).toEqual(false);
 		});
 	});
 
-	describe('properties that are undefined should be deleted', function() {
-		var result;
+	describe('properties that are undefined should be deleted', () => {
+		let result;
 
 		beforeEach(function(done) {
 			processor.process(original)
@@ -204,13 +204,13 @@ describe('When a CleanResultProcessor is used on a single property (that is an o
 				});
 		});
 
-		it('the original object should not have an "xyz.b" property', function() {
+		it('the original object should not have an "xyz.b" property', () => {
 			expect(result.hasOwnProperty('xyz.b')).toEqual(false);
 		});
 	});
 
-	describe('properties that are numbers should not be affected', function() {
-		var result;
+	describe('properties that are numbers should not be affected', () => {
+		let result;
 
 		beforeEach(function(done) {
 			processor.process(original)
@@ -221,13 +221,13 @@ describe('When a CleanResultProcessor is used on a single property (that is an o
 				});
 		});
 
-		it('the original object should have an "xyz.c" property', function() {
+		it('the original object should have an "xyz.c" property', () => {
 			expect(result.xyz.c).toEqual(3);
 		});
 	});
 
-	describe('properties that are numbers should not be affected', function() {
-		var result;
+	describe('properties that are numbers should not be affected', () => {
+		let result;
 
 		beforeEach(function(done) {
 			processor.process(original)
@@ -238,13 +238,13 @@ describe('When a CleanResultProcessor is used on a single property (that is an o
 				});
 		});
 
-		it('the original object should have an "d" property', function() {
+		it('the original object should have an "d" property', () => {
 			expect(result.xyz.d).toEqual('four');
 		});
 	});
 
-	describe('properties that are objects should not be affected', function() {
-		var result;
+	describe('properties that are objects should not be affected', () => {
+		let result;
 
 		beforeEach(function(done) {
 			processor.process(original)
@@ -255,13 +255,13 @@ describe('When a CleanResultProcessor is used on a single property (that is an o
 				});
 		});
 
-		it('the original object should have an "xyz.e" property', function() {
+		it('the original object should have an "xyz.e" property', () => {
 			expect(result.xyz.e).toBe(e);
 		});
 	});
 
-	describe('properties that are arrays should not be affected', function() {
-		var result;
+	describe('properties that are arrays should not be affected', () => {
+		let result;
 
 		beforeEach(function(done) {
 			processor.process(original)
@@ -272,23 +272,23 @@ describe('When a CleanResultProcessor is used on a single property (that is an o
 				});
 		});
 
-		it('the original object should have an "xyz.f" property', function() {
+		it('the original object should have an "xyz.f" property', () => {
 			expect(result.xyz.f).toBe(f);
 		});
 	});
 });
 
-describe('When a CleanResultProcessor is used on a single property (that is null)', function() {
+describe('When a CleanResultProcessor is used on a single property (that is null)', () => {
 	'use strict';
 
-	var processor;
-	var original;
+	let processor;
+	let original;
 
-	var xyz;
-	var e;
-	var f;
+	let xyz;
+	let e;
+	let f;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new CleanResultProcessor({ propertyName: 'abc' });
 
 		original = {
@@ -304,8 +304,8 @@ describe('When a CleanResultProcessor is used on a single property (that is null
 		};
 	});
 
-	describe('the wrapper property should be unaffected', function() {
-		var result;
+	describe('the wrapper property should be unaffected', () => {
+		let result;
 
 		beforeEach(function(done) {
 			processor.process(original)
@@ -316,15 +316,15 @@ describe('When a CleanResultProcessor is used on a single property (that is null
 				});
 		});
 
-		it('the original object should be returned', function() {
+		it('the original object should be returned', () => {
 			expect(result).toBe(original);
 		});
 
-		it('the original object should not have an "abc" property', function() {
+		it('the original object should not have an "abc" property', () => {
 			expect(result.hasOwnProperty('abc')).toEqual(false);
 		});
 
-		it('the original object should have an "xyz" property', function() {
+		it('the original object should have an "xyz" property', () => {
 			expect(result.xyz).toBe(xyz);
 		});
 	});

@@ -1,17 +1,17 @@
-var AddResultProcessor = require('./../../../../data/processors/AddResultProcessor');
+const AddResultProcessor = require('./../../../../data/processors/AddResultProcessor');
 
-describe('When a AddResultProcessor is created, using a right reference', function() {
+describe('When a AddResultProcessor is created, using a right reference', () => {
 	'use strict';
 
-	var processor;
+	let processor;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new AddResultProcessor({ propertyName: 'sum', left: 1, rightRef: 'right' });
 	});
 
-	describe('and an object with a non-zero right property is passed', function() {
-		var result;
-		var original;
+	describe('and an object with a non-zero right property is passed', () => {
+		let result;
+		let original;
 
 		beforeEach(function(done) {
 			processor.process(original = { right: 2 })
@@ -22,22 +22,22 @@ describe('When a AddResultProcessor is created, using a right reference', functi
 				});
 		});
 
-		it('the original object should be returned', function() {
+		it('the original object should be returned', () => {
 			expect(result).toBe(original);
 		});
 
-		it('the original object should now have a "sum" property', function() {
+		it('the original object should now have a "sum" property', () => {
 			expect(result.hasOwnProperty('sum')).toEqual(true);
 		});
 
-		it('the "sum" property should be 3', function() {
+		it('the "sum" property should be 3', () => {
 			expect(result.sum).toEqual(3);
 		});
 	});
 
-	describe('and an object without the right property is passed', function() {
-		var result;
-		var original;
+	describe('and an object without the right property is passed', () => {
+		let result;
+		let original;
 
 		beforeEach(function(done) {
 			processor.process(original = { })
@@ -48,28 +48,28 @@ describe('When a AddResultProcessor is created, using a right reference', functi
 				});
 		});
 
-		it('the original object should be returned', function() {
+		it('the original object should be returned', () => {
 			expect(result).toBe(original);
 		});
 
-		it('the original object should not have a "sum" property', function() {
+		it('the original object should not have a "sum" property', () => {
 			expect(result.hasOwnProperty('sum')).toEqual(false);
 		});
 	});
 });
 
-describe('When a AddResultProcessor is created, using a left reference', function() {
+describe('When a AddResultProcessor is created, using a left reference', () => {
 	'use strict';
 
-	var processor;
+	let processor;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new AddResultProcessor({ propertyName: 'sum', leftRef: 'left', right: 2 });
 	});
 
-	describe('and an object with a non-zero left property is passed', function() {
-		var result;
-		var original;
+	describe('and an object with a non-zero left property is passed', () => {
+		let result;
+		let original;
 
 		beforeEach(function(done) {
 			processor.process(original = { left: 1 })
@@ -80,22 +80,22 @@ describe('When a AddResultProcessor is created, using a left reference', functio
 				});
 		});
 
-		it('the original object should be returned', function() {
+		it('the original object should be returned', () => {
 			expect(result).toBe(original);
 		});
 
-		it('the original object should now have a "sum" property', function() {
+		it('the original object should now have a "sum" property', () => {
 			expect(result.hasOwnProperty('sum')).toEqual(true);
 		});
 
-		it('the "sum" property should be 3', function() {
+		it('the "sum" property should be 3', () => {
 			expect(result.sum).toEqual(3);
 		});
 	});
 
-	describe('and an object without the left property is passed', function() {
-		var result;
-		var original;
+	describe('and an object without the left property is passed', () => {
+		let result;
+		let original;
 
 		beforeEach(function(done) {
 			processor.process(original = { })
@@ -106,11 +106,11 @@ describe('When a AddResultProcessor is created, using a left reference', functio
 				});
 		});
 
-		it('the original object should be returned', function() {
+		it('the original object should be returned', () => {
 			expect(result).toBe(original);
 		});
 
-		it('the original object should not have a "sum" property', function() {
+		it('the original object should not have a "sum" property', () => {
 			expect(result.hasOwnProperty('sum')).toEqual(false);
 		});
 	});

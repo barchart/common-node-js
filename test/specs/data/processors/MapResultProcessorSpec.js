@@ -1,21 +1,21 @@
-var MapResultProcessor = require('./../../../../data/processors/MapResultProcessor');
+const MapResultProcessor = require('./../../../../data/processors/MapResultProcessor');
 
-describe('When a MapResultProcessor is created', function () {
+describe('When a MapResultProcessor is created', () => {
 	'use strict';
 
-	var processor;
+	let processor;
 
-	beforeEach(function () {
+	beforeEach(() => {
 		processor = new MapResultProcessor({targetPropertyName: 'letters', mapPropertyName: 'alphabet'});
 	});
 
-	describe('and an array of letters is passed', function () {
-		var result;
+	describe('and an array of letters is passed', () => {
+		let result;
 
-		var original;
+		let original;
 
-		var map;
-		var letters;
+		let map;
+		let letters;
 
 		beforeEach(function (done) {
 			processor.process(original = {
@@ -28,27 +28,27 @@ describe('When a MapResultProcessor is created', function () {
 			});
 		});
 
-		it('the original object should be returned', function () {
+		it('the original object should be returned', () => {
 			expect(result).toBe(original);
 		});
 
-		it('the letters array should be a new array', function () {
+		it('the letters array should be a new array', () => {
 			expect(result.letters).not.toBe(letters);
 		});
 
-		it('letters array should be the same size', function () {
+		it('letters array should be the same size', () => {
 			expect(result.letters.size).toEqual(letters.size);
 		});
 
-		it('the first letter should be mapped', function () {
+		it('the first letter should be mapped', () => {
 			expect(result.letters[0]).toEqual('alpha');
 		});
 
-		it('the second letter should be mapped', function () {
+		it('the second letter should be mapped', () => {
 			expect(result.letters[1]).toEqual('charlie');
 		});
 
-		it('the third letter should not be mapped', function () {
+		it('the third letter should not be mapped', () => {
 			expect(result.letters[2]).toEqual('e');
 		});
 	});

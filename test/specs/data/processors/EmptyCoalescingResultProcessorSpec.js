@@ -1,17 +1,17 @@
-var EmptyCoalescingResultProcessor = require('./../../../../data/processors/EmptyCoalescingResultProcessor');
+const EmptyCoalescingResultProcessor = require('./../../../../data/processors/EmptyCoalescingResultProcessor');
 
-describe('When a EmptyCoalescingResultProcessor is created, specifying a replacement value', function() {
+describe('When a EmptyCoalescingResultProcessor is created, specifying a replacement value', () => {
 	'use strict';
 
-	var processor;
-	var configuration;
+	let processor;
+	let configuration;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new EmptyCoalescingResultProcessor(configuration = { propertyName: 'testProperty', replaceValue: 'testValue' });
 	});
 
-	describe('and a target object with a null property is processed', function() {
-		var target;
+	describe('and a target object with a null property is processed', () => {
+		let target;
 
 		beforeEach(function(done) {
 			processor.process(target = { testProperty: null })
@@ -20,13 +20,13 @@ describe('When a EmptyCoalescingResultProcessor is created, specifying a replace
 				});
 		});
 
-		it('should assign the coalesced value to the target property', function() {
+		it('should assign the coalesced value to the target property', () => {
 			expect(target.testProperty).toEqual('testValue');
 		});
 	});
 
-	describe('and a target object with an undefined property is processed', function() {
-		var target;
+	describe('and a target object with an undefined property is processed', () => {
+		let target;
 
 		beforeEach(function(done) {
 			processor.process(target = { testProperty: undefined })
@@ -35,13 +35,13 @@ describe('When a EmptyCoalescingResultProcessor is created, specifying a replace
 				});
 		});
 
-		it('should assign the coalesced value to the target property', function() {
+		it('should assign the coalesced value to the target property', () => {
 			expect(target.testProperty).toEqual('testValue');
 		});
 	});
 
-	describe('and a target object with an zero-length string property is processed', function() {
-		var target;
+	describe('and a target object with an zero-length string property is processed', () => {
+		let target;
 
 		beforeEach(function(done) {
 			processor.process(target = { testProperty: '' })
@@ -50,13 +50,13 @@ describe('When a EmptyCoalescingResultProcessor is created, specifying a replace
 				});
 		});
 
-		it('should assign the coalesced value to the target property', function() {
+		it('should assign the coalesced value to the target property', () => {
 			expect(target.testProperty).toEqual('testValue');
 		});
 	});
 
-	describe('and a target object with a non-null property is processed', function() {
-		var target;
+	describe('and a target object with a non-null property is processed', () => {
+		let target;
 
 		beforeEach(function(done) {
 			processor.process(target = { testProperty: 'bob' })
@@ -65,13 +65,13 @@ describe('When a EmptyCoalescingResultProcessor is created, specifying a replace
 				});
 		});
 
-		it('should assign the coalesced value to the target property', function() {
+		it('should assign the coalesced value to the target property', () => {
 			expect(target.testProperty).toEqual('bob');
 		});
 	});
 
-	describe('and a target object without the property is processed', function() {
-		var target;
+	describe('and a target object without the property is processed', () => {
+		let target;
 
 		beforeEach(function(done) {
 			processor.process(target = { })
@@ -80,24 +80,24 @@ describe('When a EmptyCoalescingResultProcessor is created, specifying a replace
 				});
 		});
 
-		it('should assign the coalesced value to the target property', function() {
+		it('should assign the coalesced value to the target property', () => {
 			expect(target.testProperty).toEqual('testValue');
 		});
 	});
 });
 
-describe('When a EmptyCoalescingResultProcessor is created, specifying a replacement reference', function() {
+describe('When a EmptyCoalescingResultProcessor is created, specifying a replacement reference', () => {
 	'use strict';
 
-	var processor;
-	var configuration;
+	let processor;
+	let configuration;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new EmptyCoalescingResultProcessor(configuration = { propertyName: 'testProperty', replaceValueRef: 'otherProperty' });
 	});
 
-	describe('and a target object with a null property is processed', function() {
-		var target;
+	describe('and a target object with a null property is processed', () => {
+		let target;
 
 		beforeEach(function(done) {
 			processor.process(target = { testProperty: null, otherProperty: 'otherValue' })
@@ -106,13 +106,13 @@ describe('When a EmptyCoalescingResultProcessor is created, specifying a replace
 				});
 		});
 
-		it('should assign the coalesced value to the target property', function() {
+		it('should assign the coalesced value to the target property', () => {
 			expect(target.testProperty).toEqual('otherValue');
 		});
 	});
 
-	describe('and a target object with an undefined property is processed', function() {
-		var target;
+	describe('and a target object with an undefined property is processed', () => {
+		let target;
 
 		beforeEach(function(done) {
 			processor.process(target = { testProperty: undefined, otherProperty: 'otherValue' })
@@ -121,13 +121,13 @@ describe('When a EmptyCoalescingResultProcessor is created, specifying a replace
 				});
 		});
 
-		it('should assign the coalesced value to the target property', function() {
+		it('should assign the coalesced value to the target property', () => {
 			expect(target.testProperty).toEqual('otherValue');
 		});
 	});
 
-	describe('and a target object with an zero-length string property is processed', function() {
-		var target;
+	describe('and a target object with an zero-length string property is processed', () => {
+		let target;
 
 		beforeEach(function(done) {
 			processor.process(target = { testProperty: '', otherProperty: 'otherValue' })
@@ -136,13 +136,13 @@ describe('When a EmptyCoalescingResultProcessor is created, specifying a replace
 				});
 		});
 
-		it('should assign the coalesced value to the target property', function() {
+		it('should assign the coalesced value to the target property', () => {
 			expect(target.testProperty).toEqual('otherValue');
 		});
 	});
 
-	describe('and a target object with a non-null property is processed', function() {
-		var target;
+	describe('and a target object with a non-null property is processed', () => {
+		let target;
 
 		beforeEach(function(done) {
 			processor.process(target = { testProperty: 'bob', otherProperty: 'otherValue' })
@@ -151,13 +151,13 @@ describe('When a EmptyCoalescingResultProcessor is created, specifying a replace
 				});
 		});
 
-		it('should assign the coalesced value to the target property', function() {
+		it('should assign the coalesced value to the target property', () => {
 			expect(target.testProperty).toEqual('bob');
 		});
 	});
 
-	describe('and a target object without the property is processed', function() {
-		var target;
+	describe('and a target object without the property is processed', () => {
+		let target;
 
 		beforeEach(function(done) {
 			processor.process(target = { otherProperty: 'otherValue' })
@@ -166,7 +166,7 @@ describe('When a EmptyCoalescingResultProcessor is created, specifying a replace
 				});
 		});
 
-		it('should assign the coalesced value to the target property', function() {
+		it('should assign the coalesced value to the target property', () => {
 			expect(target.testProperty).toEqual('otherValue');
 		});
 	});

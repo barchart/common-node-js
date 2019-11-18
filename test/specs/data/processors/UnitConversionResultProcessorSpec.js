@@ -1,11 +1,11 @@
-var UnitConversionResultProcessor = require('./../../../../data/processors/UnitConversionResultProcessor');
+const UnitConversionResultProcessor = require('./../../../../data/processors/UnitConversionResultProcessor');
 
-describe('When a UnitConversionResultProcessor is created, using references', function() {
+describe('When a UnitConversionResultProcessor is created, using references', () => {
 	'use strict';
 
-	var processor;
+	let processor;
 
-	beforeEach(function () {
+	beforeEach(() => {
 		processor = new UnitConversionResultProcessor({
 			propertyName: 'converted',
 			valueRef: 'distance',
@@ -16,11 +16,11 @@ describe('When a UnitConversionResultProcessor is created, using references', fu
 		});
 	});
 
-	describe('and the factor does not require conversion', function () {
-		var ratio;
+	describe('and the factor does not require conversion', () => {
+		let ratio;
 
-		var original;
-		var result;
+		let original;
+		let result;
 
 		beforeEach(function(done) {
 			ratio = {
@@ -37,24 +37,24 @@ describe('When a UnitConversionResultProcessor is created, using references', fu
 				});
 		});
 
-		it('the original object should be returned', function () {
+		it('the original object should be returned', () => {
 			expect(result).toBe(original);
 		});
 
-		it('the original object should now have a "converted" property', function () {
+		it('the original object should now have a "converted" property', () => {
 			expect(result.hasOwnProperty('converted')).toEqual(true);
 		});
 
-		it('the "converted" value should be', function () {
+		it('the "converted" value should be', () => {
 			expect(result.converted).toBeCloseTo(42.182, 3);
 		});
 	});
 
-	describe('and the factor does require conversion', function () {
-		var ratio;
+	describe('and the factor does require conversion', () => {
+		let ratio;
 
-		var original;
-		var result;
+		let original;
+		let result;
 
 		beforeEach(function(done) {
 			ratio = {
@@ -71,15 +71,15 @@ describe('When a UnitConversionResultProcessor is created, using references', fu
 				});
 		});
 
-		it('the original object should be returned', function () {
+		it('the original object should be returned', () => {
 			expect(result).toBe(original);
 		});
 
-		it('the original object should now have a "converted" property', function () {
+		it('the original object should now have a "converted" property', () => {
 			expect(result.hasOwnProperty('converted')).toEqual(true);
 		});
 
-		it('the "converted" value should be', function () {
+		it('the "converted" value should be', () => {
 			expect(result.converted).toBeCloseTo(42.258, 3);
 		});
 	});

@@ -1,16 +1,16 @@
-var FilterEqualsResultProcessor = require('./../../../../data/processors/FilterEqualsResultProcessor');
+const FilterEqualsResultProcessor = require('./../../../../data/processors/FilterEqualsResultProcessor');
 
-describe('When a FilterEqualsResultProcessor is created', function () {
+describe('When a FilterEqualsResultProcessor is created', () => {
 	'use strict';
 
-	var tools;
+	let tools;
 
-	var webstorm;
-	var intellij;
-	var eclipse;
-	var vs;
+	let webstorm;
+	let intellij;
+	let eclipse;
+	let vs;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		tools = [
 			webstorm = { product: 'WebStorm', vendor: 'JetBrains', language: 'JavaScript' },
 			intellij = { product: 'IntelliJ', vendor: 'JetBrains', language: 'Java' },
@@ -19,10 +19,10 @@ describe('When a FilterEqualsResultProcessor is created', function () {
 		];
 	});
 
-	describe('and filtering based on hardcoded value(s)', function() {
-		describe('for items that are provided by JetBrains', function () {
-			var processor;
-			var result;
+	describe('and filtering based on hardcoded value(s)', () => {
+		describe('for items that are provided by JetBrains', () => {
+			let processor;
+			let result;
 
 			beforeEach(function(done) {
 				processor = new FilterEqualsResultProcessor({ conditions: [ { propertyName: 'vendor', value: 'JetBrains' } ] });
@@ -34,26 +34,26 @@ describe('When a FilterEqualsResultProcessor is created', function () {
 				});
 			});
 
-			it('a new array should be returned', function() {
+			it('a new array should be returned', () => {
 				expect(result).not.toBe(tools);
 			});
 
-			it('the new array should have two items', function() {
+			it('the new array should have two items', () => {
 				expect(result.length).toEqual(2);
 			});
 
-			it('the first item should be WebStorm', function() {
+			it('the first item should be WebStorm', () => {
 				expect(result[0]).toBe(webstorm);
 			});
 
-			it('the second item should be IntelliJ', function() {
+			it('the second item should be IntelliJ', () => {
 				expect(result[1]).toBe(intellij);
 			});
 		});
 
-		describe('for items that are not provided by JetBrains', function () {
-			var processor;
-			var result;
+		describe('for items that are not provided by JetBrains', () => {
+			let processor;
+			let result;
 
 			beforeEach(function(done) {
 				processor = new FilterEqualsResultProcessor({ conditions: [ { propertyName: 'vendor', value: 'JetBrains', inverse: true } ] });
@@ -65,26 +65,26 @@ describe('When a FilterEqualsResultProcessor is created', function () {
 				});
 			});
 
-			it('a new array should be returned', function() {
+			it('a new array should be returned', () => {
 				expect(result).not.toBe(tools);
 			});
 
-			it('the new array should have two items', function() {
+			it('the new array should have two items', () => {
 				expect(result.length).toEqual(2);
 			});
 
-			it('the first item should be Eclipse', function() {
+			it('the first item should be Eclipse', () => {
 				expect(result[0]).toBe(eclipse);
 			});
 
-			it('the second item should be Visual Studio', function() {
+			it('the second item should be Visual Studio', () => {
 				expect(result[1]).toBe(vs);
 			});
 		});
 
-		describe('for items that are provided by JetBrains and support JavaScript', function () {
-			var processor;
-			var result;
+		describe('for items that are provided by JetBrains and support JavaScript', () => {
+			let processor;
+			let result;
 
 			beforeEach(function (done) {
 				processor = new FilterEqualsResultProcessor({ conditions:  [ { propertyName: 'vendor', value: 'JetBrains' }, { propertyName: 'language', value: 'JavaScript' } ] });
@@ -96,22 +96,22 @@ describe('When a FilterEqualsResultProcessor is created', function () {
 				});
 			});
 
-			it('a new array should be returned', function () {
+			it('a new array should be returned', () => {
 				expect(result).not.toBe(tools);
 			});
 
-			it('the new array should have one item', function() {
+			it('the new array should have one item', () => {
 				expect(result.length).toEqual(1);
 			});
 
-			it('the first item should be WebStorm', function() {
+			it('the first item should be WebStorm', () => {
 				expect(result[0]).toBe(webstorm);
 			});
 		});
 
-		describe('for items that are neither JetBrains products or support Java', function () {
-			var processor;
-			var result;
+		describe('for items that are neither JetBrains products or support Java', () => {
+			let processor;
+			let result;
 
 			beforeEach(function (done) {
 				processor = new FilterEqualsResultProcessor({ conditions: [ { propertyName: 'vendor', value: 'JetBrains', inverse: true }, { propertyName: 'language', value: 'Java', inverse: true } ] });
@@ -123,24 +123,24 @@ describe('When a FilterEqualsResultProcessor is created', function () {
 				});
 			});
 
-			it('a new array should be returned', function () {
+			it('a new array should be returned', () => {
 				expect(result).not.toBe(tools);
 			});
 
-			it('the new array should have one item', function() {
+			it('the new array should have one item', () => {
 				expect(result.length).toEqual(1);
 			});
 
-			it('the first item should be Visual Studio', function() {
+			it('the first item should be Visual Studio', () => {
 				expect(result[0]).toBe(vs);
 			});
 		});
 	});
 
-	describe('and filtering based on hardcoded value(s)', function() {
-		describe('for items that are provided by a dynamic reference', function () {
-			var processor;
-			var result;
+	describe('and filtering based on hardcoded value(s)', () => {
+		describe('for items that are provided by a dynamic reference', () => {
+			let processor;
+			let result;
 
 			beforeEach(function(done) {
 				processor = new FilterEqualsResultProcessor({ sourceRef: 'ide', conditions: [ { propertyName: 'vendor', valueRef: 'query' } ] });
@@ -152,19 +152,19 @@ describe('When a FilterEqualsResultProcessor is created', function () {
 				});
 			});
 
-			it('a new array should be returned', function() {
+			it('a new array should be returned', () => {
 				expect(result).not.toBe(tools);
 			});
 
-			it('the new array should have two items', function() {
+			it('the new array should have two items', () => {
 				expect(result.length).toEqual(2);
 			});
 
-			it('the first item should be WebStorm', function() {
+			it('the first item should be WebStorm', () => {
 				expect(result[0]).toBe(webstorm);
 			});
 
-			it('the second item should be IntelliJ', function() {
+			it('the second item should be IntelliJ', () => {
 				expect(result[1]).toBe(intellij);
 			});
 		});

@@ -1,17 +1,17 @@
-var DefaultResultProcessor = require('./../../../../data/processors/DefaultResultProcessor');
+const DefaultResultProcessor = require('./../../../../data/processors/DefaultResultProcessor');
 
-describe('When a DefaultResultProcessor is created, specifying a default "name" property', function() {
+describe('When a DefaultResultProcessor is created, specifying a default "name" property', () => {
 	'use strict';
 
-	var processor;
+	let processor;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new DefaultResultProcessor({ propertyName: 'name', defaultValue: 'Bob' });
 	});
 
-	describe('and an object with a "name" property is processed', function() {
-		var result;
-		var original;
+	describe('and an object with a "name" property is processed', () => {
+		let result;
+		let original;
 
 		beforeEach(function(done) {
 			processor.process(original = { name: 'Robert' })
@@ -22,18 +22,18 @@ describe('When a DefaultResultProcessor is created, specifying a default "name" 
 				});
 		});
 
-		it('the original object should be returned', function() {
+		it('the original object should be returned', () => {
 			expect(result).toBe(original);
 		});
 
-		it('the name property should be unchanged', function() {
+		it('the name property should be unchanged', () => {
 			expect(result.name).toEqual('Robert');
 		});
 	});
 
-	describe('and an object without a "name" property is processed', function() {
-		var result;
-		var original;
+	describe('and an object without a "name" property is processed', () => {
+		let result;
+		let original;
 
 		beforeEach(function(done) {
 			processor.process(original = { })
@@ -44,11 +44,11 @@ describe('When a DefaultResultProcessor is created, specifying a default "name" 
 				});
 		});
 
-		it('the original object should be returned', function() {
+		it('the original object should be returned', () => {
 			expect(result).toBe(original);
 		});
 
-		it('the name property should be set to the default value', function() {
+		it('the name property should be set to the default value', () => {
 			expect(result.name).toEqual('Bob');
 		});
 	});

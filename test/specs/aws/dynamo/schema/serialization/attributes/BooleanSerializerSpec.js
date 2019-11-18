@@ -1,22 +1,22 @@
-var BooleanSerializer = require('./../../../../../../../aws/dynamo/schema/serialization/attributes/BooleanSerializer');
+const BooleanSerializer = require('./../../../../../../../aws/dynamo/schema/serialization/attributes/BooleanSerializer');
 
-describe('When a BooleanSerializer is instantiated', function() {
+describe('When a BooleanSerializer is instantiated', () => {
 	'use strict';
 
-	var serializer;
+	let serializer;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		serializer = new BooleanSerializer();
 	});
 
-	it('it serializes true as { "BOOL": true }', function() {
-		var serialized = serializer.serialize(true);
+	it('it serializes true as { "BOOL": true }', () => {
+		let serialized = serializer.serialize(true);
 
 		expect(serialized.BOOL).toEqual(true);
 	});
 
-	it('it deserializes { "BOOL": true } as true', function() {
-		var deserialized = serializer.deserialize({ BOOL: true });
+	it('it deserializes { "BOOL": true } as true', () => {
+		let deserialized = serializer.deserialize({ BOOL: true });
 
 		expect(deserialized).toEqual(true);
 	});

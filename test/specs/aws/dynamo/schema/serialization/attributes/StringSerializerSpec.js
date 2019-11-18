@@ -1,22 +1,22 @@
-var StringSerializer = require('./../../../../../../../aws/dynamo/schema/serialization/attributes/StringSerializer');
+const StringSerializer = require('./../../../../../../../aws/dynamo/schema/serialization/attributes/StringSerializer');
 
-describe('When a StringSerializer is instantiated', function() {
+describe('When a StringSerializer is instantiated', () => {
 	'use strict';
 
-	var serializer;
+	let serializer;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		serializer = new StringSerializer();
 	});
 
-	it('it serializes "three" as { "S": "three" }', function() {
-		var serialized = serializer.serialize("three");
+	it('it serializes "three" as { "S": "three" }', () => {
+		let serialized = serializer.serialize("three");
 
 		expect(serialized.S).toEqual('three');
 	});
 
-	it('it deserializes { "S": "three" } as "three"', function() {
-		var deserialized = serializer.deserialize({ S: 'three' });
+	it('it deserializes { "S": "three" } as "three"', () => {
+		let deserialized = serializer.deserialize({ S: 'three' });
 
 		expect(deserialized).toEqual('three');
 	});

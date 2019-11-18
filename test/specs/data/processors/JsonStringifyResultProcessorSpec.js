@@ -1,12 +1,12 @@
-var JsonStringifyResultProcessor = require('./../../../../data/processors/JsonStringifyResultProcessor');
+const JsonStringifyResultProcessor = require('./../../../../data/processors/JsonStringifyResultProcessor');
 
-describe('When a simple object is serialized', function() {
+describe('When a simple object is serialized', () => {
 	'use strict';
 
-	var resultPromise;
+	let resultPromise;
 
-	beforeEach(function() {
-		var processor = new JsonStringifyResultProcessor();
+	beforeEach(() => {
+		let processor = new JsonStringifyResultProcessor();
 
 		resultPromise = processor.process({ hi: 'there' });
 	});

@@ -1,17 +1,17 @@
-var UppercaseResultProcessor = require('./../../../../data/processors/UppercaseResultProcessor');
+const UppercaseResultProcessor = require('./../../../../data/processors/UppercaseResultProcessor');
 
-describe('When a UppercaseResultProcessor is used on a string-based property', function() {
+describe('When a UppercaseResultProcessor is used on a string-based property', () => {
 	'use strict';
 
-	var processor;
+	let processor;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new UppercaseResultProcessor({ propertyName: 'volume' });
 	});
 
-	describe('and the property does not exist', function() {
-		var result;
-		var original;
+	describe('and the property does not exist', () => {
+		let result;
+		let original;
 
 		beforeEach(function(done) {
 			processor.process(original = { })
@@ -21,18 +21,18 @@ describe('When a UppercaseResultProcessor is used on a string-based property', f
 				});
 		});
 
-		it('the original object should be returned', function() {
+		it('the original object should be returned', () => {
 			expect(result).toBe(original);
 		});
 
-		it('the object should not have a "volume" property defined', function() {
+		it('the object should not have a "volume" property defined', () => {
 			expect(result.hasOwnProperty('volume')).toEqual(false);
 		});
 	});
 
-	describe('and the property value has no lowercase letters', function() {
-		var result;
-		var original;
+	describe('and the property value has no lowercase letters', () => {
+		let result;
+		let original;
 
 		beforeEach(function(done) {
 			processor.process(original = { volume: 'LOUD' })
@@ -42,18 +42,18 @@ describe('When a UppercaseResultProcessor is used on a string-based property', f
 				});
 		});
 
-		it('the original object should be returned', function() {
+		it('the original object should be returned', () => {
 			expect(result).toBe(original);
 		});
 
-		it('the "volume" property value should be unchanged', function() {
+		it('the "volume" property value should be unchanged', () => {
 			expect(result.volume).toEqual('LOUD');
 		});
 	});
 
-	describe('and the property value has lower letters', function() {
-		var result;
-		var original;
+	describe('and the property value has lower letters', () => {
+		let result;
+		let original;
 
 		beforeEach(function(done) {
 			processor.process(original = { volume: 'quiet' })
@@ -63,19 +63,19 @@ describe('When a UppercaseResultProcessor is used on a string-based property', f
 				});
 		});
 
-		it('the original object should be returned', function() {
+		it('the original object should be returned', () => {
 			expect(result).toBe(original);
 		});
 
-		it('the "volume" property value should be changed to lowercase', function() {
+		it('the "volume" property value should be changed to lowercase', () => {
 			expect(result.volume).toEqual('QUIET');
 		});
 	});
 
-	describe('and the property value is not a string', function() {
-		var result;
-		var original;
-		var volume;
+	describe('and the property value is not a string', () => {
+		let result;
+		let original;
+		let volume;
 
 		beforeEach(function(done) {
 			processor.process(original = { volume: volume = { decibels: 110 } })
@@ -85,11 +85,11 @@ describe('When a UppercaseResultProcessor is used on a string-based property', f
 				});
 		});
 
-		it('the original object should be returned', function() {
+		it('the original object should be returned', () => {
 			expect(result).toBe(original);
 		});
 
-		it('the "volume" property value should not be changed', function() {
+		it('the "volume" property value should not be changed', () => {
 			expect(result.volume).toBe(volume);
 		});
 	});

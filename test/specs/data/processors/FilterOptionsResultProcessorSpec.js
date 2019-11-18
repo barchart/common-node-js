@@ -1,16 +1,16 @@
-var FilterOptionsResultProcessor = require('./../../../../data/processors/FilterOptionsResultProcessor');
+const FilterOptionsResultProcessor = require('./../../../../data/processors/FilterOptionsResultProcessor');
 
-describe('When presented with some goods', function() {
+describe('When presented with some goods', () => {
 	'use strict';
 
-	var context;
+	let context;
 
-	var car;
-	var phone;
-	var gas;
-	var electricity;
+	let car;
+	let phone;
+	let gas;
+	let electricity;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		context = {
 			goods: {
 				durable: ['car', 'phone']
@@ -36,9 +36,9 @@ describe('When presented with some goods', function() {
 		};
 	});
 
-	describe('and then filtering for durable goods', function() {
-		var processor;
-		var result;
+	describe('and then filtering for durable goods', () => {
+		let processor;
+		let result;
 
 		beforeEach(function(done) {
 			processor = new FilterOptionsResultProcessor({ sourceRef: 'things', conditions: [ { optionsRef: 'goods.durable', propertyName: 'type' } ] });
@@ -51,26 +51,26 @@ describe('When presented with some goods', function() {
 				});
 		});
 
-		it('an array should be returned', function() {
+		it('an array should be returned', () => {
 			expect(result instanceof Array).toEqual(true);
 		});
 
-		it('the array should have two items', function() {
+		it('the array should have two items', () => {
 			expect(result.length).toEqual(2);
 		});
 
-		it('the first item should be the car', function() {
+		it('the first item should be the car', () => {
 			expect(result[0]).toBe(car);
 		});
 
-		it('the second item should be the phone', function() {
+		it('the second item should be the phone', () => {
 			expect(result[1]).toBe(phone);
 		});
 	});
 
-	describe('and then filtering for non-durable goods', function() {
-		var processor;
-		var result;
+	describe('and then filtering for non-durable goods', () => {
+		let processor;
+		let result;
 
 		beforeEach(function(done) {
 			processor = new FilterOptionsResultProcessor({ sourceRef: 'things', conditions: [ { optionsRef: 'goods.durable', propertyName: 'type', inverse: true } ] });
@@ -83,26 +83,26 @@ describe('When presented with some goods', function() {
 				});
 		});
 
-		it('an array should be returned', function() {
+		it('an array should be returned', () => {
 			expect(result instanceof Array).toEqual(true);
 		});
 
-		it('the array should have two items', function() {
+		it('the array should have two items', () => {
 			expect(result.length).toEqual(2);
 		});
 
-		it('the first item should be the car', function() {
+		it('the first item should be the car', () => {
 			expect(result[0]).toBe(gas);
 		});
 
-		it('the second item should be the phone', function() {
+		it('the second item should be the phone', () => {
 			expect(result[1]).toBe(electricity);
 		});
 	});
 
-	describe('and then filtering for Tesla or Chevron products', function() {
-		var processor;
-		var result;
+	describe('and then filtering for Tesla or Chevron products', () => {
+		let processor;
+		let result;
 
 		beforeEach(function(done) {
 			processor = new FilterOptionsResultProcessor({ sourceRef: 'things', conditions: [ { options: [ 'Tesla', 'Chevron' ], propertyName: 'brand'} ] });
@@ -115,26 +115,26 @@ describe('When presented with some goods', function() {
 				});
 		});
 
-		it('an array should be returned', function() {
+		it('an array should be returned', () => {
 			expect(result instanceof Array).toEqual(true);
 		});
 
-		it('the array should have two items', function() {
+		it('the array should have two items', () => {
 			expect(result.length).toEqual(2);
 		});
 
-		it('the first item should be the car', function() {
+		it('the first item should be the car', () => {
 			expect(result[0]).toBe(car);
 		});
 
-		it('the second item should be the phone', function() {
+		it('the second item should be the phone', () => {
 			expect(result[1]).toBe(gas);
 		});
 	});
 
-	describe('and then filtering for Tesla products that are also durable goods', function() {
-		var processor;
-		var result;
+	describe('and then filtering for Tesla products that are also durable goods', () => {
+		let processor;
+		let result;
 
 		beforeEach(function(done) {
 			processor = new FilterOptionsResultProcessor({ sourceRef: 'things', conditions: [ { options: [ 'Tesla' ], propertyName: 'brand' }, { optionsRef: 'goods.durable', propertyName: 'type' } ] });
@@ -147,15 +147,15 @@ describe('When presented with some goods', function() {
 				});
 		});
 
-		it('an array should be returned', function() {
+		it('an array should be returned', () => {
 			expect(result instanceof Array).toEqual(true);
 		});
 
-		it('the array should have one item', function() {
+		it('the array should have one item', () => {
 			expect(result.length).toEqual(1);
 		});
 
-		it('the first item should be the car', function() {
+		it('the first item should be the car', () => {
 			expect(result[0]).toBe(car);
 		});
 	});

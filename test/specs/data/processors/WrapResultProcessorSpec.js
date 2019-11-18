@@ -1,18 +1,18 @@
-var WrapResultProcessor = require('./../../../../data/processors/WrapResultProcessor');
+const WrapResultProcessor = require('./../../../../data/processors/WrapResultProcessor');
 
-describe('When a WrapResultProcessor is created', function() {
+describe('When a WrapResultProcessor is created', () => {
 	'use strict';
 
-	var processor;
-	var configuration;
+	let processor;
+	let configuration;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new WrapResultProcessor(configuration = { propertyName: 'test' });
 	});
 
-	describe('and an object is wrapped', function() {
-		var input;
-		var result;
+	describe('and an object is wrapped', () => {
+		let input;
+		let result;
 
 		beforeEach(function(done) {
 			processor.process(input = { wrap: 'me' })
@@ -23,19 +23,19 @@ describe('When a WrapResultProcessor is created', function() {
 				});
 		});
 
-		it('the result should be an object', function() {
+		it('the result should be an object', () => {
 			expect(result instanceof Object).toEqual(true);
 		});
 
-		it('the result should not be the input object', function() {
+		it('the result should not be the input object', () => {
 			expect(result).not.toBe(input);
 		});
 
-		it('the result should have a property name (as specified in configuration)', function() {
+		it('the result should have a property name (as specified in configuration)', () => {
 			expect(result.hasOwnProperty(configuration.propertyName)).toBe(true);
 		});
 
-		it('the result should wrap the input', function() {
+		it('the result should wrap the input', () => {
 			expect(result[configuration.propertyName]).toBe(input);
 		});
 	});

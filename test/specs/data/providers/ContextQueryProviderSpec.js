@@ -1,19 +1,19 @@
-var ContextQueryProvider = require('./../../../../data/providers/ContextQueryProvider');
+const ContextQueryProvider = require('./../../../../data/providers/ContextQueryProvider');
 
-describe('When running a ContextQueryProvider, configured read a single property', function() {
+describe('When running a ContextQueryProvider, configured read a single property', () => {
 	'use strict';
 
-	var processor;
+	let processor;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new ContextQueryProvider({ property: 'a.b.c' });
 	});
 
-	describe('and the property exists', function() {
-		var context;
-		var resultPromise;
+	describe('and the property exists', () => {
+		let context;
+		let resultPromise;
 
-		beforeEach(function() {
+		beforeEach(() => {
 			resultPromise = processor.runQuery(context = { a: { b : { c: { } } } });
 		});
 
@@ -26,11 +26,11 @@ describe('When running a ContextQueryProvider, configured read a single property
 		});
 	});
 
-	describe('and the property does not exist', function() {
-		var context;
-		var resultPromise;
+	describe('and the property does not exist', () => {
+		let context;
+		let resultPromise;
 
-		beforeEach(function() {
+		beforeEach(() => {
 			resultPromise = processor.runQuery(context = { x: { y : { z: { } } } });
 		});
 
@@ -44,20 +44,20 @@ describe('When running a ContextQueryProvider, configured read a single property
 	});
 });
 
-describe('When running a ContextQueryProvider, configured read two properties', function() {
+describe('When running a ContextQueryProvider, configured read two properties', () => {
 	'use strict';
 
-	var processor;
+	let processor;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new ContextQueryProvider({ properties: [ 'a', 'b' ] });
 	});
 
-	describe('and both properties exist', function() {
-		var context;
-		var resultPromise;
+	describe('and both properties exist', () => {
+		let context;
+		let resultPromise;
 
-		beforeEach(function() {
+		beforeEach(() => {
 			resultPromise = processor.runQuery(context = { a: { }, b: { } });
 		});
 
@@ -78,11 +78,11 @@ describe('When running a ContextQueryProvider, configured read two properties', 
 		});
 	});
 
-	describe('and the first property exists', function() {
-		var context;
-		var resultPromise;
+	describe('and the first property exists', () => {
+		let context;
+		let resultPromise;
 
-		beforeEach(function() {
+		beforeEach(() => {
 			resultPromise = processor.runQuery(context = { a: { } });
 		});
 
@@ -104,14 +104,14 @@ describe('When running a ContextQueryProvider, configured read two properties', 
 	});
 });
 
-describe('When running a ContextQueryProvider, without specifying particular properties', function() {
+describe('When running a ContextQueryProvider, without specifying particular properties', () => {
 	'use strict';
 
-	var context;
-	var resultPromise;
+	let context;
+	let resultPromise;
 
-	beforeEach(function() {
-		var processor = new ContextQueryProvider({ });
+	beforeEach(() => {
+		let processor = new ContextQueryProvider({ });
 
 		resultPromise = processor.runQuery(context = { });
 	});

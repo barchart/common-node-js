@@ -1,22 +1,22 @@
-var IndexResultProcessor = require('./../../../../data/processors/IndexResultProcessor');
+const IndexResultProcessor = require('./../../../../data/processors/IndexResultProcessor');
 
-describe('When a IndexResultProcessor is used to index an array of word definitions', function() {
+describe('When a IndexResultProcessor is used to index an array of word definitions', () => {
 	'use strict';
 
-	var processor;
+	let processor;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new IndexResultProcessor({ keyPropertyName: 'word' });
 	});
 
-	describe('having definitions for coffee, tea, and milk', function() {
-		var items;
+	describe('having definitions for coffee, tea, and milk', () => {
+		let items;
 
-		var coffee;
-		var tea;
-		var milk;
+		let coffee;
+		let tea;
+		let milk;
 
-		var result;
+		let result;
 
 		beforeEach(function(done) {
 			processor.process(items = [ coffee = { word: 'coffee', definition: 'A drink made from beans' }, tea = { word: 'tea', definition: 'A drink made from leaves' }, milk = { word: 'milk', definition: 'A drink made from cows' } ])
@@ -27,19 +27,19 @@ describe('When a IndexResultProcessor is used to index an array of word definiti
 				});
 		});
 
-		it('the result should be an object', function() {
+		it('the result should be an object', () => {
 			expect(typeof result).toEqual('object');
 		});
 
-		it("the result's milk property should be the milk object", function() {
+		it("the result's milk property should be the milk object", () => {
 			expect(result.coffee).toBe(coffee);
 		});
 
-		it("the result's milk property should be the milk object", function() {
+		it("the result's milk property should be the milk object", () => {
 			expect(result.tea).toBe(tea);
 		});
 
-		it("the result's milk property should be the milk object", function() {
+		it("the result's milk property should be the milk object", () => {
 			expect(result.milk).toBe(milk);
 		});
 	});

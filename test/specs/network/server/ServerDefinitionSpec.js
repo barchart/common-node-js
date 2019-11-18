@@ -1,15 +1,15 @@
-var ServerDefinition = require('./../../../../network/server/ServerDefinition');
+const ServerDefinition = require('./../../../../network/server/ServerDefinition');
 
-describe('When a ServerDefinition is created', function() {
+describe('When a ServerDefinition is created', () => {
 	'use strict';
 
-	var serverDefinition;
+	let serverDefinition;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		serverDefinition = new ServerDefinition();
 	});
 
-	it('should have no containers', function() {
+	it('should have no containers', () => {
 		expect(serverDefinition.getContainers().length).toEqual(0);
 	});
 });

@@ -1,23 +1,23 @@
-var ExtractResultProcessor = require('./../../../../data/processors/ExtractResultProcessor');
+const ExtractResultProcessor = require('./../../../../data/processors/ExtractResultProcessor');
 
-describe('When a ExtractResultProcessor is created', function() {
+describe('When a ExtractResultProcessor is created', () => {
 	'use strict';
 
-	var processor;
-	var configuration;
+	let processor;
+	let configuration;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new ExtractResultProcessor(configuration = { propertyName: 'thing' });
 	});
 
-	describe('and an array with three items is passed', function() {
-		var input;
+	describe('and an array with three items is passed', () => {
+		let input;
 
-		var one;
-		var two;
-		var three;
+		let one;
+		let two;
+		let three;
 
-		var result;
+		let result;
 
 		beforeEach(function(done) {
 			input = [
@@ -34,23 +34,23 @@ describe('When a ExtractResultProcessor is created', function() {
 				});
 		});
 
-		it('an array should be returned', function() {
+		it('an array should be returned', () => {
 			expect(result instanceof Array).toEqual(true);
 		});
 
-		it('the array should three items', function() {
+		it('the array should three items', () => {
 			expect(result.length).toEqual(3);
 		});
 
-		it('the first item should be one', function() {
+		it('the first item should be one', () => {
 			expect(result[0]).toEqual(one);
 		});
 
-		it('the second item should be two', function() {
+		it('the second item should be two', () => {
 			expect(result[1]).toEqual(two);
 		});
 
-		it('the third item should be three', function() {
+		it('the third item should be three', () => {
 			expect(result[2]).toEqual(three);
 		});
 	});

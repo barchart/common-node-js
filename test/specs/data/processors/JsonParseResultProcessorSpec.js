@@ -1,12 +1,12 @@
-var JsonParseResultProcessor = require('./../../../../data/processors/JsonParseResultProcessor');
+const JsonParseResultProcessor = require('./../../../../data/processors/JsonParseResultProcessor');
 
-describe('When a valid JSON string, with a single property, is processed', function() {
+describe('When a valid JSON string, with a single property, is processed', () => {
 	'use strict';
 
-	var resultPromise;
+	let resultPromise;
 
-	beforeEach(function() {
-		var processor = new JsonParseResultProcessor();
+	beforeEach(() => {
+		let processor = new JsonParseResultProcessor();
 
 		resultPromise = processor.process('{ "hi": "there" }');
 	});
