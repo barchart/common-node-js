@@ -2,10 +2,7 @@ const log4js = require('log4js'),
 	Stream = require('stream');
 
 const assert = require('@barchart/common-js/lang/assert'),
-	is = require('@barchart/common-js/lang/is'),
-	promise = require('@barchart/common-js/lang/promise');
-
-const Transformation = require('./transformations/Transformation');
+	is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
 	'use strict';

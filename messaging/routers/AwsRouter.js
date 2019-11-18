@@ -2,7 +2,6 @@ const log4js = require('log4js'),
 	uuid = require('uuid');
 
 const assert = require('@barchart/common-js/lang/assert'),
-	Event = require('@barchart/common-js/messaging/Event'),
 	Disposable = require('@barchart/common-js/lang/Disposable'),
 	DisposableStack = require('@barchart/common-js/collections/specialized/DisposableStack'),
 	is = require('@barchart/common-js/lang/is'),

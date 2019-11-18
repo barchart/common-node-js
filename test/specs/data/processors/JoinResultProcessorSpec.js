@@ -144,16 +144,16 @@ describe('When using the JoinResultProcessor with a source map', () => {
 			});
 		});
 
-		it('the promised result be the target object', function (done) {
-			resultPromise.then(function (result) {
+		it('the promised result be the target object', (done) => {
+			resultPromise.then((result) => {
 				expect(result).toBe(context.myTarget);
 
 				done();
 			});
 		});
 
-		it('an alias property, containing the joined data, should be found on each property', function (done) {
-			resultPromise.then(function (result) {
+		it('an alias property, containing the joined data, should be found on each property', (done) => {
+			resultPromise.then((result) => {
 				expect(result[0].code).toBe(97);
 				expect(result[1].code).toBe(98);
 				expect(result[2].code).toBe(97);

@@ -14,8 +14,8 @@ describe('When a DistinctResultProcessor is created and "wrapping" is desired', 
 
 		let original;
 
-		beforeEach(function (done) {
-			processor.process(original = [ { firstName: 'Bill', lastName: 'Clinton'}, { firstName: 'Bill', lastName: 'Moyers'}, { firstName: 'Hillary', lastName: 'Clinton'} ]).then(function (r) {
+		beforeEach((done) => {
+			processor.process(original = [ { firstName: 'Bill', lastName: 'Clinton'}, { firstName: 'Bill', lastName: 'Moyers'}, { firstName: 'Hillary', lastName: 'Clinton'} ]).then((r) => {
 				result = r;
 
 				done();
@@ -58,8 +58,8 @@ describe('When a DistinctResultProcessor is created and "wrapping" is not desire
 
 		let original;
 
-		beforeEach(function (done) {
-			processor.process(original = [ { firstName: 'Bill', lastName: 'Clinton'}, { firstName: 'Bill', lastName: 'Moyers'}, { firstName: 'Hillary', lastName: 'Clinton'} ]).then(function (r) {
+		beforeEach((done) => {
+			processor.process(original = [ { firstName: 'Bill', lastName: 'Clinton'}, { firstName: 'Bill', lastName: 'Moyers'}, { firstName: 'Hillary', lastName: 'Clinton'} ]).then((r) => {
 				result = r;
 
 				done();

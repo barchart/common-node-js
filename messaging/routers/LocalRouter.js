@@ -1,7 +1,6 @@
 const log4js = require('log4js');
 
-const Event = require('@barchart/common-js/messaging/Event'),
-	Disposable = require('@barchart/common-js/lang/Disposable');
+const Disposable = require('@barchart/common-js/lang/Disposable');
 
 const Router = require('./Router');
 

@@ -17,11 +17,11 @@ describe('When a MapResultProcessor is created', () => {
 		let map;
 		let letters;
 
-		beforeEach(function (done) {
+		beforeEach((done) => {
 			processor.process(original = {
 				alphabet: map = {a: 'alpha', b: 'beta', c: 'charlie'},
 				letters: letters = ['a', 'c', 'e']
-			}).then(function (r) {
+			}).then((r) => {
 				result = r;
 
 				done();

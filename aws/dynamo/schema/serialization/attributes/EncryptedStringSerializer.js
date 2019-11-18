@@ -1,5 +1,3 @@
-const assert = require('@barchart/common-js/lang/assert');
-
 const CompressedStringSerializer = require('./CompressedStringSerializer');
 
 module.exports = (() => {

@@ -1,8 +1,7 @@
 const crypto = require('crypto'),
 	zlib = require('zlib');
 
-const assert = require('@barchart/common-js/lang/assert'),
-	is = require('@barchart/common-js/lang/is');
+const assert = require('@barchart/common-js/lang/assert');
 
 const AttributeSerializer = require('./AttributeSerializer'),
 	CompressionType = require('./../../definitions/CompressionType'),

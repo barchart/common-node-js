@@ -1,7 +1,6 @@
 const assert = require('@barchart/common-js/lang/assert');
 
-const Attribute = require('./../definitions/Attribute'),
-	Key = require('./../definitions/Key'),
+const Key = require('./../definitions/Key'),
 	KeyType = require('./../definitions/KeyType');
 
 module.exports = (() => {

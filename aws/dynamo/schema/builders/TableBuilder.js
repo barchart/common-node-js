@@ -15,7 +15,6 @@ const AttributeBuilder = require('./AttributeBuilder'),
 	ComponentBuilder = require('./ComponentBuilder'),
 	IndexBuilder = require('./IndexBuilder'),
 	KeyBuilder = require('./KeyBuilder'),
-	ProjectionBuilder = require('./ProjectionBuilder'),
 	ProvisionedThroughputBuilder = require('./ProvisionedThroughputBuilder');
 
 const LambdaStage = require('../../../lambda/LambdaStage');

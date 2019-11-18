@@ -1,13 +1,9 @@
 const log4js = require('log4js'),
-	cluster = require('cluster'),
-	process = require('process'),
 	uuid = require('uuid');
 
 const assert = require('@barchart/common-js/lang/assert'),
-	Event = require('@barchart/common-js/messaging/Event'),
 	Disposable = require('@barchart/common-js/lang/Disposable'),
 	DisposableStack = require('@barchart/common-js/collections/specialized/DisposableStack'),
-	is = require('@barchart/common-js/lang/is'),
 	promise = require('@barchart/common-js/lang/promise'),
 	random = require('@barchart/common-js/lang/random');
 

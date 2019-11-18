@@ -13,9 +13,9 @@ describe('When a CopyResultProcessor is created, copying one property to another
 		let result;
 		let original;
 
-		beforeEach(function (done) {
+		beforeEach((done) => {
 			processor.process(original = {a: 1})
-				.then(function (r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -43,9 +43,9 @@ describe('When a CopyResultProcessor is created, copying one property to another
 		let result;
 		let original;
 
-		beforeEach(function (done) {
+		beforeEach((done) => {
 			processor.process(original = {a: { }})
-				.then(function (r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -80,9 +80,9 @@ describe('When a CopyResultProcessor is created, copying one property to another
 		let result;
 		let original;
 
-		beforeEach(function (done) {
+		beforeEach((done) => {
 			processor.process(original = {a: 'a1b2c3'})
-				.then(function (r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -120,9 +120,9 @@ describe('When a CopyResultProcessor is created, copying multiple properties to 
 		let result;
 		let original;
 
-		beforeEach(function (done) {
+		beforeEach((done) => {
 			processor.process(original = {a: 1})
-				.then(function (r) {
+				.then((r) => {
 					result = r;
 
 					done();

@@ -19,14 +19,14 @@ describe('When a GroupingResultProcessor is created', () => {
 		let rome;
 		let lisbon;
 
-		beforeEach(function (done) {
+		beforeEach((done) => {
 			processor.process(original = {
 				cities: cities = [
 					cairo = { name: 'Cairo', continent: 'Africa' },
 					rome = { name: 'Rome', continent: 'Europe' },
 					lisbon = { name: 'Lisbon', continent: 'Europe' }
 				]
-			}).then(function (r) {
+			}).then((r) => {
 				result = r;
 
 				done();

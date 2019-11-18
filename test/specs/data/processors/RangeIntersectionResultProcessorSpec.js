@@ -202,7 +202,7 @@ describe('When comparing a range to a set of two candidate ranges (using referen
 	describe('where only one candidate range intersects', () => {
 		let result;
 
-		beforeEach(function (done) {
+		beforeEach((done) => {
 			processor.process({
 				a: 0,
 				b: 5,
@@ -226,7 +226,7 @@ describe('When comparing a range to a set of two candidate ranges (using referen
 	describe('where only both candidate ranges intersects', () => {
 		let result;
 
-		beforeEach(function (done) {
+		beforeEach((done) => {
 			processor.process({
 				a: 0,
 				b: 5,
@@ -250,7 +250,7 @@ describe('When comparing a range to a set of two candidate ranges (using referen
 	describe('where neither candidate ranges intersect', () => {
 		let result;
 
-		beforeEach(function (done) {
+		beforeEach((done) => {
 			processor.process({
 				a: 0,
 				b: 5,

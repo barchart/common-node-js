@@ -9,8 +9,7 @@ const bodyParser = require('body-parser'),
 	path = require('path'),
 	proxy = require('express-http-proxy'),
 	querystring = require('querystring'),
-	socketIO = require('socket.io'),
-	url = require('url');
+	socketIO = require('socket.io');
 
 const assert = require('@barchart/common-js/lang/assert'),
 	CommandHandler = require('@barchart/common-js/commands/CommandHandler'),

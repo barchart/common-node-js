@@ -30,7 +30,7 @@ describe('When a UnitConversionResultProcessor is created, using references', ()
 			};
 
 			processor.process(original = {distance: 26.2, unit: 'miles', ratio: ratio})
-				.then(function (r) {
+				.then((r) => {
 					result = r;
 
 					done();
@@ -64,7 +64,7 @@ describe('When a UnitConversionResultProcessor is created, using references', ()
 			};
 
 			processor.process(original = {distance: 26.2, unit: 'miles', ratio: ratio})
-				.then(function (r) {
+				.then((r) => {
 					result = r;
 
 					done();

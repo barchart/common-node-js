@@ -18,8 +18,8 @@ describe('When a FirstResultProcessor is created', () => {
 		let so;
 		let la;
 
-		beforeEach(function (done) {
-			processor.process(original = [ fa = {note: 'fa'}, so = {note: 'so'}, la = {note: 'la'}]).then(function (r) {
+		beforeEach((done) => {
+			processor.process(original = [ fa = {note: 'fa'}, so = {note: 'so'}, la = {note: 'la'}]).then((r) => {
 				result = r;
 
 				done();

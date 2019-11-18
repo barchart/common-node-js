@@ -1,7 +1,6 @@
 const log4js = require('log4js');
 
 const assert = require('@barchart/common-js/lang/assert'),
-	Event = require('@barchart/common-js/messaging/Event'),
 	Disposable = require('@barchart/common-js/lang/Disposable');
 
 module.exports = (() => {

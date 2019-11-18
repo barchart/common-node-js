@@ -1,7 +1,3 @@
-const array = require('@barchart/common-js/lang/array'),
-	assert = require('@barchart/common-js/lang/assert'),
-	is = require('@barchart/common-js/lang/is');
-
 const Expression = require('./Expression');
 
 module.exports = (() => {

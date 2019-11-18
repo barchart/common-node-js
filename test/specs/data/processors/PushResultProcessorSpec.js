@@ -15,13 +15,13 @@ describe('When a PushResultProcessor is created', () => {
 		let original;
 		let spelling;
 
-		beforeEach(function (done) {
+		beforeEach((done) => {
 			processor.process(original = {
 				spelling: spelling = [ 'b', 'r', 'y', 'a' ],
 				letters: {
 					fifth: 'n'
 				}
-			}).then(function (r) {
+			}).then((r) => {
 				result = r;
 
 				done();
@@ -51,12 +51,12 @@ describe('When a PushResultProcessor is created', () => {
 		let original;
 		let spelling;
 
-		beforeEach(function (done) {
+		beforeEach((done) => {
 			processor.process(original = {
 				letters: {
 					fifth: 'n'
 				}
-			}).then(function (r) {
+			}).then((r) => {
 				result = r;
 
 				done();

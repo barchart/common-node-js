@@ -13,9 +13,9 @@ describe('When a PositionResultProcessor on an array', () => {
 		let result;
 		let original;
 
-		beforeEach(function (done) {
+		beforeEach((done) => {
 			processor.process(original = [{a: 1}, {b: 2}])
-				.then(function (r) {
+				.then((r) => {
 					result = r;
 					done();
 				});
