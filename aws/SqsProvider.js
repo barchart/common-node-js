@@ -176,6 +176,55 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Given a queue's name, return the queue's attributes.
+		 *
+		 * @public
+		 * @param {string} queueUrl - The url of the queue to find.
+		 * @param {array=} attributes - The names of attributes to return. By default set to 'All'.
+		 * @returns {Promise<Object>}
+		 */
+		getQueueAttributes(queueUrl, attributes) {
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsRequired(queueUrl, 'queueName', String);
+
+					if (attributes) {
+						assert.argumentIsArray(attributes, 'attributes');
+					}
+
+					if (this.getIsDisposed()) {
+						throw new Error('The SQS Provider has been disposed.');
+					}
+
+					if (!this._started) {
+						throw new Error('The SQS Provider has not been started.');
+					}
+
+					const payload = { };
+
+					payload.QueueUrl = queueUrl;
+
+					if (!attributes || attributes.length === 0) {
+						payload.AttributeNames = [ 'All' ];
+					} else {
+						payload.AttributeNames = attributes;
+					}
+
+					return this._sqs.getQueueAttributes(payload).promise()
+						.then((data) => {
+							logger.info('SQS queue attribute lookup complete:', queueUrl);
+
+							return data.Attributes;
+						}).catch((error) => {
+							logger.error('SQS queue attribute lookup failed:', queueUrl);
+							logger.error(error);
+
+							throw error;
+						});
+				});
+		}
+
+		/**
 		 * Given a queue's name, return Amazon's unique identifier for the queue
 		 * (i.e. the ARN). If no queue with the given name exists, it will be created.
 		 *
