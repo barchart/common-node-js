@@ -21,10 +21,11 @@ module.exports = (() => {
 	 * @param {Number=} limit
 	 * @param {Boolean=} consistentRead
 	 * @param {Boolean=} skipDeserialization
+	 * @param {Boolean=} countOnly
 	 * @param {String=} description
 	 */
 	class Scan extends Action {
-		constructor(table, index, filter, attributes, limit, consistentRead, skipDeserialization, description) {
+		constructor(table, index, filter, attributes, limit, consistentRead, skipDeserialization, countOnly, description) {
 			super(table, index, (description || '[Unnamed Scan]'));
 
 			this._filter = filter || null;
@@ -32,6 +33,7 @@ module.exports = (() => {
 			this._limit = limit || null;
 			this._skipDeserialization = skipDeserialization || false;
 			this._consistentRead = consistentRead || false;
+			this._countOnly = countOnly || false;
 		}
 
 		/**
@@ -85,6 +87,16 @@ module.exports = (() => {
 		 */
 		get skipDeserialization() {
 			return this._skipDeserialization;
+		}
+
+		/**
+		 * If true, the query will return a record count only.
+		 *
+		 * @public
+		 * @returns {Boolean}
+		 */
+		get countOnly() {
+			return this._countOnly;
 		}
 
 		/**
@@ -145,6 +157,8 @@ module.exports = (() => {
 			if (attributes.length !== 0) {
 				schema.Select = 'SPECIFIC_ATTRIBUTES';
 				schema.ProjectionExpression = Action.getProjectionExpression(this.table, attributes);
+			} else if (this.countOnly) {
+				schema.Select = 'COUNT';
 			}
 
 			if (this._filter !== null) {

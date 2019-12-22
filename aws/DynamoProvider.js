@@ -594,7 +594,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Scan} scan
-		 * @returns {Promise<Object[]>}
+		 * @returns {Promise<Object[]>|Promise<Number>}
 		 */
 		scan(scan) {
 			return Promise.resolve()
@@ -646,7 +646,9 @@ module.exports = (() => {
 										let results;
 
 										try {
-											if (scan.skipDeserialization) {
+											if (scan.countOnly) {
+												results = data.Count;
+											} else if (scan.skipDeserialization) {
 												results = data.Items;
 											} else {
 												results = data.Items.map(i => Serializer.deserialize(i, scan.table));
@@ -669,7 +671,11 @@ module.exports = (() => {
 											if (data.LastEvaluatedKey && (maximum === 0 || count < maximum)) {
 												runScanRecursive(data.LastEvaluatedKey)
 													.then((more) => {
-														resolveCallback(results.concat(more));
+														if (scan.countOnly) {
+															resolveCallback(results + more);
+														} else {
+															resolveCallback(results.concat(more));
+														}
 													});
 											} else {
 												resolveCallback(results);
@@ -806,7 +812,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Query} query
-		 * @returns {Promise<Object[]>}
+		 * @returns {Promise<Object[]>|Promise<Number>}
 		 */
 		query(query) {
 			return Promise.resolve()
@@ -858,7 +864,9 @@ module.exports = (() => {
 										let results;
 
 										try {
-											if (query.skipDeserialization) {
+											if (query.countOnly) {
+												results = data.Count;
+											} else if (query.skipDeserialization) {
 												results = data.Items;
 											} else {
 												results = data.Items.map(i => Serializer.deserialize(i, query.table));
@@ -881,7 +889,11 @@ module.exports = (() => {
 											if (data.LastEvaluatedKey && (maximum === 0 || count < maximum)) {
 												runQueryRecursive(data.LastEvaluatedKey)
 													.then((more) => {
-														resolveCallback(results.concat(more));
+														if (query.countOnly) {
+															resolveCallback(results + more);
+														} else {
+															resolveCallback(results.concat(more));
+														}
 													});
 											} else {
 												resolveCallback(results);
