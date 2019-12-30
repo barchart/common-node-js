@@ -46,7 +46,6 @@ module.exports = (() => {
 			this._counter = this._counter + 1;
 
 			let error = null;
-			let output = null;
 
 			if (is.object(chunk)) {
 				let key;
