@@ -30,15 +30,10 @@ module.exports = (() => {
 			this._counter = 0;
 		}
 
-		get transformerCount() {
-			return this._tranformations.length;
-		}
-
 		_transform(chunk, encoding, callback) {
 			this._counter = this._counter + 1;
 
 			let error = null;
-			let output = null;
 
 			if (is.array(chunk)) {
 				chunk.forEach(item => this.push(item));
