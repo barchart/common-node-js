@@ -698,7 +698,7 @@ module.exports = (() => {
 
 					return runScanRecursive();
 				}).then((results) => {
-					logger.debug('Ran [', scan.description, '] on [', scan.table.name + (scan.index ? '/ ' + scan.index.name : ''), '] and matched [', (query.countOnly ? results : results.length), '] results.');
+					logger.debug('Ran [', scan.description, '] on [', scan.table.name + (scan.index ? '/ ' + scan.index.name : ''), '] and matched [', (scan.countOnly ? results : results.length), '] results.');
 
 					return results;
 				}).catch((e) => {
