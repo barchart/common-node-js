@@ -128,7 +128,7 @@ module.exports = (() => {
 							payload.Prefix = prefix;
 						}
 
-						this._s3.listObjects(payload, (e, data) => {
+						this._s3.listObjectsV2(payload, (e, data) => {
 							if (e) {
 								logger.error('S3 failed to retrieve bucket contents: ', e);
 								rejectCallback(e);
