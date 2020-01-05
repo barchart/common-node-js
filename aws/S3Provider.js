@@ -106,15 +106,18 @@ module.exports = (() => {
 		 * @param {string=} prefix
 		 * @param {string=} bucket
 		 * @param {number=} maximum
+		 * @prarm {string=} start
 		 * @returns {Promise<Object[]>}
 		 */
-		getBucketContents(prefix, bucket, maximum) {
+		getBucketContents(prefix, bucket, maximum, start) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
 
 					assert.argumentIsOptional(bucket, 'bucket', String);
 					assert.argumentIsOptional(prefix, 'prefix', String);
+					assert.argumentIsOptional(maximum, 'maximum', Number);
+					assert.argumentIsOptional(start, 'start', String);
 
 					return promise.build((resolveCallback, rejectCallback) => {
 						const payload = { };
@@ -127,6 +130,10 @@ module.exports = (() => {
 
 						if (prefix) {
 							payload.Prefix = prefix;
+						}
+
+						if (start) {
+							payload..StartAfter = start;
 						}
 
 						this._s3.listObjectsV2(payload, (e, data) => {
