@@ -103,22 +103,26 @@ module.exports = (() => {
 		 * Retrieves the contents of a bucket.
 		 *
 		 * @public
-		 * @param {string} bucket
 		 * @param {string=} prefix
-		 * @returns {Promise<Object>}
+		 * @param {string=} bucket
+		 * @returns {Promise<Object[]>}
 		 */
-		getBucketContents(bucket, prefix) {
+		getBucketContents(prefix, bucket) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
 
-					assert.argumentIsRequired(bucket, 'bucket', String);
+					assert.argumentIsOptional(bucket, 'bucket', String);
 					assert.argumentIsOptional(prefix, 'prefix', String);
 
 					return promise.build((resolveCallback, rejectCallback) => {
 						const payload = { };
 
-						payload.Bucket = bucket;
+						if (bucket) {
+							payload.Bucket = bucket;
+						} else {
+							payload.Bucket = this._configuration.bucket;
+						}
 
 						if (prefix) {
 							payload.Prefix = prefix;
@@ -126,12 +130,19 @@ module.exports = (() => {
 
 						this._s3.listObjects(payload, (e, data) => {
 							if (e) {
-								logger.error('S3 failed to retrieve contents: ', e);
+								logger.error('S3 failed to retrieve bucket contents: ', e);
 								rejectCallback(e);
 							} else {
-								resolveCallback({
-									content: data.Contents
+								const results = data.Contents.map((item) => {
+									const transformed = { };
+
+									transformed.key = item.Key;
+									transformed.size = item.Size;
+
+									return transformed;
 								});
+
+								resolveCallback(results);
 							}
 						});
 					});
