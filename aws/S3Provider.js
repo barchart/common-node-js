@@ -105,9 +105,10 @@ module.exports = (() => {
 		 * @public
 		 * @param {string=} prefix
 		 * @param {string=} bucket
+		 * @param {number=} maximum
 		 * @returns {Promise<Object[]>}
 		 */
-		getBucketContents(prefix, bucket) {
+		getBucketContents(prefix, bucket, maximum) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
