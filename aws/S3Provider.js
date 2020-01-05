@@ -133,7 +133,7 @@ module.exports = (() => {
 						}
 
 						if (start) {
-							payload..StartAfter = start;
+							payload.StartAfter = start;
 						}
 
 						this._s3.listObjectsV2(payload, (e, data) => {
