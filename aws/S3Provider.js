@@ -106,7 +106,7 @@ module.exports = (() => {
 		 * @param {string=} prefix
 		 * @param {string=} bucket
 		 * @param {number=} maximum
-		 * @prarm {string=} start
+		 * @param {string=} start
 		 * @returns {Promise<Object[]>}
 		 */
 		getBucketContents(prefix, bucket, maximum, start) {
@@ -119,41 +119,57 @@ module.exports = (() => {
 					assert.argumentIsOptional(maximum, 'maximum', Number);
 					assert.argumentIsOptional(start, 'start', String);
 
-					return promise.build((resolveCallback, rejectCallback) => {
-						const payload = { };
+					const getBucketContentsRecursive = (continuationToken) => {
+						return promise.build((resolveCallback, rejectCallback) => {
+							const payload = { };
 
-						if (bucket) {
-							payload.Bucket = bucket;
-						} else {
-							payload.Bucket = this._configuration.bucket;
-						}
-
-						if (prefix) {
-							payload.Prefix = prefix;
-						}
-
-						if (start) {
-							payload.StartAfter = start;
-						}
-
-						this._s3.listObjectsV2(payload, (e, data) => {
-							if (e) {
-								logger.error('S3 failed to retrieve bucket contents: ', e);
-								rejectCallback(e);
+							if (bucket) {
+								payload.Bucket = bucket;
 							} else {
-								const results = data.Contents.map((item) => {
-									const transformed = { };
-
-									transformed.key = item.Key;
-									transformed.size = item.Size;
-
-									return transformed;
-								});
-
-								resolveCallback(results);
+								payload.Bucket = this._configuration.bucket;
 							}
+
+							if (prefix) {
+								payload.Prefix = prefix;
+							}
+
+							if (start) {
+								payload.StartAfter = start;
+							}
+
+							if (continuationToken) {
+								payload.ContinuationToken = continuationToken;
+							}
+
+							this._s3.listObjectsV2(payload, (e, data) => {
+								if (e) {
+									logger.error('S3 failed to retrieve bucket contents: ', e);
+
+									rejectCallback(e);
+								} else {
+									const results = data.Contents.map((item) => {
+										const transformed = { };
+
+										transformed.key = item.Key;
+										transformed.size = item.Size;
+
+										return transformed;
+									});
+
+									if (data.IsTruncated === true) {
+										getBucketContentsRecursive(data.NextContinuationToken)
+											.then((more) => {
+												resolveCallback(results.concat(more));
+											});
+									} else {
+										resolveCallback(results);
+									}
+								}
+							});
 						});
-					});
+					};
+
+					return getBucketContentsRecursive();
 				});
 		}
 
