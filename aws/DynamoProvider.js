@@ -1,7 +1,8 @@
 const aws = require('aws-sdk'),
 	log4js = require('log4js');
 
-const assert = require('@barchart/common-js/lang/assert'),
+const array = require('@barchart/common-js/lang/array'),
+	assert = require('@barchart/common-js/lang/assert'),
 	Disposable = require('@barchart/common-js/lang/Disposable'),
 	Enum = require('@barchart/common-js/lang/Enum'),
 	is = require('@barchart/common-js/lang/is'),
@@ -832,9 +833,32 @@ module.exports = (() => {
 					let maximum = options.Limit || 0;
 					let count = 0;
 
+					let run = 0;
+					let runs;
+
+					if (logger.isTraceEnabled()) {
+						runs = [ ];
+					} else {
+						runs = null;
+					}
+
+					let abort = false;
+
 					const runQueryRecursive = (previous) => {
 						const executeQuery = () => {
+							const r = run++;
+
+							if (runs) {
+								runs[r] = { };
+							}
+
 							return promise.build((resolveCallback, rejectCallback) => {
+								if (runs) {
+									runs[r].queryStart = (new Date()).getTime();
+
+									logger.trace(`Query [ ${query.table.name} ], run [ ${r} ] started at [ ${runs[r].queryStart} ]`);
+								}
+
 								if (previous) {
 									options.ExclusiveStartKey = previous;
 								}
@@ -850,6 +874,12 @@ module.exports = (() => {
 								}
 
 								this._dynamo.query(options, (error, data) => {
+									if (runs) {
+										runs[r].queryEnd = (new Date()).getTime();
+
+										logger.trace(`Query [ ${query.table.name} ], run [ ${r} ] completed at [ ${runs[r].queryEnd} ] in [ ${runs[r].queryEnd - runs[r].queryStart} ] ms`);
+									}
+
 									if (error) {
 										const dynamoError = Enum.fromCode(DynamoError, error.code);
 
@@ -858,47 +888,104 @@ module.exports = (() => {
 
 											rejectCallback(error);
 										} else {
+											logger.debug('Encountered non-retryable error [', error.code, '] while querying [', query.table.name, ']');
+
+											abort = true;
+
 											resolveCallback({ code: DYNAMO_RESULT.FAILURE, error: error });
 										}
 									} else {
-										let results;
+										const deserializePromise = promise.build((resolveDeserialize) => {
+											if (abort) {
+												resolveDeserialize([ ]);
 
-										try {
-											if (query.countOnly) {
-												results = data.Count;
-											} else if (query.skipDeserialization) {
-												results = data.Items;
-											} else {
-												results = data.Items.map(i => Serializer.deserialize(i, query.table));
-											}
-										} catch (e) {
-											logger.error('Unable to deserialize query results.', e);
-
-											if (data.Items) {
-												logger.error(JSON.stringify(data.Items, null, 2));
+												return;
 											}
 
-											results = null;
+											// 2010/01/18, BRI. Using "setImmediate" causes the deserialization step to be deferred
+											// until after the next query "segment" begins (assuming multiple query "segments" are
+											// required to retrieve the full result set). This allows the deserialization step to
+											// run while waiting on the network (for the next query segment), thereby improving
+											// overall response time.
 
-											resolveCallback({ code: DYNAMO_RESULT.FAILURE, error: error });
-										}
+											setImmediate(() => {
+												if (runs) {
+													runs[r].deserializeStart = (new Date()).getTime();
 
-										if (results !== null) {
-											count += results.length;
+													logger.trace(`Deserialize [ ${query.table.name} ] run [ ${r} ] started at [ ${runs[r].deserializeStart} ]`);
+												}
+
+												let deserialized;
+
+												try {
+													if (query.countOnly) {
+														deserialized = data.Count;
+													} else if (query.skipDeserialization) {
+														deserialized = data.Items;
+													} else {
+														deserialized = data.Items.map(i => Serializer.deserialize(i, query.table));
+													}
+												} catch (e) {
+													abort = true;
+
+													logger.error('Unable to deserialize query results.', e);
+
+													if (data.Items) {
+														logger.error(JSON.stringify(data.Items, null, 2));
+													}
+
+													deserialized = { code: DYNAMO_RESULT.FAILURE, error: error };
+												}
+
+												if (runs) {
+													runs[r].deserializeEnd = (new Date()).getTime();
+
+													logger.trace(`Deserialize [ ${query.table.name} ] run [ ${r} ] completed at [ ${runs[r].deserializeEnd} ] in [ ${runs[r].deserializeEnd - runs[r].deserializeStart} ] ms`);
+												}
+
+												resolveDeserialize(deserialized);
+											});
+										});
+
+										const continuationPromise = promise.build((resolveContinuation) => {
+											if (abort) {
+												resolveContinuation([]);
+
+												return;
+											}
+
+											if (data.Items && data.Items.length !== 0) {
+												count += data.Items.length;
+											}
 
 											if (data.LastEvaluatedKey && (maximum === 0 || count < maximum)) {
-												runQueryRecursive(data.LastEvaluatedKey)
-													.then((more) => {
-														if (query.countOnly) {
-															resolveCallback(results + more);
-														} else {
-															resolveCallback(results.concat(more));
-														}
-													});
+												resolveContinuation(runQueryRecursive(data.LastEvaluatedKey));
 											} else {
-												resolveCallback(results);
+												resolveContinuation([ ]);
 											}
-										}
+										});
+
+										Promise.all([ deserializePromise, continuationPromise ])
+											.then((combined) => {
+												const error = combined.find(r => is.object(r) && r.code === DYNAMO_RESULT.FAILURE);
+
+												if (error) {
+													resolveCallback(error);
+												} else {
+													const deserialized = combined[0];
+													const continuation = combined[1];
+
+													let results;
+
+													if (query.countOnly) {
+														results = deserialized + continuation;
+													} else {
+														results = deserialized.concat(continuation);
+													}
+
+													resolveCallback(results);
+												}
+											});
 									}
 								});
 							});
@@ -914,9 +1001,25 @@ module.exports = (() => {
 							});
 					};
 
-					return runQueryRecursive();
-				}).then((results) => {
+					return runQueryRecursive()
+						.then((results) => {
+							const composite = { };
+
+							composite.results = results;
+							composite.timing = runs;
+
+							return composite;
+						});
+				}).then((composite) => {
+					const results = composite.results;
+
 					logger.debug('Ran [', query.description, '] on [', query.table.name + (query.index ? '/' + query.index.name : ''), '] and matched [', (query.countOnly ? results : results.length), '] results.');
+
+					if (composite.timing) {
+						const timing = composite.timing;
+
+						logger.trace('Ran [', query.description, '] on [', query.table.name + (query.index ? '/' + query.index.name : ''), '] over [', timing.length ,'] runs in [', array.last(timing).deserializeEnd - array.first(timing).queryStart, '] ms with [', timing.reduce((t, i) => t + (i.queryEnd - i.queryStart), 0), '] ms querying and [', timing.reduce((t, i) => t + (i.deserializeEnd - i.deserializeStart), 0), '] ms deserializing');
+					}
 
 					return results;
 				}).catch((e) => {
