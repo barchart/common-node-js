@@ -615,9 +615,32 @@ module.exports = (() => {
 					let maximum = options.Limit || 0;
 					let count = 0;
 
+					let run = 0;
+					let runs;
+
+					if (logger.isTraceEnabled()) {
+						runs = [ ];
+					} else {
+						runs = null;
+					}
+
+					let abort = false;
+
 					const runScanRecursive = (previous) => {
 						const executeScan = () => {
+							const r = run++;
+
+							if (runs) {
+								runs[r] = { };
+							}
+
 							return promise.build((resolveCallback, rejectCallback) => {
+								if (runs) {
+									runs[r].queryStart = (new Date()).getTime();
+
+									logger.trace(`Scan [ ${scan.table.name} ], run [ ${r} ] started at [ ${runs[r].queryStart} ]`);
+								}
+
 								if (previous) {
 									options.ExclusiveStartKey = previous;
 								}
@@ -633,6 +656,12 @@ module.exports = (() => {
 								}
 
 								this._dynamo.scan(options, (error, data) => {
+									if (runs) {
+										runs[r].queryEnd = (new Date()).getTime();
+
+										logger.trace(`Scan [ ${scan.table.name} ], run [ ${r} ] completed at [ ${runs[r].queryEnd} ] in [ ${runs[r].queryEnd - runs[r].queryStart} ] ms`);
+									}
+
 									if (error) {
 										const dynamoError = Enum.fromCode(DynamoError, error.code);
 
@@ -641,47 +670,98 @@ module.exports = (() => {
 
 											rejectCallback(error);
 										} else {
+											logger.debug('Encountered non-retryable error [', error.code, '] while scanning [', scan.table.name, ']');
+
+											abort = true;
+
 											resolveCallback({ code: DYNAMO_RESULT.FAILURE, error: error });
 										}
 									} else {
-										let results;
+										const deserializePromise = promise.build((resolveDeserialize) => {
+											if (abort) {
+												resolveDeserialize([ ]);
 
-										try {
-											if (scan.countOnly) {
-												results = data.Count;
-											} else if (scan.skipDeserialization) {
-												results = data.Items;
-											} else {
-												results = data.Items.map(i => Serializer.deserialize(i, scan.table));
-											}
-										} catch (e) {
-											logger.error('Unable to deserialize scan results.', e);
-
-											if (data.Items) {
-												logger.error(JSON.stringify(data.Items, null, 2));
+												return;
 											}
 
-											results = null;
+											setImmediate(() => {
+												if (runs) {
+													runs[r].deserializeStart = (new Date()).getTime();
 
-											resolveCallback({ code: DYNAMO_RESULT.FAILURE, error: error });
-										}
+													logger.trace(`Deserialize [ ${scan.table.name} ] run [ ${r} ] started at [ ${runs[r].deserializeStart} ]`);
+												}
 
-										if (results !== null) {
-											count += results.length;
+												let deserialized;
+
+												try {
+													if (scan.countOnly) {
+														deserialized = data.Count;
+													} else if (scan.skipDeserialization) {
+														deserialized = data.Items;
+													} else {
+														deserialized = data.Items.map(i => Serializer.deserialize(i, scan.table));
+													}
+												} catch (e) {
+													abort = true;
+
+													logger.error('Unable to deserialize scan results.', e);
+
+													if (data.Items) {
+														logger.error(JSON.stringify(data.Items, null, 2));
+													}
+
+													deserialized = { code: DYNAMO_RESULT.FAILURE, error: error };
+												}
+
+												if (runs) {
+													runs[r].deserializeEnd = (new Date()).getTime();
+
+													logger.trace(`Deserialize [ ${scan.table.name} ] run [ ${r} ] completed at [ ${runs[r].deserializeEnd} ] in [ ${runs[r].deserializeEnd - runs[r].deserializeStart} ] ms`);
+												}
+
+												resolveDeserialize(deserialized);
+											});
+										});
+
+										const continuationPromise = promise.build((resolveContinuation) => {
+											if (abort) {
+												resolveContinuation([ ]);
+
+												return;
+											}
+
+											if (data.Items && data.Items.length !== 0) {
+												count += data.Items.length;
+											}
 
 											if (data.LastEvaluatedKey && (maximum === 0 || count < maximum)) {
-												runScanRecursive(data.LastEvaluatedKey)
-													.then((more) => {
-														if (scan.countOnly) {
-															resolveCallback(results + more);
-														} else {
-															resolveCallback(results.concat(more));
-														}
-													});
+												resolveContinuation(runScanRecursive(data.LastEvaluatedKey));
 											} else {
-												resolveCallback(results);
+												resolveContinuation([ ]);
 											}
-										}
+										});
+
+										return Promise.all([ deserializePromise, continuationPromise ])
+											.then((combined) => {
+												const error = combined.find(r => is.object(r) && r.code === DYNAMO_RESULT.FAILURE);
+
+												if (error) {
+													resolveCallback(error);
+												} else {
+													const deserialized = combined[0];
+													const continuation = combined[1];
+
+													let results;
+
+													if (scan.countOnly) {
+														results = deserialized + continuation;
+													} else {
+														results = deserialized.concat(continuation);
+													}
+
+													resolveCallback(results);
+												}
+											});
 									}
 								});
 							});
@@ -697,9 +777,25 @@ module.exports = (() => {
 							});
 					};
 
-					return runScanRecursive();
-				}).then((results) => {
-					logger.debug('Ran [', scan.description, '] on [', scan.table.name + (scan.index ? '/ ' + scan.index.name : ''), '] and matched [', (scan.countOnly ? results : results.length), '] results.');
+					return runScanRecursive()
+						.then((results) => {
+							const composite = { };
+
+							composite.results = results;
+							composite.timing = runs;
+
+							return composite;
+						});
+				}).then((composite) => {
+					const results = composite.results;
+
+					logger.debug('Ran [', scan.description, '] on [', scan.table.name + (scan.index ? '/' + scan.index.name : ''), '] and matched [', (scan.countOnly ? results : results.length), '] results.');
+
+					if (composite.timing) {
+						const timing = composite.timing;
+
+						logger.trace('Ran [', scan.description, '] on [', scan.table.name + (scan.index ? '/' + scan.index.name : ''), '] over [', timing.length ,'] runs in [', array.last(timing).deserializeEnd - array.first(timing).queryStart, '] ms with [', timing.reduce((t, i) => t + (i.queryEnd - i.queryStart), 0), '] ms querying and [', timing.reduce((t, i) => t + (i.deserializeEnd - i.deserializeStart), 0), '] ms deserializing');
+					}
 
 					return results;
 				}).catch((e) => {
