@@ -28,11 +28,12 @@ module.exports = (() => {
 	 * @param {String=} description
 	 */
 	class Query extends Action {
-		constructor(table, index, keyFilter, resultsFilter, attributes, limit, orderingType, consistentRead, skipDeserialization, countOnly, description) {
+		constructor(table, index, keyFilter, resultsFilter, parallelFilter, attributes, limit, orderingType, consistentRead, skipDeserialization, countOnly, description) {
 			super(table, index, (description || '[Unnamed Query]'));
 
 			this._keyFilter = keyFilter || null;
 			this._resultsFilter = resultsFilter || null;
+			this._parallelFilter = parallelFilter || null;
 
 			this._attributes = attributes || [ ];
 			this._limit = limit || null;
@@ -55,13 +56,25 @@ module.exports = (() => {
 
 		/**
 		 * A {@link Filter} to apply to results of the query (after the
-		 * key filter has been applied).
+		 * PartitionTransformer has been applied).
 		 *
 		 * @public
 		 * @returns {Filter}
 		 */
 		get resultsFilter() {
 			return this._resultsFilter;
+		}
+
+		/**
+		 * A {@link Filter} to applied to the range key of the table (which is added to
+		 * the existing PartitionTransformer). This filter is used to split the query into a smaller
+		 * set -- based on range key.
+		 *
+		 * @public
+		 * @returns {Filter}
+		 */
+		get parallelFilter() {
+			return this._parallelFilter;
 		}
 
 		/**
@@ -150,7 +163,7 @@ module.exports = (() => {
 			}
 
 			if (!(this._keyFilter instanceof Filter)) {
-				throw new Error('The key Filter data type is invalid.');
+				throw new Error('The key filter data type is invalid.');
 			}
 
 			this._keyFilter.validate();
@@ -164,15 +177,25 @@ module.exports = (() => {
 			}
 
 			if (this._keyFilter.expressions.filter(e => e.attribute.name === (keys.find(k => k.keyType === KeyType.HASH)).attribute.name).length !== 1) {
-				throw new Error('The key Filter must reference the index hash key.');
+				throw new Error('The key filter must reference the hash key.');
 			}
 
 			if (this._resultsFilter !== null) {
 				if (!(this._resultsFilter instanceof Filter)) {
-					throw new Error('The results Filter data type is invalid.');
+					throw new Error('The results filter data type is invalid.');
 				}
 
 				this._resultsFilter.validate();
+			}
+
+			if (this._parallelFilter !== null) {
+				if (!(this._parallelFilter instanceof Filter)) {
+					throw new Error('The parallel filter data type is invalid.');
+				}
+
+				if (this._parallelFilter.expressions.filter(e => e.attribute.name === (keys.find(k => k.keyType === KeyType.RANGE)).attribute.name).length !== 1) {
+					throw new Error('The key parallel must reference the range key.');
+				}
 			}
 
 			if (!(this._orderingType instanceof OrderingType)) {
@@ -211,10 +234,18 @@ module.exports = (() => {
 				schema.Select = 'COUNT';
 			}
 
-			const keyExpressionData = Action.getConditionExpressionData(this.table, this._keyFilter);
+			let keyFilterToUse;
+
+			if (this._parallelFilter === null) {
+				keyFilterToUse = this._keyFilter;
+			} else {
+				keyFilterToUse = Filter.merge(this._keyFilter, this._parallelFilter);
+			}
+
+			const keyExpressionData = Action.getConditionExpressionData(this.table, keyFilterToUse);
 
 			schema.KeyConditionExpression = keyExpressionData.expression;
-			attributes = attributes.concat(this._keyFilter.expressions.map(e => e.attribute));
+			attributes = attributes.concat(keyFilterToUse.expressions.map(e => e.attribute));
 
 			let valueAliases = keyExpressionData.valueAliases;
 

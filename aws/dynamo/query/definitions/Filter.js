@@ -41,6 +41,26 @@ module.exports = (() => {
 			this._expressions.forEach(e => e.validate());
 		}
 
+		/**
+		 * Combines two {@link Filter} instances into a single new instance by using all
+		 * expressions from each original filter.
+		 *
+		 * @public
+		 * @static
+		 * @param {Filter} a
+		 * @param {Filter} b
+		 */
+		static merge(a, b) {
+			assert.argumentIsRequired(a, 'a', Filter, 'Filter');
+			assert.argumentIsRequired(b, 'b', Filter, 'Filter');
+
+			if (a === b) {
+				return new Filter(a.expressions);
+			} else {
+				return new Filter(a.expressions.concat(b.expressions));
+			}
+		}
+
 		toString() {
 			return '[Filter]';
 		}
