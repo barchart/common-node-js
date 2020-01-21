@@ -7,7 +7,7 @@ module.exports = (() => {
 	 * The collection of {@link Expression} objects that compose a filter.
 	 *
 	 * @public
-	 * @param {Array<Expression>} expressions
+	 * @param {Expression[]} expressions
 	 */
 	class Filter {
 		constructor(expressions) {
@@ -18,7 +18,7 @@ module.exports = (() => {
 		 * The collection of {@link Expression} objects that compose a filter.
 		 *
 		 * @public
-		 * @returns {Array<Expression>}
+		 * @returns {Expression[]}
 		 */
 		get expressions() {
 			return [...this._expressions];
