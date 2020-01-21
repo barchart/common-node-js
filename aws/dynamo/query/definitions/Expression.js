@@ -19,7 +19,7 @@ module.exports = (() => {
 			this._attribute = attribute;
 			this._operatorType = operatorType || null;
 
-			var operandToUse;
+			let operandToUse;
 
 			if (is.undefined(operand)) {
 				operandToUse = null;
