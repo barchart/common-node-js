@@ -215,7 +215,7 @@ module.exports = (() => {
 
 		/**
 		 * Spawns an array of {@link Query} instances, each having the same properties
-		 * the current {@link QueryBuilder}. However, each query is modified to return
+		 * as the current {@link QueryBuilder}. However, each query is modified to return
 		 * a subset of results, by adding additional filters to the range key, according
 		 * to instructions provided by the range extractor function.
 		 *
