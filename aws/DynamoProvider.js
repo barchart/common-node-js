@@ -1138,11 +1138,10 @@ module.exports = (() => {
 				.then(() => {
 					assert.argumentIsArray(queries, 'queries', Query, 'Query');
 
-					checkReady.call(this);
-
-					const promises = queries.map(query => this.query(query));
-
-					return Promise.all(promises).then(results => array.flatten(results));
+					return Promise.all(queries.map(query => this.query(query)))
+						.then((results) => {
+							return array.flatten(results);
+						});
 				});
 		}
 
