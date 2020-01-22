@@ -248,6 +248,10 @@ module.exports = (() => {
 
 			const ranges = rangeExtractor(table);
 
+			if (this._query.orderingType === OrderingType.DESCENDING) {
+				ranges.reverse();
+			}
+
 			return ranges.map((range, i) => {
 				const start = range.start;
 				const end = range.end;
