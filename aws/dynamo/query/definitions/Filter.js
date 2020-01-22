@@ -1,3 +1,5 @@
+const assert = require('@barchart/common-js/lang/assert');
+
 const Expression = require('./Expression');
 
 module.exports = (() => {

@@ -1,7 +1,8 @@
 const assert = require('@barchart/common-js/lang/assert'),
 	is = require('@barchart/common-js/lang/is');
 
-const OrderingType = require('./../definitions/OrderingType'),
+const KeyType = require('./../../schema/definitions/KeyType'),
+	OrderingType = require('./../definitions/OrderingType'),
 	Query = require('./../definitions/Query'),
 	Table = require('./../../schema/definitions/Table');
 
@@ -164,7 +165,7 @@ module.exports = (() => {
 		 * Sets the direction of index processing (and the order of the results).
 		 *
 		 * @public
-		 * @param {OrderingType}
+		 * @param {OrderingType} orderingType
 		 * @returns {QueryBuilder}
 		 */
 		withOrderingType(orderingType) {
@@ -229,7 +230,16 @@ module.exports = (() => {
 			}
 
 			const table = this._query.table;
-			const rangeKey = table.rangeKey;
+
+			let rangeKey;
+
+			if (this._query.index === null) {
+				rangeKey = table.rangeKey;
+			} else {
+				const keys = this._query.index.keys;
+
+				rangeKey = keys.find(k => k.keyType === KeyType.RANGE) || null;
+			}
 
 			if (rangeKey === null) {
 				throw new Error('Unable to use parallelism on a table without a range key.');
