@@ -222,7 +222,7 @@ module.exports = (() => {
 		 * @returns {Query[]}
 		 */
 		toParallelQueries(rangeExtractor) {
-			assert.argumentIsRequired(rangeExtractor, rangeExtractor, 'Function');
+			assert.argumentIsRequired(rangeExtractor, 'rangeExtractor', Function);
 
 			if (this.query.countOnly) {
 				throw new Error('Count queries cannot be run in parallel.');
@@ -232,7 +232,7 @@ module.exports = (() => {
 			const rangeKey = table.rangeKey;
 
 			if (rangeKey === null) {
-				throw new Error('Unable to use parallelism on a table with a range key.');
+				throw new Error('Unable to use parallelism on a table without a range key.');
 			}
 
 			const ranges = rangeExtractor(table);

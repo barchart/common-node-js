@@ -636,9 +636,9 @@ module.exports = (() => {
 
 							return promise.build((resolveCallback, rejectCallback) => {
 								if (runs) {
-									runs[r].queryStart = (new Date()).getTime();
+									runs[r].scanStart = (new Date()).getTime();
 
-									logger.trace(`Scan [ ${scan.table.name} ], run [ ${r} ] started at [ ${runs[r].queryStart} ]`);
+									logger.trace(`Scan [ ${scan.table.name} ], run [ ${r} ] started at [ ${runs[r].scanStart} ]`);
 								}
 
 								if (previous) {
@@ -657,9 +657,9 @@ module.exports = (() => {
 
 								this._dynamo.scan(options, (error, data) => {
 									if (runs) {
-										runs[r].queryEnd = (new Date()).getTime();
+										runs[r].scanEnd = (new Date()).getTime();
 
-										logger.trace(`Scan [ ${scan.table.name} ], run [ ${r} ] completed at [ ${runs[r].queryEnd} ] in [ ${runs[r].queryEnd - runs[r].queryStart} ] ms`);
+										logger.trace(`Scan [ ${scan.table.name} ], run [ ${r} ] completed at [ ${runs[r].scanEnd} ] in [ ${runs[r].scanEnd - runs[r].scanStart} ] ms`);
 									}
 
 									if (error) {
@@ -794,7 +794,7 @@ module.exports = (() => {
 					if (composite.timing) {
 						const timing = composite.timing;
 
-						logger.trace('Ran [', scan.description, '] on [', scan.table.name + (scan.index ? '/' + scan.index.name : ''), '] over [', timing.length ,'] runs in [', array.last(timing).deserializeEnd - array.first(timing).queryStart, '] ms with [', timing.reduce((t, i) => t + (i.queryEnd - i.queryStart), 0), '] ms querying and [', timing.reduce((t, i) => t + (i.deserializeEnd - i.deserializeStart), 0), '] ms deserializing');
+						logger.trace('Ran [', scan.description, '] on [', scan.table.name + (scan.index ? '/' + scan.index.name : ''), '] over [', timing.length ,'] runs in [', array.last(timing).deserializeEnd - array.first(timing).scanStart, '] ms with [', timing.reduce((t, i) => t + (i.scanEnd - i.scanStart), 0), '] ms scanning and [', timing.reduce((t, i) => t + (i.deserializeEnd - i.deserializeStart), 0), '] ms deserializing');
 					}
 
 					return results;

@@ -177,7 +177,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @static
-		 * @param {String} name - Name of the table.
+		 * @param {Table} table
 		 * @returns {ScanBuilder}
 		 */
 		static targeting(table) {
