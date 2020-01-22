@@ -1126,6 +1126,27 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Run parallel queries against a DynamoDB table (or index) and returns
+		 * all the items matching.
+		 *
+		 * @public
+		 * @param {Array<Query>} queries
+		 * @returns {Promise<Object[]>}
+		 */
+		queryParallel(queries) {
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsArray(queries, 'queries', Query, 'Query');
+
+					checkReady.call(this);
+
+					const promises = queries.map(query => this.query(query));
+
+					return Promise.all(promises).then(results => array.flatten(results));
+				});
+		}
+
+		/**
 		 * Runs a query, returning a page of results.
 		 *
 		 * @public

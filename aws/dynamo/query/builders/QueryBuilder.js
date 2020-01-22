@@ -1,5 +1,5 @@
 const assert = require('@barchart/common-js/lang/assert'),
-	is = require('@barchart/common-js/lang/assert');
+	is = require('@barchart/common-js/lang/is');
 
 const OrderingType = require('./../definitions/OrderingType'),
 	Query = require('./../definitions/Query'),

@@ -312,6 +312,22 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Runs parallel queries.
+		 *
+		 * @public
+		 * @param {Array<Query>} queries
+		 * @returns {Promise<Object[]>}
+		 */
+		queryParallel(queries) {
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
+
+					return this._provider.queryParallel(queries);
+				});
+		}
+
+		/**
 		 * Runs a query, returning a page of results.
 		 *
 		 * @public
