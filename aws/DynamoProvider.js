@@ -503,7 +503,7 @@ module.exports = (() => {
 		 * writes from a subsequent batch are started.
 		 *
 		 * @public
-		 * @param {Array<Object>} item - The items to write.
+		 * @param {Object[]} item - The items to write.
 		 * @param {Table} table - Describes the schema of the table to write to.
 		 * @returns {Promise<Boolean>}
 		 */
@@ -520,7 +520,7 @@ module.exports = (() => {
 		 * deletes from a subsequent batch are started.
 		 *
 		 * @public
-		 * @param {Array<Object>} item - The items to write.
+		 * @param {Object[]} item - The items to write.
 		 * @param {Table} table - Describes the schema of the table to write to.
 		 * @param {Boolean=} explicit - If keys are derived, the item will be deleted as-is, without rederiving the key.
 		 * @returns {Promise<Boolean>}
@@ -1130,7 +1130,7 @@ module.exports = (() => {
 		 * all the items matching.
 		 *
 		 * @public
-		 * @param {Array<Query>} queries
+		 * @param {Query[]} queries
 		 * @returns {Promise<Object[]>}
 		 */
 		queryParallel(queries) {
