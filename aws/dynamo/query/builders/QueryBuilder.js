@@ -214,9 +214,10 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Spawns an array of {@link Query} instances, having the same properties as specified
-		 * in the current {@link QueryBuilder}. However, each query is filters on a subset of
-		 * the table's range key. This allows for parallel execution.
+		 * Spawns an array of {@link Query} instances, each having the same properties
+		 * the current {@link QueryBuilder}. However, each query is modified to return
+		 * a subset of results, by adding additional filters to the range key, according
+		 * to instructions provided by the range extractor function.
 		 *
 		 * @public
 		 * @param {QueryBuilder~rangeExtractor} rangeExtractor
