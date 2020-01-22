@@ -267,7 +267,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Scan} scan
-		 * @returns {Promise<Array<Object>>}
+		 * @returns {Promise<Object[]>}
 		 */
 		scan(scan) {
 			return Promise.resolve()
@@ -315,7 +315,7 @@ module.exports = (() => {
 		 * Runs parallel queries.
 		 *
 		 * @public
-		 * @param {Array<Query>} queries
+		 * @param {Query[]} queries
 		 * @returns {Promise<Object[]>}
 		 */
 		queryParallel(queries) {
