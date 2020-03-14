@@ -1,7 +1,5 @@
-const log4js = require('log4js');
-
-const convert = require('@barchart/marketdata-utilities-js/lib/convert'),
-	priceFormatterFactory = require('@barchart/marketdata-utilities-js/lib/priceFormatter');
+const baseCodeToUnitCode = require('@barchart/marketdata-api-js/lib/utilities/convert/baseCodeToUnitCode'),
+	formatPrice = require('@barchart/marketdata-api-js/lib/utilities/format/price');
 
 const attributes = require('@barchart/common-js/lang/attributes'),
 	is = require('@barchart/common-js/lang/is');
@@ -29,8 +27,6 @@ const MutateResultProcessor = require('./MutateResultProcessor');
  */
 module.exports = (() => {
 	'use strict';
-
-	const logger = log4js.getLogger('data/processors/FormatPriceResultProcessor');
 
 	class FormatPriceResultProcessor extends MutateResultProcessor {
 		constructor(configuration) {
@@ -65,7 +61,7 @@ module.exports = (() => {
 					}
 
 					if (is.number(baseCode)) {
-						unitCode = convert.baseCodeToUnitCode(baseCode);
+						unitCode = baseCodeToUnitCode(baseCode);
 					}
 				}
 
@@ -140,9 +136,7 @@ module.exports = (() => {
 		}
 
 		static format(valueToFormat, unitCode, fractionSeparator, specialFractions, thousandsSeparator, useParenthesis) {
-			const priceFormatter = priceFormatterFactory(fractionSeparator, specialFractions, thousandsSeparator, useParenthesis);
-
-			return priceFormatter.format(valueToFormat, unitCode);
+			return formatPrice(valueToFormat, unitCode, fractionSeparator, specialFractions, thousandsSeparator, useParenthesis);
 		}
 	}
 
