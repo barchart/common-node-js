@@ -1,33 +1,38 @@
-# @barchart/common-node-js
-## Common classes, utilities, and functions for building Node.js servers
+# @barchart/common-js
 
-This library can serve as the foundation for Node.js servers.
+A *public* library of shared JavaScript utilities. These utilities only suitable for Node.js environments.
 
-Features include:
+### Overview
+
+#### Features
 
 * Several promise-based convenience wrappers for the AWS SDK (including DynamoDB, S3, SES, SNS, SQS)
 * Pluggable Asynchronous Message Bus for Request-Response (including an Amazon SQS implementation)
 * Pluggable Asynchronous Message Bus for Publish-Subscribe (including an Amazon SNS/SQS implementation)
 * Quick HTTP servers with REST and/or Socket.IO endpoints (using Express)
 * Some Utilities for Node.js streams
-* More
+* Browse the code...
 
-## Documentation
+#### Companion Library
+
+A companion library called [@barchart/common-js](https://github.com/barchart/barchart-common-js) contains a more general set of utilities which are suitable for either Node.js or browser environments.
+
+### Development
+
+#### Documentation
 
 The code is documented with [JSDoc](http://usejsdoc.org/). While the output hasn't been committed to source control, you can generate the documentation by using the following commands:
 
     > npm install
     > gulp document
 
-## Development
+#### Package Managers
 
-Gulp is used to check "linting" and run unit tests, as follows:
+This library has been published as a *public* module to NPM as [@barchart/common-node-js](https://www.npmjs.com/package/@barchart/common-node-js).
 
-    > nvm use 6.10.1
-    > npm install
-    > gulp lint
-    > gulp test
+    > npm login
+    > npm install @barchart/common-node-js -S
 
-## License
+#### License
 
 This software is provided under the MIT license.
