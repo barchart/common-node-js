@@ -6,11 +6,13 @@ A *public* library of shared JavaScript utilities. These utilities only suitable
 
 #### Features
 
-* Several promise-based convenience wrappers for the AWS SDK (including DynamoDB, S3, SES, SNS, SQS)
-* Pluggable Asynchronous Message Bus for Request-Response (including an Amazon SQS implementation)
-* Pluggable Asynchronous Message Bus for Publish-Subscribe (including an Amazon SNS/SQS implementation)
+* Promise-based convenience wrappers for the AWS services (including DynamoDB, S3, SES, SNS, SQS, more)
+* Promise-based convenience wrappers for relational dB access (PostgreSQL, MySQL)
+* Advanced utilities for working with Node.js streams
+* A workflow engine based on a priority queue
+* Pluggable asynchronous message bus for request-response (including an Amazon SQS implementation)
+* Pluggable asynchronous message bus for publish-subscribe (including an Amazon SNS/SQS implementation)
 * Quick HTTP servers with REST and/or Socket.IO endpoints (using Express)
-* Some Utilities for Node.js streams
 * Browse the code...
 
 #### Companion Library
