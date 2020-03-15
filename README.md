@@ -1,4 +1,4 @@
-# @barchart/common-js
+# @barchart/common-node-js
 
 A *public* library of shared JavaScript utilities. These utilities only suitable for Node.js environments.
 
