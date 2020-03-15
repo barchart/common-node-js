@@ -32,7 +32,6 @@ The code is documented with [JSDoc](http://usejsdoc.org/). While the output hasn
 
 This library has been published as a *public* module to NPM as [@barchart/common-node-js](https://www.npmjs.com/package/@barchart/common-node-js).
 
-    > npm login
     > npm install @barchart/common-node-js -S
 
 #### License
