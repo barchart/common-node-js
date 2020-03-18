@@ -626,14 +626,14 @@ module.exports = (() => {
 
 					let abort = false;
 
-					let emptyResult;
-
-					if (scan.countOnly) {
-						emptyResult = 0;
-					} else {
-						emptyResult = [ ];
-					}
-
+					const getEmptyResult = () => {
+						if (scan.countOnly) {
+							return 0;
+						} else {
+							return [ ];
+						}
+					};
+					
 					const runScanRecursive = (previous) => {
 						const executeScan = () => {
 							const r = run++;
@@ -657,7 +657,7 @@ module.exports = (() => {
 									options.Limit = maximum - count;
 
 									if (options.Limit === 0) {
-										resolveCallback(emptyResult);
+										resolveCallback(getEmptyResult());
 
 										return;
 									}
@@ -687,7 +687,7 @@ module.exports = (() => {
 									} else {
 										const deserializePromise = promise.build((resolveDeserialize) => {
 											if (abort) {
-												resolveDeserialize(emptyResult);
+												resolveDeserialize(getEmptyResult());
 
 												return;
 											}
@@ -733,7 +733,7 @@ module.exports = (() => {
 
 										const continuationPromise = promise.build((resolveContinuation) => {
 											if (abort) {
-												resolveContinuation(emptyResult);
+												resolveContinuation(getEmptyResult());
 
 												return;
 											}
@@ -745,7 +745,7 @@ module.exports = (() => {
 											if (data.LastEvaluatedKey && (maximum === 0 || count < maximum)) {
 												resolveContinuation(runScanRecursive(data.LastEvaluatedKey));
 											} else {
-												resolveContinuation(emptyResult);
+												resolveContinuation(getEmptyResult());
 											}
 										});
 
@@ -948,13 +948,13 @@ module.exports = (() => {
 
 					let abort = false;
 
-					let emptyResult;
-
-					if (query.countOnly) {
-						emptyResult = 0;
-					} else {
-						emptyResult = [ ];
-					}
+					const getEmptyResult = () => {
+						if (query.countOnly) {
+							return 0;
+						} else {
+							return [ ];
+						}
+					};
 
 					const runQueryRecursive = (previous) => {
 						const executeQuery = () => {
@@ -979,7 +979,7 @@ module.exports = (() => {
 									options.Limit = maximum - count;
 
 									if (options.Limit === 0) {
-										resolveCallback(emptyResult);
+										resolveCallback(getEmptyResult());
 
 										return;
 									}
@@ -1009,7 +1009,7 @@ module.exports = (() => {
 									} else {
 										const deserializePromise = promise.build((resolveDeserialize) => {
 											if (abort) {
-												resolveDeserialize(emptyResult);
+												resolveDeserialize(getEmptyResult());
 
 												return;
 											}
@@ -1061,7 +1061,7 @@ module.exports = (() => {
 
 										const continuationPromise = promise.build((resolveContinuation) => {
 											if (abort) {
-												resolveContinuation(emptyResult);
+												resolveContinuation(getEmptyResult());
 
 												return;
 											}
@@ -1073,7 +1073,7 @@ module.exports = (() => {
 											if (data.LastEvaluatedKey && (maximum === 0 || count < maximum)) {
 												resolveContinuation(runQueryRecursive(data.LastEvaluatedKey));
 											} else {
-												resolveContinuation(emptyResult);
+												resolveContinuation(getEmptyResult());
 											}
 										});
 
