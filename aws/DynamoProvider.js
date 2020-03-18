@@ -634,6 +634,14 @@ module.exports = (() => {
 								runs[r] = { };
 							}
 
+							let defaultResolve;
+
+							if (scan.countOnly) {
+								defaultResolve = 0;
+							} else {
+								defaultResolve = [ ];
+							}
+
 							return promise.build((resolveCallback, rejectCallback) => {
 								if (runs) {
 									runs[r].scanStart = (new Date()).getTime();
@@ -649,7 +657,7 @@ module.exports = (() => {
 									options.Limit = maximum - count;
 
 									if (options.Limit === 0) {
-										resolveCallback([ ]);
+										resolveCallback(defaultResolve);
 
 										return;
 									}
@@ -679,7 +687,7 @@ module.exports = (() => {
 									} else {
 										const deserializePromise = promise.build((resolveDeserialize) => {
 											if (abort) {
-												resolveDeserialize([ ]);
+												resolveDeserialize(defaultResolve);
 
 												return;
 											}
@@ -725,7 +733,7 @@ module.exports = (() => {
 
 										const continuationPromise = promise.build((resolveContinuation) => {
 											if (abort) {
-												resolveContinuation([ ]);
+												resolveContinuation(defaultResolve);
 
 												return;
 											}
@@ -737,7 +745,7 @@ module.exports = (() => {
 											if (data.LastEvaluatedKey && (maximum === 0 || count < maximum)) {
 												resolveContinuation(runScanRecursive(data.LastEvaluatedKey));
 											} else {
-												resolveContinuation([ ]);
+												resolveContinuation(defaultResolve);
 											}
 										});
 
