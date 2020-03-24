@@ -19,18 +19,22 @@ module.exports = (() => {
 	 * @param {Filter} filter
 	 * @param {Array<Attribute>} attributes
 	 * @param {Number=} limit
+	 * @param {Number=} segment
+	 * @param {Number=} totalSegments
 	 * @param {Boolean=} consistentRead
 	 * @param {Boolean=} skipDeserialization
 	 * @param {Boolean=} countOnly
 	 * @param {String=} description
 	 */
 	class Scan extends Action {
-		constructor(table, index, filter, attributes, limit, consistentRead, skipDeserialization, countOnly, description) {
+		constructor(table, index, filter, attributes, limit, segment, totalSegments, consistentRead, skipDeserialization, countOnly, description) {
 			super(table, index, (description || '[Unnamed Scan]'));
 
 			this._filter = filter || null;
 			this._attributes = attributes || [ ];
 			this._limit = limit || null;
+			this._segment = segment || 0;
+			this._totalSegments = totalSegments || 1;
 			this._skipDeserialization = skipDeserialization || false;
 			this._consistentRead = consistentRead || false;
 			this._countOnly = countOnly || false;
@@ -66,6 +70,14 @@ module.exports = (() => {
 		 */
 		get limit() {
 			return this._limit;
+		}
+
+		get segment() {
+			return this._segment;
+		}
+
+		get totalSegments() {
+			return this._totalSegments;
 		}
 
 		/**
@@ -179,6 +191,11 @@ module.exports = (() => {
 
 			if (this._limit !== null) {
 				schema.Limit = this._limit;
+			}
+
+			if (this._totalSegments !== 1) {
+				schema.Segment = this._segment;
+				schema.TotalSegments = this._totalSegments;
 			}
 
 			if (this._consistentRead) {
