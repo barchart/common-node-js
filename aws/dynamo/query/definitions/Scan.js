@@ -33,8 +33,8 @@ module.exports = (() => {
 			this._filter = filter || null;
 			this._attributes = attributes || [ ];
 			this._limit = limit || null;
-			this._segment = segment || null;
-			this._totalSegments = totalSegments || null;
+			this._segment = is.number(segment) ? segment : null;
+			this._totalSegments = is.number(totalSegments) ? totalSegments : null;
 			this._skipDeserialization = skipDeserialization || false;
 			this._consistentRead = consistentRead || false;
 			this._countOnly = countOnly || false;
