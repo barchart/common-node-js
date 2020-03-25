@@ -33,8 +33,8 @@ module.exports = (() => {
 			this._filter = filter || null;
 			this._attributes = attributes || [ ];
 			this._limit = limit || null;
-			this._segment = segment || 0;
-			this._totalSegments = totalSegments || 1;
+			this._segment = segment || null;
+			this._totalSegments = totalSegments || null;
 			this._skipDeserialization = skipDeserialization || false;
 			this._consistentRead = consistentRead || false;
 			this._countOnly = countOnly || false;
@@ -72,10 +72,22 @@ module.exports = (() => {
 			return this._limit;
 		}
 
+		/**
+		 * Identifies an individual segment to be scanned by an AWS DynamoDB worker.
+		 *
+		 * @public
+		 * @return {Number|null}
+		 */
 		get segment() {
 			return this._segment;
 		}
 
+		/**
+		 * The total number of segments into which the Scan operation will be divided.
+		 *
+		 * @public
+		 * @return {Number|null}
+		 */
 		get totalSegments() {
 			return this._totalSegments;
 		}
@@ -144,6 +156,16 @@ module.exports = (() => {
 			if (this._limit !== null && (!is.large(this._limit) || !(this._limit > 0))) {
 				throw new Error('The limit must be a positive integer.');
 			}
+
+			if (this._segment !== null && this._totalSegments !== null) {
+				if (!is.large(this._totalSegments) || this._totalSegments <= 0) {
+					throw new Error('The totalSegments must be a positive integer');
+				}
+
+				if (!is.large(this._segment) || this._segment < 0 || this._segment >= this._totalSegments) {
+					throw new Error('The segment must be >= 0 and < totalSegments')
+				}
+			}
 		}
 
 		/**
@@ -193,7 +215,7 @@ module.exports = (() => {
 				schema.Limit = this._limit;
 			}
 
-			if (this._totalSegments !== 1) {
+			if (this._segment !== null && this._totalSegments !== null) {
 				schema.Segment = this._segment;
 				schema.TotalSegments = this._totalSegments;
 			}

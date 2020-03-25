@@ -173,9 +173,12 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Sets a segmentation for parallel scan.
 		 *
-		 * @param segment
-		 * @param totalSegments
+		 * @public
+		 * @param {Number} segment
+		 * @param {Number} totalSegments
+		 * @returns {ScanBuilder}
 		 */
 		withConcurrency(segment, totalSegments) {
 			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, this._scan.attributes, this._scan.limit, segment, totalSegments, this._scan.consistentRead, this._scan.skipDeserialization, this._scan.countOnly, this._scan.description);
