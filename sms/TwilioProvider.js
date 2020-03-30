@@ -103,7 +103,7 @@ module.exports = (() => {
 					recipientNumbersToUse.forEach((targetNumber) => {
 						logger.debug('Sending sms via twilio to', targetNumber);
 
-						return this._publisher.sendMessage({ from: sourceNumberToUse, to: targetNumber, body: content }, () => {
+						return this._publisher.messages.create({ from: sourceNumberToUse, to: targetNumber, body: content }, () => {
 							resolveCallback();
 						});
 					});
