@@ -80,7 +80,7 @@ module.exports = (() => {
 					}
 
 					assert.argumentIsRequired(content, 'content', String);
-					assert.argumentIsOptional(sourceNumber, 'source', String);
+					assert.argumentIsOptional(source, 'source', String);
 
 					checkReady.call(this);
 
