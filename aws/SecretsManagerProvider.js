@@ -74,6 +74,7 @@ module.exports = (() => {
 		/**
 		 * Gets a secret value.
 		 *
+		 * @public
 		 * @param {String} secretId
 		 * @return {Promise<SecretsManager.GetSecretValueResponse>}
 		 */
