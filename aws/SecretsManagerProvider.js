@@ -19,7 +19,7 @@ module.exports = (() => {
 	 * @extends Disposable
 	 * @param {object} configuration
 	 * @param {string} configuration.region - The AWS region (e.g. "us-east-1").
-	 * @param {string=} configuration.apiVersion - The SES version (defaults to "2010-12-01").
+	 * @param {string=} configuration.apiVersion - The Secrets Manager version (defaults to "2017-10-17").
 	 */
 	class SecretsManagerProvider extends Disposable {
 		constructor(configuration) {
