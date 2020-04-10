@@ -37,7 +37,7 @@ module.exports = (() => {
 					let result;
 
 					if (this._cache.has(secretId)) {
-						result = Promise.resolve(cache.get(secretId));
+						result = Promise.resolve(this._cache.get(secretId));
 					} else {
 						result = provider.getSecretValue(secretId)
 							.then((data) => {
