@@ -11,9 +11,8 @@ module.exports = (() => {
 	const logger = log4js.getLogger('common-node/aws/SecretsManagerProvider');
 
 	/**
-	 * A facade for Amazon's Secrets Manager. The constructor
-	 * accepts configuration options. The promise-based instance functions
-	 * abstract knowledge of the AWS API.
+	 * A facade for Amazon's Secrets Manager. The constructor accepts configuration
+	 * options. The promise-based instance functions abstract knowledge of the AWS API.
 	 *
 	 * @public
 	 * @extends Disposable
@@ -76,7 +75,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {String} secretId
-		 * @return {Promise<SecretsManager.GetSecretValueResponse>}
+		 * @returns {Promise<SecretsManager.GetSecretValueResponse>}
 		 */
 		getSecretValue(secretId) {
 			return Promise.resolve()
