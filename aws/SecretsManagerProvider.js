@@ -71,16 +71,20 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Gets a secret value.
+		 * Gets a secret's value.
 		 *
 		 * @public
 		 * @param {String} secretId
-		 * @returns {Promise<SecretsManager.GetSecretValueResponse>}
+		 * @returns {Promise<String>}
 		 */
 		getSecretValue(secretId) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(secretId, 'secretId', String);
+
+					if (secretId.length === 0) {
+						throw new Error('Unable to retrieve value of a zero-length secret');
+					}
 
 					checkReady.call(this);
 
@@ -88,8 +92,10 @@ module.exports = (() => {
 
 					params.SecretId = secretId;
 
-					return this._sm.getSecretValue(params).promise()
-						.catch((err) => {
+					return Promise.resolve(this._sm.getSecretValue(params).promise())
+						.then((response) => {
+							return response.SecretString;
+						}).catch((err) => {
 							logger.error(`SecretsManager Provider failed to get secret [ ${secretId} ]`);
 
 							return Promise.reject(err);
@@ -98,7 +104,7 @@ module.exports = (() => {
 		}
 
 		_onDispose() {
-			logger.debug('SecretsManager provider disposed');
+			logger.debug('Secrets Manager Provider disposed');
 		}
 
 		toString() {

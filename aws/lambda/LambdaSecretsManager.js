@@ -10,7 +10,7 @@ module.exports = (() => {
 	 */
 	class LambdaSecretsManager {
 		constructor() {
-
+			this._cache = new Map();
 		}
 
 		/**
@@ -27,22 +27,21 @@ module.exports = (() => {
 		/**
 		 * Gets value from AWS Secrets Manager.
 		 *
+		 * @public
 		 * @param {String} secretId
-		 * @return {Promise<SecretsManager.Types.GetSecretValueResponse, AWSError>}
+		 * @return {Promise<String>}
 		 */
 		getValue(secretId) {
-			return Promise.resolve()
-				.then(() => {
-					return getSecretsManagerProvider();
-				}).then((provider) => {
+			return getSecretsManagerProvider()
+				.then((provider) => {
 					let result;
 
-					if (cache.has(secretId)) {
+					if (this._cache.has(secretId)) {
 						result = Promise.resolve(cache.get(secretId));
 					} else {
 						result = provider.getSecretValue(secretId)
 							.then((data) => {
-								cache.set(secretId, data);
+								this._cache.set(secretId, data);
 
 								return data;
 							});
@@ -53,6 +52,13 @@ module.exports = (() => {
 		}
 	}
 
+	let secretsManagerProviderPromise = null;
+
+	/**
+	 * @function
+	 * @private
+	 * @returns {SecretsManagerProvider}
+	 */
 	function getSecretsManagerProvider() {
 		if (secretsManagerProviderPromise === null) {
 			secretsManagerProviderPromise = Promise.resolve()
@@ -72,10 +78,6 @@ module.exports = (() => {
 
 		return secretsManagerProviderPromise;
 	}
-
-	let secretsManagerProviderPromise = null;
-
-	const cache = new Map();
 
 	const instance = new LambdaSecretsManager();
 
