@@ -157,14 +157,20 @@ module.exports = (() => {
 				throw new Error('The limit must be a positive integer.');
 			}
 
-			if (this._segment !== null && this._totalSegments !== null) {
-				if (!is.large(this._totalSegments) || this._totalSegments <= 0) {
-					throw new Error('The totalSegments must be a positive integer');
-				}
+			if ((this._segment !== null ^ this._totalSegments !== null) === 1) {
+				throw new Error('Parallel queries must supply both the target segment and total segments.');
+			}
 
-				if (!is.large(this._segment) || this._segment < 0 || this._segment >= this._totalSegments) {
-					throw new Error('The segment must be >= 0 and < totalSegments')
-				}
+			if (this._totalSegments !== null && !(is.integer(this._totalSegments) && is.positive(this._totalSegments))) {
+				throw new Error('Parallel queries must use a positive integer value for total segments.');
+			}
+
+			if (this._segment !== null && (is.integer(this._segment) && !is.negative(this._segment))) {
+				throw new Error('Parallel queries cannot have a target segment with a negative value');
+			}
+
+			if (this._segment !== null && !(this._segment < this._totalSegments)) {
+				throw new Error('Parallel queries must use use a target segment value less than the total segments');
 			}
 		}
 
