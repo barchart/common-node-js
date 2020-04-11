@@ -121,6 +121,20 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Sets a segmentation for parallel scan.
+		 *
+		 * @public
+		 * @param {Number} segment
+		 * @param {Number} totalSegments
+		 * @returns {ScanBuilder}
+		 */
+		withConcurrency(segment, totalSegments) {
+			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, this._scan.attributes, this._scan.limit, segment, totalSegments, this._scan.consistentRead, this._scan.skipDeserialization, this._scan.countOnly, this._scan.description);
+
+			return this;
+		}
+
+		/**
 		 * Adds a description to the scan and returns the current instance.
 		 *
 		 * @public
@@ -168,20 +182,6 @@ module.exports = (() => {
 		 */
 		withCount() {
 			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, this._scan.attributes, this._scan.limit, this._scan.segment, this._scan.totalSegments, this._scan.consistentRead, this._scan.skipDeserialization, true, this._scan.description);
-
-			return this;
-		}
-
-		/**
-		 * Sets a segmentation for parallel scan.
-		 *
-		 * @public
-		 * @param {Number} segment
-		 * @param {Number} totalSegments
-		 * @returns {ScanBuilder}
-		 */
-		withConcurrency(segment, totalSegments) {
-			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, this._scan.attributes, this._scan.limit, segment, totalSegments, this._scan.consistentRead, this._scan.skipDeserialization, this._scan.countOnly, this._scan.description);
 
 			return this;
 		}
