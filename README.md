@@ -1,5 +1,7 @@
 # @barchart/common-node-js
 
+[![AWS CodeBuild](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiNmJ5Z1dYK2k4UTltRC82RVJxQ1ZzenVWTEFha0hqRnp2eHN3N3dpLzNIdzZmUDF4MGNFaGN4R1NKUFR6OUx5ajJEQUtYMkRXSXVHSDZPaTlnYVd1dzFzPSIsIml2UGFyYW1ldGVyU3BlYyI6Im96ZXJKeEltTWdSYkd5UnYiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)](https://github.com/barchart/barchart-common-node-js)
+
 A *public* library of shared JavaScript utilities. These utilities only suitable for Node.js environments.
 
 ### Overview
