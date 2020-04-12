@@ -165,7 +165,7 @@ module.exports = (() => {
 				throw new Error('Parallel queries must use a positive integer value for total segments.');
 			}
 
-			if (this._segment !== null && (is.integer(this._segment) && !is.negative(this._segment))) {
+			if (this._segment !== null && !(is.integer(this._segment) && !is.negative(this._segment))) {
 				throw new Error('Parallel queries cannot have a target segment with a negative value');
 			}
 
