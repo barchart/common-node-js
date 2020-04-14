@@ -12,6 +12,12 @@ module.exports = (() => {
 
 	let queryCounter = 0;
 
+	/**
+	 * An abstract class for executing queries against a Postgres database.
+	 *
+	 * @public
+	 * @abstract
+	 */
 	class Client extends Disposable {
 		constructor(pgClient, preparedStatementMap) {
 			super();
@@ -23,6 +29,15 @@ module.exports = (() => {
 			this._preparedStatementMap = preparedStatementMap;
 		}
 
+		/**
+		 * Executes a query.
+		 *
+		 * @public
+		 * @param {String} query
+		 * @param {Array=} parameters
+		 * @param {String=} name
+		 * @returns {Promise<Object[]>}
+		 */
 		query(query, parameters, name) {
 			return Promise.resolve()
 				.then(() => {
@@ -39,7 +54,6 @@ module.exports = (() => {
 
 							if (!this._preparedStatementMap.hasOwnProperty(name)) {
 								this._preparedStatementMap[name] = query;
-
 							}
 
 							queryObject.text = this._preparedStatementMap[name];
