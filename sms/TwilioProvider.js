@@ -141,6 +141,41 @@ module.exports = (() => {
 				});
 		}
 
+		/**
+		 * Retrieve lookup data on phone number.
+		 *
+		 * @public
+		 * @param {String} phone
+		 * @returns {Promise<Object>}
+		 */
+		lookupPhoneNumber(phone) {
+			return Promise.resolve()
+				.then(() => {
+
+					assert.argumentIsRequired(phone, 'phone', String);
+
+					checkReady.call(this);
+
+					logger.debug('Looking up phone number [', phone, '] via Twilio');
+
+					const sendAction = () => {
+
+						return this._client.lookups.phoneNumbers(phone).fetch({ type: [ 'carrier' ] })
+							.then((response) => {
+								logger.debug('Lookup data retrieved for phone number [', phone, '] via Twilio with e164 [', response.phoneNumber, ']');
+
+								return response;
+							}).catch((e) => {
+								logger.error('Lookup failed for phone number [', phone, '] via Twilio', e);
+
+								return null;
+							});
+					};
+
+					return this._rateLimiter.enqueue(sendAction);
+				});
+		}
+
 		_onDispose() {
 			logger.debug('Twilio disposed');
 
