@@ -11,6 +11,17 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('common-node/sms/TwilioProvider');
 
+	/**
+	 * A wrapper for the Twilio SDK.
+	 *
+	 * @public
+	 * @param {Object} configuration
+	 * @param {Object} configuration.accountSid
+	 * @param {Object} configuration.authToken
+	 * @param {Object} configuration.sourceNumber
+	 * @param {Array<String>|String=} recipientOverride
+	 * @param {Number=} rateLimitPerSecond
+	 */
 	class TwilioProvider extends Disposable {
 		constructor(configuration) {
 			super();
@@ -142,16 +153,16 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Retrieve lookup data on phone number.
+		 * Retrieve the E.164 formatted phone number, given a phone number
+		 * in another format.
 		 *
 		 * @public
 		 * @param {String} phone
-		 * @returns {Promise<Object>}
+		 * @returns {Promise<String|null>}
 		 */
-		lookupPhoneNumber(phone) {
+		getPhoneNumberE164(phone) {
 			return Promise.resolve()
 				.then(() => {
-
 					assert.argumentIsRequired(phone, 'phone', String);
 
 					checkReady.call(this);
@@ -162,7 +173,7 @@ module.exports = (() => {
 						.then((response) => {
 							logger.debug('Lookup data retrieved for phone number [', phone, '] via Twilio with e164 [', response.phoneNumber, ']');
 
-							return response;
+							return response.phoneNumber;
 						}).catch((e) => {
 							logger.error('Lookup failed for phone number [', phone, '] via Twilio', e);
 
