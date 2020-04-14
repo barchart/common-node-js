@@ -26,7 +26,10 @@ module.exports = (() => {
 		}
 
 		getClient() {
-			return this._getClient();
+			return Promise.resolve()
+				.then(() => {
+					return this._getClient();
+				});
 		}
 
 		_getClient() {
