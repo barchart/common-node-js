@@ -4,6 +4,18 @@ const assert = require('@barchart/common-js/lang/assert'),
 module.exports = (() => {
 	'use strict';
 
+	/**
+	 * An abstract class for providing Postgres {@link Client} instances.
+	 *
+	 * @public
+	 * @abstract
+	 * @param {String} host
+	 * @param {String} database
+	 * @param {String} username
+	 * @param {String} password
+	 * @param {Number=} port
+	 * @param {String=} applicationName
+	 */
 	class ClientProvider extends Disposable {
 		constructor(host, database, username, password, port, applicationName) {
 			super();
@@ -25,6 +37,12 @@ module.exports = (() => {
 			};
 		}
 
+		/**
+		 * Creates a new Postgres {@link Client} instance.
+		 *
+		 * @public
+		 * @returns {Promise<Client>}
+		 */
 		getClient() {
 			return Promise.resolve()
 				.then(() => {
