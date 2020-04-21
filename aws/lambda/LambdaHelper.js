@@ -49,8 +49,9 @@ module.exports = (() => {
 		/**
 		 * Returns secret value from AWS Secrets Manager.
 		 *
+		 * @public
 		 * @param {String} secretId
-		 * @return {Promise<SecretsManager.Types.GetSecretValueResponse, AWSError>}
+		 * @return {Promise<String>}
 		 */
 		static getSecretValue(secretId) {
 			assert.argumentIsRequired(secretId, 'secretId', String);
