@@ -12,6 +12,7 @@ const bodyParser = require('body-parser'),
 	socketIO = require('socket.io');
 
 const assert = require('@barchart/common-js/lang/assert'),
+	attributes = require('@barchart/common-js/lang/attributes'),
 	CommandHandler = require('@barchart/common-js/commands/CommandHandler'),
 	Disposable = require('@barchart/common-js/lang/Disposable'),
 	DisposableStack = require('@barchart/common-js/collections/specialized/DisposableStack'),
@@ -993,12 +994,12 @@ module.exports = (() => {
 
 					logger.trace('Validating command (' + sequence + ') with the following arguments:', validationData);
 
-					return validationCommand.process(validationData)
+					return Promise.resolve(validationCommand.process(validationData))
 						.then((result) => {
 							if (result) {
 								logger.trace('Validated command (' + sequence + ')');
 
-								 return validationCommand.payload;
+								 return validationData.payload;
 							} else {
 								logger.info('Validated failed (' + sequence + ')');
 
@@ -1016,7 +1017,7 @@ module.exports = (() => {
 					} else {
 						logger.trace('Processing command (' + sequence + ') with the following arguments:', commandArguments);
 
-						return command.process(commandArguments)
+						return Promise.resolve(command.process(commandArguments))
 							.then((result) => {
 								if (is.object(result) || is.array(result)) {
 									response.json(result);
