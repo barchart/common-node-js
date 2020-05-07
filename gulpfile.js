@@ -5,7 +5,8 @@ const bump = require('gulp-bump'),
     git = require('gulp-git'),
     gitStatus = require('git-get-status'),
     jasmine = require('gulp-jasmine'),
-    jshint = require('gulp-jshint');
+    jshint = require('gulp-jshint'),
+	prompt = require('gulp-prompt');
 
 const fs = require('fs');
 
@@ -23,9 +24,24 @@ gulp.task('ensure-clean-working-directory', (cb) => {
     });
 });
 
+gulp.task('bump-choice', (cb) => {
+	const processor = prompt.prompt({
+		type: 'list',
+		name: 'bump',
+		message: 'What type of bump would you like to do?',
+		choices: ['patch', 'minor', 'major'],
+	}, (res) => {
+		global.bump = res.bump;
+
+		return cb();
+	});
+
+	return gulp.src(['./package.json']).pipe(processor);
+});
+
 gulp.task('bump-version', () => {
     return gulp.src([ './package.json' ])
-        .pipe(bump({ type: 'patch' }))
+        .pipe(bump({ type: global.bump || 'patch' }))
         .pipe(gulp.dest('./'));
 });
 
@@ -71,6 +87,7 @@ gulp.task('release', gulp.series(
 	'ensure-clean-working-directory',
 	'execute-node-tests',
 	'document',
+	'bump-choice',
 	'bump-version',
 	'commit-changes',
 	'push-changes',
