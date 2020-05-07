@@ -160,11 +160,12 @@ module.exports = (() => {
 			});
 		}
 
-		addService(basePath, routePath, verb, command) {
+		addService(basePath, routePath, verb, command, validationCommand) {
 			assert.argumentIsRequired(basePath, 'basePath', String);
 			assert.argumentIsRequired(routePath, 'routePath', String);
 			assert.argumentIsRequired(verb, 'verb', Verb, 'Verb');
 			assert.argumentIsRequired(command, 'command', CommandHandler, 'CommandHandler');
+			assert.argumentIsRequired(validationCommand, 'validationCommand', CommandHandler, 'CommandHandler');
 
 			if (this._started) {
 				throw new Error('Unable to add route, the server has already been started.');
@@ -180,7 +181,7 @@ module.exports = (() => {
 			const handlerData = {
 				verb: verb,
 				path: routePath,
-				handler: buildRestHandler(verb, basePath, routePath, command)
+				handler: buildRestHandler(verb, basePath, routePath, command, validationCommand)
 			};
 
 			this._serviceMap[basePath].handlers.push(handlerData);
@@ -725,7 +726,7 @@ module.exports = (() => {
 			const server = serverContainer.getServer(container.getPort(), container.getIsSecure(), false);
 
 			endpoints.forEach((endpoint) => {
-				server.addService(container.getPath(), endpoint.getPath(), endpoint.getRestAction().getVerb(), endpoint.getExecutionCommand());
+				server.addService(container.getPath(), endpoint.getPath(), endpoint.getRestAction().getVerb(), endpoint.getExecutionCommand(), endpoint.getValidationCommand());
 			});
 
 			return true;
@@ -959,7 +960,7 @@ module.exports = (() => {
 
 	let sequencer = 0;
 
-	function buildRestHandler(verb, basePath, routePath, command) {
+	function buildRestHandler(verb, basePath, routePath, command, validationCommand) {
 		let argumentExtractionStrategy = ExpressArgumentExtractionStrategy.getStrategies().find((candidate) => {
 			return candidate.canProcess(verb);
 		});
@@ -979,23 +980,57 @@ module.exports = (() => {
 
 			return Promise.resolve()
 				.then(() => {
-					const commandArguments = argumentExtractionStrategy.getCommandArguments(verb, request);
-
-					logger.trace('Processing command (' + sequence + ') with the following arguments:', commandArguments);
-
-					return command.process(commandArguments);
-				}).then((result) => {
-					if (is.object(result) || is.array(result)) {
-						response.json(result);
-					} else if (verb === Verb.GET && (is.null(result) || is.undefined(result))) {
-						response.status(404);
-						response.json(generateRestResponse('no data'));
+					const validationData = {
+						payload: argumentExtractionStrategy.getCommandArguments(verb, request) || { }
+					};
+					
+					if (attributes.has(request, 'headers.authorization')) {
+						validationData.context = { };
+						validationData.context.token = request.headers.authorization;
 					} else {
-						response.status(200);
-						response.json(generateRestResponse('success'));
+						validationData.context = null;
 					}
 
-					logger.debug('Processing completed for', verb.getCode(), 'at', path.join(basePath, routePath), '(' + sequence + ')');
+					logger.trace('Validating command (' + sequence + ') with the following arguments:', validationData);
+
+					return validationCommand.process(validationData)
+						.then((result) => {
+							if (result) {
+								logger.trace('Validated command (' + sequence + ')');
+
+								 return validationCommand.payload;
+							} else {
+								logger.info('Validated failed (' + sequence + ')');
+
+								return null;
+							}
+						}).catch((e) => {
+							logger.error('Validated error (' + sequence + ')', e);
+
+							return null;
+						});
+				}).then((commandArguments) => {
+					if (commandArguments === null) {
+						response.status(401);
+						response.json(generateRestResponse('unauthorized'));
+					} else {
+						logger.trace('Processing command (' + sequence + ') with the following arguments:', commandArguments);
+
+						return command.process(commandArguments)
+							.then((result) => {
+								if (is.object(result) || is.array(result)) {
+									response.json(result);
+								} else if (verb === Verb.GET && (is.null(result) || is.undefined(result))) {
+									response.status(404);
+									response.json(generateRestResponse('no data'));
+								} else {
+									response.status(200);
+									response.json(generateRestResponse('success'));
+								}
+
+								logger.debug('Processing completed for', verb.getCode(), 'at', path.join(basePath, routePath), '(' + sequence + ')');
+							});
+					}
 				}).catch((error) => {
 					logger.error('Processing failed for', verb.getCode(), 'at', path.join(basePath, routePath), '(' + sequence + ')');
 					logger.error(error);

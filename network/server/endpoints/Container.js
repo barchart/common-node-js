@@ -1,22 +1,14 @@
-const log4js = require('log4js');
-
 const assert = require('@barchart/common-js/lang/assert'),
 	is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
 	'use strict';
 
-	const logger = log4js.getLogger('common-node/network/server/endpoints/Container');
-
-	let sequencer = 0;
-
 	class Container {
 		constructor(port, path, secure) {
 			assert.argumentIsOptional(port, 'port', Number);
 			assert.argumentIsOptional(path, 'path', String);
 			assert.argumentIsOptional(secure, 'secure', Boolean);
-
-			const sequence = sequencer++;
 
 			this._port = getEffectivePort(port);
 			this._path = path || null;
