@@ -498,6 +498,54 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Edits an existing item's attributes.
+		 *
+		 * @public
+		 * @param {Object} payload - The item to write.
+		 * @param {Table} table - Describes the schema of the table to write to.
+		 * @returns {Promise<Boolean>}
+		 */
+		updateItem(payload, table) {
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsRequired(payload, 'payload', Object);
+					assert.argumentIsRequired(table, 'table', Table, 'Table');
+
+					checkReady.call(this);
+
+					const updateItem = () => {
+						return this._dynamo.updateItem(payload).promise()
+							.then(() => {
+								return Promise.resolve({ code: DYNAMO_RESULT.SUCCESS });
+							}).catch((error) => {
+								const dynamoError = Enum.fromCode(DynamoError, error.code);
+
+								let result;
+
+								if (dynamoError !== null && dynamoError.retryable) {
+									logger.debug('Encountered retryable error [', error.code, '] while putting an item into [', table.name, ']');
+
+									result = Promise.reject(error);
+								} else {
+									result = Promise.resolve({ code: DYNAMO_RESULT.FAILURE, error: error });
+								}
+
+								return result;
+							});
+					};
+
+					return this._scheduler.backoff(updateItem, WRITE_MILLISECOND_BACKOFF)
+						.then((result) => {
+							if (result.code === DYNAMO_RESULT.FAILURE) {
+								throw result.error;
+							}
+
+							return true;
+						});
+				});
+		}
+
+		/**
 		 * Adds multiple items to a table. Unlike the {@link DynamoProvider#saveItem} function,
 		 * batches are processed serially; that is, writes from a batch must complete before
 		 * writes from a subsequent batch are started.
@@ -633,7 +681,7 @@ module.exports = (() => {
 							return [ ];
 						}
 					};
-					
+
 					const runScanRecursive = (previous) => {
 						const executeScan = () => {
 							const r = run++;
