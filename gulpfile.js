@@ -45,15 +45,6 @@ gulp.task('bump-version', () => {
         .pipe(gulp.dest('./'));
 });
 
-gulp.task('document', (cb) => {
-	exec('jsdoc . -c jsdoc.json -r -d docs', (error, stdout, stderr) => {
-		console.log(stdout);
-		console.log(stderr);
-
-		cb();
-	});
-});
-
 gulp.task('commit-changes', () => {
     return gulp.src([ './', './package.json' ])
         .pipe(git.add())
@@ -86,7 +77,6 @@ gulp.task('execute-tests', gulp.series('execute-node-tests'));
 gulp.task('release', gulp.series(
 	'ensure-clean-working-directory',
 	'execute-node-tests',
-	'document',
 	'bump-choice',
 	'bump-version',
 	'commit-changes',

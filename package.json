@@ -1,6 +1,6 @@
 {
   "name": "@barchart/common-node-js",
-  "version": "3.5.1",
+  "version": "3.5.0",
   "description": "Common classes, utilities, and functions for building Node.js servers",
   "author": {
     "name": "Bryan Ingle",
@@ -56,7 +56,6 @@
     "gulp-jasmine": "^2.2.1",
     "gulp-jshint": "~2.1.0",
     "gulp-prompt": "^1.2.0",
-    "jsdoc": "^3.5.5",
     "jshint": "2.9.5"
   },
   "license": "MIT",

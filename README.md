@@ -25,16 +25,15 @@ A companion library called [@barchart/common-js](https://github.com/barchart/bar
 
 #### Documentation
 
-The code is documented with [JSDoc](http://usejsdoc.org/). While the output hasn't been committed to source control, you can generate the documentation by using the following commands:
-
-    > npm install
-    > gulp document
+The code is documented with [JSDoc](http://usejsdoc.org/). This will be used as the basis for formal documentation (coming soon).
 
 #### Package Managers
 
 This library has been published as a *public* module to NPM as [@barchart/common-node-js](https://www.npmjs.com/package/@barchart/common-node-js).
 
-    > npm install @barchart/common-node-js -S
+```shell
+npm install @barchart/common-node-js -S
+```
 
 #### License
 
