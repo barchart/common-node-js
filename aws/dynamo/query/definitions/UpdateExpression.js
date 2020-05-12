@@ -6,6 +6,16 @@ const Attribute = require('./../../schema/definitions/Attribute'),
 module.exports = (() => {
 	'use strict';
 
+	/**
+	 * Defines the change to make to one field during an {@link Update} operation.
+	 *
+	 * @public
+	 * @extends {Expression}
+	 * @param {UpdateActionType} actionType
+	 * @param {Attribute} attribute
+	 * @param {OperatorType} operatorType
+	 * @param {*} operand
+	 */
 	class UpdateExpression extends Expression {
 		constructor(actionType, attribute, operatorType, operand) {
 			super(attribute, operatorType, operand);
