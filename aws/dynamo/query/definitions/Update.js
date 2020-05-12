@@ -11,6 +11,17 @@ const Action = require('./Action'),
 module.exports = (() => {
 	'use strict';
 
+	/**
+	 * The definition of an update action.
+	 *
+	 * @public
+	 * @extends {Action}
+	 * @param {Table} table
+	 * @param {Filter} keyFilter
+	 * @param {Filter} conditionFilter
+	 * @param {UpdateExpression[]} expressions
+	 * @param {String=} description
+	 */
 	class Update extends Action {
 		constructor(table, keyFilter, conditionFilter, expressions, description) {
 			super(table, null, (description || '[Unnamed Update]'));
@@ -31,19 +42,20 @@ module.exports = (() => {
 		}
 
 		/**
-		 * A {@link Filter} to apply condition expression.
+		 * An optional {@link Filter} to apply condition expression.
 		 *
 		 * @public
-		 * @returns {Filter}
+		 * @returns {Filter|null}
 		 */
 		get conditionFilter() {
 			return this._conditionFilter;
 		}
 
 		/**
-		 * An array of update expressions to complete.
+		 * An array of update actions to process.
 		 *
-		 * @return {Array<UpdateExpression>}
+		 * @public
+		 * @returns {Array<UpdateExpression>}
 		 */
 		get expressions() {
 			return this._expressions;
