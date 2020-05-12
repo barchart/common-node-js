@@ -1,4 +1,4 @@
-const	Enum = require('@barchart/common-js/lang/Enum');
+const Enum = require('@barchart/common-js/lang/Enum');
 
 module.exports = (() => {
 	'use strict';
