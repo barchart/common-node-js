@@ -515,7 +515,7 @@ module.exports = (() => {
 					const schema = update.toUpdateSchema();
 
 					const updateItem = () => {
-						return this._dynamo.updateItem(schema).promise()
+						return Promise.resolve(this._dynamo.updateItem(schema).promise())
 							.then(() => {
 								return Promise.resolve({ code: DYNAMO_RESULT.SUCCESS });
 							}).catch((error) => {
