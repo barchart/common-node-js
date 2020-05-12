@@ -40,7 +40,6 @@ module.exports = (() => {
 			if (!(this._operatorType instanceof UpdateOperatorType)) {
 				throw new Error('OperatorType data type is invalid.');
 			}
-
 		}
 
 		toString() {
