@@ -20,9 +20,10 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Keyword for action to be used in update query.
+		 * Keyword for action to be used in DyanmoDB query language.
 		 *
-		 * @return {String}
+		 * @public
+		 * @returns {String}
 		 */
 		get keyword() {
 			return this._keyword;
@@ -69,7 +70,7 @@ module.exports = (() => {
 		}
 
 		toString() {
-			return `[UpdateActionType (code=${this._code}, description=${this._description})]`;
+			return `[UpdateActionType (code=${this.code}, description=${this.description})]`;
 		}
 	}
 
