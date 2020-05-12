@@ -12,6 +12,13 @@ const ActionBuilder = require('./ActionBuilder'),
 module.exports = (() => {
 	'use strict';
 
+	/**
+	 * Fluent interface for building an {@link Update}.
+	 *
+	 * @public
+	 * @extends {ActionBuilder}
+	 * @param {Table} table - The table targeted.
+	 */
 	class UpdateBuilder extends ActionBuilder {
 		constructor(table) {
 			super();
@@ -87,7 +94,7 @@ module.exports = (() => {
 		 * @param {String} attributeName
 		 * @param {UpdateOperatorType=} operatorType
 		 * @param operand
-		 * @return {UpdateBuilder}
+		 * @returns {UpdateBuilder}
 		 */
 		withExpression(actionType, attributeName, operatorType, operand) {
 			assert.argumentIsRequired(actionType, 'actionType', UpdateActionType, 'UpdateActionType');
