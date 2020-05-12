@@ -18,7 +18,8 @@ const ConditionalBuilder = require('./dynamo/query/builders/ConditionalBuilder')
 	TableBuilder = require('./dynamo/schema/builders/TableBuilder'),
 	Query = require('./dynamo/query/definitions/Query'),
 	Scan = require('./dynamo/query/definitions/Scan'),
-	Serializer = require('./dynamo/schema/serialization/Serializer');
+	Serializer = require('./dynamo/schema/serialization/Serializer'),
+	Update = require('./dynamo/query/definitions/Update');
 
 module.exports = (() => {
 	'use strict';
@@ -501,20 +502,20 @@ module.exports = (() => {
 		 * Edits an existing item's attributes.
 		 *
 		 * @public
-		 * @param {Object} payload - The item to write.
-		 * @param {Table} table - Describes the schema of the table to write to.
+		 * @param {Update} update
 		 * @returns {Promise<Boolean>}
 		 */
-		updateItem(payload, table) {
+		updateItem(update) {
 			return Promise.resolve()
 				.then(() => {
-					assert.argumentIsRequired(payload, 'payload', Object);
-					assert.argumentIsRequired(table, 'table', Table, 'Table');
+					assert.argumentIsRequired(update, 'update', Update, 'Update');
 
 					checkReady.call(this);
 
+					const schema = update.toUpdateSchema();
+
 					const updateItem = () => {
-						return this._dynamo.updateItem(payload).promise()
+						return this._dynamo.updateItem(schema).promise()
 							.then(() => {
 								return Promise.resolve({ code: DYNAMO_RESULT.SUCCESS });
 							}).catch((error) => {
