@@ -1001,12 +1001,12 @@ module.exports = (() => {
 
 								 return validationData.payload;
 							} else {
-								logger.info('Validated failed (' + sequence + ')');
+								logger.info('Validate failed (' + sequence + ')');
 
 								return null;
 							}
 						}).catch((e) => {
-							logger.error('Validated error (' + sequence + ')', e);
+							logger.error('Validate error (' + sequence + ')', e);
 
 							return null;
 						});
