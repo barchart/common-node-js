@@ -7,6 +7,7 @@ const Action = require('./Action'),
 	KeyType = require('./../../schema/definitions/KeyType'),
 	OperatorType = require('./OperatorType'),
 	ReturnValueType = require('./ReturnValueType'),
+	Serializers = require('./../../../dynamo/schema/serialization/Serializers'),
 	Table = require('./../../schema/definitions/Table'),
 	UpdateActionType = require('./UpdateActionType');
 
@@ -124,25 +125,27 @@ module.exports = (() => {
 		toUpdateSchema() {
 			this.validate();
 
-			const expression = { };
-
 			const schema = {
 				TableName: this._table.name
 			};
 
-			const keyExpressionData = Action.getConditionExpressionData(this._table, this._keyFilter);
+			schema.Key = this._keyFilter.expressions.reduce((acc, e) => {
+				acc[e.attribute.name] = Serializers.forDataType(e.attribute.dataType).serialize(e.operand);
 
-			schema.Key = keyExpressionData.expression;
+				return acc;
+			}, { });
 
-			expression.attributeAliases = keyExpressionData.valueAliases;
-			expression.filter = this._keyFilter;
-			expression.offset = keyExpressionData.offset;
+			const expression = { };
+
+			expression.attributeAliases = { };
+			expression.filter = new Filter([ ]);
+			expression.offset = 0;
 
 			if (this._conditionFilter !== null) {
 				const conditionExpressionData = Action.getConditionExpressionData(this._table, this._conditionFilter, expression.offset);
 
 				expression.attributeAliases = object.merge(expression.attributeAliases, conditionExpressionData.valueAliases);
-				expression.filter = Filter.merge(this._keyFilter, this._conditionFilter);
+				expression.filter = Filter.merge(expression.filter, this._conditionFilter);
 				expression.offset = conditionExpressionData.offset;
 
 				schema.ConditionExpression = conditionExpressionData.expression;
