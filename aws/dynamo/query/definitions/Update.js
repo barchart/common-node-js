@@ -5,6 +5,7 @@ const array = require('@barchart/common-js/lang/array'),
 const Action = require('./Action'),
 	Filter = require('./Filter'),
 	KeyType = require('./../../schema/definitions/KeyType'),
+	OperatorType = require('./../../query/definitions/OperatorType'),
 	Table = require('./../../schema/definitions/Table'),
 	UpdateActionType = require('./UpdateActionType');
 
@@ -42,7 +43,9 @@ module.exports = (() => {
 		}
 
 		/**
-		 * An optional {@link Filter} to apply condition expression.
+		 * An optional {@link Filter} to apply condition expression. This allows write
+		 * to proceed only if the condition expressions succeed.
+		 *
 		 *
 		 * @public
 		 * @returns {Filter|null}
@@ -79,6 +82,22 @@ module.exports = (() => {
 
 			if (this._keyFilter.expressions.filter(e => e.attribute.name === (this.table.keys.find(k => k.keyType === KeyType.HASH)).attribute.name).length !== 1) {
 				throw new Error('The key filter must reference the hash key.');
+			}
+
+			const rangeKey = this.table.keys.find(k => k.keyType === KeyType.RANGE);
+
+			if (rangeKey) {
+				if (this._keyFilter.expressions.filter(e => e.attribute.name === rangeKey.attribute.name).length !== 1) {
+					throw new Error('The key filter must reference the range key.');
+				}
+			}
+
+			if (this._keyFilter.expressions.filter(e => e.operatorType !== OperatorType.EQUALS).length > 0) {
+				throw new Error('The key filter must have only equals operators.');
+			}
+
+			if (this._expressions.length === 0) {
+				throw new Error('Must have at least one update expression.');
 			}
 
 			this._expressions.forEach(e => e.validate());
@@ -130,7 +149,7 @@ module.exports = (() => {
 				expression.filter = Filter.merge(expression.filter, new Filter(expressions));
 				expression.offset = updateExpressionData.offset;
 
-				return `${actionType.keyword} ${updateExpressionData.expressionComponents.join(', ')}`;
+				return `${actionType.keyword} ${updateExpressionData.expressionComponents.join(',')}`;
 			});
 
 			schema.ExpressionAttributeValues = expression.attributeAliases;

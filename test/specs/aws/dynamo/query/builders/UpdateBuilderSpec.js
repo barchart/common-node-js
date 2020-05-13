@@ -23,6 +23,58 @@ describe('When creating an update query', () => {
 			.table;
 	});
 
+	describe('and references only hash key', () => {
+		let builder;
+
+		beforeEach(() => {
+			builder = UpdateBuilder.targeting(table)
+				.withDescription('Test update')
+				.withKeyFilterBuilder((kfb) => {
+					kfb.withExpression('hash', OperatorType.EQUALS, 'hash-key');
+				})
+				.withExpression(UpdateActionType.SET, 'counters.first', UpdateOperatorType.PLUS, 3);
+		});
+
+		it('should throw a validation error', () => {
+			expect(() => builder.update.toUpdateSchema()).toThrowError();
+		});
+	});
+
+	describe('and references multiple targets', () => {
+		let builder;
+
+		beforeEach(() => {
+			builder = UpdateBuilder.targeting(table)
+				.withDescription('Test update')
+				.withKeyFilterBuilder((kfb) => {
+					kfb.withExpression('hash', OperatorType.EQUALS, 'hash-key')
+						.withExpression('range', OperatorType.GREATER_THAN_OR_EQUAL_TO, 0);
+				})
+				.withExpression(UpdateActionType.SET, 'counters.first', UpdateOperatorType.PLUS, 3);
+		});
+
+		it('should throw a validation error', () => {
+			expect(() => builder.update.toUpdateSchema()).toThrowError();
+		});
+	});
+
+	describe('and update expressions are missing', () => {
+		let builder;
+
+		beforeEach(() => {
+			builder = UpdateBuilder.targeting(table)
+				.withDescription('Test update')
+				.withKeyFilterBuilder((kfb) => {
+					kfb.withExpression('hash', OperatorType.EQUALS, 'hash-key')
+						.withExpression('range', OperatorType.EQUALS, 1);
+				});
+		});
+
+		it('should throw a validation error', () => {
+			expect(() => builder.update.toUpdateSchema()).toThrowError();
+		});
+	});
+
 	describe('and set different update action types', () => {
 		let builder;
 
@@ -43,7 +95,7 @@ describe('When creating an update query', () => {
 				.withExpression(UpdateActionType.SET, 'counters.first', UpdateOperatorType.PLUS, 3)
 				.withExpression(UpdateActionType.SET, 'counters.second', UpdateOperatorType.MINUS, 4)
 				.withExpression(UpdateActionType.ADD, 'counters.three', UpdateOperatorType.SPACE, 10)
-				.withExpression(UpdateActionType.REMOVE, 'counters.four', UpdateOperatorType.EMPTY);
+				.withExpression(UpdateActionType.REMOVE, 'counters.four');
 		});
 
 		it('should contain each action type keyword only once', () => {
@@ -52,6 +104,24 @@ describe('When creating an update query', () => {
 			expect(schema.UpdateExpression.match(/SET/g).length).toEqual(1);
 			expect(schema.UpdateExpression.match(/ADD/g).length).toEqual(1);
 			expect(schema.UpdateExpression.match(/REMOVE/g).length).toEqual(1);
+		});
+	});
+
+	describe('and set incompatible action type and operators', () => {
+		let builder;
+
+		beforeEach(() => {
+			builder = UpdateBuilder.targeting(table)
+				.withDescription('Test update')
+				.withKeyFilterBuilder((kfb) => {
+					kfb.withExpression('hash', OperatorType.EQUALS, 'hash-key')
+					.withExpression('range', OperatorType.EQUALS, 1);
+				})
+				.withExpression(UpdateActionType.ADD, 'name', UpdateOperatorType.MINUS, 'testing');
+		});
+
+		it('should throw an error', () => {
+			expect(() => builder.update.toUpdateSchema()).toThrowError();
 		});
 	});
 });
