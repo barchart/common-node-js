@@ -1,6 +1,7 @@
 const assert = require('@barchart/common-js/lang/assert');
 
-const Table = require('./../../schema/definitions/Table'),
+const ReturnValueType = require('./../definitions/ReturnValueType'),
+	Table = require('./../../schema/definitions/Table'),
 	Update = require('./../definitions/Update'),
 	UpdateActionType = require('./../definitions/UpdateActionType'),
 	UpdateExpression = require('./../definitions/UpdateExpression'),
@@ -61,7 +62,7 @@ module.exports = (() => {
 
 			callback(filterBuilder);
 
-			this._update = new Update(this._update.table, filterBuilder.filter, this._update.conditionFilter, this._update.expressions, this._update.description);
+			this._update = new Update(this._update.table, filterBuilder.filter, this._update.conditionFilter, this._update.expressions, this._update.returnType, this._update.description);
 
 			return this;
 		}
@@ -81,7 +82,7 @@ module.exports = (() => {
 
 			callback(filterBuilder);
 
-			this._update = new Update(this._update.table, this._update.keyFilter, filterBuilder.filter, this._update.expressions, this._update.description);
+			this._update = new Update(this._update.table, this._update.keyFilter, filterBuilder.filter, this._update.expressions, this._update.returnType, this._update.description);
 
 			return this;
 		}
@@ -106,7 +107,22 @@ module.exports = (() => {
 
 			const expressions = this._update.expressions.concat(expression);
 
-			this._update = new Update(this._update.table, this._update.keyFilter, this._update.conditionFilter, expressions, this._update.description);
+			this._update = new Update(this._update.table, this._update.keyFilter, this._update.conditionFilter, expressions, this._update.returnType, this._update.description);
+
+			return this;
+		}
+
+		/**
+		 * Add a {@link ReturnValueType} to the update.
+		 *
+		 * @public
+		 * @param {ReturnValueType} returnValueType
+		 * @return {UpdateBuilder}
+		 */
+		withReturnValueType(returnValueType) {
+			assert.argumentIsRequired(returnValueType, 'returnValueType', ReturnValueType, 'ReturnValueType');
+
+			this._update = new Update(this._update.table, this._update.keyFilter, this._update.conditionFilter, this._update.expressions, returnValueType, this._update.description);
 
 			return this;
 		}
@@ -121,7 +137,7 @@ module.exports = (() => {
 		withDescription(description) {
 			assert.argumentIsRequired(description, 'description', String);
 
-			this._update = new Update(this._update.table, this._update.keyFilter, this._update.conditionFilter, this._update.expressions, description);
+			this._update = new Update(this._update.table, this._update.keyFilter, this._update.conditionFilter, this._update.expressions, this._update.returnType, description);
 
 			return this;
 		}

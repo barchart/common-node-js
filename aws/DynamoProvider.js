@@ -503,7 +503,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Update} update
-		 * @returns {Promise<Boolean>}
+		 * @returns {Promise<Object|null>}
 		 */
 		updateItem(update) {
 			return Promise.resolve()
@@ -516,8 +516,16 @@ module.exports = (() => {
 
 					const updateItem = () => {
 						return Promise.resolve(this._dynamo.updateItem(schema).promise())
-							.then(() => {
-								return Promise.resolve({ code: DYNAMO_RESULT.SUCCESS });
+							.then((data) => {
+								let deserialized;
+
+								if (data.Attributes === null) {
+									deserialized = null;
+								} else {
+									deserialized = Serializer.deserialize(data.Attributes, update.table);
+								}
+
+								return Promise.resolve({ code: DYNAMO_RESULT.SUCCESS, results: deserialized });
 							}).catch((error) => {
 								const dynamoError = Enum.fromCode(DynamoError, error.code);
 
@@ -541,7 +549,7 @@ module.exports = (() => {
 								throw result.error;
 							}
 
-							return true;
+							return result.results;
 						});
 				});
 		}

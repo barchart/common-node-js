@@ -5,7 +5,8 @@ const array = require('@barchart/common-js/lang/array'),
 const Action = require('./Action'),
 	Filter = require('./Filter'),
 	KeyType = require('./../../schema/definitions/KeyType'),
-	OperatorType = require('./../../query/definitions/OperatorType'),
+	OperatorType = require('./OperatorType'),
+	ReturnValueType = require('./ReturnValueType'),
 	Table = require('./../../schema/definitions/Table'),
 	UpdateActionType = require('./UpdateActionType');
 
@@ -21,15 +22,17 @@ module.exports = (() => {
 	 * @param {Filter} keyFilter
 	 * @param {Filter} conditionFilter
 	 * @param {UpdateExpression[]} expressions
+	 * @param {ReturnValueType} returnType
 	 * @param {String=} description
 	 */
 	class Update extends Action {
-		constructor(table, keyFilter, conditionFilter, expressions, description) {
+		constructor(table, keyFilter, conditionFilter, expressions, returnType, description) {
 			super(table, null, (description || '[Unnamed Update]'));
 
 			this._keyFilter = keyFilter || null;
 			this._conditionFilter = conditionFilter || null;
 			this._expressions = expressions || [ ];
+			this._returnType = returnType || null;
 		}
 
 		/**
@@ -62,6 +65,14 @@ module.exports = (() => {
 		 */
 		get expressions() {
 			return this._expressions;
+		}
+
+		/**
+		 * A {@link ReturnValueType} specifies returning values of update.
+		 *
+		 */
+		get returnType() {
+			return this._returnType;
 		}
 
 		/**
@@ -155,6 +166,10 @@ module.exports = (() => {
 			schema.ExpressionAttributeValues = expression.attributeAliases;
 			schema.ExpressionAttributeNames = Action.getExpressionAttributeNames(this._table, expression.filter.expressions.map(e => e.attribute));
 			schema.UpdateExpression = updateExpressions.join(' ');
+
+			if (this._returnType) {
+				schema.ReturnValues = this._returnType.keyword;
+			}
 
 			return schema;
 		}
