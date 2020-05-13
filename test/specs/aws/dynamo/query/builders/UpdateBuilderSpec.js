@@ -32,7 +32,7 @@ describe('When creating an update query', () => {
 				.withKeyFilterBuilder((kfb) => {
 					kfb.withExpression('hash', OperatorType.EQUALS, 'hash-key');
 				})
-				.withExpression(UpdateActionType.SET, 'counters.first', UpdateOperatorType.PLUS, 3);
+				.withUpdateExpression(UpdateActionType.SET, 'counters.first', UpdateOperatorType.PLUS, 3);
 		});
 
 		it('should throw a validation error', () => {
@@ -50,7 +50,7 @@ describe('When creating an update query', () => {
 					kfb.withExpression('hash', OperatorType.EQUALS, 'hash-key')
 						.withExpression('range', OperatorType.GREATER_THAN_OR_EQUAL_TO, 0);
 				})
-				.withExpression(UpdateActionType.SET, 'counters.first', UpdateOperatorType.PLUS, 3);
+				.withUpdateExpression(UpdateActionType.SET, 'counters.first', UpdateOperatorType.PLUS, 3);
 		});
 
 		it('should throw a validation error', () => {
@@ -91,11 +91,11 @@ describe('When creating an update query', () => {
 						.withExpression('name', OperatorType.ATTRIBUTE_EXISTS)
 						.withExpression('counters.first', OperatorType.GREATER_THAN_OR_EQUAL_TO, 0);
 				})
-				.withExpression(UpdateActionType.SET, 'name', UpdateOperatorType.EQUALS_IF_NOT_EXISTS, 'testing')
-				.withExpression(UpdateActionType.SET, 'counters.first', UpdateOperatorType.PLUS, 3)
-				.withExpression(UpdateActionType.SET, 'counters.second', UpdateOperatorType.MINUS, 4)
-				.withExpression(UpdateActionType.ADD, 'counters.three', UpdateOperatorType.SPACE, 10)
-				.withExpression(UpdateActionType.REMOVE, 'counters.four');
+				.withUpdateExpression(UpdateActionType.SET, 'name', UpdateOperatorType.EQUALS_IF_NOT_EXISTS, 'testing')
+				.withUpdateExpression(UpdateActionType.SET, 'counters.first', UpdateOperatorType.PLUS, 3)
+				.withUpdateExpression(UpdateActionType.SET, 'counters.second', UpdateOperatorType.MINUS, 4)
+				.withUpdateExpression(UpdateActionType.ADD, 'counters.three', UpdateOperatorType.SPACE, 10)
+				.withUpdateExpression(UpdateActionType.REMOVE, 'counters.four');
 		});
 
 		it('should contain each action type keyword only once', () => {
@@ -117,7 +117,7 @@ describe('When creating an update query', () => {
 					kfb.withExpression('hash', OperatorType.EQUALS, 'hash-key')
 					.withExpression('range', OperatorType.EQUALS, 1);
 				})
-				.withExpression(UpdateActionType.ADD, 'name', UpdateOperatorType.MINUS, 'testing');
+				.withUpdateExpression(UpdateActionType.ADD, 'name', UpdateOperatorType.MINUS, 'testing');
 		});
 
 		it('should throw an error', () => {

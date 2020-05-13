@@ -97,7 +97,7 @@ module.exports = (() => {
 		 * @param operand
 		 * @returns {UpdateBuilder}
 		 */
-		withExpression(actionType, attributeName, operatorType, operand) {
+		withUpdateExpression(actionType, attributeName, operatorType, operand) {
 			assert.argumentIsRequired(actionType, 'actionType', UpdateActionType, 'UpdateActionType');
 			assert.argumentIsRequired(attributeName, 'attributeName', String);
 			assert.argumentIsOptional(operatorType, 'operatorType', UpdateOperatorType, 'UpdateOperatorType');
