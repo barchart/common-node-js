@@ -291,7 +291,7 @@ module.exports = (() => {
 				logger.debug('Applying HTTP headers for ' + req.originalUrl);
 
 				res.header('Access-Control-Allow-Origin', '*');
-				res.header('Access-Control-Allow-Headers', 'Accept,Access-Control-Allow-Headers,Access-Control-Request-Method,Access-Control-Request-Headers,Access-Control-Allow-Origin,Content-Type,Origin,X-Requested-With');
+				res.header('Access-Control-Allow-Headers', 'Accept,Access-Control-Allow-Headers,Access-Control-Request-Method,Access-Control-Request-Headers,Access-Control-Allow-Origin,Content-Type,Authorization,Origin,X-Requested-With');
 				res.header('Access-Control-Allow-Methods', 'PUT,GET,POST,DELETE,OPTIONS');
 
 				next();
