@@ -101,8 +101,6 @@ describe('When creating an update query', () => {
 		it('should contain each action type keyword only once', () => {
 			const schema = builder.update.toUpdateSchema();
 
-			console.log(schema);
-
 			expect(schema.UpdateExpression.match(/SET/g).length).toEqual(1);
 			expect(schema.UpdateExpression.match(/ADD/g).length).toEqual(1);
 			expect(schema.UpdateExpression.match(/REMOVE/g).length).toEqual(1);
