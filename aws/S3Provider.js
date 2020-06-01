@@ -1,6 +1,5 @@
 const aws = require('aws-sdk'),
-	log4js = require('log4js'),
-	path = require('path');
+	log4js = require('log4js');
 
 const assert = require('@barchart/common-js/lang/assert'),
 	Disposable = require('@barchart/common-js/lang/Disposable'),
@@ -41,6 +40,8 @@ module.exports = (() => {
 			assert.argumentIsRequired(configuration, 'configuration');
 			assert.argumentIsRequired(configuration.region, 'configuration.region', String);
 			assert.argumentIsOptional(configuration.apiVersion, 'configuration.apiVersion', String);
+			assert.argumentIsOptional(configuration.bucket, 'configuration.bucket', String);
+			assert.argumentIsOptional(configuration.folder, 'configuration.folder', String);
 
 			this._s3 = null;
 
@@ -101,56 +102,109 @@ module.exports = (() => {
 		/**
 		 * Retrieves the contents of a bucket.
 		 *
-		 * @param {string} bucket
-		 *
 		 * @public
-		 * @returns {Promise<Object>}
+		 * @param {string=} prefix
+		 * @param {string=} bucket
+		 * @param {number=} maximum
+		 * @param {string=} start
+		 * @returns {Promise<Object[]>}
 		 */
-		getBucketContents(bucket) {
+		getBucketContents(prefix, bucket, maximum, start) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
 
-					return promise.build((resolveCallback, rejectCallback) => {
-						this._s3.listObjects({Bucket: bucket}, (e, data) => {
-							if (e) {
-								logger.error('S3 failed to retrieve contents: ', e);
-								rejectCallback(e);
+					assert.argumentIsOptional(bucket, 'bucket', String);
+					assert.argumentIsOptional(prefix, 'prefix', String);
+					assert.argumentIsOptional(maximum, 'maximum', Number);
+					assert.argumentIsOptional(start, 'start', String);
+
+					const getBucketContentsRecursive = (continuationToken) => {
+						return promise.build((resolveCallback, rejectCallback) => {
+							const payload = { };
+
+							if (bucket) {
+								payload.Bucket = bucket;
 							} else {
-								resolveCallback({
-									content: data.Contents
-								});
+								payload.Bucket = this._configuration.bucket;
 							}
+
+							if (prefix) {
+								payload.Prefix = prefix;
+							}
+
+							if (start) {
+								payload.StartAfter = start;
+							}
+
+							if (continuationToken) {
+								payload.ContinuationToken = continuationToken;
+							}
+
+							this._s3.listObjectsV2(payload, (e, data) => {
+								if (e) {
+									logger.error('S3 failed to retrieve bucket contents: ', e);
+
+									rejectCallback(e);
+								} else {
+									const results = data.Contents.map((item) => {
+										const transformed = { };
+
+										transformed.key = item.Key;
+										transformed.size = item.Size;
+
+										return transformed;
+									});
+
+									if (data.IsTruncated === true) {
+										getBucketContentsRecursive(data.NextContinuationToken)
+											.then((more) => {
+												resolveCallback(results.concat(more));
+											});
+									} else {
+										resolveCallback(results);
+									}
+								}
+							});
 						});
-					});
+					};
+
+					return getBucketContentsRecursive();
 				});
 		}
 
 		/**
 		 * Gets a signed url.
 		 *
+		 * @public
 		 * @param {string} operation
 		 * @param {string} key
-		 *
-		 * @public
 		 * @returns {Promise<string>}
 		 */
 		getSignedUrl(operation, key) {
 			return Promise.resolve()
-			.then(() => {
-				checkReady.call(this);
+				.then(() => {
+					checkReady.call(this);
 
-				return promise.build((resolveCallback, rejectCallback) => {
-					this._s3.getSignedUrl(operation, { Bucket: this._configuration.bucket, Key: key }, function(err, url) {
-						if (err) {
-							logger.error('S3 failed to get signed url: ', err);
+					assert.argumentIsRequired(operation, 'operation', String);
+					assert.argumentIsRequired(key, 'key', String);
 
-							rejectCallback(err);
-						} else {
-							resolveCallback(url);
-						}
+					return promise.build((resolveCallback, rejectCallback) => {
+						const payload = { };
+
+						payload.Bucket = this._configuration.bucket;
+						payload.Key = key;
+
+						this._s3.getSignedUrl(operation, payload, (e, url) => {
+							if (e) {
+								logger.error('S3 failed to get signed url: ', e);
+
+								rejectCallback(e);
+							} else {
+								resolveCallback(url);
+							}
+						});
 					});
-				});
 			});
 		}
 
@@ -163,7 +217,6 @@ module.exports = (() => {
 		 * @param {string|Buffer} buffer - The content to upload
 		 * @param {string=} mimeType = Defaults to "text/plain"
 		 * @param {boolean=} secure = Indicates if the "private" ACL applies to the object
-		 *
 		 * @returns {Promise<Object>}
 		 */
 		upload(filename, content, mimeType, secure) {
@@ -179,7 +232,6 @@ module.exports = (() => {
 		 * @param {string|Buffer} buffer - The content to upload
 		 * @param {string=} mimeType = Defaults to "text/plain"
 		 * @param {boolean=} secure = Indicates if the "private" ACL applies to the object
-		 *
 		 * @returns {Promise<Object>}
 		 */
 		uploadObject(bucket, filename, content, mimeType, secure) {
@@ -238,7 +290,6 @@ module.exports = (() => {
 		 * @param {string} bucket
 		 * @param {string} key
 		 * @param {stream} reader
-		 *
 		 * @return {Promise<Object>}
 		 */
 		uploadStream(bucket, key, reader) {
@@ -259,7 +310,6 @@ module.exports = (() => {
 		 * @param {string|Buffer} buffer - The content to upload
 		 * @param {string=} mimeType = Defaults to "text/plain"
 		 * @param {boolean=} secure = Indicates if the "private" ACL applies to the object
-		 *
 		 * @returns {Promise<Object>}
 		 */
 		download(filename) {
@@ -272,7 +322,6 @@ module.exports = (() => {
 		 * @public
 		 * @param {string} bucket
 		 * @param {string} filename
-		 *
 		 * @returns {Promise<Object>}
 		 */
 		downloadObject(bucket, filename) {
@@ -299,7 +348,6 @@ module.exports = (() => {
 		 * @public
 		 * @param {string} bucket
 		 * @param {string} key
-		 *
 		 * @return {Promise<stream.Readable>}
 		 */
 		createReadStream(bucket, key) {
@@ -317,7 +365,6 @@ module.exports = (() => {
 		 * @public
 		 * @param {string} bucket
 		 * @param {string} filename
-		 *
 		 * @returns {Promise<Object>}
 		 */
 		deleteObject(bucket, filename) {
@@ -343,9 +390,7 @@ module.exports = (() => {
 		 *
 		 * @static
 		 * @public
-		 *
 		 * @param {...string|string[]} components
-		 *
 		 * @returns {string}
 		 */
 		static getQualifiedFilename() {

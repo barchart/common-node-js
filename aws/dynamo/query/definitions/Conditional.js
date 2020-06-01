@@ -1,7 +1,4 @@
-const array = require('@barchart/common-js/lang/array'),
-	assert = require('@barchart/common-js/lang/assert'),
-	is = require('@barchart/common-js/lang/is'),
-	object = require('@barchart/common-js/lang/object');
+const object = require('@barchart/common-js/lang/object');
 
 const Action = require('./Action'),
 	Filter = require('./Filter'),

@@ -1,6 +1,3 @@
-const assert = require('@barchart/common-js/lang/assert'),
-	attributes = require('@barchart/common-js/lang/attributes');
-
 const PropertyTransformation = require('./PropertyTransformation'),
 	DelegateTransformation = require('./DelegateTransformation');
 

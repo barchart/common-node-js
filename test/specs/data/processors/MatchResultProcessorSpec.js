@@ -1,157 +1,157 @@
-var MatchResultProcessor = require('./../../../../data/processors/MatchResultProcessor');
+const MatchResultProcessor = require('./../../../../data/processors/MatchResultProcessor');
 
-describe('When a MatchResultProcessor is created with an expression to test for letters', function() {
+describe('When a MatchResultProcessor is created with an expression to test for letters', () => {
 	'use strict';
 
-	var processor;
-	var configuration;
+	let processor;
+	let configuration;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new MatchResultProcessor(configuration = { propertyName: 'testProperty', matchPropertyName: 'passed', expression: '[a-z]' });
 	});
 
-	describe('and the property value is null', function() {
-		var target;
+	describe('and the property value is null', () => {
+		let target;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(target = { testProperty: null })
-				.then(function(r) {
+				.then((r) => {
 					done();
 				});
 		});
 
-		it('should assign a true value to the matched property', function() {
+		it('should assign a true value to the matched property', () => {
 			expect(target.passed).toEqual(false);
 		});
 	});
 
-	describe('and the property value is undefined', function() {
-		var target;
+	describe('and the property value is undefined', () => {
+		let target;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(target = { testProperty: undefined })
-				.then(function(r) {
+				.then((r) => {
 					done();
 				});
 		});
 
-		it('should assign a true value to the matched property', function() {
+		it('should assign a true value to the matched property', () => {
 			expect(target.passed).toEqual(false);
 		});
 	});
 
-	describe('and the property value contains letters', function() {
-		var target;
+	describe('and the property value contains letters', () => {
+		let target;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(target = { testProperty: '1x2y1z' })
-				.then(function(r) {
+				.then((r) => {
 					done();
 				});
 		});
 
-		it('should assign a true value to the matched property', function() {
+		it('should assign a true value to the matched property', () => {
 			expect(target.passed).toEqual(true);
 		});
 	});
 
-	describe('and the property value does not contain letters', function() {
-		var target;
+	describe('and the property value does not contain letters', () => {
+		let target;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(target = { testProperty: '121' })
-				.then(function(r) {
+				.then((r) => {
 					done();
 				});
 		});
 
-		it('should assign a true value to the matched property', function() {
+		it('should assign a true value to the matched property', () => {
 			expect(target.passed).toEqual(false);
 		});
 	});
 });
 
-describe('When a MatchResultProcessor is created with two expressions (starting with a letter and ending with a letter)', function() {
+describe('When a MatchResultProcessor is created with two expressions (starting with a letter and ending with a letter)', () => {
 	'use strict';
 
-	var processor;
-	var configuration;
+	let processor;
+	let configuration;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new MatchResultProcessor(configuration = { propertyName: 'testProperty', matchPropertyName: 'passed', expressions: ['^[a-z]', '[a-z]$'] });
 	});
 
-	describe('and the property value is null', function() {
-		var target;
+	describe('and the property value is null', () => {
+		let target;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(target = { testProperty: null })
-				.then(function(r) {
+				.then((r) => {
 					done();
 				});
 		});
 
-		it('should assign a true value to the matched property', function() {
+		it('should assign a true value to the matched property', () => {
 			expect(target.passed).toEqual(false);
 		});
 	});
 
-	describe('and the property value is undefined', function() {
-		var target;
+	describe('and the property value is undefined', () => {
+		let target;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(target = { testProperty: undefined })
-				.then(function(r) {
+				.then((r) => {
 					done();
 				});
 		});
 
-		it('should assign a true value to the matched property', function() {
+		it('should assign a true value to the matched property', () => {
 			expect(target.passed).toEqual(false);
 		});
 	});
 
-	describe('and the property value starts with a letter', function() {
-		var target;
+	describe('and the property value starts with a letter', () => {
+		let target;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(target = { testProperty: 'a123' })
-				.then(function(r) {
+				.then((r) => {
 					done();
 				});
 		});
 
-		it('should assign a true value to the matched property', function() {
+		it('should assign a true value to the matched property', () => {
 			expect(target.passed).toEqual(true);
 		});
 	});
 
-	describe('and the property value ends with a letter', function() {
-		var target;
+	describe('and the property value ends with a letter', () => {
+		let target;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(target = { testProperty: '987z' })
-				.then(function(r) {
+				.then((r) => {
 					done();
 				});
 		});
 
-		it('should assign a true value to the matched property', function() {
+		it('should assign a true value to the matched property', () => {
 			expect(target.passed).toEqual(true);
 		});
 	});
 
-	describe('and the property value does not start or end with a letter', function() {
-		var target;
+	describe('and the property value does not start or end with a letter', () => {
+		let target;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(target = { testProperty: '121' })
-				.then(function(r) {
+				.then((r) => {
 					done();
 				});
 		});
 
-		it('should assign a true value to the matched property', function() {
+		it('should assign a true value to the matched property', () => {
 			expect(target.passed).toEqual(false);
 		});
 	});

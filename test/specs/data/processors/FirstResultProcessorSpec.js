@@ -1,32 +1,32 @@
-var FirstResultProcessor = require('./../../../../data/processors/FirstResultProcessor');
+const FirstResultProcessor = require('./../../../../data/processors/FirstResultProcessor');
 
-describe('When a FirstResultProcessor is created', function () {
+describe('When a FirstResultProcessor is created', () => {
 	'use strict';
 
-	var processor;
+	let processor;
 
-	beforeEach(function () {
+	beforeEach(() => {
 		processor = new FirstResultProcessor();
 	});
 
-	describe('and an array with three values is passed', function () {
-		var result;
+	describe('and an array with three values is passed', () => {
+		let result;
 
-		var original;
+		let original;
 
-		var fa;
-		var so;
-		var la;
+		let fa;
+		let so;
+		let la;
 
-		beforeEach(function (done) {
-			processor.process(original = [ fa = {note: 'fa'}, so = {note: 'so'}, la = {note: 'la'}]).then(function (r) {
+		beforeEach((done) => {
+			processor.process(original = [ fa = {note: 'fa'}, so = {note: 'so'}, la = {note: 'la'}]).then((r) => {
 				result = r;
 
 				done();
 			});
 		});
 
-		it('the "fa" object should be returned', function () {
+		it('the "fa" object should be returned', () => {
 			expect(result).toBe(fa);
 		});
 	});

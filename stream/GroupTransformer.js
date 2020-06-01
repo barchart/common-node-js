@@ -38,15 +38,10 @@ module.exports = (() => {
 			this._key = null;
 		}
 
-		get transformerCount() {
-			return this._tranformations.length;
-		}
-
 		_transform(chunk, encoding, callback) {
 			this._counter = this._counter + 1;
 
 			let error = null;
-			let output = null;
 
 			if (is.object(chunk)) {
 				let key;

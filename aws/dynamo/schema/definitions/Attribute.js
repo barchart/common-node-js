@@ -1,5 +1,4 @@
-const assert = require('@barchart/common-js/lang/assert'),
-	is = require('@barchart/common-js/lang/is');
+const is = require('@barchart/common-js/lang/is');
 
 const CompressionType = require('./CompressionType'),
 	DataType = require('./DataType'),

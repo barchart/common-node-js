@@ -9,10 +9,10 @@ const bodyParser = require('body-parser'),
 	path = require('path'),
 	proxy = require('express-http-proxy'),
 	querystring = require('querystring'),
-	socketIO = require('socket.io'),
-	url = require('url');
+	socketIO = require('socket.io');
 
 const assert = require('@barchart/common-js/lang/assert'),
+	attributes = require('@barchart/common-js/lang/attributes'),
 	CommandHandler = require('@barchart/common-js/commands/CommandHandler'),
 	Disposable = require('@barchart/common-js/lang/Disposable'),
 	DisposableStack = require('@barchart/common-js/collections/specialized/DisposableStack'),
@@ -161,11 +161,12 @@ module.exports = (() => {
 			});
 		}
 
-		addService(basePath, routePath, verb, command) {
+		addService(basePath, routePath, verb, command, validationCommand) {
 			assert.argumentIsRequired(basePath, 'basePath', String);
 			assert.argumentIsRequired(routePath, 'routePath', String);
 			assert.argumentIsRequired(verb, 'verb', Verb, 'Verb');
 			assert.argumentIsRequired(command, 'command', CommandHandler, 'CommandHandler');
+			assert.argumentIsRequired(validationCommand, 'validationCommand', CommandHandler, 'CommandHandler');
 
 			if (this._started) {
 				throw new Error('Unable to add route, the server has already been started.');
@@ -181,7 +182,7 @@ module.exports = (() => {
 			const handlerData = {
 				verb: verb,
 				path: routePath,
-				handler: buildRestHandler(verb, basePath, routePath, command)
+				handler: buildRestHandler(verb, basePath, routePath, command, validationCommand)
 			};
 
 			this._serviceMap[basePath].handlers.push(handlerData);
@@ -290,7 +291,7 @@ module.exports = (() => {
 				logger.debug('Applying HTTP headers for ' + req.originalUrl);
 
 				res.header('Access-Control-Allow-Origin', '*');
-				res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+				res.header('Access-Control-Allow-Headers', 'Accept,Access-Control-Allow-Headers,Access-Control-Request-Method,Access-Control-Request-Headers,Access-Control-Allow-Origin,Content-Type,Authorization,Origin,X-Requested-With');
 				res.header('Access-Control-Allow-Methods', 'PUT,GET,POST,DELETE,OPTIONS');
 
 				next();
@@ -726,7 +727,7 @@ module.exports = (() => {
 			const server = serverContainer.getServer(container.getPort(), container.getIsSecure(), false);
 
 			endpoints.forEach((endpoint) => {
-				server.addService(container.getPath(), endpoint.getPath(), endpoint.getRestAction().getVerb(), endpoint.getExecutionCommand());
+				server.addService(container.getPath(), endpoint.getPath(), endpoint.getRestAction().getVerb(), endpoint.getExecutionCommand(), endpoint.getValidationCommand());
 			});
 
 			return true;
@@ -960,7 +961,7 @@ module.exports = (() => {
 
 	let sequencer = 0;
 
-	function buildRestHandler(verb, basePath, routePath, command) {
+	function buildRestHandler(verb, basePath, routePath, command, validationCommand) {
 		let argumentExtractionStrategy = ExpressArgumentExtractionStrategy.getStrategies().find((candidate) => {
 			return candidate.canProcess(verb);
 		});
@@ -980,23 +981,57 @@ module.exports = (() => {
 
 			return Promise.resolve()
 				.then(() => {
-					const commandArguments = argumentExtractionStrategy.getCommandArguments(verb, request);
-
-					logger.trace('Processing command (' + sequence + ') with the following arguments:', commandArguments);
-
-					return command.process(commandArguments);
-				}).then((result) => {
-					if (is.object(result) || is.array(result)) {
-						response.json(result);
-					} else if (verb === Verb.GET && (is.null(result) || is.undefined(result))) {
-						response.status(404);
-						response.json(generateRestResponse('no data'));
+					const validationData = {
+						payload: argumentExtractionStrategy.getCommandArguments(verb, request) || { }
+					};
+					
+					if (attributes.has(request, 'headers.authorization')) {
+						validationData.context = { };
+						validationData.context.token = request.headers.authorization;
 					} else {
-						response.status(200);
-						response.json(generateRestResponse('success'));
+						validationData.context = null;
 					}
 
-					logger.debug('Processing completed for', verb.getCode(), 'at', path.join(basePath, routePath), '(' + sequence + ')');
+					logger.trace('Validating command (' + sequence + ') with the following arguments:', validationData);
+
+					return Promise.resolve(validationCommand.process(validationData))
+						.then((result) => {
+							if (result) {
+								logger.trace('Validated command (' + sequence + ')');
+
+								 return validationData.payload;
+							} else {
+								logger.info('Validate failed (' + sequence + ')');
+
+								return null;
+							}
+						}).catch((e) => {
+							logger.error('Validate error (' + sequence + ')', e);
+
+							return null;
+						});
+				}).then((commandArguments) => {
+					if (commandArguments === null) {
+						response.status(401);
+						response.json(generateRestResponse('unauthorized'));
+					} else {
+						logger.trace('Processing command (' + sequence + ') with the following arguments:', commandArguments);
+
+						return Promise.resolve(command.process(commandArguments))
+							.then((result) => {
+								if (is.object(result) || is.array(result)) {
+									response.json(result);
+								} else if (verb === Verb.GET && (is.null(result) || is.undefined(result))) {
+									response.status(404);
+									response.json(generateRestResponse('no data'));
+								} else {
+									response.status(200);
+									response.json(generateRestResponse('success'));
+								}
+
+								logger.debug('Processing completed for', verb.getCode(), 'at', path.join(basePath, routePath), '(' + sequence + ')');
+							});
+					}
 				}).catch((error) => {
 					logger.error('Processing failed for', verb.getCode(), 'at', path.join(basePath, routePath), '(' + sequence + ')');
 					logger.error(error);

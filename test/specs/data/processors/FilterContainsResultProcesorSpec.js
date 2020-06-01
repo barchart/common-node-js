@@ -1,26 +1,26 @@
-var FilterContainsResultProcessor = require('./../../../../data/processors/FilterContainsResultProcessor');
+const FilterContainsResultProcessor = require('./../../../../data/processors/FilterContainsResultProcessor');
 
-describe('When a filtering an array based on containment of a single value', function() {
+describe('When a filtering an array based on containment of a single value', () => {
 	'use strict';
 
-	var processor;
+	let processor;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new FilterContainsResultProcessor({ outerArrayPropertyName: 'things', innerArrayPropertyName: 'colors', valuePropertyName: 'desiredColor' });
 	});
 
-	describe('and an array with some matching items is passed', function() {
-		var result;
+	describe('and an array with some matching items is passed', () => {
+		let result;
 
-		var context;
+		let context;
 
-		var blueTang;
-		var clownfish;
-		var goldfish;
-		var orca;
-		var damsel;
+		let blueTang;
+		let clownfish;
+		let goldfish;
+		let orca;
+		let damsel;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			context = {
 				desiredColor: 'white',
 				things: [
@@ -48,56 +48,56 @@ describe('When a filtering an array based on containment of a single value', fun
 			};
 
 			processor.process(context)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
 				});
 		});
 
-		it('an array should be returned', function() {
+		it('an array should be returned', () => {
 			expect(result instanceof Array).toEqual(true);
 		});
 
-		it('the array should have three items', function() {
+		it('the array should have three items', () => {
 			expect(result.length).toEqual(3);
 		});
 
-		it('the first item should be the clownfish', function() {
+		it('the first item should be the clownfish', () => {
 			expect(result[0]).toBe(clownfish);
 		});
 
-		it('the second item should be the orca', function() {
+		it('the second item should be the orca', () => {
 			expect(result[1]).toBe(orca);
 		});
 
-		it('the third item should be the damsel', function() {
+		it('the third item should be the damsel', () => {
 			expect(result[2]).toBe(damsel);
 		});
 	});
 });
 
-describe('When a filtering an array based on containment of a set of possible values', function() {
+describe('When a filtering an array based on containment of a set of possible values', () => {
 	'use strict';
 
-	var processor;
+	let processor;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new FilterContainsResultProcessor({ outerArrayPropertyName: 'things', innerArrayPropertyName: 'colors', valuesPropertyName: 'desiredColors' });
 	});
 
-	describe('and an array with some matching items is passed', function() {
-		var result;
+	describe('and an array with some matching items is passed', () => {
+		let result;
 
-		var context;
+		let context;
 
-		var blueTang;
-		var clownfish;
-		var goldfish;
-		var orca;
-		var damsel;
+		let blueTang;
+		let clownfish;
+		let goldfish;
+		let orca;
+		let damsel;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			context = {
 				desiredColors:  [ 'yellow', 'gold' ],
 				things: [
@@ -125,52 +125,52 @@ describe('When a filtering an array based on containment of a set of possible va
 			};
 
 			processor.process(context)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
 				});
 		});
 
-		it('an array should be returned', function() {
+		it('an array should be returned', () => {
 			expect(result instanceof Array).toEqual(true);
 		});
 
-		it('the array should have two items', function() {
+		it('the array should have two items', () => {
 			expect(result.length).toEqual(2);
 		});
 
-		it('the first item should be the blue tang', function() {
+		it('the first item should be the blue tang', () => {
 			expect(result[0]).toBe(blueTang);
 		});
 
-		it('the second item should be the goldfish', function() {
+		it('the second item should be the goldfish', () => {
 			expect(result[1]).toBe(goldfish);
 		});
 	});
 });
 
-describe('When a filtering an array based on matching exact values', function() {
+describe('When a filtering an array based on matching exact values', () => {
 	'use strict';
 
-	var processor;
+	let processor;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new FilterContainsResultProcessor({ outerArrayPropertyName: 'things', innerArrayPropertyName: 'colors', valuesPropertyName: 'desiredColors', exact: true });
 	});
 
-	describe('and an array with some matching items is passed', function() {
-		var result;
+	describe('and an array with some matching items is passed', () => {
+		let result;
 
-		var context;
+		let context;
 
-		var blueTang;
-		var clownfish;
-		var goldfish;
-		var orca;
-		var damsel;
+		let blueTang;
+		let clownfish;
+		let goldfish;
+		let orca;
+		let damsel;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			context = {
 				desiredColors:  [ 'black', 'white' ],
 				things: [
@@ -198,22 +198,22 @@ describe('When a filtering an array based on matching exact values', function() 
 			};
 
 			processor.process(context)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
 				});
 		});
 
-		it('an array should be returned', function() {
+		it('an array should be returned', () => {
 			expect(result instanceof Array).toEqual(true);
 		});
 
-		it('the array should have one item', function() {
+		it('the array should have one item', () => {
 			expect(result.length).toEqual(1);
 		});
 
-		it('the first item should be the damsel', function() {
+		it('the first item should be the damsel', () => {
 			expect(result[0]).toBe(damsel);
 		});
 	});

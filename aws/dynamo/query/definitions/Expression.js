@@ -1,5 +1,4 @@
-const assert = require('@barchart/common-js/lang/assert'),
-	is = require('@barchart/common-js/lang/is');
+const is = require('@barchart/common-js/lang/is');
 
 const Attribute = require('./../../schema/definitions/Attribute'),
 	OperatorType = require('./OperatorType');
@@ -20,7 +19,7 @@ module.exports = (() => {
 			this._attribute = attribute;
 			this._operatorType = operatorType || null;
 
-			var operandToUse;
+			let operandToUse;
 
 			if (is.undefined(operand)) {
 				operandToUse = null;

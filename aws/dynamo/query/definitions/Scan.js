@@ -19,19 +19,25 @@ module.exports = (() => {
 	 * @param {Filter} filter
 	 * @param {Array<Attribute>} attributes
 	 * @param {Number=} limit
+	 * @param {Number=} segment
+	 * @param {Number=} totalSegments
 	 * @param {Boolean=} consistentRead
 	 * @param {Boolean=} skipDeserialization
+	 * @param {Boolean=} countOnly
 	 * @param {String=} description
 	 */
 	class Scan extends Action {
-		constructor(table, index, filter, attributes, limit, consistentRead, skipDeserialization, description) {
+		constructor(table, index, filter, attributes, limit, segment, totalSegments, consistentRead, skipDeserialization, countOnly, description) {
 			super(table, index, (description || '[Unnamed Scan]'));
 
 			this._filter = filter || null;
 			this._attributes = attributes || [ ];
 			this._limit = limit || null;
+			this._segment = is.number(segment) ? segment : null;
+			this._totalSegments = is.number(totalSegments) ? totalSegments : null;
 			this._skipDeserialization = skipDeserialization || false;
 			this._consistentRead = consistentRead || false;
+			this._countOnly = countOnly || false;
 		}
 
 		/**
@@ -67,6 +73,26 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Identifies an individual segment to be scanned by an AWS DynamoDB worker.
+		 *
+		 * @public
+		 * @return {Number|null}
+		 */
+		get segment() {
+			return this._segment;
+		}
+
+		/**
+		 * The total number of segments into which the Scan operation will be divided.
+		 *
+		 * @public
+		 * @return {Number|null}
+		 */
+		get totalSegments() {
+			return this._totalSegments;
+		}
+
+		/**
 		 * If true, a consistent read will be used.
 		 *
 		 * @public
@@ -85,6 +111,16 @@ module.exports = (() => {
 		 */
 		get skipDeserialization() {
 			return this._skipDeserialization;
+		}
+
+		/**
+		 * If true, the query will return a record count only.
+		 *
+		 * @public
+		 * @returns {Boolean}
+		 */
+		get countOnly() {
+			return this._countOnly;
 		}
 
 		/**
@@ -120,6 +156,22 @@ module.exports = (() => {
 			if (this._limit !== null && (!is.large(this._limit) || !(this._limit > 0))) {
 				throw new Error('The limit must be a positive integer.');
 			}
+
+			if ((this._segment !== null ^ this._totalSegments !== null) === 1) {
+				throw new Error('Parallel queries must supply both the target segment and total segments.');
+			}
+
+			if (this._totalSegments !== null && !(is.integer(this._totalSegments) && is.positive(this._totalSegments))) {
+				throw new Error('Parallel queries must use a positive integer value for total segments.');
+			}
+
+			if (this._segment !== null && !(is.integer(this._segment) && !is.negative(this._segment))) {
+				throw new Error('Parallel queries cannot have a target segment with a negative value');
+			}
+
+			if (this._segment !== null && !(this._segment < this._totalSegments)) {
+				throw new Error('Parallel queries must use use a target segment value less than the total segments');
+			}
 		}
 
 		/**
@@ -145,6 +197,8 @@ module.exports = (() => {
 			if (attributes.length !== 0) {
 				schema.Select = 'SPECIFIC_ATTRIBUTES';
 				schema.ProjectionExpression = Action.getProjectionExpression(this.table, attributes);
+			} else if (this.countOnly) {
+				schema.Select = 'COUNT';
 			}
 
 			if (this._filter !== null) {
@@ -165,6 +219,11 @@ module.exports = (() => {
 
 			if (this._limit !== null) {
 				schema.Limit = this._limit;
+			}
+
+			if (this._segment !== null && this._totalSegments !== null) {
+				schema.Segment = this._segment;
+				schema.TotalSegments = this._totalSegments;
 			}
 
 			if (this._consistentRead) {

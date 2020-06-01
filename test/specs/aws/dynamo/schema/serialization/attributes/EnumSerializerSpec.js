@@ -1,8 +1,8 @@
-var Enum = require('@barchart/common-js/lang/Enum');
+const Enum = require('@barchart/common-js/lang/Enum');
 
-var EnumSerializer = require('./../../../../../../../aws/dynamo/schema/serialization/attributes/EnumSerializer');
+const EnumSerializer = require('./../../../../../../../aws/dynamo/schema/serialization/attributes/EnumSerializer');
 
-describe('When a EnumSerializer is instantiated (for a MotorcycleType enum)', function() {
+describe('When a EnumSerializer is instantiated (for a MotorcycleType enum)', () => {
 	'use strict';
 
 	class MotorcycleType extends Enum {
@@ -22,20 +22,20 @@ describe('When a EnumSerializer is instantiated (for a MotorcycleType enum)', fu
 	const chopper = new MotorcycleType('CH', 'Chopper');
 	const touring = new MotorcycleType('T', 'Touring');
 
-	var serializer;
+	let serializer;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		serializer = new EnumSerializer(MotorcycleType);
 	});
 
-	it('it serializes a MotorcycleType.CHOPPER as { S: "CH" } }', function() {
-		var serialized = serializer.serialize(MotorcycleType.CHOPPER);
+	it('it serializes a MotorcycleType.CHOPPER as { S: "CH" } }', () => {
+		let serialized = serializer.serialize(MotorcycleType.CHOPPER);
 
 		expect(serialized.S).toEqual('CH');
 	});
 
-	it('it deserializes { S: "CH" } as MotorcycleType.CHOPPER', function() {
-		var deserialized = serializer.deserialize({ S: 'CH' });
+	it('it deserializes { S: "CH" } as MotorcycleType.CHOPPER', () => {
+		let deserialized = serializer.deserialize({ S: 'CH' });
 
 		expect(deserialized).toBe(MotorcycleType.CHOPPER);
 	});

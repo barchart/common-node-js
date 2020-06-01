@@ -2,10 +2,7 @@ const log4js = require('log4js'),
 	Stream = require('stream');
 
 const assert = require('@barchart/common-js/lang/assert'),
-	is = require('@barchart/common-js/lang/is'),
-	promise = require('@barchart/common-js/lang/promise');
-
-const Transformation = require('./transformations/Transformation');
+	is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
 	'use strict';
@@ -33,15 +30,10 @@ module.exports = (() => {
 			this._counter = 0;
 		}
 
-		get transformerCount() {
-			return this._tranformations.length;
-		}
-
 		_transform(chunk, encoding, callback) {
 			this._counter = this._counter + 1;
 
 			let error = null;
-			let output = null;
 
 			if (is.array(chunk)) {
 				chunk.forEach(item => this.push(item));

@@ -1,74 +1,74 @@
-var ScalarResultProcessor = require('./../../../../data/processors/ScalarResultProcessor');
+const ScalarResultProcessor = require('./../../../../data/processors/ScalarResultProcessor');
 
-describe('When a ScalarResultProcessor is used to process an array', function() {
+describe('When a ScalarResultProcessor is used to process an array', () => {
 	'use strict';
 
-	var processor;
+	let processor;
 
-	var items;
-	var result;
+	let items;
+	let result;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new ScalarResultProcessor({ });
 	});
 
-	describe('that is empty', function() {
-		var items;
-		var result;
+	describe('that is empty', () => {
+		let items;
+		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
 				});
 		});
 
-		it('the result should be undefined', function() {
+		it('the result should be undefined', () => {
 			expect(result).toEqual(undefined);
 		});
 	});
 
-	describe('that has one item', function() {
-		var items;
-		var item;
-		var result;
+	describe('that has one item', () => {
+		let items;
+		let item;
+		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ item = { } ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
 				});
 		});
 
-		it('the result should be undefined', function() {
+		it('the result should be undefined', () => {
 			expect(result).toEqual(item);
 		});
 	});
 
-	describe('that has two items', function() {
-		var items;
-		var result;
+	describe('that has two items', () => {
+		let items;
+		let result;
 
-		var threw;
+		let threw;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ { }, { } ])
-				.then(function(r) {
+				.then((r) => {
 					threw = false;
 
 					done();
-				}).catch(function() {
+				}).catch(() => {
 					threw = true;
 
 					done();
 				});
 		});
 
-		it('an error should be thrown', function() {
+		it('an error should be thrown', () => {
 			expect(threw).toEqual(true);
 		});
 	});

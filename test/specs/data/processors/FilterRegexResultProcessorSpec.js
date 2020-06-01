@@ -1,18 +1,18 @@
-var FilterRegexResultProcessor = require('./../../../../data/processors/FilterRegexResultProcessor');
+const FilterRegexResultProcessor = require('./../../../../data/processors/FilterRegexResultProcessor');
 
-describe('When a FilterRegexResultProcessor is created', function () {
+describe('When a FilterRegexResultProcessor is created', () => {
 	'use strict';
 
-	var pieces;
+	let pieces;
 
-	var pawn;
-	var king;
-	var queen;
-	var bishop;
-	var knight;
-	var rook;
+	let pawn;
+	let king;
+	let queen;
+	let bishop;
+	let knight;
+	let rook;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		pieces = [
 			pawn = { name: 'pawn'},
 			king = { name: 'king' },
@@ -23,99 +23,99 @@ describe('When a FilterRegexResultProcessor is created', function () {
 		];
 	});
 
-	describe('and used to filter names of chess pieces that have consecutive vowels', function () {
-		var processor;
-		var result;
+	describe('and used to filter names of chess pieces that have consecutive vowels', () => {
+		let processor;
+		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor = new FilterRegexResultProcessor({ conditions: [ { propertyName: 'name', expression:  '[aeiou]{2}' } ] });
 
-			processor.process(pieces).then(function(r) {
+			processor.process(pieces).then((r) => {
 				result = r;
 
 				done();
 			});
 		});
 
-		it('a new array should be returned', function() {
+		it('a new array should be returned', () => {
 			expect(result).not.toBe(pieces);
 		});
 
-		it('the new array should have two items', function() {
+		it('the new array should have two items', () => {
 			expect(result.length).toEqual(2);
 		});
 
-		it('the first item should be the queen', function() {
+		it('the first item should be the queen', () => {
 			expect(result[0]).toBe(queen);
 		});
 
-		it('the second item should be the rook', function() {
+		it('the second item should be the rook', () => {
 			expect(result[1]).toBe(rook);
 		});
 	});
 
-	describe('and used to filter names of chess pieces that have consecutive vowels and start with the letter q', function () {
-		var processor;
-		var result;
+	describe('and used to filter names of chess pieces that have consecutive vowels and start with the letter q', () => {
+		let processor;
+		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor = new FilterRegexResultProcessor({ conditions: [ { propertyName: 'name', expression:  '[aeiou]{2}' }, { propertyName: 'name', expression:  '^q' } ] });
 
-			processor.process(pieces).then(function(r) {
+			processor.process(pieces).then((r) => {
 				result = r;
 
 				done();
 			});
 		});
 
-		it('a new array should be returned', function() {
+		it('a new array should be returned', () => {
 			expect(result).not.toBe(pieces);
 		});
 
-		it('the new array should have one item', function() {
+		it('the new array should have one item', () => {
 			expect(result.length).toEqual(1);
 		});
 
-		it('the first item should be the queen', function() {
+		it('the first item should be the queen', () => {
 			expect(result[0]).toBe(queen);
 		});
 	});
 
-	describe('and used to filter names of chess pieces that do not have consecutive vowels', function () {
-		var processor;
-		var result;
+	describe('and used to filter names of chess pieces that do not have consecutive vowels', () => {
+		let processor;
+		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor = new FilterRegexResultProcessor({ conditions: [ { propertyName: 'name', expression:  '[aeiou]{2}', inverse: true } ] });
 
-			processor.process(pieces).then(function(r) {
+			processor.process(pieces).then((r) => {
 				result = r;
 
 				done();
 			});
 		});
 
-		it('a new array should be returned', function() {
+		it('a new array should be returned', () => {
 			expect(result).not.toBe(pieces);
 		});
 
-		it('the new array should have two items', function() {
+		it('the new array should have two items', () => {
 			expect(result.length).toEqual(4);
 		});
 
-		it('the first item should be the pawn', function() {
+		it('the first item should be the pawn', () => {
 			expect(result[0]).toBe(pawn);
 		});
 
-		it('the second item should be the king', function() {
+		it('the second item should be the king', () => {
 			expect(result[1]).toBe(king);
 		});
 
-		it('the third item should be the bishop', function() {
+		it('the third item should be the bishop', () => {
 			expect(result[2]).toBe(bishop);
 		});
 
-		it('the fourth item should be the knight', function() {
+		it('the fourth item should be the knight', () => {
 			expect(result[3]).toBe(knight);
 		});
 	});

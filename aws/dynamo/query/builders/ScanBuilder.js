@@ -59,7 +59,7 @@ module.exports = (() => {
 
 			callback(filterBuilder);
 
-			this._scan = new Scan(this._scan.table, this._scan.index, filterBuilder.filter, this._scan.attributes, this._scan.limit, this._scan.consistentRead, this._scan.skipDeserialization, this._scan.description);
+			this._scan = new Scan(this._scan.table, this._scan.index, filterBuilder.filter, this._scan.attributes, this._scan.limit, this._scan.segment, this._scan.totalSegments, this._scan.consistentRead, this._scan.skipDeserialization, this._scan.countOnly, this._scan.description);
 
 			return this;
 		}
@@ -75,7 +75,7 @@ module.exports = (() => {
 		withIndex(indexName) {
 			assert.argumentIsRequired(indexName, 'indexName', String);
 
-			this._scan = new Scan(this._scan.table, getIndex(indexName, this._scan.table), this._scan.filter, this._scan.attributes, this._scan.limit, this._scan.consistentRead, this._scan.skipDeserialization, this._scan.description);
+			this._scan = new Scan(this._scan.table, getIndex(indexName, this._scan.table), this._scan.filter, this._scan.attributes, this._scan.limit, this._scan.segment, this._scan.totalSegments, this._scan.consistentRead, this._scan.skipDeserialization, this._scan.countOnly, this._scan.description);
 
 			return this;
 		}
@@ -93,12 +93,12 @@ module.exports = (() => {
 			const attribute = getAttribute(attributeName, this._scan.table);
 
 			if (attribute !== null) {
-				const attributes = this.scan.attributes;
+				const attributes = this._scan.attributes;
 
 				if (!attributes.some(a => a.name === attribute.name)) {
 					attributes.push(attribute);
 
-					this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, attributes, this._scan.limit, this._scan.consistentRead, this._scan.skipDeserialization, this._scan.description);
+					this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, attributes, this._scan.limit, this._scan.segment, this._scan.totalSegments, this._scan.consistentRead, this._scan.skipDeserialization, this._scan.countOnly, this._scan.description);
 				}
 			}
 
@@ -115,7 +115,21 @@ module.exports = (() => {
 		withLimit(limit) {
 			assert.argumentIsRequired(limit, 'limit', Number);
 
-			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, this._scan.attributes, limit, this._scan.consistentRead, this._scan.skipDeserialization, this._scan.description);
+			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, this._scan.attributes, limit, this._scan.segment, this._scan.totalSegments, this._scan.consistentRead, this._scan.skipDeserialization, this._scan.countOnly, this._scan.description);
+
+			return this;
+		}
+
+		/**
+		 * Sets a segmentation for parallel scan.
+		 *
+		 * @public
+		 * @param {Number} segment
+		 * @param {Number} totalSegments
+		 * @returns {ScanBuilder}
+		 */
+		withConcurrency(segment, totalSegments) {
+			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, this._scan.attributes, this._scan.limit, segment, totalSegments, this._scan.consistentRead, this._scan.skipDeserialization, this._scan.countOnly, this._scan.description);
 
 			return this;
 		}
@@ -130,7 +144,7 @@ module.exports = (() => {
 		withDescription(description) {
 			assert.argumentIsRequired(description, 'description', String);
 
-			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, this._scan.attributes, this._scan.limit, this._scan.consistentRead, this._scan.skipDeserialization, description);
+			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, this._scan.attributes, this._scan.limit, this._scan.segment, this._scan.totalSegments, this._scan.consistentRead, this._scan.skipDeserialization, this._scan.countOnly, description);
 
 			return this;
 		}
@@ -142,7 +156,7 @@ module.exports = (() => {
 		 * @returns {ScanBuilder}
 		 */
 		withConsistentRead() {
-			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, this._scan.attributes, this._scan.limit, true, this._scan.skipDeserialization, this._scan.description);
+			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, this._scan.attributes, this._scan.limit, this._scan.segment, this._scan.totalSegments, true, this._scan.skipDeserialization, this._scan.countOnly, this._scan.description);
 
 			return this;
 		}
@@ -155,7 +169,19 @@ module.exports = (() => {
 		 * @returns {ScanBuilder}
 		 */
 		withDeserializationSkipped() {
-			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, this._scan.attributes, this._scan.limit, this._scan.consistentRead, true, this._scan.description);
+			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, this._scan.attributes, this._scan.limit, this._scan.segment, this._scan.totalSegments, this._scan.consistentRead, true, this._scan.countOnly, this._scan.description);
+
+			return this;
+		}
+
+		/**
+		 * Adds a directive to return a record count, instead of the records themselves.
+		 *
+		 * @public
+		 * @returns {ScanBuilder}
+		 */
+		withCount() {
+			this._scan = new Scan(this._scan.table, this._scan.index, this._scan.filter, this._scan.attributes, this._scan.limit, this._scan.segment, this._scan.totalSegments, this._scan.consistentRead, this._scan.skipDeserialization, true, this._scan.description);
 
 			return this;
 		}
@@ -165,7 +191,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @static
-		 * @param {String} name - Name of the table.
+		 * @param {Table} table
 		 * @returns {ScanBuilder}
 		 */
 		static targeting(table) {

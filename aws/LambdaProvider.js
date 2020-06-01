@@ -3,12 +3,13 @@ const aws = require('aws-sdk'),
 
 const assert = require('@barchart/common-js/lang/assert'),
 	Disposable = require('@barchart/common-js/lang/Disposable'),
+	is = require('@barchart/common-js/lang/is'),
 	promise = require('@barchart/common-js/lang/promise');
 
 module.exports = (() => {
-	
+
 	const logger = log4js.getLogger('common-node/aws/LambdaProvider');
-	
+
 	/**
 	 * Wrapper for Amazon's Lambda SDK.
 	 *
@@ -23,19 +24,19 @@ module.exports = (() => {
 	class LambdaProvider extends Disposable {
 		constructor(configuration) {
 			super();
-			
+
 			assert.argumentIsRequired(configuration, 'configuration');
 			assert.argumentIsRequired(configuration.region, 'configuration.region', String);
 			assert.argumentIsOptional(configuration.apiVersion, 'configuration.apiVersion', String);
-			
+
 			this._lambda = null;
-			
+
 			this._configuration = configuration;
-			
+
 			this._startPromise = null;
 			this._started = false;
 		}
-		
+
 		/**
 		 * Connects to Amazon. Must be called once before using other instance
 		 * functions.
@@ -47,7 +48,7 @@ module.exports = (() => {
 			if (this.getIsDisposed()) {
 				return Promise.reject('The Lambda Provider has been disposed.');
 			}
-			
+
 			if (this._startPromise === null) {
 				this._startPromise = Promise.resolve()
 					.then(() => {
@@ -66,61 +67,66 @@ module.exports = (() => {
 						throw e;
 					});
 			}
-			
+
 			return this._startPromise;
 		}
 
 		/**
-		 * Triggers a lambda function.
+		 * Triggers a lambda function, asynchronously or synchronously.
 		 *
+		 * @public
 		 * @param {String} functionName
 		 * @param {Object} event
 		 * @return {Promise<Object>}
 		 */
-		invoke(functionName, event) {
+		invoke(functionName, event, synchronous) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(functionName, 'functionName', String);
 					assert.argumentIsRequired(event, 'event');
+					assert.argumentIsOptional(synchronous, 'synchronous', Boolean);
 
 					checkReady.call(this);
-					
-					return promise.build((resolveCallback, rejectCallback) => {
-						const payload = {
-							FunctionName: functionName,
-							Payload: JSON.stringify(event),
-							InvocationType: 'Event',
-						};
 
-						this._lambda.invoke(payload, (err, data) => {
+					return promise.build((resolveCallback, rejectCallback) => {
+						const data = { };
+
+						data.FunctionName = functionName;
+						data.Payload = JSON.stringify(event);
+
+						if (!(is.boolean(synchronous) && synchronous)) {
+							data.InvocationType = 'Event';
+						}
+
+						this._lambda.invoke(data, (err, data) => {
 							if (err) {
 								rejectCallback(err);
 							}
-							
+
 							resolveCallback(data);
 						});
 					});
 				});
 		}
-		
+
 		_onDispose() {
 			logger.debug('Lambda provider disposed');
 		}
-		
+
 		toString() {
 			return '[LambdaProvider]';
 		}
 	}
-	
+
 	function checkReady() {
 		if (this.getIsDisposed()) {
 			throw new Error('The Dynamo Provider has been disposed.');
 		}
-		
+
 		if (!this._started) {
 			throw new Error('The Dynamo Provider has not been started.');
 		}
 	}
-	
+
 	return LambdaProvider;
 })();

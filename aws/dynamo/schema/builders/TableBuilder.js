@@ -15,7 +15,6 @@ const AttributeBuilder = require('./AttributeBuilder'),
 	ComponentBuilder = require('./ComponentBuilder'),
 	IndexBuilder = require('./IndexBuilder'),
 	KeyBuilder = require('./KeyBuilder'),
-	ProjectionBuilder = require('./ProjectionBuilder'),
 	ProvisionedThroughputBuilder = require('./ProvisionedThroughputBuilder');
 
 const LambdaStage = require('../../../lambda/LambdaStage');
@@ -33,7 +32,7 @@ module.exports = (() => {
 		constructor(name) {
 			assert.argumentIsRequired(name, 'name', String);
 
-			this._table = new Table(name, [ ], [ ], [ ], [ ], null, null);
+			this._table = new Table(name, [ ], [ ], [ ], [ ], null, null, null);
 		}
 
 		/**
@@ -105,7 +104,7 @@ module.exports = (() => {
 			const attribute = attributeBuilder.attribute;
 			const attributes = this._table.attributes.filter(a => a.name !== attribute.name).concat(attribute);
 
-			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, attributes, this._table.components, this._table.provisionedThroughput, this._table.streamViewType);
+			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, attributes, this._table.components, this._table.provisionedThroughput, this._table.streamViewType, this._table.ttlAttribute);
 
 			return this;
 		}
@@ -142,7 +141,7 @@ module.exports = (() => {
 			const component = componentBuilder.component;
 			const components = this._table.components.filter(c => c.name !== component.name).concat(component);
 
-			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, components, this._table.provisionedThroughput, this._table.streamViewType);
+			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, components, this._table.provisionedThroughput, this._table.streamViewType, this._table.ttlAttribute);
 
 			return this;
 		}
@@ -179,7 +178,7 @@ module.exports = (() => {
 			const key = keyBuilder.key;
 			const keys = this._table.keys.filter(k => k.attribute.name !== key.attribute.name).concat(key);
 
-			this._table = new Table(this._table.name, keys, this._table.indicies, this._table.attributes, this._table.components, this._table.provisionedThroughput, this._table.streamViewType);
+			this._table = new Table(this._table.name, keys, this._table.indicies, this._table.attributes, this._table.components, this._table.provisionedThroughput, this._table.streamViewType, this._table.ttlAttribute);
 
 			return this;
 		}
@@ -204,7 +203,7 @@ module.exports = (() => {
 			const index = indexBuilder.index;
 			const indicies = this._table._indices.filter(i => i.name !== index.name).concat(index);
 
-			this._table = new Table(this._table.name, this._table.keys, indicies, this._table.attributes, this._table.components, this._table.provisionedThroughput, this._table.streamViewType);
+			this._table = new Table(this._table.name, this._table.keys, indicies, this._table.attributes, this._table.components, this._table.provisionedThroughput, this._table.streamViewType, this._table.ttlAttribute);
 
 			return this;
 		}
@@ -238,7 +237,7 @@ module.exports = (() => {
 
 			callback(provisionedThroughputBuilder);
 
-			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, this._table.components, provisionedThroughputBuilder.provisionedThroughput, this._table.streamViewType);
+			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, this._table.components, provisionedThroughputBuilder.provisionedThroughput, this._table.streamViewType, this._table.ttlAttribute);
 
 			return this;
 		}
@@ -251,7 +250,7 @@ module.exports = (() => {
 		 * @returns {TableBuilder}
 		 */
 		withOnDemandThroughput() {
-			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, this._table.components, null, this._table.streamViewType);
+			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, this._table.components, null, this._table.streamViewType, this._table.ttlAttribute);
 
 			return this;
 		}
@@ -265,7 +264,22 @@ module.exports = (() => {
 		withStreamViewType(streamViewType) {
 			assert.argumentIsRequired(streamViewType, 'streamViewType', StreamViewType, 'StreamViewType');
 
-			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, this._table.components, this._table.provisionedThroughput, streamViewType);
+			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, this._table.components, this._table.provisionedThroughput, streamViewType, this._table.ttlAttribute);
+
+			return this;
+		}
+
+		/**
+		 * Defines field that stores expiration time.
+		 *
+		 * @public
+		 * @param {String} attributeName
+		 * @returns {TableBuilder}
+		 */
+		withTimeToLive(attributeName) {
+			assert.argumentIsRequired(attributeName, 'attributeName', String);
+
+			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, this._table.components, this._table.provisionedThroughput, this._table.streamViewType, attributeName);
 
 			return this;
 		}
@@ -315,6 +329,10 @@ module.exports = (() => {
 
 			if (is.object(definition.StreamSpecification) && is.boolean(definition.StreamSpecification.StreamEnabled) && definition.StreamSpecification.StreamEnabled) {
 				tableBuilder.withStreamViewType(Enum.fromCode(StreamViewType, definition.StreamSpecification.StreamViewType));
+			}
+
+			if (is.object(definition.TimeToLiveDescription) && ['ENABLED', 'ENABLING'].includes(definition.TimeToLiveDescription.TimeToLiveStatus)) {
+				tableBuilder.withTimeToLive(definition.TimeToLiveDescription.AttributeName);
 			}
 
 			return tableBuilder.table;

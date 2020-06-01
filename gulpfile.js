@@ -1,11 +1,11 @@
 const gulp = require('gulp');
 
 const bump = require('gulp-bump'),
-    exec = require('child_process').exec,
     git = require('gulp-git'),
     gitStatus = require('git-get-status'),
     jasmine = require('gulp-jasmine'),
-    jshint = require('gulp-jshint');
+    jshint = require('gulp-jshint'),
+	prompt = require('gulp-prompt');
 
 const fs = require('fs');
 
@@ -23,19 +23,25 @@ gulp.task('ensure-clean-working-directory', (cb) => {
     });
 });
 
-gulp.task('bump-version', () => {
-    return gulp.src([ './package.json' ])
-        .pipe(bump({ type: 'patch' }))
-        .pipe(gulp.dest('./'));
+gulp.task('bump-choice', (cb) => {
+	const processor = prompt.prompt({
+		type: 'list',
+		name: 'bump',
+		message: 'What type of bump would you like to do?',
+		choices: ['patch', 'minor', 'major'],
+	}, (res) => {
+		global.bump = res.bump;
+
+		return cb();
+	});
+
+	return gulp.src(['./package.json']).pipe(processor);
 });
 
-gulp.task('document', (cb) => {
-	exec('jsdoc . -c jsdoc.json -r -d docs', (error, stdout, stderr) => {
-		console.log(stdout);
-		console.log(stderr);
-
-		cb();
-	});
+gulp.task('bump-version', () => {
+    return gulp.src([ './package.json' ])
+        .pipe(bump({ type: global.bump || 'patch' }))
+        .pipe(gulp.dest('./'));
 });
 
 gulp.task('commit-changes', () => {
@@ -70,7 +76,7 @@ gulp.task('execute-tests', gulp.series('execute-node-tests'));
 gulp.task('release', gulp.series(
 	'ensure-clean-working-directory',
 	'execute-node-tests',
-	'document',
+	'bump-choice',
 	'bump-version',
 	'commit-changes',
 	'push-changes',
@@ -78,9 +84,10 @@ gulp.task('release', gulp.series(
 ));
 
 gulp.task('lint', () => {
-    return gulp.src([ './**/*.js', './test/specs/**/*.js', '!./node_modules/**', '!./test/dist/**', '!./docs/**' ])
-        .pipe(jshint({'esversion': 6}))
-        .pipe(jshint.reporter('default'));
+	return gulp.src([ './**/*.js', './test/specs/**/*.js', '!./node_modules/**', '!./test/dist/**' ])
+		.pipe(jshint({ esversion: 9 }))
+		.pipe(jshint.reporter('default'))
+		.pipe(jshint.reporter('fail'));
 });
 
 gulp.task('test', gulp.series('execute-tests'));

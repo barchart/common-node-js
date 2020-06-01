@@ -7,8 +7,8 @@ module.exports = (() => {
 	'use strict';
 
 	class RestEndpoint extends Endpoint {
-		constructor(action, path, command) {
-			super(command);
+		constructor(action, path, command, validationCommand) {
+			super(command, validationCommand);
 
 			assert.argumentIsRequired(action, 'action', RestAction, 'RestAction');
 			assert.argumentIsRequired(path, 'path', String);

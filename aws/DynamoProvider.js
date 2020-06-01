@@ -1,7 +1,8 @@
 const aws = require('aws-sdk'),
 	log4js = require('log4js');
 
-const assert = require('@barchart/common-js/lang/assert'),
+const array = require('@barchart/common-js/lang/array'),
+	assert = require('@barchart/common-js/lang/assert'),
 	Disposable = require('@barchart/common-js/lang/Disposable'),
 	Enum = require('@barchart/common-js/lang/Enum'),
 	is = require('@barchart/common-js/lang/is'),
@@ -17,7 +18,8 @@ const ConditionalBuilder = require('./dynamo/query/builders/ConditionalBuilder')
 	TableBuilder = require('./dynamo/schema/builders/TableBuilder'),
 	Query = require('./dynamo/query/definitions/Query'),
 	Scan = require('./dynamo/query/definitions/Scan'),
-	Serializer = require('./dynamo/schema/serialization/Serializer');
+	Serializer = require('./dynamo/schema/serialization/Serializer'),
+	Update = require('./dynamo/query/definitions/Update');
 
 module.exports = (() => {
 	'use strict';
@@ -309,9 +311,24 @@ module.exports = (() => {
 						return getTable.call(this, qualifiedTableName)
 							.then((tableData) => {
 								if (tableData.TableStatus === 'ACTIVE') {
-									logger.info('Table ready [', qualifiedTableName, ']');
+									return getTimeToLiveSettings.call(this, qualifiedTableName)
+										.then((ttlData) => {
+											logger.info('Table ready [', qualifiedTableName, ']');
 
-									return Promise.resolve(tableData);
+											return Promise.resolve(Object.assign({ }, tableData, ttlData));
+										}).catch((error) => {
+											let promise;
+
+											if (is.string(error) && error.includes('AccessDeniedException') && error.includes('dynamodb:DescribeTimeToLive')) {
+												logger.error(error);
+
+												promise = Promise.resolve(tableData);
+											} else {
+												promise = Promise.reject(error);
+											}
+
+											return promise;
+										});
 								} else {
 									logger.debug('Table not yet ready [', qualifiedTableName, ']');
 
@@ -328,7 +345,7 @@ module.exports = (() => {
 								if (is.string(error.message) && error.message === `Table already exists: ${qualifiedTableName}`) {
 									logger.info('Unable to create table [', qualifiedTableName, '], table already exists');
 
-									getTableForCreate.call(this, qualifiedTableName)
+									return getTableForCreate.call(this, qualifiedTableName)
 										.then((tableData) => {
 											const serverDefinition = TableBuilder.fromDefinition(tableData);
 
@@ -350,7 +367,26 @@ module.exports = (() => {
 
 								return this._scheduler.backoff(() => getTableForCreate.call(this, qualifiedTableName), 2000)
 									.then((tableData) => {
-										resolveCallback(TableBuilder.fromDefinition(tableData));
+										let ttlPromise;
+
+										if (definition.ttlAttribute) {
+											logger.info(`Updating time-to-live configuration for table [ ${definition.name} ]`);
+
+											ttlPromise = this._dynamo.updateTimeToLive(definition.toTtlSchema()).promise()
+												.then((ttlData) => {
+													logger.info(`Updated time-to-live configuration for table [ ${definition.name} ]`);
+
+													return ttlData;
+												});
+										} else {
+											ttlPromise = Promise.resolve(null);
+										}
+
+										return ttlPromise.then((ttlData) => {
+											const adjusted = Object.assign({ }, tableData, ttlData || { });
+
+											resolveCallback(TableBuilder.fromDefinition(adjusted));
+										});
 									}).catch((e) => {
 										rejectCallback(e);
 									});
@@ -463,12 +499,68 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Edits an existing item's attributes.
+		 *
+		 * @public
+		 * @param {Update} update
+		 * @returns {Promise<Object|null>}
+		 */
+		updateItem(update) {
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsRequired(update, 'update', Update, 'Update');
+
+					checkReady.call(this);
+
+					const schema = update.toUpdateSchema();
+
+					const updateItem = () => {
+						return Promise.resolve(this._dynamo.updateItem(schema).promise())
+							.then((data) => {
+								let deserialized;
+
+								if (data.Attributes === null) {
+									deserialized = null;
+								} else {
+									deserialized = Serializer.deserialize(data.Attributes, update.table);
+								}
+
+								return Promise.resolve({ code: DYNAMO_RESULT.SUCCESS, results: deserialized });
+							}).catch((error) => {
+								const dynamoError = Enum.fromCode(DynamoError, error.code);
+
+								let result;
+
+								if (dynamoError !== null && dynamoError.retryable) {
+									logger.debug('Encountered retryable error [', error.code, '] while putting an item into [', table.name, ']');
+
+									result = Promise.reject(error);
+								} else {
+									result = Promise.resolve({ code: DYNAMO_RESULT.FAILURE, error: error });
+								}
+
+								return result;
+							});
+					};
+
+					return this._scheduler.backoff(updateItem, WRITE_MILLISECOND_BACKOFF)
+						.then((result) => {
+							if (result.code === DYNAMO_RESULT.FAILURE) {
+								throw result.error;
+							}
+
+							return result.results;
+						});
+				});
+		}
+
+		/**
 		 * Adds multiple items to a table. Unlike the {@link DynamoProvider#saveItem} function,
 		 * batches are processed serially; that is, writes from a batch must complete before
 		 * writes from a subsequent batch are started.
 		 *
 		 * @public
-		 * @param {Array<Object>} item - The items to write.
+		 * @param {Object[]} item - The items to write.
 		 * @param {Table} table - Describes the schema of the table to write to.
 		 * @returns {Promise<Boolean>}
 		 */
@@ -485,7 +577,7 @@ module.exports = (() => {
 		 * deletes from a subsequent batch are started.
 		 *
 		 * @public
-		 * @param {Array<Object>} item - The items to write.
+		 * @param {Object[]} item - The items to write.
 		 * @param {Table} table - Describes the schema of the table to write to.
 		 * @param {Boolean=} explicit - If keys are derived, the item will be deleted as-is, without rederiving the key.
 		 * @returns {Promise<Boolean>}
@@ -560,7 +652,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Scan} scan
-		 * @returns {Promise<Object[]>}
+		 * @returns {Promise<Object[]>|Promise<Number>}
 		 */
 		scan(scan) {
 			return Promise.resolve()
@@ -580,9 +672,40 @@ module.exports = (() => {
 					let maximum = options.Limit || 0;
 					let count = 0;
 
+					let run = 0;
+					let runs;
+
+					if (logger.isTraceEnabled()) {
+						runs = [ ];
+					} else {
+						runs = null;
+					}
+
+					let abort = false;
+
+					const getEmptyResult = () => {
+						if (scan.countOnly) {
+							return 0;
+						} else {
+							return [ ];
+						}
+					};
+
 					const runScanRecursive = (previous) => {
 						const executeScan = () => {
+							const r = run++;
+
+							if (runs) {
+								runs[r] = { };
+							}
+
 							return promise.build((resolveCallback, rejectCallback) => {
+								if (runs) {
+									runs[r].scanStart = (new Date()).getTime();
+
+									logger.trace(`Scan [ ${scan.table.name} ], run [ ${r} ] started at [ ${runs[r].scanStart} ]`);
+								}
+
 								if (previous) {
 									options.ExclusiveStartKey = previous;
 								}
@@ -591,13 +714,19 @@ module.exports = (() => {
 									options.Limit = maximum - count;
 
 									if (options.Limit === 0) {
-										resolveCallback([ ]);
+										resolveCallback(getEmptyResult());
 
 										return;
 									}
 								}
 
 								this._dynamo.scan(options, (error, data) => {
+									if (runs) {
+										runs[r].scanEnd = (new Date()).getTime();
+
+										logger.trace(`Scan [ ${scan.table.name} ], run [ ${r} ] completed at [ ${runs[r].scanEnd} ] in [ ${runs[r].scanEnd - runs[r].scanStart} ] ms`);
+									}
+
 									if (error) {
 										const dynamoError = Enum.fromCode(DynamoError, error.code);
 
@@ -606,41 +735,98 @@ module.exports = (() => {
 
 											rejectCallback(error);
 										} else {
+											logger.debug('Encountered non-retryable error [', error.code, '] while scanning [', scan.table.name, ']');
+
+											abort = true;
+
 											resolveCallback({ code: DYNAMO_RESULT.FAILURE, error: error });
 										}
 									} else {
-										let results;
+										const deserializePromise = promise.build((resolveDeserialize) => {
+											if (abort) {
+												resolveDeserialize(getEmptyResult());
 
-										try {
-											if (scan.skipDeserialization) {
-												results = data.Items;
-											} else {
-												results = data.Items.map(i => Serializer.deserialize(i, scan.table));
-											}
-										} catch (e) {
-											logger.error('Unable to deserialize scan results.', e);
-
-											if (data.Items) {
-												logger.error(JSON.stringify(data.Items, null, 2));
+												return;
 											}
 
-											results = null;
+											setImmediate(() => {
+												if (runs) {
+													runs[r].deserializeStart = (new Date()).getTime();
 
-											resolveCallback({ code: DYNAMO_RESULT.FAILURE, error: error });
-										}
+													logger.trace(`Deserialize [ ${scan.table.name} ] run [ ${r} ] started at [ ${runs[r].deserializeStart} ]`);
+												}
 
-										if (results !== null) {
-											count += results.length;
+												let deserialized;
+
+												try {
+													if (scan.countOnly) {
+														deserialized = data.Count;
+													} else if (scan.skipDeserialization) {
+														deserialized = data.Items;
+													} else {
+														deserialized = data.Items.map(i => Serializer.deserialize(i, scan.table));
+													}
+												} catch (e) {
+													abort = true;
+
+													logger.error('Unable to deserialize scan results.', e);
+
+													if (data.Items) {
+														logger.error(JSON.stringify(data.Items, null, 2));
+													}
+
+													deserialized = { code: DYNAMO_RESULT.FAILURE, error: error };
+												}
+
+												if (runs) {
+													runs[r].deserializeEnd = (new Date()).getTime();
+
+													logger.trace(`Deserialize [ ${scan.table.name} ] run [ ${r} ] completed at [ ${runs[r].deserializeEnd} ] in [ ${runs[r].deserializeEnd - runs[r].deserializeStart} ] ms`);
+												}
+
+												resolveDeserialize(deserialized);
+											});
+										});
+
+										const continuationPromise = promise.build((resolveContinuation) => {
+											if (abort) {
+												resolveContinuation(getEmptyResult());
+
+												return;
+											}
+
+											if (data.Items && data.Items.length !== 0) {
+												count += data.Items.length;
+											}
 
 											if (data.LastEvaluatedKey && (maximum === 0 || count < maximum)) {
-												runScanRecursive(data.LastEvaluatedKey)
-													.then((more) => {
-														resolveCallback(results.concat(more));
-													});
+												resolveContinuation(runScanRecursive(data.LastEvaluatedKey));
 											} else {
-												resolveCallback(results);
+												resolveContinuation(getEmptyResult());
 											}
-										}
+										});
+
+										return Promise.all([ deserializePromise, continuationPromise ])
+											.then((combined) => {
+												const error = combined.find(r => is.object(r) && r.code === DYNAMO_RESULT.FAILURE);
+
+												if (error) {
+													resolveCallback(error);
+												} else {
+													const deserialized = combined[0];
+													const continuation = combined[1];
+
+													let results;
+
+													if (scan.countOnly) {
+														results = deserialized + continuation;
+													} else {
+														results = deserialized.concat(continuation);
+													}
+
+													resolveCallback(results);
+												}
+											});
 									}
 								});
 							});
@@ -656,9 +842,25 @@ module.exports = (() => {
 							});
 					};
 
-					return runScanRecursive();
-				}).then((results) => {
-					logger.debug('Ran [', scan.description, '] on [', scan.table.name + (scan.index ? '/ ' + scan.index.name : ''), '] and matched [', results.length ,'] results.');
+					return runScanRecursive()
+						.then((results) => {
+							const composite = { };
+
+							composite.results = results;
+							composite.timing = runs;
+
+							return composite;
+						});
+				}).then((composite) => {
+					const results = composite.results;
+
+					logger.debug('Ran [', scan.description, '] on [', scan.table.name + (scan.index ? '/' + scan.index.name : ''), '] and matched [', (scan.countOnly ? results : results.length), '] results.');
+
+					if (composite.timing) {
+						const timing = composite.timing;
+
+						logger.trace('Ran [', scan.description, '] on [', scan.table.name + (scan.index ? '/' + scan.index.name : ''), '] over [', timing.length ,'] runs in [', array.last(timing).deserializeEnd - array.first(timing).scanStart, '] ms with [', timing.reduce((t, i) => t + (i.scanEnd - i.scanStart), 0), '] ms scanning and [', timing.reduce((t, i) => t + (i.deserializeEnd - i.deserializeStart), 0), '] ms deserializing');
+					}
 
 					return results;
 				}).catch((e) => {
@@ -772,7 +974,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Query} query
-		 * @returns {Promise<Object[]>}
+		 * @returns {Promise<Object[]>|Promise<Number>}
 		 */
 		query(query) {
 			return Promise.resolve()
@@ -792,9 +994,40 @@ module.exports = (() => {
 					let maximum = options.Limit || 0;
 					let count = 0;
 
+					let run = 0;
+					let runs;
+
+					if (logger.isTraceEnabled()) {
+						runs = [ ];
+					} else {
+						runs = null;
+					}
+
+					let abort = false;
+
+					const getEmptyResult = () => {
+						if (query.countOnly) {
+							return 0;
+						} else {
+							return [ ];
+						}
+					};
+
 					const runQueryRecursive = (previous) => {
 						const executeQuery = () => {
+							const r = run++;
+
+							if (runs) {
+								runs[r] = { };
+							}
+
 							return promise.build((resolveCallback, rejectCallback) => {
+								if (runs) {
+									runs[r].queryStart = (new Date()).getTime();
+
+									logger.trace(`Query [ ${query.table.name} ], run [ ${r} ] started at [ ${runs[r].queryStart} ]`);
+								}
+
 								if (previous) {
 									options.ExclusiveStartKey = previous;
 								}
@@ -803,13 +1036,19 @@ module.exports = (() => {
 									options.Limit = maximum - count;
 
 									if (options.Limit === 0) {
-										resolveCallback([ ]);
+										resolveCallback(getEmptyResult());
 
 										return;
 									}
 								}
 
 								this._dynamo.query(options, (error, data) => {
+									if (runs) {
+										runs[r].queryEnd = (new Date()).getTime();
+
+										logger.trace(`Query [ ${query.table.name} ], run [ ${r} ] completed at [ ${runs[r].queryEnd} ] in [ ${runs[r].queryEnd - runs[r].queryStart} ] ms`);
+									}
+
 									if (error) {
 										const dynamoError = Enum.fromCode(DynamoError, error.code);
 
@@ -818,41 +1057,104 @@ module.exports = (() => {
 
 											rejectCallback(error);
 										} else {
+											logger.debug('Encountered non-retryable error [', error.code, '] while querying [', query.table.name, ']');
+
+											abort = true;
+
 											resolveCallback({ code: DYNAMO_RESULT.FAILURE, error: error });
 										}
 									} else {
-										let results;
+										const deserializePromise = promise.build((resolveDeserialize) => {
+											if (abort) {
+												resolveDeserialize(getEmptyResult());
 
-										try {
-											if (query.skipDeserialization) {
-												results = data.Items;
-											} else {
-												results = data.Items.map(i => Serializer.deserialize(i, query.table));
-											}
-										} catch (e) {
-											logger.error('Unable to deserialize query results.', e);
-
-											if (data.Items) {
-												logger.error(JSON.stringify(data.Items, null, 2));
+												return;
 											}
 
-											results = null;
+											// 2010/01/18, BRI. Using "setImmediate" causes the deserialization step to be deferred
+											// until after the next query "segment" begins (assuming multiple query "segments" are
+											// required to retrieve the full result set). This allows the deserialization step to
+											// run while waiting on the network (for the next query segment), thereby improving
+											// overall response time.
 
-											resolveCallback({ code: DYNAMO_RESULT.FAILURE, error: error });
-										}
+											setImmediate(() => {
+												if (runs) {
+													runs[r].deserializeStart = (new Date()).getTime();
 
-										if (results !== null) {
-											count += results.length;
+													logger.trace(`Deserialize [ ${query.table.name} ] run [ ${r} ] started at [ ${runs[r].deserializeStart} ]`);
+												}
+
+												let deserialized;
+
+												try {
+													if (query.countOnly) {
+														deserialized = data.Count;
+													} else if (query.skipDeserialization) {
+														deserialized = data.Items;
+													} else {
+														deserialized = data.Items.map(i => Serializer.deserialize(i, query.table));
+													}
+												} catch (e) {
+													abort = true;
+
+													logger.error('Unable to deserialize query results.', e);
+
+													if (data.Items) {
+														logger.error(JSON.stringify(data.Items, null, 2));
+													}
+
+													deserialized = { code: DYNAMO_RESULT.FAILURE, error: error };
+												}
+
+												if (runs) {
+													runs[r].deserializeEnd = (new Date()).getTime();
+
+													logger.trace(`Deserialize [ ${query.table.name} ] run [ ${r} ] completed at [ ${runs[r].deserializeEnd} ] in [ ${runs[r].deserializeEnd - runs[r].deserializeStart} ] ms`);
+												}
+
+												resolveDeserialize(deserialized);
+											});
+										});
+
+										const continuationPromise = promise.build((resolveContinuation) => {
+											if (abort) {
+												resolveContinuation(getEmptyResult());
+
+												return;
+											}
+
+											if (data.Items && data.Items.length !== 0) {
+												count += data.Items.length;
+											}
 
 											if (data.LastEvaluatedKey && (maximum === 0 || count < maximum)) {
-												runQueryRecursive(data.LastEvaluatedKey)
-													.then((more) => {
-														resolveCallback(results.concat(more));
-													});
+												resolveContinuation(runQueryRecursive(data.LastEvaluatedKey));
 											} else {
-												resolveCallback(results);
+												resolveContinuation(getEmptyResult());
 											}
-										}
+										});
+
+										Promise.all([ deserializePromise, continuationPromise ])
+											.then((combined) => {
+												const error = combined.find(r => is.object(r) && r.code === DYNAMO_RESULT.FAILURE);
+
+												if (error) {
+													resolveCallback(error);
+												} else {
+													const deserialized = combined[0];
+													const continuation = combined[1];
+
+													let results;
+
+													if (query.countOnly) {
+														results = deserialized + continuation;
+													} else {
+														results = deserialized.concat(continuation);
+													}
+
+													resolveCallback(results);
+												}
+											});
 									}
 								});
 							});
@@ -868,15 +1170,51 @@ module.exports = (() => {
 							});
 					};
 
-					return runQueryRecursive();
-				}).then((results) => {
-					logger.debug('Ran [', query.description, '] on [', query.table.name + (query.index ? '/' + query.index.name : ''), '] and matched [', results.length ,'] results.');
+					return runQueryRecursive()
+						.then((results) => {
+							const composite = { };
+
+							composite.results = results;
+							composite.timing = runs;
+
+							return composite;
+						});
+				}).then((composite) => {
+					const results = composite.results;
+
+					logger.debug('Ran [', query.description, '] on [', query.table.name + (query.index ? '/' + query.index.name : ''), '] and matched [', (query.countOnly ? results : results.length), '] results.');
+
+					if (composite.timing) {
+						const timing = composite.timing;
+
+						logger.trace('Ran [', query.description, '] on [', query.table.name + (query.index ? '/' + query.index.name : ''), '] over [', timing.length ,'] runs in [', array.last(timing).deserializeEnd - array.first(timing).queryStart, '] ms with [', timing.reduce((t, i) => t + (i.queryEnd - i.queryStart), 0), '] ms querying and [', timing.reduce((t, i) => t + (i.deserializeEnd - i.deserializeStart), 0), '] ms deserializing');
+					}
 
 					return results;
 				}).catch((e) => {
 					logger.error('Failed to run [', query.description, '] on [', query.table.name + (query.index ? '/' + query.index.name : ''), ']', e);
 
 					return Promise.reject(e);
+				});
+		}
+
+		/**
+		 * Run parallel queries against a DynamoDB table (or index) and returns
+		 * all the items matching.
+		 *
+		 * @public
+		 * @param {Query[]} queries
+		 * @returns {Promise<Object[]>}
+		 */
+		queryParallel(queries) {
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsArray(queries, 'queries', Query, 'Query');
+
+					return Promise.all(queries.map(query => this.query(query)))
+						.then((results) => {
+							return array.flatten(results);
+						});
 				});
 		}
 
@@ -1042,6 +1380,15 @@ module.exports = (() => {
 				}
 			});
 		});
+	}
+
+	function getTimeToLiveSettings(qualifiedTableName) {
+		return this._dynamo.describeTimeToLive({ TableName: qualifiedTableName }).promise()
+			.catch((error) => {
+				logger.error(error);
+
+				return Promise.reject(`Failed to retrieve DynamoDB time-to-live settings, ${error}`);
+			});
 	}
 
 	function processBatch(table, type, items, explicit) {

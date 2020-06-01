@@ -1,68 +1,68 @@
-var FlattenResultProcessor = require('./../../../../data/processors/FlattenResultProcessor');
+const FlattenResultProcessor = require('./../../../../data/processors/FlattenResultProcessor');
 
-describe('When a FlattenResultProcessor is created', function() {
+describe('When a FlattenResultProcessor is created', () => {
 	'use strict';
 
-	var processor;
+	let processor;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new FlattenResultProcessor();
 	});
 
-	describe('and a null value is processed', function() {
-		var result;
+	describe('and a null value is processed', () => {
+		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(null)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
 				});
 		});
 
-		it('an array should be returned', function() {
+		it('an array should be returned', () => {
 			expect(result instanceof Array).toEqual(true);
 		});
 
-		it('the array should have zero items', function() {
+		it('the array should have zero items', () => {
 			expect(result.length).toEqual(0);
 		});
 	});
 
-	describe('and an undefined value is processed', function() {
-		var result;
+	describe('and an undefined value is processed', () => {
+		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process()
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
 				});
 		});
 
-		it('an array should be returned', function() {
+		it('an array should be returned', () => {
 			expect(result instanceof Array).toEqual(true);
 		});
 
-		it('the array should have zero items', function() {
+		it('the array should have zero items', () => {
 			expect(result.length).toEqual(0);
 		});
 	});
 
-	describe('and an array with three items is passed', function() {
-		var input;
+	describe('and an array with three items is passed', () => {
+		let input;
 
-		var one;
-		var two;
-		var three;
-		var four;
-		var five;
+		let one;
+		let two;
+		let three;
+		let four;
+		let five;
 
-		var result;
+		let result;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			input = [
 				[
 					one = 1,
@@ -78,38 +78,38 @@ describe('When a FlattenResultProcessor is created', function() {
 			];
 
 			result = processor.process(input)
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
 				});
 		});
 
-		it('an array should be returned', function() {
+		it('an array should be returned', () => {
 			expect(result instanceof Array).toEqual(true);
 		});
 
-		it('the array should five items', function() {
+		it('the array should five items', () => {
 			expect(result.length).toEqual(5);
 		});
 
-		it('the first item should be one', function() {
+		it('the first item should be one', () => {
 			expect(result[0]).toEqual(one);
 		});
 
-		it('the second item should be two', function() {
+		it('the second item should be two', () => {
 			expect(result[1]).toEqual(two);
 		});
 
-		it('the third item should be three', function() {
+		it('the third item should be three', () => {
 			expect(result[2]).toEqual(three);
 		});
 
-		it('the fourth item should be four', function() {
+		it('the fourth item should be four', () => {
 			expect(result[3]).toEqual(four);
 		});
 
-		it('the fifth item should be five', function() {
+		it('the fifth item should be five', () => {
 			expect(result[4]).toEqual(five);
 		});
 	});

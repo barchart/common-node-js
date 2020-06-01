@@ -1,6 +1,3 @@
-const assert = require('@barchart/common-js/lang/assert'),
-	is = require('@barchart/common-js/lang/is');
-
 const Attribute = require('./Attribute'),
 	KeyType = require('./KeyType');
 

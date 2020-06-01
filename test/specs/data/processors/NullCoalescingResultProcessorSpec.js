@@ -1,56 +1,56 @@
-var NullCoalescingResultProcessor = require('./../../../../data/processors/NullCoalescingResultProcessor');
+const NullCoalescingResultProcessor = require('./../../../../data/processors/NullCoalescingResultProcessor');
 
-describe('When a NullCoalescingResultProcessor is created', function() {
+describe('When a NullCoalescingResultProcessor is created', () => {
 	'use strict';
 
-	var processor;
-	var configuration;
+	let processor;
+	let configuration;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new NullCoalescingResultProcessor(configuration = { propertyName: 'testProperty', replaceValue: 'testValue' });
 	});
 
-	describe('and a target object with a null property is processed', function() {
-		var target;
+	describe('and a target object with a null property is processed', () => {
+		let target;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(target = { testProperty: null })
-				.then(function(r) {
+				.then((r) => {
 					done();
 				});
 		});
 
-		it('should assign the coalesced value to the target property', function() {
+		it('should assign the coalesced value to the target property', () => {
 			expect(target.testProperty).toEqual('testValue');
 		});
 	});
 
-	describe('and a target object with a non-null property is processed', function() {
-		var target;
+	describe('and a target object with a non-null property is processed', () => {
+		let target;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(target = { testProperty: 'bob' })
-				.then(function(r) {
+				.then((r) => {
 					done();
 				});
 		});
 
-		it('should assign the coalesced value to the target property', function() {
+		it('should assign the coalesced value to the target property', () => {
 			expect(target.testProperty).toEqual('bob');
 		});
 	});
 
-	describe('and a target object without the property is processed', function() {
-		var target;
+	describe('and a target object without the property is processed', () => {
+		let target;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(target = { })
-				.then(function(r) {
+				.then((r) => {
 					done();
 				});
 		});
 
-		it('should assign the coalesced value to the target property', function() {
+		it('should assign the coalesced value to the target property', () => {
 			expect(target.hasOwnProperty('testProperty')).toEqual(false);
 		});
 	});

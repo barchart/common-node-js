@@ -267,7 +267,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Scan} scan
-		 * @returns {Promise<Array<Object>>}
+		 * @returns {Promise<Object[]>}
 		 */
 		scan(scan) {
 			return Promise.resolve()
@@ -308,6 +308,22 @@ module.exports = (() => {
 					checkReady.call(this);
 
 					return this._provider.query(query);
+				});
+		}
+
+		/**
+		 * Runs parallel queries.
+		 *
+		 * @public
+		 * @param {Query[]} queries
+		 * @returns {Promise<Object[]>}
+		 */
+		queryParallel(queries) {
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
+
+					return this._provider.queryParallel(queries);
 				});
 		}
 

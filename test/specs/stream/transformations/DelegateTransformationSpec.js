@@ -1,53 +1,53 @@
-var DelegateTransformation = require('./../../../../stream/transformations/DelegateTransformation');
+const DelegateTransformation = require('./../../../../stream/transformations/DelegateTransformation');
 
-describe('When a DelegateTransformation is created', function() {
+describe('When a DelegateTransformation is created', () => {
 	'use strict';
 
-	describe('targeting the "letter" property', function () {
-		describe('with a "canTransform" delegate that always succeeds', function () {
-			var transformation;
+	describe('targeting the "letter" property', () => {
+		describe('with a "canTransform" delegate that always succeeds', () => {
+			let transformation;
 
-			var canTransform;
-			var transform;
-			var output;
+			let canTransform;
+			let transform;
+			let output;
 
-			beforeEach(function () {
+			beforeEach(() => {
 				canTransform = jasmine.createSpy('canTransform').and.returnValue(true);
 				transform = jasmine.createSpy('transform').and.returnValue(output = { });
 
 				transformation = new DelegateTransformation(transform, canTransform, false);
 			});
 
-			describe('and the transformation is checked', function() {
-				var target;
-				var result;
+			describe('and the transformation is checked', () => {
+				let target;
+				let result;
 
-				beforeEach(function() {
+				beforeEach(() => {
 					result = transformation.canTransform(target = { });
 				});
 
-				it('should invoke the "canTransform" with the target', function() {
+				it('should invoke the "canTransform" with the target', () => {
 					expect(canTransform).toHaveBeenCalledWith(target);
 				});
 
-				it('should evaluate to true', function() {
+				it('should evaluate to true', () => {
 					expect(result).toEqual(true);
 				});
 			});
 
-			describe('and the transformation is invoked', function() {
-				var target;
-				var result;
+			describe('and the transformation is invoked', () => {
+				let target;
+				let result;
 
-				beforeEach(function() {
+				beforeEach(() => {
 					result = transformation.transform(target = { });
 				});
 
-				it('should invoke the "transform" with the target', function() {
+				it('should invoke the "transform" with the target', () => {
 					expect(canTransform).toHaveBeenCalledWith(target);
 				});
 
-				it('should return the result of the "transform" delegate', function() {
+				it('should return the result of the "transform" delegate', () => {
 					expect(result).toBe(output);
 				});
 			});

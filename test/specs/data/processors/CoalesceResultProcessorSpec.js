@@ -1,77 +1,77 @@
-var CoalesceResultProcessor = require('./../../../../data/processors/CoalesceResultProcessor');
+const CoalesceResultProcessor = require('./../../../../data/processors/CoalesceResultProcessor');
 
-describe('When a CoalesceResultProcessor is used to process an array', function() {
+describe('When a CoalesceResultProcessor is used to process an array', () => {
 	'use strict';
 
-	var processor;
+	let processor;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		processor = new CoalesceResultProcessor({ });
 	});
 
-	describe('where the first item is null', function() {
-		var items;
-		var result;
+	describe('where the first item is null', () => {
+		let items;
+		let result;
 
-		var one;
-		var two;
-		var three;
+		let one;
+		let two;
+		let three;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ one = null, two = 'hello', three = { } ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
 				});
 		});
 
-		it('the result should be the second item', function() {
+		it('the result should be the second item', () => {
 			expect(result).toBe(two);
 		});
 	});
 
 
-	describe('where the first item is undefined', function() {
-		var items;
-		var result;
+	describe('where the first item is undefined', () => {
+		let items;
+		let result;
 
-		var one;
-		var two;
-		var three;
+		let one;
+		let two;
+		let three;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ one = undefined, two = [ ], three = 14 ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
 				});
 		});
 
-		it('the result should be the second item', function() {
+		it('the result should be the second item', () => {
 			expect(result).toBe(two);
 		});
 	});
 
-	describe('where the first item is an object', function() {
-		var items;
-		var result;
+	describe('where the first item is an object', () => {
+		let items;
+		let result;
 
-		var one;
-		var two;
-		var three;
+		let one;
+		let two;
+		let three;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(items = [ one = { }, two = 'test', three = 1234 ])
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
 				});
 		});
 
-		it('the result should be the first item', function() {
+		it('the result should be the first item', () => {
 			expect(result).toBe(one);
 		});
 	});

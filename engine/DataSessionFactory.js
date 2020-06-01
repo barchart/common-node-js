@@ -46,13 +46,14 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {DataSessionFactory~dataSessionCallback} callback - Provides the {@link DataSession}
+		 * @param {Object=} options
 		 * @returns {Promise}
 		 */
-		startSession(callback) {
+		startSession(callback, options) {
 			return Promise.resolve()
 				.then(() => {
 					if (!this._started) {
-						throw new Error('Unable to create session, the data provider factory must be started.');
+						throw new Error('Unable to create session, the data session factory must be started.');
 					}
 
 					assert.argumentIsRequired(callback, 'callback', Function);
@@ -80,7 +81,7 @@ module.exports = (() => {
 					let flushPromise;
 
 					if (session) {
-						flushPromise = this.getDataProvider()
+						flushPromise = this.getDataProvider(options)
 							.then((dataProvider) => {
 								return session.flush(dataProvider);
 							});
@@ -92,7 +93,11 @@ module.exports = (() => {
 				}).catch((e) => {
 					if (e instanceof FailureReason) {
 						try {
-							logger.error('Session flush failed', e.format());
+							if (e.getIsSevere()) {
+								logger.error('Session flush failed', e.format());
+							} else {
+								logger.warn('Session flush failed', e.format());
+							}
 						} catch (ignored) {
 
 						}
@@ -105,6 +110,9 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Overridden in inheriting classes, allowing customization of the
+		 * {@link DataSession} generated.
+		 *
 		 * @protected
 		 * @returns {Promise<DataSession>|DataSession}
 		 */
@@ -112,18 +120,32 @@ module.exports = (() => {
 			return null;
 		}
 
-		getDataProvider() {
+		/**
+		 * Returns a {@link DataProvider} for use by a {@link DataSession}.
+		 *
+		 * @protected
+		 * @param options
+		 * @return {Promise}
+		 */
+		getDataProvider(options) {
 			return Promise.resolve()
 				.then(() => {
 					if (!this._started) {
-						throw new Error('Unable to create session, the data provider factory must be started.');
+						throw new Error('Unable to create session, the data session factory must be started.');
 					}
 
-					return this._getDataProvider();
+					return this._getDataProvider(options);
 				});
 		}
 
-		_getDataProvider() {
+		/**
+		 * Overridden in inheriting classes, allowing customization of the
+		 * {@link DataProvider} used when flushing a {@link DataSession}.
+		 *
+		 * @protected
+		 * @returns {Promise<DataProvider>|DataProvider}
+		 */
+		_getDataProvider(options) {
 			return null;
 		}
 

@@ -1,11 +1,17 @@
-const assert = require('@barchart/common-js/lang/assert');
+const assert = require('@barchart/common-js/lang/assert'),
+	is = require('@barchart/common-js/lang/is');
 
-const OrderingType = require('./../definitions/OrderingType'),
+const KeyType = require('./../../schema/definitions/KeyType'),
+	OrderingType = require('./../definitions/OrderingType'),
 	Query = require('./../definitions/Query'),
 	Table = require('./../../schema/definitions/Table');
 
 const ActionBuilder = require('./ActionBuilder'),
 	FilterBuilder = require('./FilterBuilder');
+
+const Expression = require('./../definitions/Expression'),
+	Filter = require('./../definitions/Filter'),
+	OperatorType = require('./../definitions/OperatorType');
 
 module.exports = (() => {
 	'use strict';
@@ -55,7 +61,7 @@ module.exports = (() => {
 		withIndex(indexName) {
 			assert.argumentIsRequired(indexName, 'indexName', String);
 
-			this._query = new Query(this._query.table, getIndex(indexName, this._query.table), this._query.keyFilter, this._query.resultsFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.description);
+			this._query = new Query(this._query.table, getIndex(indexName, this._query.table), this._query.keyFilter, this._query.resultsFilter, this._query.parallelFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.countOnly, this._query.description);
 
 			return this;
 		}
@@ -75,7 +81,7 @@ module.exports = (() => {
 
 			callback(filterBuilder);
 
-			this._query = new Query(this._query.table, this._query.index, filterBuilder.filter, this._query.resultsFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.description);
+			this._query = new Query(this._query.table, this._query.index, filterBuilder.filter, this._query.resultsFilter, this._query.parallelFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.countOnly, this._query.description);
 
 			return this;
 		}
@@ -95,7 +101,7 @@ module.exports = (() => {
 
 			callback(filterBuilder);
 
-			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, filterBuilder.filter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.description);
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, filterBuilder.filter, this._query.parallelFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.countOnly, this._query.description);
 
 			return this;
 		}
@@ -113,12 +119,12 @@ module.exports = (() => {
 			const attribute = getAttribute(attributeName, this._query.table);
 
 			if (attribute !== null) {
-				const attributes = this.query.attributes;
+				const attributes = this._query.attributes;
 
 				if (!attributes.some(a => a.name === attribute.name)) {
 					attributes.push(attribute);
 
-					this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.description);
+					this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.parallelFilter, attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.countOnly, this._query.description);
 				}
 			}
 
@@ -135,7 +141,7 @@ module.exports = (() => {
 		withLimit(limit) {
 			assert.argumentIsRequired(limit, 'limit', Number);
 
-			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.attributes, limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.description);
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.parallelFilter, this._query.attributes, limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.countOnly, this._query.description);
 
 			return this;
 		}
@@ -150,7 +156,7 @@ module.exports = (() => {
 		withDescription(description) {
 			assert.argumentIsRequired(description, 'description', String);
 
-			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, description);
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.parallelFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.countOnly, description);
 
 			return this;
 		}
@@ -159,13 +165,13 @@ module.exports = (() => {
 		 * Sets the direction of index processing (and the order of the results).
 		 *
 		 * @public
-		 * @param {OrderingType}
+		 * @param {OrderingType} orderingType
 		 * @returns {QueryBuilder}
 		 */
 		withOrderingType(orderingType) {
 			assert.argumentIsRequired(orderingType, 'orderingType', OrderingType, 'OrderingType');
 
-			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.attributes, this._query.limit, orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.description);
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.parallelFilter, this._query.attributes, this._query.limit, orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.countOnly, this._query.description);
 
 			return this;
 		}
@@ -177,7 +183,7 @@ module.exports = (() => {
 		 * @returns {QueryBuilder}
 		 */
 		withConsistentRead() {
-			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.attributes, this._query.limit, this._query.orderingType, true, this._query.skipDeserialization, this._query.description);
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.parallelFilter, this._query.attributes, this._query.limit, this._query.orderingType, true, this._query.skipDeserialization, this._query.countOnly, this._query.description);
 
 			return this;
 		}
@@ -187,12 +193,81 @@ module.exports = (() => {
 		 * DynamoDB format.
 		 *
 		 * @public
-		 * @returns {ScanBuilder}
+		 * @returns {QueryBuilder}
 		 */
 		withDeserializationSkipped() {
-			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, true, this._query.description);
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.parallelFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, true, this._query.countOnly, this._query.description);
 
 			return this;
+		}
+
+		/**
+		 * Adds a directive to return a record count, instead of the records themselves.
+		 *
+		 * @public
+		 * @returns {QueryBuilder}
+		 */
+		withCount() {
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.parallelFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, true, this._query.description);
+
+			return this;
+		}
+
+		/**
+		 * Spawns an array of {@link Query} instances, each having the same properties
+		 * as the current {@link QueryBuilder}. However, each query is modified to return
+		 * a subset of results, by adding additional filters to the range key, according
+		 * to instructions provided by the range extractor function.
+		 *
+		 * @public
+		 * @param {QueryBuilder~rangeExtractor} rangeExtractor
+		 * @returns {Query[]}
+		 */
+		toParallelQueries(rangeExtractor) {
+			assert.argumentIsRequired(rangeExtractor, 'rangeExtractor', Function);
+
+			if (this.query.countOnly) {
+				throw new Error('Count queries cannot be run in parallel.');
+			}
+
+			const table = this._query.table;
+
+			let rangeKey;
+
+			if (this._query.index === null) {
+				rangeKey = table.rangeKey;
+			} else {
+				const keys = this._query.index.keys;
+
+				rangeKey = keys.find(k => k.keyType === KeyType.RANGE) || null;
+			}
+
+			if (rangeKey === null) {
+				throw new Error('Unable to use parallelism on a table without a range key.');
+			}
+
+			const ranges = rangeExtractor(table);
+
+			if (this._query.orderingType === OrderingType.DESCENDING) {
+				ranges.reverse();
+			}
+
+			return ranges.map((range, i) => {
+				const start = range.start;
+				const end = range.end;
+
+				let expression;
+
+				if (!is.null(end) && !is.undefined(end)) {
+					expression = new Expression(rangeKey.attribute, OperatorType.BETWEEN, [ start, end ]);
+				} else {
+					expression = new Expression(rangeKey.attribute, OperatorType.GREATER_THAN_OR_EQUAL_TO, start);
+				}
+
+				const parallelFilter = new Filter([ expression ]);
+
+				return new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, parallelFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, false, `${this._query.description} [ ${i} ]`);
+			});
 		}
 
 		/**
@@ -221,6 +296,24 @@ module.exports = (() => {
 	function getAttribute(name, table) {
 		return table.attributes.find(a => a.name === name) || null;
 	}
+
+	/**
+	 * Data regarding a single Lambda function invocation
+	 *
+	 * @typedef Range
+	 * @type {Object}
+	 * @property {*} start
+	 * @property {*|null|undefined} end
+	 */
+
+	/**
+	 * A callback that provides the consumer with an {@link AttributeBuilder}
+	 *
+	 * @public
+	 * @callback QueryBuilder~rangeExtractor
+	 * @param {Table} table
+	 * @returns {Range[]}
+	 */
 
 	return QueryBuilder;
 })();

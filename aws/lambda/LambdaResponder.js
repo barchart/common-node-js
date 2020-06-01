@@ -80,16 +80,17 @@ module.exports = (() => {
 		 * Sends a raw response payload
 		 *
 		 * @public
-		 * @param {Object|String} response
+		 * @param {*} response
+		 * @param {*} error
 		 */
-		sendRaw(response) {
+		sendRaw(response, error) {
 			if (this.complete) {
 				return;
 			}
 
 			this._complete = true;
 
-			this._callback(null, response);
+			this._callback(error || null, response);
 		}
 
 		/**

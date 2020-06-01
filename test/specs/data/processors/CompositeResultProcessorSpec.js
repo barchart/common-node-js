@@ -1,19 +1,19 @@
-var CompositeResultProcessor = require('./../../../../data/processors/CompositeResultProcessor');
-var ResultProcessor = require('./../../../../data/ResultProcessor');
+const CompositeResultProcessor = require('./../../../../data/processors/CompositeResultProcessor'),
+	ResultProcessor = require('./../../../../data/ResultProcessor');
 
-describe('When a CompositeResultProcessor is created with two children', function() {
+describe('When a CompositeResultProcessor is created with two children', () => {
 	'use strict';
 
-	var processor;
+	let processor;
 
-	var childProcessorOne;
-	var childProcessorTwo;
+	let childProcessorOne;
+	let childProcessorTwo;
 
-	var spyOne;
-	var spyTwo;
+	let spyOne;
+	let spyTwo;
 
-	var processResultOne;
-	var processResultTwo;
+	let processResultOne;
+	let processResultTwo;
 
 	class ResultProcessorSpy extends ResultProcessor {
 		constructor(spy) {
@@ -27,35 +27,35 @@ describe('When a CompositeResultProcessor is created with two children', functio
 		}
 	}
 
-	beforeEach(function() {
+	beforeEach(() => {
 		childProcessorOne = new ResultProcessorSpy(spyOne = jasmine.createSpy('spyOne').and.returnValue(processResultOne = { }));
 		childProcessorTwo = new ResultProcessorSpy(spyTwo = jasmine.createSpy('spyTwo').and.returnValue(processResultTwo = { }));
 
 		processor = new CompositeResultProcessor([ childProcessorOne, childProcessorTwo ]);
 	});
 
-	describe('and the processor is invoked', function() {
-		var result;
-		var original;
+	describe('and the processor is invoked', () => {
+		let result;
+		let original;
 
-		beforeEach(function(done) {
+		beforeEach((done) => {
 			processor.process(original = { })
-				.then(function(r) {
+				.then((r) => {
 					result = r;
 
 					done();
 				});
 		});
 
-		it('should pass the original context to first child provider', function() {
+		it('should pass the original context to first child provider', () => {
 			expect(spyOne).toHaveBeenCalledWith(original);
 		});
 
-		it('should pass the result of the first child provider to the second child provider', function() {
+		it('should pass the result of the first child provider to the second child provider', () => {
 			expect(spyTwo).toHaveBeenCalledWith(processResultOne);
 		});
 
-		it('should return the result of the second child provider', function() {
+		it('should return the result of the second child provider', () => {
 			expect(result).toBe(processResultTwo);
 		});
 	});

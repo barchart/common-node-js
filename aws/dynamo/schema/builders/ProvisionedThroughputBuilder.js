@@ -1,8 +1,6 @@
 const assert = require('@barchart/common-js/lang/assert');
 
-const DataType = require('./../definitions/DataType'),
-	KeyType = require('./../definitions/KeyType'),
-	ProvisionedThroughput = require('./../definitions/ProvisionedThroughput');
+const ProvisionedThroughput = require('./../definitions/ProvisionedThroughput');
 
 module.exports = (() => {
 	'use strict';

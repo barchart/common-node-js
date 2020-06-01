@@ -6,6 +6,7 @@ const assert = require('@barchart/common-js/lang/assert'),
 
 const LambdaEventParser = require('./LambdaEventParser'),
 	LambdaResponder = require('./LambdaResponder'),
+	LambdaSecretsManager = require('./LambdaSecretsManager'),
 	LambdaStage = require('./LambdaStage');
 
 const FailureReason = require('@barchart/common-js/api/failures/FailureReason'),
@@ -43,6 +44,19 @@ module.exports = (() => {
 			}
 
 			return lambdaLogger;
+		}
+
+		/**
+		 * Returns secret value from AWS Secrets Manager.
+		 *
+		 * @public
+		 * @param {String} secretId
+		 * @return {Promise<String>}
+		 */
+		static getSecretValue(secretId) {
+			assert.argumentIsRequired(secretId, 'secretId', String);
+
+			return LambdaSecretsManager.INSTANCE.getValue(secretId);
 		}
 
 		/**

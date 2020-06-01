@@ -1,6 +1,4 @@
-const array = require('@barchart/common-js/lang/array'),
-	assert = require('@barchart/common-js/lang/assert'),
-	is = require('@barchart/common-js/lang/is');
+const assert = require('@barchart/common-js/lang/assert');
 
 const Expression = require('./Expression');
 
@@ -11,7 +9,7 @@ module.exports = (() => {
 	 * The collection of {@link Expression} objects that compose a filter.
 	 *
 	 * @public
-	 * @param {Array<Expression>} expressions
+	 * @param {Expression[]} expressions
 	 */
 	class Filter {
 		constructor(expressions) {
@@ -22,7 +20,7 @@ module.exports = (() => {
 		 * The collection of {@link Expression} objects that compose a filter.
 		 *
 		 * @public
-		 * @returns {Array<Expression>}
+		 * @returns {Expression[]}
 		 */
 		get expressions() {
 			return [...this._expressions];
@@ -43,6 +41,26 @@ module.exports = (() => {
 			}
 
 			this._expressions.forEach(e => e.validate());
+		}
+
+		/**
+		 * Combines two {@link Filter} instances into a single new instance by using all
+		 * expressions from each original filter.
+		 *
+		 * @public
+		 * @static
+		 * @param {Filter} a
+		 * @param {Filter} b
+		 */
+		static merge(a, b) {
+			assert.argumentIsRequired(a, 'a', Filter, 'Filter');
+			assert.argumentIsRequired(b, 'b', Filter, 'Filter');
+
+			if (a === b) {
+				return new Filter(a.expressions);
+			} else {
+				return new Filter(a.expressions.concat(b.expressions));
+			}
 		}
 
 		toString() {
