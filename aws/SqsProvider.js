@@ -399,7 +399,7 @@ module.exports = (() => {
 		 * @public
 		 * @param {string} queueName - The name of the queue to add the message to.
 		 * @param {Object} payload - The message to enqueue (will be serialized to JSON).
-		 * @param {Number=} delaySeconds - The length in seconds, for which the delivery of message is delayed.
+		 * @param {Number=} delaySeconds - The number of seconds to prevent message from being retrieved from the queue.
 		 * @returns {Promise}
 		 */
 		send(queueName, payload, delaySeconds) {
