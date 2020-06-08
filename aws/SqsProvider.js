@@ -399,13 +399,15 @@ module.exports = (() => {
 		 * @public
 		 * @param {string} queueName - The name of the queue to add the message to.
 		 * @param {Object} payload - The message to enqueue (will be serialized to JSON).
+		 * @param {Number=} delaySeconds - The number of seconds to prevent message from being retrieved from the queue.
 		 * @returns {Promise}
 		 */
-		send(queueName, payload) {
+		send(queueName, payload, delaySeconds) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(queueName, 'queueName', String);
 					assert.argumentIsRequired(payload, 'payload', Object);
+					assert.argumentIsOptional(delaySeconds, 'delaySeconds', Number);
 
 					if (this.getIsDisposed()) {
 						throw new Error('The SQS Provider has been disposed.');
@@ -426,10 +428,16 @@ module.exports = (() => {
 									logger.debug('Sending message', counter, 'to SQS queue:', qualifiedQueueName);
 									logger.trace(payload);
 
-									this._sqs.sendMessage({
-										QueueUrl: queueUrl,
-										MessageBody: JSON.stringify(payload)
-									}, (error, data) => {
+									const message = { };
+
+									message.QueueUrl = queueUrl;
+									message.MessageBody = JSON.stringify(payload);
+
+									if (is.number(delaySeconds)) {
+										message.DelaySeconds = delaySeconds;
+									}
+
+									this._sqs.sendMessage(message, (error, data) => {
 										if (error === null) {
 											logger.info('Sent message', counter, 'to SQS queue:', qualifiedQueueName);
 
