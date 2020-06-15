@@ -798,16 +798,6 @@ module.exports = (() => {
 		}
 	}
 
-	function checkReady() {
-		if (this.getIsDisposed()) {
-			throw new Error('The Dynamo Provider has been disposed.');
-		}
-
-		if (!this._started) {
-			throw new Error('The Dynamo Provider has not been started.');
-		}
-	}
-
 	function receiveMessages(queueName, waitTime, maximumMessages, synchronousDelete) {
 		if (this.getIsDisposed()) {
 			throw new Error('The SQS Provider has been disposed.');
