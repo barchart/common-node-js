@@ -577,14 +577,16 @@ module.exports = (() => {
 		 * @param {string} queueName - The name of the queue to read.
 		 * @param {Function=} mapper - A function that can be used to map messages into something else.
 		 * @param {Boolean=} synchronousDelete - If true, the promise won't resolve until new messages have been read *and deleted* from the queue.
+		 * @param {Number=} maximumMessages - If positive, the maximum number of messages to read before stopping. The actual number of messages returned may be slightly more than this value (but not by more than ten).
 		 * @returns {Promise<Object[]>}
 		 */
-		drain(queueName, mapper, synchronousDelete) {
+		drain(queueName, mapper, synchronousDelete, maximumMessages) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(queueName, 'queueName', String);
 					assert.argumentIsOptional(mapper, 'mapper', Function);
 					assert.argumentIsOptional(synchronousDelete, 'synchronousDelete', Boolean);
+					assert.argumentIsOptional(maximumMessages, 'maximumMessages', Number);
 
 					const batches = [ ];
 					const batchSize = 10;
@@ -596,7 +598,7 @@ module.exports = (() => {
 							.then((messages) => {
 								batches.push(messages.map(mapperToUse));
 
-								if (messages.length === 0) {
+								if (messages.length === 0 || (is.positive(maximumMessages) && messages.length > maximumMessages)) {
 									return batches;
 								} else {
 									return executeDrain();
