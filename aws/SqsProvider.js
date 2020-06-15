@@ -643,7 +643,7 @@ module.exports = (() => {
 
 								this._sqs.purgeQueue(payload, (error, data) => {
 									if (error === null) {
-										logger.debug(`SQS queue purge complete [ ${qualifiedQueueName} ]`);
+										logger.info(`SQS queue purge complete [ ${qualifiedQueueName} ]`);
 
 										resolveCallback(true);
 									} else {
