@@ -594,7 +594,7 @@ module.exports = (() => {
 					const executeDrain = () => {
 						return this.receive(queueName, 0, batchSize, synchronousDelete)
 							.then((messages) => {
-								batches.push(messages.map(mapper));
+								batches.push(messages.map(mapperToUse));
 
 								if (messages.length === 0) {
 									return batches;
