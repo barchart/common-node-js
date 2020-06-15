@@ -612,6 +612,53 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Purges all messages from an SQS queue.
+		 *
+		 * @public
+		 * @param {string} queueName - The name of the queue to purge.
+		 * @returns {Promise<Boolean>}
+		 */
+		purge(queueName) {
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsRequired(queueName, 'queueName', String);
+
+					if (this.getIsDisposed()) {
+						throw new Error('The SQS Provider has been disposed.');
+					}
+
+					if (!this._started) {
+						throw new Error('The SQS Provider has not been started.');
+					}
+
+					return this.getQueueUrl(queueName)
+						.then((queueUrl) => {
+							const qualifiedQueueName = getQualifiedQueueName(this._configuration.prefix, queueName);
+
+							logger.debug(`SQS queue purge beginning [ ${qualifiedQueueName} ]`);
+
+							return promise.build((resolveCallback, rejectCallback) => {
+								const payload = { };
+								payload.QueueUrl = queueUrl;
+
+								this._sqs.purgeQueue(payload, (error, data) => {
+									if (error === null) {
+										logger.debug(`SQS queue purge complete [ ${qualifiedQueueName} ]`);
+
+										resolveCallback(true);
+									} else {
+										logger.error(`SQS queue purge failed [ ${qualifiedQueueName} ]`);
+										logger.error(error);
+
+										rejectCallback('Failed to purge SQS queue');
+									}
+								});
+							});
+						});
+				});
+		}
+
+		/**
 		 * Makes repeated reads from a queue until canceled and returns messages
 		 * using the callback provided.
 		 *
