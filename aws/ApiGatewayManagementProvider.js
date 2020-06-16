@@ -88,11 +88,7 @@ module.exports = (() => {
 			return this._agm.postToConnection({
 				ConnectionId: connectionId,
 				Data: data,
-			}).promise().catch((e) => {
-					logger.error(e);
-
-					throw e;
-			});
+			}).promise();
 		}
 
 		_onDispose() {
