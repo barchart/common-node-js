@@ -577,7 +577,7 @@ module.exports = (() => {
 		 * @param {string} queueName - The name of the queue to read.
 		 * @param {Function=} mapper - A function that can be used to map messages into something else.
 		 * @param {Boolean=} synchronousDelete - If true, the promise won't resolve until new messages have been read *and deleted* from the queue.
-		 * @param {Number=} maximumMessages - If positive, the maximum number of messages to read before stopping.
+		 * @param {Number=} maximumMessages - If positive, the maximum number of messages to read before stopping. This logic is approximate, you may receive a few more messages (up to ten more).
 		 * @returns {Promise<Object[]>}
 		 */
 		drain(queueName, mapper, synchronousDelete, maximumMessages) {
