@@ -1,7 +1,6 @@
 const gulp = require('gulp');
 
-const bump = require('gulp-bump'),
-    git = require('gulp-git'),
+const git = require('gulp-git'),
     gitStatus = require('git-get-status'),
     jasmine = require('gulp-jasmine'),
     jshint = require('gulp-jshint'),
@@ -38,10 +37,16 @@ gulp.task('bump-choice', (cb) => {
 	return gulp.src(['./package.json']).pipe(processor);
 });
 
-gulp.task('bump-version', () => {
-    return gulp.src([ './package.json' ])
-        .pipe(bump({ type: global.bump || 'patch' }))
-        .pipe(gulp.dest('./'));
+gulp.task('bump-version', (cb) => {
+	exec(`npm version ${global.bump || 'patch'} --no-git-tag-version`, {
+		cwd: './'
+	}, (error) => {
+		if (error) {
+			cb(error);
+		}
+
+		cb();
+	});
 });
 
 gulp.task('commit-changes', () => {
