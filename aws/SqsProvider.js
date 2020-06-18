@@ -588,17 +588,21 @@ module.exports = (() => {
 					assert.argumentIsOptional(synchronousDelete, 'synchronousDelete', Boolean);
 					assert.argumentIsOptional(maximumMessages, 'maximumMessages', Number);
 
+					const mapperToUse = mapper || (m => m);
+
 					const batches = [ ];
 					const batchSize = 10;
 
-					const mapperToUse = mapper || (m => m);
+					let count = 0;
 
 					const executeDrain = () => {
 						return this.receive(queueName, 0, batchSize, synchronousDelete)
 							.then((messages) => {
 								batches.push(messages.map(mapperToUse));
 
-								if (messages.length === 0 || (is.positive(maximumMessages) && messages.length > maximumMessages)) {
+								count = count + messages.length;
+
+								if (messages.length === 0 || (is.positive(maximumMessages) && count >= maximumMessages)) {
 									return batches;
 								} else {
 									return executeDrain();
