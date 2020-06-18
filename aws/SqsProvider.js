@@ -122,20 +122,20 @@ module.exports = (() => {
 							queuePrefixToUse = queuePrefixToUse + queueNamePrefix;
 						}
 
-						logger.info('Listing SQS queues with name prefix', queuePrefixToUse);
+						logger.info('Listing queues with name prefix [', queuePrefixToUse, ']');
 
 						this._sqs.listQueues({ QueueNamePrefix: queuePrefixToUse }, (error, data) => {
 							if (error === null) {
 								const queueUrls = data.QueueUrls || [ ];
 
-								logger.debug('Listing of', queueUrls.length, 'SQS queues with name prefix', queuePrefixToUse, 'complete');
+								logger.debug('Listing of [', queueUrls.length, '] queues with name prefix [', queuePrefixToUse, '] complete');
 
 								resolveCallback(queueUrls);
 							} else {
-								logger.error('Listing of SQS queues with name prefix', queuePrefixToUse, 'failed');
+								logger.error('Listing of queues with name prefix [', queuePrefixToUse, '] failed');
 								logger.error(error);
 
-								rejectCallback('Failed to list SQS queues.');
+								rejectCallback('Failed to list queues.');
 							}
 						});
 					});
@@ -212,11 +212,11 @@ module.exports = (() => {
 
 					return this._sqs.getQueueAttributes(payload).promise()
 						.then((data) => {
-							logger.info('SQS queue attribute lookup complete:', queueUrl);
+							logger.info('Queue attribute lookup complete [', queueUrl, ']');
 
 							return data.Attributes;
 						}).catch((error) => {
-							logger.error('SQS queue attribute lookup failed:', queueUrl);
+							logger.error('Queue attribute lookup failed [', queueUrl, ']');
 							logger.error(error);
 
 							throw error;
@@ -252,21 +252,21 @@ module.exports = (() => {
 							.then((queueUrl) => {
 								return promise.build(
 									(resolveCallback, rejectCallback) => {
-										logger.debug('Getting SQS queue attributes:', qualifiedQueueName);
+										logger.debug('Getting queue attributes [', qualifiedQueueName, ']');
 
 										this._sqs.getQueueAttributes({
 											QueueUrl: queueUrl,
 											AttributeNames: ['QueueArn']
 										}, (error, data) => {
 											if (error === null) {
-												logger.info('SQS queue attribute lookup complete:', qualifiedQueueName);
+												logger.info('Queue attribute lookup complete [', qualifiedQueueName, ']');
 
 												resolveCallback(data.Attributes.QueueArn);
 											} else {
-												logger.error('SQS queue attribute lookup failed:', qualifiedQueueName);
+												logger.error('Queue attribute lookup failed [', qualifiedQueueName, ']');
 												logger.error(error);
 
-												rejectCallback('Failed to lookup ARN for SQS queue.');
+												rejectCallback('Failed to lookup ARN for queue.');
 											}
 										});
 									}
@@ -306,7 +306,7 @@ module.exports = (() => {
 
 					return promise.build(
 						(resolveCallback, rejectCallback) => {
-							logger.debug('Creating SQS queue:', qualifiedQueueName);
+							logger.debug('Creating queue [', qualifiedQueueName, ']');
 
 							const payload = {
 								QueueName: qualifiedQueueName,
@@ -320,7 +320,7 @@ module.exports = (() => {
 
 							this._sqs.createQueue(payload, (error, data) => {
 								if (error === null) {
-									logger.info('SQS queue created:', qualifiedQueueName);
+									logger.info('Queue created [', qualifiedQueueName, ']');
 
 									const queueUrl = data.QueueUrl;
 
@@ -328,10 +328,10 @@ module.exports = (() => {
 
 									resolveCallback(queueUrl);
 								} else {
-									logger.error('SQS queue creation failed:', qualifiedQueueName);
+									logger.error('Queue creation failed [', qualifiedQueueName, ']');
 									logger.error(error);
 
-									rejectCallback('Failed to create SQS queue.');
+									rejectCallback('Failed to create queue.');
 								}
 							});
 						}
@@ -425,7 +425,7 @@ module.exports = (() => {
 
 									const qualifiedQueueName = getQualifiedQueueName(this._configuration.prefix, queueName);
 
-									logger.debug('Sending message', counter, 'to SQS queue:', qualifiedQueueName);
+									logger.debug('Sending message [', counter, '] to queue [', qualifiedQueueName, ']');
 									logger.trace(payload);
 
 									const message = { };
@@ -439,14 +439,14 @@ module.exports = (() => {
 
 									this._sqs.sendMessage(message, (error, data) => {
 										if (error === null) {
-											logger.info('Sent message', counter, 'to SQS queue:', qualifiedQueueName);
+											logger.info('Sent message [', counter, '] to queue [', qualifiedQueueName, ']');
 
 											resolveCallback();
 										} else {
-											logger.error('SQS queue send', counter, 'failed:', qualifiedQueueName);
+											logger.error('Queue send [', counter, '] failed:', qualifiedQueueName, ']');
 											logger.error(error);
 
-											rejectCallback('Failed to send message to SQS queue.');
+											rejectCallback('Failed to send message to queue.');
 										}
 									});
 								}
@@ -497,7 +497,7 @@ module.exports = (() => {
 
 									const qualifiedQueueName = getQualifiedQueueName(this._configuration.prefix, queueName);
 
-									logger.debug('Sending messages', start, 'through', end, 'to SQS queue:', qualifiedQueueName);
+									logger.debug('Sending messages [', start, '] through [', end, '] to queue [', qualifiedQueueName, ']');
 									logger.trace(batch);
 
 									this._sqs.sendMessageBatch({
@@ -511,19 +511,19 @@ module.exports = (() => {
 									}, (error, data) => {
 										if (error === null) {
 											if (data.Failed.length !== 0) {
-												logger.error('SQS queue send (',  start, 'through', end, ') failed,', data.Failed.length, 'messages could not be enqueued:', qualifiedQueueName);
+												logger.error('Queue send [',  start, '] through [', end, '] failed, [', data.Failed.length, '] messages could not be enqueued [', qualifiedQueueName, ']');
 
-												rejectCallback('Failed to send messages to SQS queue.');
+												rejectCallback('Failed to send messages to queue.');
 											} else {
-												logger.info('Sent messages', start, 'through', end, 'to SQS queue:', qualifiedQueueName);
+												logger.info('Sent messages [', start, '] through [', end, '] to queue [', qualifiedQueueName, ']');
 
 												resolveCallback();
 											}
 										} else {
-											logger.error('SQS queue send (',  start, 'through', end, ') failed,', batch.length, 'messages could not be enqueued:', qualifiedQueueName);
+											logger.error('Queue send [',  start, '] through [', end, '] failed, [', batch.length, '] messages could not be enqueued [', qualifiedQueueName, ']');
 											logger.error(error);
 
-											rejectCallback('Failed to send messages to SQS queue.');
+											rejectCallback('Failed to send messages to queue.');
 										}
 									});
 								}
@@ -562,7 +562,7 @@ module.exports = (() => {
 					const qualifiedQueueName = getQualifiedQueueName(this._configuration.prefix, queueName);
 
 					if (this._queueObservers.hasOwnProperty(qualifiedQueueName)) {
-						throw new Error('The SQS queue is being observed.');
+						throw new Error('The queue is being observed.');
 					}
 
 					return receiveMessages.call(this, queueName, waitDuration, maximumMessages, synchronousDelete);
@@ -637,7 +637,7 @@ module.exports = (() => {
 						.then((queueUrl) => {
 							const qualifiedQueueName = getQualifiedQueueName(this._configuration.prefix, queueName);
 
-							logger.debug(`SQS queue purge beginning [ ${qualifiedQueueName} ]`);
+							logger.debug(`Queue purge beginning [ ${qualifiedQueueName} ]`);
 
 							return promise.build((resolveCallback, rejectCallback) => {
 								const payload = { };
@@ -645,14 +645,14 @@ module.exports = (() => {
 
 								this._sqs.purgeQueue(payload, (error, data) => {
 									if (error === null) {
-										logger.info(`SQS queue purge complete [ ${qualifiedQueueName} ]`);
+										logger.info(`Queue purge complete [ ${qualifiedQueueName} ]`);
 
 										resolveCallback(true);
 									} else {
-										logger.error(`SQS queue purge failed [ ${qualifiedQueueName} ]`);
+										logger.error(`Queue purge failed [ ${qualifiedQueueName} ]`);
 										logger.error(error);
 
-										rejectCallback('Failed to purge SQS queue');
+										rejectCallback('Failed to purge queue');
 									}
 								});
 							});
@@ -690,15 +690,15 @@ module.exports = (() => {
 			const qualifiedQueueName = getQualifiedQueueName(this._configuration.prefix, queueName);
 
 			if (this._queueObservers.hasOwnProperty(qualifiedQueueName)) {
-				throw new Error('The SQS queue is already being observed.');
+				throw new Error('The queue is already being observed.');
 			}
 
-			logger.debug('Creating observer for SQS queue:', qualifiedQueueName);
+			logger.debug('Creating observer for queue [', qualifiedQueueName, ']');
 
 			let disposed = false;
 
 			this._queueObservers[qualifiedQueueName] = Disposable.fromAction(() => {
-				logger.info('Disposing observer of SQS queue:', qualifiedQueueName);
+				logger.info('Disposing observer of queue [', qualifiedQueueName, ']');
 
 				disposed = true;
 
@@ -721,7 +721,7 @@ module.exports = (() => {
 
 							return callback(message);
 						})).catch((error) => {
-							logger.error('An error occurred while processing message(s) from SQS queue:', qualifiedQueueName);
+							logger.error('An error occurred while processing message(s) from queue [', qualifiedQueueName, ']');
 							logger.error(error);
 						}).then(() => {
 							if (messages.length === 0) {
@@ -731,7 +731,7 @@ module.exports = (() => {
 							}
 						});
 					}).catch((error) => {
-						logger.error('An error occurred while receiving message(s) from SQS queue:', qualifiedQueueName);
+						logger.error('An error occurred while receiving message(s) from queue [', qualifiedQueueName, ']');
 						logger.error(error);
 					}).then(() => {
 						if (disposed) {
@@ -742,7 +742,7 @@ module.exports = (() => {
 							delay = 5000;
 						}
 
-						this._scheduler.schedule(checkQueue, delay, 'Check SQS queue (' + qualifiedQueueName + ')');
+						this._scheduler.schedule(checkQueue, delay, 'Check queue (' + qualifiedQueueName + ')');
 					});
 			};
 
@@ -777,7 +777,7 @@ module.exports = (() => {
 						.then((queueUrl) => {
 							const qualifiedQueueName = getQualifiedQueueName(this._configuration.prefix, queueName);
 
-							logger.debug('Updating SQS queue policy:', qualifiedQueueName);
+							logger.debug('Updating queue policy [', qualifiedQueueName, ']');
 							logger.trace(policy);
 
 							return promise.build((resolveCallback, rejectCallback) => {
@@ -788,14 +788,14 @@ module.exports = (() => {
 									}
 								}, (error, data) => {
 									if (error === null) {
-										logger.info('SQS queue policy updated for:', qualifiedQueueName);
+										logger.info('Queue policy updated for [', qualifiedQueueName, ']');
 
 										resolveCallback();
 									} else {
-										logger.error('SQS queue policy update failed:', qualifiedQueueName);
+										logger.error('Queue policy update failed [', qualifiedQueueName, ']');
 										logger.error(error);
 
-										rejectCallback('Failed to update SQS queue policy.');
+										rejectCallback('Failed to update queue policy.');
 									}
 								});
 							});
@@ -882,7 +882,7 @@ module.exports = (() => {
 					(resolveCallback, rejectCallback) => {
 						const qualifiedQueueName = getQualifiedQueueName(this._configuration.prefix, queueName);
 
-						logger.debug('Receiving message(s) from SQS queue:', qualifiedQueueName);
+						logger.debug('Receiving message(s) from queue [', qualifiedQueueName, ']');
 
 						this._sqs.receiveMessage({
 							QueueUrl: queueUrl,
@@ -893,10 +893,10 @@ module.exports = (() => {
 								const messagesExist = is.array(data.Messages) && data.Messages.length !== 0;
 
 								if (messagesExist) {
-									logger.info('Received', data.Messages.length, 'message(s) from SQS queue:', qualifiedQueueName);
+									logger.info('Received [', data.Messages.length, '] message(s) from queue [', qualifiedQueueName, ']');
 									logger.trace(data.Messages);
 								} else {
-									logger.debug('Received 0 message(s) from SQS queue:', qualifiedQueueName);
+									logger.debug('Received [ 0 ] message(s) from queue [', qualifiedQueueName, ']');
 								}
 
 								let messages;
@@ -906,7 +906,7 @@ module.exports = (() => {
 										return JSON.parse(message.Body);
 									});
 								} catch (parseError) {
-									logger.error('Failed to parse message(s) received from SQS queue.', parseError);
+									logger.error('Failed to parse message(s) received from queue.', parseError);
 
 									messages = null;
 								}
@@ -927,14 +927,14 @@ module.exports = (() => {
 									if (messages) {
 										resolveCallback(messages);
 									} else {
-										rejectCallback('Failed to parse message(s) received from SQS queue.');
+										rejectCallback('Failed to parse message(s) received from queue.');
 									}
 								});
 							} else {
-								logger.error('SQS receive messages failed:', qualifiedQueueName);
+								logger.error('SQS receive messages failed [', qualifiedQueueName, ']');
 								logger.error(error);
 
-								rejectCallback('Failed to receive messages from SQS queue.');
+								rejectCallback('Failed to receive messages from queue.');
 							}
 						});
 					}
@@ -951,7 +951,7 @@ module.exports = (() => {
 
 		return promise.build(
 			(resolveCallback, rejectCallback) => {
-				logger.debug('Deleting', messageCount, 'message(s) from SQS queue:', qualifiedQueueName);
+				logger.debug('Deleting [', messageCount, '] message(s) from queue [', qualifiedQueueName, ']');
 
 				this._sqs.deleteMessageBatch({
 					QueueUrl: queueUrl,
@@ -971,20 +971,20 @@ module.exports = (() => {
 							deletedCount = messageCount;
 						}
 
-						logger.info('Deleted', deletedCount, 'message(s) from SQS queue:', qualifiedQueueName);
+						logger.info('Deleted [', deletedCount, '] message(s) from queue [', qualifiedQueueName, ']');
 
 						if (deletedCount !== messageCount) {
-							logger.warn('Failed to delete', data.Failed.length, 'message(s) from SQS queue:', qualifiedQueueName);
+							logger.warn('Failed to delete [', data.Failed.length, '] message(s) from queue [', qualifiedQueueName, ']');
 
-							rejectCallback('Failed to delete some messages from SQS queue.');
+							rejectCallback('Failed to delete some messages from queue.');
 						} else {
 							resolveCallback();
 						}
 					} else {
-						logger.error('SQS message delete failed:', qualifiedQueueName);
+						logger.error('SQS message delete failed [', qualifiedQueueName, ']');
 						logger.error(error);
 
-						rejectCallback('Failed to delete messages from SQS queue.');
+						rejectCallback('Failed to delete messages from queue.');
 					}
 				});
 			}
@@ -994,20 +994,20 @@ module.exports = (() => {
 	function executeQueueDelete(qualifiedQueueName, queueUrl) {
 		return promise.build(
 			(resolveCallback, rejectCallback) => {
-				logger.debug('Deleting SQS queue:', qualifiedQueueName, 'at URL', queueUrl);
+				logger.debug('Deleting queue [', qualifiedQueueName, '] at URL [', queueUrl, ']');
 
 				this._sqs.deleteQueue({
 					QueueUrl: queueUrl
 				}, (error, data) => {
 					if (error === null) {
-						logger.info('SQS queue deleted:', qualifiedQueueName, 'at URL', queueUrl);
+						logger.info('Queue deleted [', qualifiedQueueName, '] at URL [', queueUrl, ']');
 
 						resolveCallback();
 					} else {
-						logger.error('SQS queue delete failed:', qualifiedQueueName, 'at URL', queueUrl);
+						logger.error('Queue delete failed [', qualifiedQueueName, '] at URL [', queueUrl, ']');
 						logger.error(error);
 
-						rejectCallback('Failed to delete SQS queue.');
+						rejectCallback('Failed to delete queue.');
 					}
 				});
 			}
