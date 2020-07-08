@@ -183,7 +183,7 @@ module.exports = (() => {
 					}
 
 					if (responder) {
-						responder.sendError(failure);
+						responder.sendError(failure, failure.getErrorCode());
 					}
 				});
 		}
