@@ -57,7 +57,7 @@ module.exports = (() => {
 	/**
 	 * @function
 	 * @private
-	 * @returns {SecretsManagerProvider}
+	 * @returns {Promise<SecretsManagerProvider>}
 	 */
 	function getSecretsManagerProvider() {
 		if (secretsManagerProviderPromise === null) {
