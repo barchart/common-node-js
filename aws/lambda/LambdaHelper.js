@@ -29,7 +29,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Configures and returns a log4js lambdaLogger.
+		 * Configures and returns a log4js logger.
 		 *
 		 * @public
 		 * @param {Object=|String=} configuration - Configuration path (as string) or a configuration data (as object).
