@@ -267,6 +267,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Update} update
+		 * @returns {Promise<Object>}
 		 */
 		updateItem(update) {
 			return Promise.resolve()
