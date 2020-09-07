@@ -579,8 +579,8 @@ module.exports = (() => {
 								params.TransactItems = schemas;
 
 								return this._dynamo.transactWriteItems(params).promise()
-									.then((data) => {
-
+									.then(() => {
+										return Promise.resolve({ code: DYNAMO_RESULT.SUCCESS, results: null });
 									}).catch((error) => {
 										const dynamoError = Enum.fromCode(DynamoError, error.code);
 
@@ -605,7 +605,7 @@ module.exports = (() => {
 								throw result.error;
 							}
 
-							return result;
+							return result.results;
 						});
 				});
 		}
