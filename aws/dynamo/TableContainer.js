@@ -263,6 +263,21 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Runs an update of the table item.
+		 *
+		 * @public
+		 * @param {Update} update
+		 */
+		updateItem(update) {
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
+
+					return this._provider.updateItem(update);
+				});
+		}
+
+		/**
 		 * Runs a scan on the table.
 		 *
 		 * @public
