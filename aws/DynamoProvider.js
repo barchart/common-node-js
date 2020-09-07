@@ -556,6 +556,61 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Updates an existing items attributes by performing transaction.
+		 *
+		 * @public
+		 * @param {Array<Update>} updates
+		 * @returns {Promise<Object>}
+		 */
+		transactUpdateItems(updates) {
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsArray(updates, 'updates', Update, 'Update');
+
+					checkReady.call(this);
+
+					const schemas = updates.map(u => ({ 'Update': u.toUpdateSchema() }));
+
+					const transactWrite = () => {
+						return Promise.resolve()
+							.then(() => {
+								const params = { };
+
+								params.TransactItems = schemas;
+
+								return this._dynamo.transactWriteItems(params).promise()
+									.then((data) => {
+
+									}).catch((error) => {
+										const dynamoError = Enum.fromCode(DynamoError, error.code);
+
+										let result;
+
+										if (dynamoError !== null && dynamoError.retryable) {
+											logger.debug(`Encountered retryable error [ ${error.code} ] while performing transactional write`);
+
+											result = Promise.reject(error);
+										} else {
+											result = Promise.resolve({ code: DYNAMO_RESULT.FAILURE, error: error });
+										}
+
+										return result;
+									});
+							});
+					};
+
+					return this._scheduler.backoff(transactWrite, WRITE_MILLISECOND_BACKOFF)
+						.then((result) => {
+							if (result.code === DYNAMO_RESULT.FAILURE) {
+								throw result.error;
+							}
+
+							return result;
+						});
+				});
+		}
+
+		/**
 		 * Adds multiple items to a table. Unlike the {@link DynamoProvider#saveItem} function,
 		 * batches are processed serially; that is, writes from a batch must complete before
 		 * writes from a subsequent batch are started.
