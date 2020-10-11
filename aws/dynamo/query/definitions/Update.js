@@ -50,7 +50,6 @@ module.exports = (() => {
 		 * An optional {@link Filter} to apply condition expression. This allows write
 		 * to proceed only if the condition expressions succeed.
 		 *
-		 *
 		 * @public
 		 * @returns {Filter|null}
 		 */
@@ -71,6 +70,8 @@ module.exports = (() => {
 		/**
 		 * A {@link ReturnValueType} specifies returning values of update.
 		 *
+		 * @public
+		 * @returns {ReturnValueType}
 		 */
 		get returnType() {
 			return this._returnType;
