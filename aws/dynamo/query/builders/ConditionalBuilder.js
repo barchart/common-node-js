@@ -82,6 +82,8 @@ module.exports = (() => {
 		/**
 		 * Creates a new {@link ConditionalBuilder}.
 		 *
+		 * @public
+		 * @static
 		 * @param {String} name - Name of the table.
 		 * @returns {ConditionalBuilder}
 		 */
