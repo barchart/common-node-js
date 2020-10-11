@@ -154,7 +154,7 @@ module.exports = (() => {
 				throw new Error('Index data type is invalid.');
 			}
 
-			if (this.index !== null && !this.table.indicies.some(i => i.equals(this.index, true))) {
+			if (this.index !== null && !this.table.indices.some(i => i.equals(this.index, true))) {
 				throw new Error('The index must belong to the table.');
 			}
 

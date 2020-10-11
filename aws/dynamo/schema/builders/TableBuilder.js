@@ -104,7 +104,7 @@ module.exports = (() => {
 			const attribute = attributeBuilder.attribute;
 			const attributes = this._table.attributes.filter(a => a.name !== attribute.name).concat(attribute);
 
-			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, attributes, this._table.components, this._table.provisionedThroughput, this._table.streamViewType, this._table.ttlAttribute);
+			this._table = new Table(this._table.name, this._table.keys, this._table.indices, attributes, this._table.components, this._table.provisionedThroughput, this._table.streamViewType, this._table.ttlAttribute);
 
 			return this;
 		}
@@ -141,7 +141,7 @@ module.exports = (() => {
 			const component = componentBuilder.component;
 			const components = this._table.components.filter(c => c.name !== component.name).concat(component);
 
-			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, components, this._table.provisionedThroughput, this._table.streamViewType, this._table.ttlAttribute);
+			this._table = new Table(this._table.name, this._table.keys, this._table.indices, this._table.attributes, components, this._table.provisionedThroughput, this._table.streamViewType, this._table.ttlAttribute);
 
 			return this;
 		}
@@ -178,7 +178,7 @@ module.exports = (() => {
 			const key = keyBuilder.key;
 			const keys = this._table.keys.filter(k => k.attribute.name !== key.attribute.name).concat(key);
 
-			this._table = new Table(this._table.name, keys, this._table.indicies, this._table.attributes, this._table.components, this._table.provisionedThroughput, this._table.streamViewType, this._table.ttlAttribute);
+			this._table = new Table(this._table.name, keys, this._table.indices, this._table.attributes, this._table.components, this._table.provisionedThroughput, this._table.streamViewType, this._table.ttlAttribute);
 
 			return this;
 		}
@@ -201,9 +201,9 @@ module.exports = (() => {
 			callback(indexBuilder);
 
 			const index = indexBuilder.index;
-			const indicies = this._table._indices.filter(i => i.name !== index.name).concat(index);
+			const indices = this._table._indices.filter(i => i.name !== index.name).concat(index);
 
-			this._table = new Table(this._table.name, this._table.keys, indicies, this._table.attributes, this._table.components, this._table.provisionedThroughput, this._table.streamViewType, this._table.ttlAttribute);
+			this._table = new Table(this._table.name, this._table.keys, indices, this._table.attributes, this._table.components, this._table.provisionedThroughput, this._table.streamViewType, this._table.ttlAttribute);
 
 			return this;
 		}
@@ -237,7 +237,7 @@ module.exports = (() => {
 
 			callback(provisionedThroughputBuilder);
 
-			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, this._table.components, provisionedThroughputBuilder.provisionedThroughput, this._table.streamViewType, this._table.ttlAttribute);
+			this._table = new Table(this._table.name, this._table.keys, this._table.indices, this._table.attributes, this._table.components, provisionedThroughputBuilder.provisionedThroughput, this._table.streamViewType, this._table.ttlAttribute);
 
 			return this;
 		}
@@ -250,7 +250,7 @@ module.exports = (() => {
 		 * @returns {TableBuilder}
 		 */
 		withOnDemandThroughput() {
-			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, this._table.components, null, this._table.streamViewType, this._table.ttlAttribute);
+			this._table = new Table(this._table.name, this._table.keys, this._table.indices, this._table.attributes, this._table.components, null, this._table.streamViewType, this._table.ttlAttribute);
 
 			return this;
 		}
@@ -264,7 +264,7 @@ module.exports = (() => {
 		withStreamViewType(streamViewType) {
 			assert.argumentIsRequired(streamViewType, 'streamViewType', StreamViewType, 'StreamViewType');
 
-			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, this._table.components, this._table.provisionedThroughput, streamViewType, this._table.ttlAttribute);
+			this._table = new Table(this._table.name, this._table.keys, this._table.indices, this._table.attributes, this._table.components, this._table.provisionedThroughput, streamViewType, this._table.ttlAttribute);
 
 			return this;
 		}
@@ -279,7 +279,7 @@ module.exports = (() => {
 		withTimeToLive(attributeName) {
 			assert.argumentIsRequired(attributeName, 'attributeName', String);
 
-			this._table = new Table(this._table.name, this._table.keys, this._table.indicies, this._table.attributes, this._table.components, this._table.provisionedThroughput, this._table.streamViewType, attributeName);
+			this._table = new Table(this._table.name, this._table.keys, this._table.indices, this._table.attributes, this._table.components, this._table.provisionedThroughput, this._table.streamViewType, attributeName);
 
 			return this;
 		}

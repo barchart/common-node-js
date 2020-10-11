@@ -14,16 +14,16 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * The schema for a DynamoDB table, including attributes, keys, indicies, etc.
+	 * The schema for a DynamoDB table, including attributes, keys, indices, etc.
 	 *
 	 * @public
 	 */
 	class Table {
-		constructor(name, keys, indicies, attributes, components, provisionedThroughput, streamViewType, ttlAttribute) {
+		constructor(name, keys, indices, attributes, components, provisionedThroughput, streamViewType, ttlAttribute) {
 			this._name = name;
 
 			this._keys = keys || [ ];
-			this._indices = indicies || [ ];
+			this._indices = indices || [ ];
 			this._attributes = attributes || [ ];
 			this._components = components || [ ];
 
@@ -75,12 +75,12 @@ module.exports = (() => {
 		}
 
 		/**
-		 * The indicies of the table.
+		 * The indices of the table.
 		 *
 		 * @public
 		 * @returns {Array<Index>}
 		 */
-		get indicies() {
+		get indices() {
 			return [...this._indices];
 		}
 
@@ -191,11 +191,11 @@ module.exports = (() => {
 			}
 
 			if (!is.array(this._indices)) {
-				throw new Error('Table must have an array of indicies.');
+				throw new Error('Table must have an array of indices.');
 			}
 
 			if (!this._indices.every(i => i instanceof Index)) {
-				throw new Error('Table indicies array can only contain Index instances.');
+				throw new Error('Table indices array can only contain Index instances.');
 			}
 
 			if (array.unique(this._indices.map(i => i.name)).length !== this._indices.length) {
@@ -257,15 +257,15 @@ module.exports = (() => {
 				schema.BillingMode = ProvisioningType.ON_DEMAND.key;
 			}
 
-			const globalIndicies = this._indices.filter(i => i.type === IndexType.GLOBAL_SECONDARY);
-			const localIndicies = this._indices.filter(i => i.type === IndexType.LOCAL_SECONDARY);
+			const globalIndices = this._indices.filter(i => i.type === IndexType.GLOBAL_SECONDARY);
+			const localIndices = this._indices.filter(i => i.type === IndexType.LOCAL_SECONDARY);
 
-			if (globalIndicies.length !== 0) {
-				schema.GlobalSecondaryIndexes = globalIndicies.map(i => i.toIndexSchema());
+			if (globalIndices.length !== 0) {
+				schema.GlobalSecondaryIndexes = globalIndices.map(i => i.toIndexSchema());
 			}
 
-			if (localIndicies.length !== 0) {
-				schema.LocalSecondaryIndexes = localIndicies.map(i => i.toIndexSchema());
+			if (localIndices.length !== 0) {
+				schema.LocalSecondaryIndexes = localIndices.map(i => i.toIndexSchema());
 			}
 
 			let keys = array.uniqueBy(array.flatten(this._indices.map(i => i.keys)).concat([...this._keys]), k => k.attribute.name);
@@ -304,7 +304,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Returns true of the other table shares the same name, keys, indicies, and
+		 * Returns true of the other table shares the same name, keys, indices, and
 		 * attributes.
 		 *
 		 * @public
@@ -324,8 +324,8 @@ module.exports = (() => {
 				returnVal = returnVal && this._keys.length === other.keys.length;
 				returnVal = returnVal && this._keys.every(k => other.keys.some(ok => ok.equals(k, relaxed)));
 
-				returnVal = returnVal && this._indices.length === other.indicies.length;
-				returnVal = returnVal && this._indices.every(i => other.indicies.some(oi => oi.equals(i, relaxed)));
+				returnVal = returnVal && this._indices.length === other.indices.length;
+				returnVal = returnVal && this._indices.every(i => other.indices.some(oi => oi.equals(i, relaxed)));
 
 				if (!(is.boolean(relaxed) && relaxed)) {
 					returnVal = returnVal && this._ttlAttribute === other.ttlAttribute;

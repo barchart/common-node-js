@@ -206,7 +206,7 @@ module.exports = (() => {
 	}
 
 	function getIndex(name, table) {
-		return table.indicies.find(i => i.name === name) || null;
+		return table.indices.find(i => i.name === name) || null;
 	}
 
 	function getAttribute(name, table) {
