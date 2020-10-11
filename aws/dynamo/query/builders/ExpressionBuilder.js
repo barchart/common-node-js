@@ -62,6 +62,7 @@ module.exports = (() => {
 		 * Constructs a new, and incomplete, {@link ExpressionBuilder}.
 		 *
 		 * @public
+		 * @static
 		 * @param {Attribute} attribute
 		 * @returns {ExpressionBuilder}
 		 */
