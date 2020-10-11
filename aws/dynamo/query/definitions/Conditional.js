@@ -58,6 +58,7 @@ module.exports = (() => {
 		 * using the DynamoDB SDK. Please note, the object may be incomplete
 		 * (e.g. an "Item" property is needed to call the AWS "putItem" function).
 		 *
+		 * @public
 		 * @returns {Object}
 		 */
 		toConditionalSchema() {

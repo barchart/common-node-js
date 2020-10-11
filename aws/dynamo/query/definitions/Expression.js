@@ -53,6 +53,7 @@ module.exports = (() => {
 		/**
 		 * The operand used by the expression.
 		 *
+		 * @public
 		 * @returns {*}
 		 */
 		get operand() {
