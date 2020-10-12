@@ -3,7 +3,7 @@ const aws = require('aws-sdk'),
 
 const array = require('@barchart/common-js/lang/array'),
 	assert = require('@barchart/common-js/lang/assert'),
-	attribtes = require('@barchart/common-js/lang/attributes'),
+	attributes = require('@barchart/common-js/lang/attributes'),
 	Disposable = require('@barchart/common-js/lang/Disposable'),
 	Enum = require('@barchart/common-js/lang/Enum'),
 	is = require('@barchart/common-js/lang/is'),
@@ -520,7 +520,7 @@ module.exports = (() => {
 							.then((data) => {
 								let deserialized;
 
-								if (!attribtes.has(data, 'Attributes') || data.Attributes === null) {
+								if (!attributes.has(data, 'Attributes') || data.Attributes === null) {
 									deserialized = null;
 								} else {
 									deserialized = Serializer.deserialize(data.Attributes, update.table);
