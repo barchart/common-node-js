@@ -26,7 +26,7 @@ module.exports = (() => {
 		 * Returns true if the message matches the trigger type; otherwise false.
 		 *
 		 * @public
-		 * @param {Object}
+		 * @param {Object} message
 		 * @returns {Boolean}
 		 */
 		getMatch(message) {
@@ -37,7 +37,7 @@ module.exports = (() => {
 		 * Extracts and returns the message's identifier.
 		 *
 		 * @public
-		 * @param {Object}
+		 * @param {Object} message
 		 * @returns {String|null}
 		 */
 		getId(message) {
@@ -48,7 +48,7 @@ module.exports = (() => {
 		 * Extracts and returns the message's content.
 		 *
 		 * @public
-		 * @param {Object}
+		 * @param {Object} message
 		 * @returns {String|null}
 		 */
 		getContent(message) {
