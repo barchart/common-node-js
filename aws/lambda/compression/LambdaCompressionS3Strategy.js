@@ -134,7 +134,7 @@ module.exports = (() => {
 					response.statusCode = code || 303;
 
 					response.headers = responder.headers;
-					response.headers['Location'] = context.signedUrl;
+					response.headers.Location = context.signedUrl;
 
 					responder.sendRaw(response, null);
 
