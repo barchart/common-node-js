@@ -1,6 +1,10 @@
 const is = require('@barchart/common-js/lang/is'),
 	assert = require('@barchart/common-js/lang/assert');
 
+const LambdaCompressionController = require('./compression/LambdaCompressionController');
+
+const LambdaCompressionStrategy = require('./compression/LambdaCompressionStrategy');
+
 module.exports = (() => {
 	'use strict';
 
@@ -22,7 +26,9 @@ module.exports = (() => {
 				.setHeader('Content-Type', 'application/json');
 
 			this._callback = callback;
+
 			this._complete = false;
+			this._compressionController = new LambdaCompressionController();
 		}
 
 		/**
@@ -33,6 +39,16 @@ module.exports = (() => {
 		 */
 		get complete() {
 			return this._complete;
+		}
+
+		/**
+		 * Response headers.
+		 *
+		 * @public
+		 * @return {Object}
+		 */
+		get headers() {
+			return this._headers;
 		}
 
 		/**
@@ -48,6 +64,27 @@ module.exports = (() => {
 
 			if (!this.complete) {
 				this._headers[key] = value;
+			}
+
+			return this;
+		}
+
+		/**
+		 * Adds a {@link LambdaCompressionStrategy} to the compression controller.
+		 *
+		 * @public
+		 * @param {LambdaCompressionStrategy|Array<LambdaCompressionStrategy>} strategy
+		 * @return {LambdaResponder}
+		 */
+		addCompressionStrategy(strategy) {
+			if (is.array(strategy)) {
+				assert.argumentIsArray(strategy, 'strategy', LambdaCompressionStrategy, 'LambdaCompressionStrategy');
+
+				strategy.forEach(s => this._compressionController.add(s));
+			} else {
+				assert.argumentIsRequired(strategy, 'strategy', LambdaCompressionStrategy, 'LambdaCompressionStrategy');
+
+				this._compressionController.add(strategy);
 			}
 
 			return this;
@@ -113,15 +150,7 @@ module.exports = (() => {
 				serialized = response;
 			}
 
-			const payload = {
-				statusCode: code || 200,
-				headers: this._headers,
-				body: serialized
-			};
-
-			this._complete = true;
-
-			this._callback(null, payload);
+			return this._compressionController.respond(this, serialized, code);
 		}
 
 		/**

@@ -4,6 +4,8 @@ const assert = require('@barchart/common-js/lang/assert'),
 	Enum = require('@barchart/common-js/lang/Enum'),
 	is = require('@barchart/common-js/lang/is');
 
+const S3Provider = require('./../S3Provider');
+
 const LambdaEventParser = require('./LambdaEventParser'),
 	LambdaResponder = require('./LambdaResponder'),
 	LambdaSecretsManager = require('./LambdaSecretsManager'),
@@ -92,6 +94,16 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Starts and returns a new {@link S3Provider} used for handling large responses.
+		 *
+		 * @public
+		 * @return {Promise<S3Provider>}
+		 */
+		static getS3ProviderForResponse() {
+			return getS3ProviderForResponse();
+		}
+
+		/**
 		 * Builds and returns a new {@link LambdaStage}.
 		 *
 		 * @public
@@ -155,7 +167,7 @@ module.exports = (() => {
 							}
 						});
 				}).then((response) => {
-					responder.send(response);
+					return responder.send(response);
 				}).catch((e) => {
 					let failure;
 
@@ -195,6 +207,29 @@ module.exports = (() => {
 
 	let lambdaLogger = null;
 	let eventLogger = null;
+
+	let s3ProviderForResponse = null;
+
+	function getS3ProviderForResponse() {
+		if (s3ProviderForResponse === null) {
+			s3ProviderForResponse = Promise.resolve()
+				.then(() => {
+					const configuration = {
+						region: 'us-east-1',
+						bucket: 'barchart-aws-lambda-responses',
+					};
+
+					const provider = new S3Provider(configuration);
+
+					return provider.start()
+						.then(() => {
+							return provider;
+						});
+				});
+		}
+
+		return s3ProviderForResponse;
+	}
 
 	/**
 	 * A callback used to execute the Lambda operation's work.

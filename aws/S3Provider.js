@@ -179,21 +179,27 @@ module.exports = (() => {
 		 * @public
 		 * @param {string} operation
 		 * @param {string} key
+		 * @param {Number=} expires
 		 * @returns {Promise<string>}
 		 */
-		getSignedUrl(operation, key) {
+		getSignedUrl(operation, key, expires) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
 
 					assert.argumentIsRequired(operation, 'operation', String);
 					assert.argumentIsRequired(key, 'key', String);
+					assert.argumentIsOptional(expires, 'expires', Number);
 
 					return promise.build((resolveCallback, rejectCallback) => {
 						const payload = { };
 
 						payload.Bucket = this._configuration.bucket;
 						payload.Key = key;
+
+						if (is.number(expires)) {
+							payload.Expires = expires;
+						}
 
 						this._s3.getSignedUrl(operation, payload, (e, url) => {
 							if (e) {
