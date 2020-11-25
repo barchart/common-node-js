@@ -12,7 +12,7 @@ module.exports = (() => {
 
 	/**
 	 * Generates the response for a Lambda Function by iterating through an
-	 * ordered list of {@link LambdaResponseStrategy} instances until one 
+	 * ordered list of {@link LambdaResponseStrategy} instances until one
 	 * can successfully generate a response.
 	 *
 	 * @public
@@ -58,7 +58,7 @@ module.exports = (() => {
 
 					const responseSize = Buffer.byteLength(response);
 
-					return promise.first(strategies.map((strategy) => {
+					return promise.first(strategies.map((strategy) => () => {
 						logger.debug('Attempting to process response using [', strategy, ']');
 
 						return strategy.process(responder, response, responseSize, responseCode)

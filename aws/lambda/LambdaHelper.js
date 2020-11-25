@@ -115,14 +115,15 @@ module.exports = (() => {
 		 * @returns {Promise}
 		 */
 		static process(description, event, callback, processor) {
-			return Promise.resolve({ })
+			const context = { };
+
+			return Promise.resolve(context)
 				.then((context) => {
 					assert.argumentIsRequired(description, 'description', String);
 					assert.argumentIsRequired(processor, 'processor', Function);
 
 					context.parser = LambdaHelper.getEventParser(event);
 					context.responder = LambdaHelper.getResponder(callback);
-
 
 					if (context.parser.plainText) {
 						context.responder.setPlainText();

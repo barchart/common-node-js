@@ -46,7 +46,6 @@ module.exports = (() => {
 
 				return false;
 			}
-			
 
 			if (responseSize > LambdaResponseStrategy.MAXIMUM_RESPONSE_SIZE_FOR_COMPRESSION_IN_BYTES) {
 				logger.debug('Unable to compress response, the uncompressed response size [', responseSize, '] is too large for compression to be useful');

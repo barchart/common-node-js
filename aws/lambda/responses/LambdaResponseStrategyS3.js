@@ -3,7 +3,7 @@ const process = require('process');
 const log4js = require('log4js'),
 	uuid = require('uuid');
 
-const S3Provider = require('./../S3Provider');
+const S3Provider = require('./../../S3Provider');
 
 const LambdaResponseStrategy = require('./LambdaResponseStrategy');
 
@@ -31,13 +31,13 @@ module.exports = (() => {
 		}
 
 		_process(responder, response, responseSize, responseCode) {
-			if (responseSize < LambdaResponseStrategy.MAXIMUM_RESPONSE_SIZE_FOR_COMPRESSION_IN_BYTES) {
+			if (responseSize < LambdaResponseStrategy.MAXIMUM_RESPONSE_LENGTH_IN_BYTES) {
 				logger.debug('Unable to use S3 response strategy, the response size [', responseSize, '] is too small');
 
 				return false;
 			}
 
-			const folder = options.folder || process.env.AWS_LAMBDA_FUNCTION_NAME;
+			const folder = this._options.folder || process.env.AWS_LAMBDA_FUNCTION_NAME;
 			const key = `${folder}/${uuid.v4()}`;
 
 			logger.debug('Uploading response data to S3, the response size is [', responseSize, ']');
@@ -55,7 +55,7 @@ module.exports = (() => {
 				}).then((context) => {
 					const mimeType = responder.headers['Content-Type'] || null;
 
-					return context.s3.upload(key, data, mimeType, true)
+					return context.s3.upload(key, response, mimeType, true)
 						.then(() => {
 							logger.debug('Uploaded response data to S3 at [', key, ']');
 
