@@ -2,7 +2,7 @@ const is = require('@barchart/common-js/lang/is'),
 	assert = require('@barchart/common-js/lang/assert');
 
 const LambdaResponseProcessor = require('./responses/LambdaResponseProcessor'),
-	LambdaResponseStrategy = require('./responses/LambdaResponseStrategy');
+	LambdaResponseGenerator = require('./responses/LambdaResponseGenerator');
 
 module.exports = (() => {
 	'use strict';
@@ -21,12 +21,7 @@ module.exports = (() => {
 			this._callback = callback;
 			this._processor = new LambdaResponseProcessor();
 
-			this._headers = { };
-			
-			this.setHeader('Access-Control-Allow-Origin', '*')
-				.setHeader('Access-Control-Allow-Credentials', true)
-				.setHeader('Content-Type', 'application/json');
-
+			this._headers = LambdaResponseGenerator.getHeadersForJson();
 			this._complete = false;
 		}
 
@@ -79,29 +74,29 @@ module.exports = (() => {
 		}
 		
 		/**
-		 * Adds a {@link LambdaResponseStrategy} instance.
+		 * Adds a {@link LambdaResponseGenerator} instance.
 		 *
 		 * @public
-		 * @param {LambdaResponseStrategy} strategy
+		 * @param {LambdaResponseGenerator} generator
 		 * @returns {LambdaResponder}
 		 */
-		addResponseStrategy(strategy) {
-			assert.argumentIsRequired(strategy, 'strategy', LambdaResponseStrategy, 'LambdaResponseStrategy');
+		addResponseGenerator(generator) {
+			assert.argumentIsRequired(generator, 'generator', LambdaResponseGenerator, 'LambdaResponseGenerator');
 
-			this._processor.addResponseStrategy(strategy);
+			this._processor.addResponseStrategy(generator);
 
 			return this;
 		}
 
 		/**
-		 * Adds multiple {@link LambdaResponseStrategy} instances.
+		 * Adds multiple {@link LambdaResponseGenerator} instances.
 		 *
 		 * @public
-		 * @param {Array<LambdaResponseStrategy>} strategies
+		 * @param {Array<LambdaResponseGenerator>} strategies
 		 * @returns {LambdaResponder}
 		 */
-		addResponseStrategies(strategies) {
-			strategies.forEach(s => this.addResponseStrategy(s));
+		addResponseGenerators(generators) {
+			generator.forEach(g => this.addResponseGenerator(g));
 
 			return this;
 		}
@@ -111,12 +106,15 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Object|String} response
-		 * @param {Number=} code
+		 * @param {Number=} responseCode
+		 * @returns {Promise}
 		 */
-		sendError(response, code) {
-			if (!this.complete) {
-				this.send(response, code || 500);
+		sendError(response, responseCode) {
+			if (this.complete) {
+				return Promise.resolve(null);
 			}
+
+			return this.send(response, responseCode || 500);
 		}
 
 		/**
@@ -124,24 +122,45 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Object|String} response
-		 * @param {Number=} code
+		 * @param {Number=} responseCode
+		 * @returns {Promise}
 		 */
-		send(response, code) {
+		send(response, responseCode) {
 			if (this.complete) {
-				return;
+				return Promise.resolve(null);
 			}
 
-			let serialized;
+			this._complete = true;
 
-			if (is.object(response)) {
-				serialized = JSON.stringify(response);
-			} else if (is.string(response)) {
-				serialized = response;
-			} else {
-				throw new Error('Unable to use response. The response must be a string or an object.');
+			let responsePromise = null;
+
+			if (responsePromise === null && (is.null(response) || is.undefined(response))) {
+				responsePromise = Promise.resolve()
+					.then(() => {
+						return LambdaResponseGenerator.buildResponseForApiGateway(responseCode || 200, this.headers, response);
+					});
 			}
 
-			return this._processor.process(this, serialized, code);
+			if (responsePromise === null) {
+				responsePromise = Promise.resolve()
+					.then(() => {
+						let serialized;
+
+						if (is.object(response)) {
+							serialized = JSON.stringify(response);
+						} else {
+							serialized = response;
+						}
+
+						return this._processor.process(responseCode || 200, this.headers, serialized);
+					});
+			}
+
+			return responsePromise.then((response) => {
+				this._callback(null, response);
+
+				return response;
+			});
 		}
 
 		/**
@@ -150,22 +169,27 @@ module.exports = (() => {
 		 * @public
 		 * @param {Buffer} buffer
 		 * @param {String=} contextType
+		 * @returns {Promise}
 		 */
 		sendBinary(buffer, contentType) {
 			assert.argumentIsOptional(contentType, 'contentType', String);
+
+			if (this.complete) {
+				return Promise.resolve(null);
+			}
+
+			this._complete = true;
 
 			if (contentType) {
 				this.setHeader('Content-Type', contentType);
 			}
 
-			const payload = { };
+			const response = LambdaResponseGenerator.buildResponseForApiGateway(200, this.headers, buffer.toString('base64'));
+			response.isBase64Encoded = true;
 
-			payload.headers = this._headers;
-			payload.statusCode = 200;
-			payload.body = buffer.toString('base64');
-			payload.isBase64Encoded = true;
+			this._callback(null, response);
 
-			this.sendRaw(payload);
+			return Promise.resolve(response);
 		}
 
 		/**
@@ -174,15 +198,18 @@ module.exports = (() => {
 		 * @public
 		 * @param {*} response
 		 * @param {*} error
+		 * @returns {Promise}
 		 */
 		sendRaw(response, error) {
 			if (this.complete) {
-				return;
+				return Promise.resolve(null);
 			}
 
 			this._complete = true;
 
 			this._callback(error || null, response);
+
+			return Promise.resolve(response);
 		}
 		
 		toString() {

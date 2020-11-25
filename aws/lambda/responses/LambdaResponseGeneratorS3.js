@@ -5,12 +5,12 @@ const log4js = require('log4js'),
 
 const S3Provider = require('./../../S3Provider');
 
-const LambdaResponseStrategy = require('./LambdaResponseStrategy');
+const LambdaResponseGenerator = require('./LambdaResponseGenerator');
 
 module.exports = (() => {
 	'use strict';
 
-	const logger = log4js.getLogger('common-node/aws/lambda/responses/LambdaResponseStrategyForS3');
+	const logger = log4js.getLogger('common-node/aws/lambda/responses/LambdaResponseGeneratorForS3');
 
 	const S3_TTL_FOR_SIGNED_URL_IN_SECONDS = 60;
 
@@ -20,24 +20,22 @@ module.exports = (() => {
 	 * actual response from S3.
 	 *
 	 * @public
-	 * @extends {LambdaResponseStrategy}
+	 * @extends {LambdaResponseGenerator}
 	 * @param {Object} options
 	 */
-	class LambdaResponseStrategyForS3 extends LambdaResponseStrategy {
-		constructor(options) {
+	class LambdaResponseGeneratorForS3 extends LambdaResponseGenerator {
+		constructor() {
 			super();
-
-			this._options = options || { };
 		}
 
-		_process(responder, response, responseSize, responseCode) {
-			if (responseSize < LambdaResponseStrategy.MAXIMUM_RESPONSE_LENGTH_IN_BYTES) {
+		_generate(responseCode, responseHeaders, responseData, responseSize) {
+			if (responseSize < LambdaResponseGenerator.MAXIMUM_RESPONSE_LENGTH_IN_BYTES) {
 				logger.debug('Unable to use S3 response strategy, the response size [', responseSize, '] is too small');
 
-				return false;
+				return null;
 			}
 
-			const folder = this._options.folder || process.env.AWS_LAMBDA_FUNCTION_NAME;
+			const folder = process.env.AWS_LAMBDA_FUNCTION_NAME || 'generic';
 			const key = `${folder}/${uuid.v4()}`;
 
 			logger.debug('Uploading response data to S3, the response size is [', responseSize, ']');
@@ -53,7 +51,7 @@ module.exports = (() => {
 							return context;
 						});
 				}).then((context) => {
-					const mimeType = responder.headers['Content-Type'] || null;
+					const mimeType = responseHeaders['Content-Type'] || null;
 
 					return context.s3.upload(key, response, mimeType, true)
 						.then(() => {
@@ -73,25 +71,22 @@ module.exports = (() => {
 				}).then((context) => {
 					logger.info('Response uploaded to S3, sending HTTP 303 response referring to S3 object at [', key, ']');
 
-					const response = { };
+					const headers = Object.assign({ }, responseHeaders);
+					headers.Location = context.signedUrl;
 
-					response.statusCode = 303;
+					const response = LambdaResponseGenerator.buildResponseForApiGateway(303, headers, null);
+					delete response.body;
 
-					response.headers = responder.headers;
-					response.headers.Location = context.signedUrl;
-
-					responder.sendRaw(response, null);
-
-					return true;
+					return response;
 				}).catch((error) => {
 					logger.error('Failed to upload response data to S3', error);
 
-					return false;
+					return null;
 				});
 		}
 
 		toString() {
-			return '[LambdaResponseStrategyForS3]';
+			return '[LambdaResponseGeneratorForS3]';
 		}
 	}
 
@@ -110,5 +105,5 @@ module.exports = (() => {
 		return s3ProviderPromise;
 	}
 
-	return LambdaResponseStrategyForS3;
+	return LambdaResponseGeneratorForS3;
 })();

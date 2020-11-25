@@ -3,7 +3,7 @@ const log4js = require('log4js');
 const assert = require('@barchart/common-js/lang/assert'),
 	promise = require('@barchart/common-js/lang/promise');
 
-const LambdaResponseStrategy = require('./LambdaResponseStrategy');
+const LambdaResponseGenerator = require('./LambdaResponseGenerator');
 
 module.exports = (() => {
 	'use strict';
@@ -12,62 +12,65 @@ module.exports = (() => {
 
 	/**
 	 * Generates the response for a Lambda Function by iterating through an
-	 * ordered list of {@link LambdaResponseStrategy} instances until one
+	 * ordered list of {@link LambdaResponseGenerator} instances until one
 	 * can successfully generate a response.
 	 *
 	 * @public
 	 */
 	class LambdaResponseProcessor {
 		constructor() {
-			this._strategies = [ ];
+			this._generators = [ ];
 		}
 
 		/**
-		 * Adds a custom {@link LambdaResponseStrategy}. Strategies will be
-		 * processed in the order they are added. The first successful strategy
-		 * will be used to generate the response. Subsequent strategies will be
+		 * Adds a custom {@link LambdaResponseGenerator}. Strategies will be
+		 * processed in the order they are added. The first successful generator
+		 * will be used to generate the response. Subsequent generators will be
 		 * ignored.
 		 *
 		 * @public
-		 * @param {LambdaResponseStrategy} strategy
+		 * @param {LambdaResponseGenerator} generator
 		 */
-		addResponseStrategy(strategy) {
-			assert.argumentIsRequired(strategy, 'strategy', LambdaResponseStrategy, 'LambdaResponseStrategy');
+		addResponseGenerator(generator) {
+			assert.argumentIsRequired(generator, 'generator', LambdaResponseGenerator, 'LambdaResponseGenerator');
 
-			this._strategies.push(strategy);
+			this._generators.push(generator);
 		}
 
 		/**
-		 * Runs strategies in a sequential order while one of
+		 * Runs generators in a sequential order while one of
 		 * them won't return not null result.
 		 *
 		 * @public
-		 * @param {LambdaResponder} responder
-		 * @param {String} response
-		 * @param {Number=} responseCode
-		 * @returns {Promise}
+		 * @param {Number} responseCode
+		 * @param {Object} responseHeaders
+		 * @param {String} responseData
+		 * @returns {Promise<Object>}
 		 */
-		process(responder, response, responseCode) {
+		process(responseCode, responseHeaders, responseData) {
 			return Promise.resolve()
 				.then(() => {
-					assert.argumentIsRequired(response, 'response', String);
-					assert.argumentIsOptional(responseCode, 'responseCode', Number);
+					assert.argumentIsRequired(responseCode, 'responseCode', Number);
+					assert.argumentIsRequired(responseHeaders, 'responseHeaders', Object);
+					assert.argumentIsRequired(responseData, 'responseData', String);
 
-					const strategies = this._strategies.slice(0);
-					strategies.push(LambdaResponseStrategy.DEFAULT_STRATEGY);
+					const generators = this._generators.slice(0);
+					generators.push(LambdaResponseGenerator.DEFAULT);
 
 					const responseSize = Buffer.byteLength(response);
 
-					return promise.first(strategies.map((strategy) => () => {
-						logger.debug('Attempting to process response using [', strategy, ']');
+					return promise.first(generators.map((generator) => () => {
+						logger.debug('Attempting to process response using [', generator, ']');
 
-						return strategy.process(responder, response, responseSize, responseCode)
-							.then((success) => {
-								if (success) {
-									logger.info('Processed response using [', strategy, ']');
+						return generator.process(responseCode, responseHeaders, responseData, responseSize)
+							.then((response) => {
+								if (response !== null) {
+									logger.info('Processed response using [', generator, ']');
 
-									return true;
+									return response;
 								} else {
+									logger.debug('Unable to process response using [', generator, ']');
+
 									return null;
 								}
 							});
