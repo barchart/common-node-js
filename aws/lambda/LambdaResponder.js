@@ -96,7 +96,7 @@ module.exports = (() => {
 		 * @returns {LambdaResponder}
 		 */
 		addResponseGenerators(generators) {
-			generator.forEach(g => this.addResponseGenerator(g));
+			generators.forEach(g => this.addResponseGenerator(g));
 
 			return this;
 		}
