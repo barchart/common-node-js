@@ -1,34 +1,33 @@
 const is = require('@barchart/common-js/lang/is'),
 	assert = require('@barchart/common-js/lang/assert');
 
-const LambdaCompressionController = require('./compression/LambdaCompressionController');
-
-const LambdaCompressionStrategy = require('./compression/LambdaCompressionStrategy');
+const LambdaResponseProcessor = require('./responses/LambdaResponseProcessor'),
+	LambdaResponseStrategy = require('./responses/LambdaResponseStrategy');
 
 module.exports = (() => {
 	'use strict';
 
 	/**
 	 * Manages compilation and transmission of the response to from a
-	 * Lambda function bound to the API Gateway.
+	 * Lambda Function bound to the API Gateway.
 	 *
 	 * @public
-	 * @param {Function} callback - The Lambda's callback.
+	 * @param {Function} callback - The actual "callback" function passed to the Lambda Function by the AWS framework.
 	 */
 	class LambdaResponder {
 		constructor(callback) {
 			assert.argumentIsRequired(callback, 'callback', Function);
 
-			this._headers = { };
+			this._callback = callback;
+			this._processor = new LambdaResponseProcessor();
 
+			this._headers = { };
+			
 			this.setHeader('Access-Control-Allow-Origin', '*')
 				.setHeader('Access-Control-Allow-Credentials', true)
 				.setHeader('Content-Type', 'application/json');
 
-			this._callback = callback;
-
 			this._complete = false;
-			this._compressionController = new LambdaCompressionController();
 		}
 
 		/**
@@ -45,7 +44,7 @@ module.exports = (() => {
 		 * Response headers.
 		 *
 		 * @public
-		 * @return {Object}
+		 * @returns {Object}
 		 */
 		get headers() {
 			return this._headers;
@@ -70,27 +69,6 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Adds a {@link LambdaCompressionStrategy} to the compression controller.
-		 *
-		 * @public
-		 * @param {LambdaCompressionStrategy|Array<LambdaCompressionStrategy>} strategy
-		 * @return {LambdaResponder}
-		 */
-		addCompressionStrategy(strategy) {
-			if (is.array(strategy)) {
-				assert.argumentIsArray(strategy, 'strategy', LambdaCompressionStrategy, 'LambdaCompressionStrategy');
-
-				strategy.forEach(s => this._compressionController.add(s));
-			} else {
-				assert.argumentIsRequired(strategy, 'strategy', LambdaCompressionStrategy, 'LambdaCompressionStrategy');
-
-				this._compressionController.add(strategy);
-			}
-
-			return this;
-		}
-
-		/**
 		 * Sets a response header for plain text.
 		 *
 		 * @public
@@ -99,9 +77,37 @@ module.exports = (() => {
 		setPlainText() {
 			return this.setHeader('Content-Type', 'text/plain');
 		}
+		
+		/**
+		 * Adds a {@link LambdaResponseStrategy} instance.
+		 *
+		 * @public
+		 * @param {LambdaResponseStrategy} strategy
+		 * @returns {LambdaResponder}
+		 */
+		addResponseStrategy(strategy) {
+			assert.argumentIsRequired(strategy, 'strategy', LambdaResponseStrategy, 'LambdaResponseStrategy');
+
+			this._processor.addResponseStrategy(strategy);
+
+			return this;
+		}
 
 		/**
-		 * Sets an error and transmit the response.
+		 * Adds multiple {@link LambdaResponseStrategy} instances.
+		 *
+		 * @public
+		 * @param {Array<LambdaResponseStrategy>} strategies
+		 * @returns {LambdaResponder}
+		 */
+		addResponseStrategies(strategies) {
+			strategies.forEach(s => this.addResponseStrategy(s));
+
+			return this;
+		}
+
+		/**
+		 * Immediately transmits an error response.
 		 *
 		 * @public
 		 * @param {Object|String} response
@@ -114,24 +120,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Sends a raw response payload
-		 *
-		 * @public
-		 * @param {*} response
-		 * @param {*} error
-		 */
-		sendRaw(response, error) {
-			if (this.complete) {
-				return;
-			}
-
-			this._complete = true;
-
-			this._callback(error || null, response);
-		}
-
-		/**
-		 * Sets and transmits the response.
+		 * Immediately transmits a successful response.
 		 *
 		 * @public
 		 * @param {Object|String} response
@@ -146,33 +135,58 @@ module.exports = (() => {
 
 			if (is.object(response)) {
 				serialized = JSON.stringify(response);
-			} else {
+			} else if (is.string(response)) {
 				serialized = response;
+			} else {
+				throw new Error('Unable to use response. The response must be a string or an object.');
 			}
 
-			return this._compressionController.respond(this, serialized, code);
+			return this._processor.process(this, serialized, code);
 		}
 
 		/**
-		 * Sets and transmits the response as base-64 encoded data.
+		 * Immediately transmits a base-64 encoded response.
 		 *
 		 * @public
 		 * @param {Buffer} buffer
 		 * @param {String=} contextType
 		 */
 		sendBinary(buffer, contentType) {
-			const payload = { };
+			assert.argumentIsOptional(contentType, 'contentType', String);
 
-			if (is.string(contentType)) {
+			if (contentType) {
 				this.setHeader('Content-Type', contentType);
 			}
 
+			const payload = { };
+
+			payload.headers = this._headers;
 			payload.statusCode = 200;
 			payload.body = buffer.toString('base64');
 			payload.isBase64Encoded = true;
-			payload.headers = this._headers;
 
 			this.sendRaw(payload);
+		}
+
+		/**
+		 * Immediately transmits an ad hoc response.
+		 *
+		 * @public
+		 * @param {*} response
+		 * @param {*} error
+		 */
+		sendRaw(response, error) {
+			if (this.complete) {
+				return;
+			}
+
+			this._complete = true;
+
+			this._callback(error || null, response);
+		}
+		
+		toString() {
+			return '[LambdaResponder]';
 		}
 	}
 

@@ -4,7 +4,7 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * A static container for lambda-specific {@link FailureType} items.
+	 * A static container for {@link FailureType} items related to Lambda Functions.
 	 *
 	 * @public
 	 */

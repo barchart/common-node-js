@@ -14,17 +14,16 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * A wrapper around a Lambda function's event argument.
+	 * A utility for working with the data passed to a Lambda Function.
 	 *
 	 * @public
-	 * @param {Object} event
+	 * @param {Object} event - The actual "event" object passed to the Lambda Function by the AWS framework.
 	 */
 	class LambdaEventParser {
 		constructor(event) {
 			assert.argumentIsRequired(event, 'event', Object);
 
 			this._event = event;
-			this._suppressed = new Set();
 		}
 
 		/**
@@ -42,7 +41,7 @@ module.exports = (() => {
 
 		/**
 		 * Indicates if the consumer wants a plain text response, as evidenced
-		 * by a "mode=text" querystring value.
+		 * by a "mode=text" query string value.
 		 *
 		 * @public
 		 * @returns {Boolean}
@@ -169,50 +168,26 @@ module.exports = (() => {
 					assert.argumentIsRequired(schema, schema, Object);
 					assert.argumentIsRequired(schema.schema, 'schema.schema', Schema, 'Schema');
 					assert.argumentIsOptional(description, 'description', String);
-				}).then(() => {
-					return promise.build((resolve, reject) => {
+
+					return promise.build((resolveCallback, rejectCallback) => {
 						try {
 							const reviver = schema.schema.getReviver();
 
-							resolve(JSON.parse(jsonString, reviver));
+							resolveCallback(JSON.parse(jsonString, reviver));
 						} catch (e) {
-							const failure = FailureReason.forRequest({ endpoint: { description: (description || 'deserialize JSON string') } })
-								.addItem(FailureType.SCHEMA_VALIDATION_FAILURE, { key: e.key, name: e.name, schema: schema.schema.name });
+							let reason;
 
-							reject(failure);
+							reason = FailureReason.forRequest({ endpoint: { description: (description || 'deserialize JSON string') } });
+							reason = reason.addItem(FailureType.SCHEMA_VALIDATION_FAILURE, { key: e.key, name: e.name, schema: schema.schema.name });
+
+							rejectCallback(reason);
 						}
 					});
 				});
 		}
 
 		/**
-		 * Adds a message identifier to a suppression list. Any identifier
-		 * found in the suppression list will not be returned by the
-		 * {@link LambdaEventParser#getMessages} function.
-		 *
-		 * @public
-		 * @param {String} id
-		 */
-		setSuppressed(id) {
-			assert.argumentIsRequired(id, 'id', String);
-
-			this._suppressed.add(id);
-		}
-
-		/**
-		 * Indicates if a message identifier has been suppressed.
-		 *
-		 * @public
-		 * @param {String} id
-		 * @return {Boolean}
-		 */
-		getSuppressed(id) {
-			return this._suppressed.has(id);
-		}
-
-		/**
-		 * Returns an array of all messages included within the event, filtering
-		 * any message which has been flagged as suppressed.
+		 * Returns an array of all messages included within the event.
 		 *
 		 * @public
 		 * @param {Boolean=} text
@@ -227,35 +202,23 @@ module.exports = (() => {
 				messages = [ this._event ];
 			}
 
-			return messages.reduce((accumulator, message) => {
+			return messages.map((message) => {
 				const type = LambdaTriggerType.fromMessage(message);
 
-				let id;
+				let content;
 
 				if (type !== null) {
-					id = type.getId(message);
+					content = type.getContent(message);
 				} else {
-					id = null;
+					content = null;
 				}
 
-				if (id === null || !this._suppressed.has(id)) {
-					let content;
-
-					if (type !== null) {
-						content = type.getContent(message);
-					} else {
-						content = null;
-					}
-
-					if (content && (!is.boolean(text) || !text)) {
-						content = JSON.parse(content);
-					}
-
-					accumulator.push(content);
+				if (content && (!is.boolean(text) || !text)) {
+					content = JSON.parse(content);
 				}
 
-				return accumulator;
-			}, [ ]);
+				return content;
+			});
 		}
 	}
 

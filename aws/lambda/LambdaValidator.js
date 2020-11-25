@@ -22,7 +22,7 @@ module.exports = (() => {
 		 * @param {Object} event
 		 * @return {Promise<LambdaMessage[]>}
 		 */
-		process(event) {
+		validate(event) {
 			return Promise.resolve()
 				.then(() => {
 					let messages;

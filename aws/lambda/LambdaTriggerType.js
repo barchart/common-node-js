@@ -4,7 +4,7 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * An enumeration for different Lambda event triggers.
+	 * An enumeration of mechanisms which can trigger a Lambda Function.
 	 *
 	 * @public
 	 * @extends {Enum}

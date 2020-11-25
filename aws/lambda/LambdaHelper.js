@@ -1,10 +1,7 @@
 const log4js = require('log4js');
 
 const assert = require('@barchart/common-js/lang/assert'),
-	Enum = require('@barchart/common-js/lang/Enum'),
-	is = require('@barchart/common-js/lang/is');
-
-const S3Provider = require('./../S3Provider');
+	Enum = require('@barchart/common-js/lang/Enum');
 
 const LambdaEventParser = require('./LambdaEventParser'),
 	LambdaResponder = require('./LambdaResponder'),
@@ -21,7 +18,7 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * Static helper utilities for a Lambda function.
+	 * Basic utility for processing a Lambda Function.
 	 *
 	 * @public
 	 */
@@ -94,16 +91,6 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Starts and returns a new {@link S3Provider} used for handling large responses.
-		 *
-		 * @public
-		 * @return {Promise<S3Provider>}
-		 */
-		static getS3ProviderForResponse() {
-			return getS3ProviderForResponse();
-		}
-
-		/**
 		 * Builds and returns a new {@link LambdaStage}.
 		 *
 		 * @public
@@ -121,82 +108,76 @@ module.exports = (() => {
 		 * the processor, and responding with the processor's result.
 		 *
 		 * @public
-		 * @param {String} description - Human-readable description of the operation.
-		 * @param {Object} event - The Lambda's event data.
-		 * @param {Function} callback - The Lambda's callback function.
-		 * @param {LambdaHelper~processor} processor - The processor that is invoked to perform the work.
+		 * @param {String} description - Human-readable description of the Lambda Function.
+		 * @param {Object} event - The actual "event" object passed to the Lambda Function by the AWS framework.
+		 * @param {Function} callback - The actual "callback" function passed to the Lambda Function by the AWS framework.
+		 * @param {Callbacks.LambdaProcessorCallback} processor - The processor that is invoked to perform the work.
 		 * @returns {Promise}
 		 */
 		static process(description, event, callback, processor) {
-			let parser;
-			let validator;
-			let responder;
-
-			return Promise.resolve()
-				.then(() => {
+			return Promise.resolve({ })
+				.then((context) => {
 					assert.argumentIsRequired(description, 'description', String);
 					assert.argumentIsRequired(processor, 'processor', Function);
 
-					parser = LambdaHelper.getEventParser(event);
-					responder = LambdaHelper.getResponder(callback);
-					validator = LambdaHelper.getValidator();
+					context.parser = LambdaHelper.getEventParser(event);
+					context.responder = LambdaHelper.getResponder(callback);
 
-					if (parser.plainText) {
-						responder.setPlainText();
+
+					if (context.parser.plainText) {
+						context.responder.setPlainText();
 					}
 
-					if (is.object(event) && eventLogger && eventLogger.isTraceEnabled()) {
+					if (eventLogger && eventLogger.isTraceEnabled()) {
 						eventLogger.trace(JSON.stringify(event, null, 2));
 					}
 
-					return validator.process(event)
+					return context;
+				}).then((context) => {
+					const validator = LambdaHelper.getValidator();
+
+					return validator.validate(event)
 						.then((messages) => {
-							const suppressed = messages.filter((message) => !message.valid);
-
-							if (lambdaLogger && suppressed.length !== 0) {
-								lambdaLogger.warn(`Some messages have been flagged as invalid [ ${suppressed.map(s => s.id).join(',')} ]`);
-							}
-
-							if (suppressed.length === messages.length) {
-								const reason = new FailureReason()
-									.addItem(LambdaFailureType.LAMBDA_INVOCATION_SUPPRESSED);
-
-								return Promise.reject(reason);
+							if (messages.every(m => m.valid)) {
+								return Promise.resolve(context);
 							} else {
-								return processor(parser, responder);
+								return Promise.reject(FailureReason.from(LambdaFailureType.LAMBDA_INVOCATION_SUPPRESSED));
 							}
 						});
-				}).then((response) => {
-					return responder.send(response);
+				}).then((context) => {
+					return Promise.resolve()
+						.then(() => {
+							return processor(context.parser, context.responder);
+						}).then((response) => {
+							context.responder.send(response);
+						});
 				}).catch((e) => {
-					let failure;
+					let reason;
 
 					if (e instanceof FailureReason) {
-						failure = e;
+						reason = e;
 
 						if (lambdaLogger) {
-							if (e.getIsSevere()) {
-								lambdaLogger.error(failure.format());
+							if (reason.getIsSevere()) {
+								lambdaLogger.error(reason.format());
 							} else {
-								lambdaLogger.warn(failure.format());
+								lambdaLogger.warn(reason.format());
 							}
 						}
 					} else {
-						failure = FailureReason.forRequest({ endpoint: { description: description }})
-							.addItem(FailureType.REQUEST_GENERAL_FAILURE);
+						reason = new FailureReason({ endpoint: { description }});
+						reason = reason.addItem(FailureType.REQUEST_GENERAL_FAILURE);
 
 						if (lambdaLogger) {
 							lambdaLogger.error(e);
 						}
 					}
 
-					if (is.object(event) && eventLogger && !eventLogger.isTraceEnabled()) {
+					if (eventLogger && !eventLogger.isTraceEnabled()) {
 						eventLogger.warn(JSON.stringify(event, null, 2));
 					}
 
-					if (responder) {
-						responder.sendError(failure, failure.getErrorCode());
-					}
+					context.responder.sendError(reason, reason.getErrorCode());
 				});
 		}
 
@@ -207,49 +188,6 @@ module.exports = (() => {
 
 	let lambdaLogger = null;
 	let eventLogger = null;
-
-	let s3ProviderForResponse = null;
-
-	function getS3ProviderForResponse() {
-		if (s3ProviderForResponse === null) {
-			s3ProviderForResponse = Promise.resolve()
-				.then(() => {
-					const configuration = {
-						region: 'us-east-1',
-						bucket: 'barchart-aws-lambda-responses',
-					};
-
-					const provider = new S3Provider(configuration);
-
-					return provider.start()
-						.then(() => {
-							return provider;
-						});
-				});
-		}
-
-		return s3ProviderForResponse;
-	}
-
-	/**
-	 * A callback used to execute the Lambda operation's work.
-	 *
-	 * @public
-	 * @callback LambdaHelper~processor
-	 * @param {LambdaEventParser} parser
-	 * @param {LambdaResponder} responder
-	 */
-
-	/**
-	 * A callback used to determine if processing should be suppressed.
-	 *
-	 * @public
-	 * @callback LambdaHelper~suppressor
-	 * @param {LambdaEventParser} parser
-	 * @param {LambdaResponder} responder
-	 * @param {Object=} logger
-	 * @returns {Promise}
-	 */
 
 	return LambdaHelper;
 })();
