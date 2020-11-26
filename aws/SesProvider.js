@@ -150,7 +150,7 @@ module.exports = (() => {
 		 * Attempts to send an email.
 		 *
 		 * @param {string} senderAddress - The "from" email address.
-		 * @param {string|string[]} recipientAddress - The "to" email address.
+		 * @param {string|string[]} recipientAddress - The "to" email address(es).
 		 * @param {string=} subject - The email's subject.
 		 * @param {string=} htmlBody - The email's body.
 		 * @param {string=} textBody - The email's body.
