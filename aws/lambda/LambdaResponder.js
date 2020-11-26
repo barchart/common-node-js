@@ -114,6 +114,10 @@ module.exports = (() => {
 				return Promise.resolve(null);
 			}
 
+			if (is.string(response)) {
+				this.setHeader('Content-Type', 'text/plain');
+			}
+
 			return this.send(response, responseCode || 500);
 		}
 
@@ -149,6 +153,8 @@ module.exports = (() => {
 						if (is.object(response)) {
 							serialized = JSON.stringify(response);
 						} else {
+							this.setHeader('Content-Type', 'text/plain');
+
 							serialized = response.toString();
 						}
 
