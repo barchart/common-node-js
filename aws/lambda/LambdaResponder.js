@@ -72,7 +72,7 @@ module.exports = (() => {
 		setPlainText() {
 			return this.setHeader('Content-Type', 'text/plain');
 		}
-		
+
 		/**
 		 * Adds a {@link LambdaResponseGenerator} instance.
 		 *
@@ -83,7 +83,7 @@ module.exports = (() => {
 		addResponseGenerator(generator) {
 			assert.argumentIsRequired(generator, 'generator', LambdaResponseGenerator, 'LambdaResponseGenerator');
 
-			this._processor.addResponseStrategy(generator);
+			this._processor.addResponseGenerator(generator);
 
 			return this;
 		}
@@ -149,7 +149,7 @@ module.exports = (() => {
 						if (is.object(response)) {
 							serialized = JSON.stringify(response);
 						} else {
-							serialized = response;
+							serialized = response.toString();
 						}
 
 						return this._processor.process(responseCode || 200, this.headers, serialized);
@@ -211,7 +211,7 @@ module.exports = (() => {
 
 			return Promise.resolve(response);
 		}
-		
+
 		toString() {
 			return '[LambdaResponder]';
 		}

@@ -57,19 +57,19 @@ module.exports = (() => {
 					const generators = this._generators.slice(0);
 					generators.push(LambdaResponseGenerator.DEFAULT);
 
-					const responseSize = Buffer.byteLength(response);
+					const responseSize = Buffer.byteLength(responseData);
 
 					return promise.first(generators.map((generator) => () => {
-						logger.debug('Attempting to process response using [', generator, ']');
+						logger.debug('Attempting to process response using [', generator.toString(), ']');
 
-						return generator.process(responseCode, responseHeaders, responseData, responseSize)
+						return generator.generate(responseCode, responseHeaders, responseData, responseSize)
 							.then((response) => {
 								if (response !== null) {
-									logger.info('Processed response using [', generator, ']');
+									logger.info('Processed response using [', generator.toString(), ']');
 
 									return response;
 								} else {
-									logger.debug('Unable to process response using [', generator, ']');
+									logger.debug('Unable to process response using [', generator.toString(), ']');
 
 									return null;
 								}

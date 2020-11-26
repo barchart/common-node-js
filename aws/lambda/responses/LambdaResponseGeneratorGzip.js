@@ -1,10 +1,12 @@
 const log4js = require('log4js'),
 	zlib = require('zlib');
 
-const is = require('@barchart/common-js/lang/is'),
+const assert = require('@barchart/common-js/lang/assert'),
+	is = require('@barchart/common-js/lang/is'),
 	promise = require('@barchart/common-js/lang/promise');
 
-const LambdaResponseGenerator = require('./LambdaResponseGenerator');
+const LambdaEventParser = require('./../LambdaEventParser'),
+	LambdaResponseGenerator = require('./LambdaResponseGenerator');
 
 module.exports = (() => {
 	'use strict';
@@ -18,12 +20,16 @@ module.exports = (() => {
 	 * @extends {LambdaResponseGenerator}
 	 */
 	class LambdaResponseGeneratorGzip extends LambdaResponseGenerator {
-		constructor() {
+		constructor(parser) {
 			super();
+
+			assert.argumentIsRequired(parser, 'parser', LambdaEventParser, 'LambdaEventParser');
+
+			this._parser = parser;
 		}
 
 		_generate(responseCode, responseHeaders, responseData, responseSize) {
-			const acceptEncoding = responseHeaders['Accept-Encoding'];
+			const acceptEncoding = this._parser.getHeader('Accept-Encoding');
 
 			if (!(is.string(acceptEncoding) && acceptEncoding.includes('gzip'))) {
 				logger.debug('Unable to compress response, the request header [ Accept-Encoding ] does not include the [ gzip ] option');
@@ -56,10 +62,12 @@ module.exports = (() => {
 					logger.debug('Response compressed completed; compressed response size is [', compressedSize, ']');
 
 					const headers = Object.assign({ }, responseHeaders);
-
 					headers['Content-Encoding'] = 'gzip';
-					
-					return LambdaResponseGenerator.buildResponseForApiGateway(responseCode, headers, compressedData);
+
+					const response = LambdaResponseGenerator.buildResponseForApiGateway(responseCode, headers, compressedData.toString('base64'));
+					response.isBase64Encoded = true;
+
+					return response;
 				}
 			});
 		}

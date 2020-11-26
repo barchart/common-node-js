@@ -53,7 +53,7 @@ module.exports = (() => {
 				}).then((context) => {
 					const mimeType = responseHeaders['Content-Type'] || null;
 
-					return context.s3.upload(key, response, mimeType, true)
+					return context.s3.upload(key, responseData, mimeType, true)
 						.then(() => {
 							logger.debug('Uploaded response data to S3 at [', key, ']');
 

@@ -1,5 +1,7 @@
 const log4js = require('log4js');
 
+const assert = require('@barchart/common-js/lang/assert');
+
 module.exports = (() => {
 	'use strict';
 
@@ -57,9 +59,9 @@ module.exports = (() => {
 		 * be interpreted by the API Gateway as an HTTP response.
 		 *
 		 * @public
-		 * @param {*} responseData
 		 * @param {Number} responseCode
 		 * @param {Object} responseHeaders
+		 * @param {*} responseData
 		 * @returns {Object}
 		 */
 		static buildResponseForApiGateway(responseCode, responseHeaders, responseData) {
