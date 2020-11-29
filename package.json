@@ -27,7 +27,7 @@
     "SQS"
   ],
   "dependencies": {
-    "@barchart/common-js": "^3.14.0",
+    "@barchart/common-js": "^3.20.0",
     "@barchart/marketdata-api-js": "^5.0.1",
     "aws-sdk": "^2.671.0",
     "body-parser": "1.15.2",

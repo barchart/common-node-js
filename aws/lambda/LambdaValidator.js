@@ -5,6 +5,9 @@ const LambdaTriggerType = require('./LambdaTriggerType');
 module.exports = (() => {
 	'use strict';
 
+	// 2020/11/29, BRI. This class will be removed in the next major version.
+	// It will be replaced with the "LambdaResponseProcessor" ...
+
 	/**
 	 * Evaluates a Lambda event, checking the messages it contains to determine
 	 * which are valid for processing.
