@@ -53,7 +53,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Object} event
-		 * @return {Promise<Boolean>}
+		 * @returns {Promise<Boolean>}
 		 */
 		validate(event) {
 			return Promise.resolve()

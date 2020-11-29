@@ -138,8 +138,8 @@ module.exports = (() => {
 					const validator = LambdaHelper.getValidator();
 
 					return validator.validate(event)
-						.then((messages) => {
-							if (messages.every(m => m.valid)) {
+						.then((valid) => {
+							if (valid) {
 								return Promise.resolve(context);
 							} else {
 								return Promise.reject(FailureReason.from(LambdaFailureType.LAMBDA_INVOCATION_SUPPRESSED));

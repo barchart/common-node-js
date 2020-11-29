@@ -23,7 +23,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Object} event
-		 * @return {Promise<LambdaMessage[]>}
+		 * @return {Promise<Boolean>}
 		 */
 		validate(event) {
 			return Promise.resolve()
@@ -69,11 +69,11 @@ module.exports = (() => {
 		/**
 		 * @protected
 		 * @param {String} name
-		 * @param {LambdaTriggerType} type
-		 * @param {String} id
+		 * @param {LambdaTriggerType} trigger
+		 * @param {String} messageId
 		 * @returns {Boolean|Promise<Boolean>}
 		 */
-		_validate(name, type, id) {
+		_validate(name, trigger, messageId) {
 			return true;
 		}
 		
@@ -82,16 +82,5 @@ module.exports = (() => {
 		}
 	}
 
-	/**
-	 * Data regarding a single Lambda function invocation
-	 *
-	 * @typedef LambdaMessage
-	 * @type {Object}
-	 * @property {LambdaTriggerType|null} type
-	 * @property {String|null} id 
-	 * @property {Object} message
-	 * @property {Boolean} valid
-	 */
-	
 	return LambdaValidator;
 })();
