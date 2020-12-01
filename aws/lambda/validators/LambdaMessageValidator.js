@@ -24,17 +24,17 @@ module.exports = (() => {
 		 * @param {String} name
 		 * @param {Object} message
 		 * @param {Object} event
-		 * @param {String=} messageId
 		 * @param {LambdaTriggerType=} trigger
+		 * @param {String=} messageId
 		 * @returns {Promise<Boolean>}
 		 */
-		validate(name, message, event, messageId, trigger) {
+		validate(name, message, event, trigger, messageId) {
 			return Promise.resolve()
 				.then(() => {
-					assert.argumentIsOptional(messageId, 'messageId', String);
 					assert.argumentIsOptional(trigger, 'trigger', LambdaTriggerType, 'LambdaTriggerType');
+					assert.argumentIsOptional(messageId, 'messageId', String);
 
-					return this._validate(name, message, event, messageId, trigger);
+					return this._validate(name, message, event, trigger, messageId);
 				});
 		}
 
@@ -44,11 +44,11 @@ module.exports = (() => {
 		 * @param {String} name
 		 * @param {Object} message
 		 * @param {Object} event
-		 * @param {String=} messageId
 		 * @param {LambdaTriggerType=} trigger
+		 * @param {String=} messageId
 		 * @returns {Promise<Boolean>|Boolean}
 		 */
-		_validate(name, message, event, messageId, trigger) {
+		_validate(name, message, event, trigger, messageId) {
 			return true;
 		}
 

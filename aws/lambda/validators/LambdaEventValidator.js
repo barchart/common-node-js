@@ -87,8 +87,15 @@ module.exports = (() => {
 							messageId = null;
 						}
 
-						const promises = this._messageValidators.map((messageValidator) => {
-							return messageValidator.validate(name, message, event, trigger, messageId);
+						const promises = this._messageValidators.map((messageValidator, i) => {
+							return messageValidator.validate(name, message, event, trigger, messageId)
+								.then((valid) => {
+									if (!valid) {
+										logger.warn(`Message [ ${i.toString()} ] rejected by [ ${messageValidator.toString()} ]`)
+									}
+
+									return valid;
+								});
 						});
 
 						return checkValidationPromises(promises);

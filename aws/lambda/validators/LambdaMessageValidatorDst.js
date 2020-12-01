@@ -1,6 +1,7 @@
 const log4js = require('log4js');
 
-const Timezones  = require('@barchart/common-js/lang/Timezones');
+const is = require('@barchart/common-js/lang/is'),
+	Timezones = require('@barchart/common-js/lang/Timezones');
 
 const LambdaMessageValidator = require('./LambdaMessageValidator'),
 	LambdaTriggerType = require('./../LambdaTriggerType');
@@ -24,7 +25,7 @@ module.exports = (() => {
 			super();
 		}
 
-		_validate(name, message, event, messageId, trigger) {
+		_validate(name, message, event, trigger, messageId) {
 			if (trigger !== LambdaTriggerType.CLOUDWATCH) {
 				return true;
 			}
@@ -33,8 +34,10 @@ module.exports = (() => {
 				return true;
 			}
 
-			const tz = message.tz;
-			const dst = message.dst;
+			const content = trigger.getContent(message);
+
+			const tz = content.tz;
+			const dst = content.dst;
 
 			if (!(is.string(tz) && is.boolean(dst))) {
 				return true;
@@ -51,7 +54,7 @@ module.exports = (() => {
 			const valid = timezone.getIsDaylightSavingsTime() === dst;
 
 			if (!valid) {
-				logger.info(`Lambda CloudWatch Event trigger is invalid — trigger ${(dst ? 'is' : 'is not')} intended for use during daylight savings time in [ ${timezone.code} ]`);
+				logger.debug(`Lambda CloudWatch Event trigger is invalid — trigger ${(dst ? 'is' : 'is not')} intended for use during daylight savings time in [ ${timezone.code} ]`);
 			}
 
 			return valid;
