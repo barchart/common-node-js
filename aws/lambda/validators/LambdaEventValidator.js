@@ -78,7 +78,14 @@ module.exports = (() => {
 
 					const validateMessage = (message) => {
 						const trigger = LambdaTriggerType.fromMessage(message);
-						const messageId = trigger.getId(message) || null;
+
+						let messageId;
+
+						if (trigger) {
+							messageId = trigger.getId(message);
+						} else {
+							messageId = null;
+						}
 
 						const promises = this._messageValidators.map((messageValidator) => {
 							return messageValidator.validate(name, message, event, trigger, messageId);
