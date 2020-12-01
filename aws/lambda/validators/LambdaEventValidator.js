@@ -91,7 +91,7 @@ module.exports = (() => {
 							return messageValidator.validate(name, message, event, trigger, messageId)
 								.then((valid) => {
 									if (!valid) {
-										logger.warn(`Message [ ${i.toString()} ] rejected by [ ${messageValidator.toString()} ]`)
+										logger.warn(`Message [ ${i.toString()} ] rejected by [ ${messageValidator.toString()} ]`);
 									}
 
 									return valid;
