@@ -56,9 +56,7 @@ module.exports = (() => {
 		setHeader(key, value) {
 			assert.argumentIsRequired(key, 'key', String);
 
-			if (!this.complete) {
-				this._headers[key] = value;
-			}
+			this._headers[key] = value;
 
 			return this;
 		}
