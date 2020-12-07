@@ -148,7 +148,9 @@ module.exports = (() => {
 					.then(() => {
 						let serialized;
 
-						if (is.object(response)) {
+						if (Buffer.isBuffer(response)) {
+							serialized = response;
+						} else if (is.object(response)) {
 							serialized = JSON.stringify(response);
 						} else {
 							this.setHeader('Content-Type', 'text/plain');

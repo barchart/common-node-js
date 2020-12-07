@@ -29,7 +29,7 @@ module.exports = (() => {
 		 * @public
 		 * @param {Number} responseCode
 		 * @param {Object} responseHeaders
-		 * @param {String} responseData
+		 * @param {Buffer|String} responseData
 		 * @param {Number} responseSize
 		 * @returns {Promise<Object|null>}
 		 */
@@ -45,7 +45,7 @@ module.exports = (() => {
 		 * @abstract
 		 * @param {Number} responseCode
 		 * @param {Object} responseHeaders
-		 * @param {String} responseData
+		 * @param {Buffer|String} responseData
 		 * @param {Number} responseSize
 		 * @returns {Promise<Object|null>|Object|null}
 		 */
@@ -62,17 +62,23 @@ module.exports = (() => {
 		 * @param {Number} responseCode
 		 * @param {Object} responseHeaders
 		 * @param {*} responseData
+		 * @param {Boolean=} isBase64Encoded
 		 * @returns {Object}
 		 */
-		static buildResponseForApiGateway(responseCode, responseHeaders, responseData) {
+		static buildResponseForApiGateway(responseCode, responseHeaders, responseData, isBase64Encoded) {
 			assert.argumentIsRequired(responseCode, 'responseCode', Number);
 			assert.argumentIsRequired(responseHeaders, 'responseHeaders', Object);
+			assert.argumentIsOptional(isBase64Encoded, 'isBase64Encoded', Boolean);
 
 			const response = { };
 
 			response.statusCode = responseCode;
 			response.headers = responseHeaders;
 			response.body = responseData;
+
+			if (isBase64Encoded) {
+				response.isBase64Encoded = isBase64Encoded;
+			}
 
 			return response;
 		}
@@ -160,12 +166,26 @@ module.exports = (() => {
 		}
 
 		_generate(responseCode, responseHeaders, responseData, responseSize) {
-			if (responseSize > LambdaResponseGenerator.MAXIMUM_RESPONSE_LENGTH_IN_BYTES) {
-				logger.error(`Unable to process response, response byte size [ ${responseSize} ] exceeds byte limit [ ${LambdaResponseGenerator.MAXIMUM_RESPONSE_LENGTH_IN_BYTES} ]`);
+			let body;
+			let size;
+			let isBase64Encoded;
+
+			if (Buffer.isBuffer(responseData)) {
+				body = responseData.toString('base64');
+				size = Buffer.byteLength(body, 'base64');
+				isBase64Encoded = true;
+			} else {
+				body = responseData;
+				size = responseSize;
+				isBase64Encoded = false;
+			}
+
+			if (size > LambdaResponseGenerator.MAXIMUM_RESPONSE_LENGTH_IN_BYTES) {
+				logger.error(`Unable to process response, response byte size [ ${size} ] exceeds byte limit [ ${LambdaResponseGenerator.MAXIMUM_RESPONSE_LENGTH_IN_BYTES} ]`);
 
 				return LambdaResponseGenerator.buildResponseForApiGateway(413, LambdaResponseGenerator.getHeadersForJson(), JSON.stringify({ message: 'Response too large' }));
 			} else {
-				return LambdaResponseGenerator.buildResponseForApiGateway(responseCode, responseHeaders, responseData);
+				return LambdaResponseGenerator.buildResponseForApiGateway(responseCode, responseHeaders, body, isBase64Encoded);
 			}
 		}
 

@@ -64,10 +64,7 @@ module.exports = (() => {
 					const headers = Object.assign({ }, responseHeaders);
 					headers['Content-Encoding'] = 'gzip';
 
-					const response = LambdaResponseGenerator.buildResponseForApiGateway(responseCode, headers, compressedData.toString('base64'));
-					response.isBase64Encoded = true;
-
-					return response;
+					return LambdaResponseGenerator.buildResponseForApiGateway(responseCode, headers, compressedData.toString('base64'), true);
 				}
 			});
 		}

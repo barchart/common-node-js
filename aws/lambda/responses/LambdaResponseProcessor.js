@@ -44,7 +44,7 @@ module.exports = (() => {
 		 * @public
 		 * @param {Number} responseCode
 		 * @param {Object} responseHeaders
-		 * @param {String} responseData
+		 * @param {Buffer|String} responseData
 		 * @returns {Promise<Object>}
 		 */
 		process(responseCode, responseHeaders, responseData) {
@@ -52,7 +52,6 @@ module.exports = (() => {
 				.then(() => {
 					assert.argumentIsRequired(responseCode, 'responseCode', Number);
 					assert.argumentIsRequired(responseHeaders, 'responseHeaders', Object);
-					assert.argumentIsRequired(responseData, 'responseData', String);
 
 					const generators = this._generators.slice(0);
 					generators.push(LambdaResponseGenerator.DEFAULT);
