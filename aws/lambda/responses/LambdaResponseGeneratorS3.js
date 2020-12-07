@@ -96,7 +96,7 @@ module.exports = (() => {
 		if (s3ProviderPromise === null) {
 			s3ProviderPromise = Promise.resolve()
 				.then(() => {
-					const provider = new S3Provider({ region: 'us-east-1', bucket: 'barchart-aws-lambda-responses' });
+					const provider = new S3Provider({ region: process.env.S3_LARGE_HTTP_RESPONSE_REGION || 'us-east-1', bucket: process.env.S3_LARGE_HTTP_RESPONSE_BUCKET || 'barchart-aws-lambda-responses' });
 
 					return provider.start().then(() => provider);
 				});
