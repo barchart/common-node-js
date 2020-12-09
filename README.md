@@ -1,6 +1,7 @@
 # @barchart/common-node-js
 
 [![AWS CodeBuild](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiMml2V3dLRC83RHBaTEw3WDNjN3JCUVRWLzJaVGQyZmJGbnk0SlByQ0hkbU5EMXNESHBrZTFVTHVtdmVvMFBpUlZORzRVUTBWbUltenBsaktqNUJWU0d3PSIsIml2UGFyYW1ldGVyU3BlYyI6IjRNVkVPZjU2STdjSnBBSE4iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)](https://github.com/barchart/common-node-js)
+[![NPM](https://img.shields.io/npm/v/@barchart/common-node-js)](https://www.npmjs.com/package/@barchart/common-node-js)
 
 A *public* library of shared JavaScript utilities. These utilities only suitable for Node.js environments.
 
