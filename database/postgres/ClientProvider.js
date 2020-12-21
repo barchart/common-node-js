@@ -37,6 +37,7 @@ module.exports = (() => {
 			};
 		}
 
+
 		/**
 		 * Creates a new Postgres {@link Client} instance.
 		 *
@@ -54,8 +55,14 @@ module.exports = (() => {
 			return null;
 		}
 
-		_getConfiguration() {
-			return this._configuration;
+		/**
+		 * Returns the provider configuration (e.g. host, port, etc).
+		 *
+		 * @public
+		 * @returns {Object}
+		 */
+		getConfiguration() {
+			return Object.assign({ }, this._configuration);
 		}
 
 		toString() {

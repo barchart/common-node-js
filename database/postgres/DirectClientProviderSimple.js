@@ -27,7 +27,7 @@ module.exports = (() => {
 			logger.debug('Creating new connection.');
 
 			return promise.build((resolveCallback, rejectCallback) => {
-				const pgClient = new JavascriptClient(this._getConfiguration());
+				const pgClient = new JavascriptClient(this.getConfiguration());
 
 				pgClient.connect((err) => {
 					if (err) {

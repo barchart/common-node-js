@@ -22,7 +22,7 @@ module.exports = (() => {
 			logger.debug('Retrieving client from connection pool.');
 
 			return promise.build((resolveCallback, rejectCallback) => {
-				pg.connect(this._getConfiguration(), (err, pgClient, releaseCallback) => {
+				pg.connect(this.getConfiguration(), (err, pgClient, releaseCallback) => {
 					if (err) {
 						rejectCallback(err);
 					} else {
