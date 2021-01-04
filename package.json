@@ -18,13 +18,7 @@
     "Barchart",
     "Utilities",
     "JavaScript",
-    "Node",
-    "Express",
-    "REST",
-    "Socket.IO",
-    "AWS",
-    "SNS",
-    "SQS"
+    "Node.js"
   ],
   "dependencies": {
     "@barchart/common-js": "^3.23.1",
@@ -51,11 +45,11 @@
   "devDependencies": {
     "git-get-status": "^1.0.5",
     "gulp": "^4.0.2",
-    "gulp-git": "^2.9.0",
-    "gulp-jasmine": "^2.2.1",
+    "gulp-git": "^2.10.1",
+    "gulp-jasmine": "^4.0.0",
     "gulp-jshint": "^2.1.0",
     "gulp-prompt": "^1.2.0",
-    "jshint": "^2.10.3"
+    "jshint": "^2.12.0"
   },
   "license": "MIT",
   "bugs": {
