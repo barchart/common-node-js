@@ -37,30 +37,26 @@ module.exports = (() => {
 					}
 					
 					return Promise.all(messages.map((message) => {
-						const result = { };
-						
-						result.type = LambdaTriggerType.fromMessage(message);
+						const trigger = LambdaTriggerType.fromMessage(message);
 
-						if (result.type !== null) {
-							result.id = result.type.getId(message);
+						let messageId;
+
+						if (trigger !== null) {
+							messageId = trigger.getId(message);
 						} else {
-							result.id = null;
+							messageId = null;
 						}
 						
-						result.message = message;
-
 						let validatePromise;
 						
-						if (result.type !== null && result.id !== null) {
-							validatePromise = Promise.resolve(this._validate(process.env.AWS_LAMBDA_FUNCTION_NAME, result.type, result.id));
+						if (trigger !== null && messageId !== null) {
+							validatePromise = Promise.resolve(this._validate(process.env.AWS_LAMBDA_FUNCTION_NAME, trigger, messageId));
 						} else {
 							validatePromise = Promise.resolve(true);
 						}
 						
 						return validatePromise.then((valid) => {
-							result.valid = valid;
-							
-							return result;
+							return valid;
 						});
 					}));
 				});
