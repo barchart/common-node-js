@@ -55,10 +55,10 @@ module.exports = (() => {
 							validatePromise = Promise.resolve(true);
 						}
 						
-						return validatePromise.then((valid) => {
-							return valid;
-						});
+						return validatePromise;
 					}));
+				}).then((results) => {
+					return results.every(r => r === true);
 				});
 		}
 
