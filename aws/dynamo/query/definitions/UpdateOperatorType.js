@@ -98,6 +98,16 @@ module.exports = (() => {
 			return operatorEqualsIfNotExists;
 		}
 
+		/**
+		 * List append.
+		 *
+		 * @public
+		 * @returns {UpdateOperatorType}
+		 */
+		static get LIST_APPEND() {
+			return operatorListAppend;
+		}
+
 		toString() {
 			return `[UpdateOperatorType (description=${this._description})]`;
 		}
@@ -109,6 +119,7 @@ module.exports = (() => {
 	const operatorEqualsIfNotExists = new UpdateOperatorType('Equals if attribute not exists', (f, o) => `${f} = if_not_exists(${f}, ${o})`, 1);
 	const operatorPlus = new UpdateOperatorType('Plus', (f, o) => `${f} = ${f} + ${o}`, 1);
 	const operatorMinus = new UpdateOperatorType('Minus', (f, o) => `${f} = ${f} - ${o}`, 1);
+	const operatorListAppend = new UpdateOperatorType('List append', (f, o) => `${f} = list_append(${f}, ${o})`, 1);
 
 	return UpdateOperatorType;
 })();
