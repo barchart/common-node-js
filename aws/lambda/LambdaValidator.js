@@ -6,7 +6,7 @@ module.exports = (() => {
 	'use strict';
 
 	// 2020/11/29, BRI. This class will be removed in the next major version.
-	// It will be replaced with the "LambdaResponseProcessor" ...
+	// It will be replaced with the "LambdaEventValidator" ...
 
 	/**
 	 * Evaluates a Lambda event, checking the messages it contains to determine
