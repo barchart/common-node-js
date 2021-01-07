@@ -43,7 +43,7 @@ module.exports = (() => {
 		 * @param {LambdaMessageValidator} messageValidator
 		 */
 		addMessageValidator(messageValidator) {
-			assert.argumentIsRequired(generator, 'generator', LambdaMessageValidator, 'LambdaMessageValidator');
+			assert.argumentIsRequired(messageValidator, 'messageValidator', LambdaMessageValidator, 'LambdaMessageValidator');
 
 			this._messageValidators.push(messageValidator);
 		}
