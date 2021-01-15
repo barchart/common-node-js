@@ -1,4 +1,5 @@
-const log4js = require('log4js');
+const aws = require('aws-sdk'),
+	log4js = require('log4js');
 
 const assert = require('@barchart/common-js/lang/assert'),
 	Enum = require('@barchart/common-js/lang/Enum');
@@ -40,6 +41,18 @@ module.exports = (() => {
 
 				lambdaLogger = log4js.getLogger('LambdaHelper');
 				eventLogger = log4js.getLogger('LambdaHelper/Event');
+
+				const awsLogger = log4js.getLogger('aws-sdk');
+
+				const awsLogWrapper = { };
+
+				awsLogWrapper.log = (message) => {
+					if (awsLogger.isDebugEnabled()) {
+						awsLogger.debug(message);
+					}
+				};
+
+				aws.config.logger = awsLogWrapper;
 			}
 
 			return lambdaLogger;
