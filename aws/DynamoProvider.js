@@ -1572,6 +1572,7 @@ module.exports = (() => {
 	const dynamoErrorThrottling = new DynamoError('ThrottlingException', 'Throttling Exception', true);
 	const dynamoErrorThroughput = new DynamoError('ProvisionedThroughputExceededException', 'Provisioned Throughput Exceeded Exception', true);
 	const dynamoErrorConditional = new DynamoError('ConditionalCheckFailedException', 'Conditional Check Failed Exception', false);
+	const dynamoErrorUnavailable = new DynamoError('ServiceUnavailable', 'Service Unavailable Exception', true);
 
 	class DynamoBatchType extends Enum {
 		constructor(code, description, requestTypeName, requestItemName, keysOnly) {
