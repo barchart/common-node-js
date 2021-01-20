@@ -61,23 +61,31 @@ module.exports = (() => {
 		}
 		
 		registerDevice(deviceID, bundleID, userID, realtimeUserID) {
-			return null;
+			return Promise.resolve();
 		}
 
 		sendToDevice(deviceID, notification, development) {
-			return null;
+			return Promise.resolve();
 		}
 
 		sendToDeviceAndApp(deviceID, bundleID, notification, development) {
-			return null;
+			return Promise.resolve();
 		}
 
 		sendToUser(userID, bundleID, notification, development) {
-			return null;
+			return Promise.resolve();
 		}
 
 		sendToRealtimeUser(realtimeUserID, bundleID, notification, development) {
-			return null;
+			return Promise.resolve();
+		}
+		
+		sendToApp(bundleID, notification, development ) {
+			return Promise.resolve();
+		}
+
+		sendToToken(tokenID, notification, development ) {
+			return Promise.resolve();
 		}
 
 		toString() {
