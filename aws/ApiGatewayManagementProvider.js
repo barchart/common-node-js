@@ -53,23 +53,23 @@ module.exports = (() => {
 
 			if (this._startPromise === null) {
 				this._startPromise = Promise.resolve()
-				.then(() => {
-					this._agm = new aws.ApiGatewayManagementApi({
-						apiVersion: this._configuration.apiVersion || '2018-11-29',
-						endpoint: this._configuration.endpoint,
-						region: this._configuration.region,
+					.then(() => {
+						this._agm = new aws.ApiGatewayManagementApi({
+							apiVersion: this._configuration.apiVersion || '2018-11-29',
+							endpoint: this._configuration.endpoint,
+							region: this._configuration.region,
+						});
+					}).then(() => {
+						logger.info('The ApiGatewayManagementProvider has started');
+
+						this._started = true;
+
+						return this._started;
+					}).catch((e) => {
+						logger.error('The ApiGatewayManagementProvider failed to start', e);
+
+						throw e;
 					});
-				}).then(() => {
-					logger.info('The ApiGatewayManagementProvider has started');
-
-					this._started = true;
-
-					return this._started;
-				}).catch((e) => {
-					logger.error('The ApiGatewayManagementProvider failed to start', e);
-
-					throw e;
-				});
 			}
 
 			return this._startPromise;
@@ -83,16 +83,31 @@ module.exports = (() => {
 		 * @returns {Promise}
 		 */
 		postToConnection(connectionId, data) {
-			assert.argumentIsRequired(connectionId, 'connectionId', String);
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsRequired(connectionId, 'connectionId', String);
 
-			return this._agm.postToConnection({
-				ConnectionId: connectionId,
-				Data: data,
-			}).promise();
+					checkReady.call(this);
+
+					return this._agm.postToConnection({
+						ConnectionId: connectionId,
+						Data: data,
+					}).promise();
+				});
 		}
 
 		toString() {
 			return '[ApiGatewayManagementProvider]';
+		}
+	}
+
+	function checkReady() {
+		if (this.getIsDisposed()) {
+			throw new Error('The ApiGatewayManagementProvider has been disposed.');
+		}
+
+		if (!this._started) {
+			throw new Error('The ApiGatewayManagementProvider has not been started.');
 		}
 	}
 
