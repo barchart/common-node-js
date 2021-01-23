@@ -66,17 +66,17 @@ module.exports = (() => {
 			if (this._startPromise === null) {
 				this._startPromise = Promise.resolve()
 					.then(() => {
-						aws.config.update({region: this._configuration.region});
+						aws.config.update({ region: this._configuration.region });
 
-						this._s3 = new aws.S3({apiVersion: this._configuration.apiVersion || '2006-03-01'});
+						this._s3 = new aws.S3({ apiVersion: this._configuration.apiVersion || '2006-03-01' });
 					}).then(() => {
-						logger.info('S3 provider started');
+						logger.info('The S3Provider has started');
 
 						this._started = true;
 
 						return this._started;
 					}).catch((e) => {
-						logger.error('S3 provider failed to start', e);
+						logger.error('The S3Provider failed to start', e);
 
 						throw e;
 					});
@@ -143,7 +143,7 @@ module.exports = (() => {
 
 							this._s3.listObjectsV2(payload, (e, data) => {
 								if (e) {
-									logger.error('S3 failed to retrieve bucket contents: ', e);
+									logger.error('S3 failed to retrieve bucket contents', e);
 
 									rejectCallback(e);
 								} else {
@@ -203,7 +203,7 @@ module.exports = (() => {
 
 						this._s3.getSignedUrl(operation, payload, (e, url) => {
 							if (e) {
-								logger.error('S3 failed to get signed url: ', e);
+								logger.error('S3 failed to get signed url', e);
 
 								rejectCallback(e);
 							} else {
@@ -279,7 +279,8 @@ module.exports = (() => {
 
 						this._s3.upload(params, options, (e, data) => {
 							if (e) {
-								logger.error('S3 failed to upload object: ', e);
+								logger.error('S3 failed to upload object', e);
+
 								rejectCallback(e);
 							} else {
 								resolveCallback({data: data});
@@ -338,7 +339,8 @@ module.exports = (() => {
 					return promise.build((resolveCallback, rejectCallback) => {
 						this._s3.getObject(getParameters(bucket, filename), (e, data) => {
 							if (e) {
-								logger.error('S3 failed to get object: ', e);
+								logger.error('S3 failed to get object', e);
+
 								rejectCallback(e);
 							} else {
 								resolveCallback(ContentHandler.getHandlerFor(data.ContentType).fromBuffer(data.Body));
@@ -381,7 +383,8 @@ module.exports = (() => {
 					return promise.build((resolveCallback, rejectCallback) => {
 						this._s3.deleteObject(getParameters(bucket, filename), (e, data) => {
 							if (e) {
-								logger.error('S3 failed to delete object: ', e);
+								logger.error('S3 failed to delete object', e);
+
 								rejectCallback(e);
 							} else {
 								resolveCallback({data: data});
@@ -422,10 +425,6 @@ module.exports = (() => {
 			}, [ ]).join('/');
 		}
 
-		_onDispose() {
-			logger.debug('S3 provider disposed');
-		}
-
 		toString() {
 			return '[S3Provider]';
 		}
@@ -433,11 +432,11 @@ module.exports = (() => {
 
 	function checkReady() {
 		if (this.getIsDisposed()) {
-			throw new Error('The Dynamo Provider has been disposed.');
+			throw new Error('The S3Provider has been disposed.');
 		}
 
 		if (!this._started) {
-			throw new Error('The Dynamo Provider has not been started.');
+			throw new Error('The S3Provider has not been started.');
 		}
 	}
 
