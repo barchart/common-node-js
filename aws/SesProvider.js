@@ -63,7 +63,7 @@ module.exports = (() => {
 		 */
 		start() {
 			if (this.getIsDisposed()) {
-				return Promise.reject('Unable to start, the SES Provider has been disposed.');
+				return Promise.reject('Unable to start, the SesProvider has been disposed.');
 			}
 
 			if (this._startPromise === null) {
@@ -79,13 +79,13 @@ module.exports = (() => {
 
 						this._ses = new aws.SES({apiVersion: this._configuration.apiVersion || '2010-12-01'});
 					}).then(() => {
-						logger.info('SES Provider started');
+						logger.info('The SesProvider has started');
 
 						this._started = true;
 
 						return this._started;
 					}).catch((e) => {
-						logger.error('SES Provider failed to start', e);
+						logger.error('The SesProvider failed to start', e);
 
 						throw e;
 					});
@@ -102,7 +102,7 @@ module.exports = (() => {
 		 */
 		getConfiguration() {
 			if (this.getIsDisposed()) {
-				throw new Error('The SES Provider has been disposed.');
+				throw new Error('The SesProvider has been disposed.');
 			}
 
 			return object.clone(this._configuration);
@@ -120,7 +120,7 @@ module.exports = (() => {
 				}).then(() => {
 					return this._rateLimiter.enqueue(() => {
 						return promise.build((resolve, reject) => {
-							logger.debug('Sending email to', options.recipientAddress);
+							logger.debug('Sending email to [', options.recipientAddress, ']');
 
 							this._transport.sendMail({
 								from: options.senderAddress,
@@ -136,7 +136,7 @@ module.exports = (() => {
 
 									reject(error);
 								} else {
-									logger.debug('Sent email to', options.recipientAddress);
+									logger.debug('Sent email to [', options.recipientAddress, ']');
 
 									resolve(result);
 								}
@@ -174,15 +174,15 @@ module.exports = (() => {
 					assert.argumentIsOptional(textBody, 'textBody', String);
 
 					if (this.getIsDisposed()) {
-						throw new Error('The SES Provider has been disposed.');
+						throw new Error('The SesProvider has been disposed');
 					}
 
 					if (!this._started) {
-						throw new Error('The SES Provider has not been started.');
+						throw new Error('The SesProvider has not been started');
 					}
 
 					if (this._configuration.recipientOverride) {
-						logger.warn('Overriding email recipient for testing purposes.');
+						logger.warn('Overriding email recipient for testing purposes, using [', this._configuration.recipientOverride, ']');
 
 						recipientAddress = this._configuration.recipientOverride;
 					}
@@ -225,7 +225,7 @@ module.exports = (() => {
 
 					return this._rateLimiter.enqueue(() => {
 						return promise.build((resolveCallback, rejectCallback) => {
-							logger.debug('Sending email to', recipientAddress);
+							logger.debug('Sending email to [', recipientAddress, ']');
 
 							this._ses.sendEmail(params, (error, data) => {
 								if (error) {
@@ -234,7 +234,7 @@ module.exports = (() => {
 
 									rejectCallback(error);
 								} else {
-									logger.debug('Sent email to', recipientAddress);
+									logger.debug('Sent email to [', recipientAddress, ']');
 
 									resolveCallback();
 								}
@@ -246,8 +246,6 @@ module.exports = (() => {
 
 		_onDispose() {
 			this._rateLimiter.dispose();
-
-			logger.debug('SES Provider disposed');
 		}
 
 		toString() {
@@ -257,11 +255,11 @@ module.exports = (() => {
 
 	function checkReady() {
 		if (this.getIsDisposed()) {
-			throw new Error('The Dynamo Provider has been disposed.');
+			throw new Error('The SesProvider has been disposed.');
 		}
 
 		if (!this._started) {
-			throw new Error('The Dynamo Provider has not been started.');
+			throw new Error('The SesProvider has not been started.');
 		}
 	}
 
