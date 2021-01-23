@@ -209,11 +209,11 @@ module.exports = (() => {
 
 	function checkReady() {
 		if (this.getIsDisposed()) {
-			throw new Error('The CloudWatchLogs Provider has been disposed.');
+			throw new Error('The CloudWatchLogsProvider has been disposed.');
 		}
 
 		if (!this._started) {
-			throw new Error('The CloudWatchLogs Provider has not been started.');
+			throw new Error('The CloudWatchLogsProvider has not been started.');
 		}
 	}
 
