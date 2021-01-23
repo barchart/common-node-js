@@ -89,10 +89,7 @@ module.exports = (() => {
 
 					checkReady.call(this);
 
-					return this._agm.postToConnection({
-						ConnectionId: connectionId,
-						Data: data,
-					}).promise();
+					return this._agm.postToConnection({ ConnectionId: connectionId, Data: data, }).promise();
 				});
 		}
 
