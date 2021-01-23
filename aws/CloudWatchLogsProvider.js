@@ -47,23 +47,23 @@ module.exports = (() => {
 		 */
 		start() {
 			if (this.getIsDisposed()) {
-				return Promise.reject('Unable to start, the CloudWatchLogs Provider has been disposed.');
+				return Promise.reject('Unable to start, the CloudWatchLogsProvider has been disposed.');
 			}
 
 			if (this._startPromise === null) {
 				this._startPromise = Promise.resolve()
 					.then(() => {
-						aws.config.update({region: this._configuration.region});
+						aws.config.update({ region: this._configuration.region });
 
-						this._cloudWatchLogs = new aws.CloudWatchLogs({apiVersion: this._configuration.apiVersion || '2014-03-28'});
+						this._cloudWatchLogs = new aws.CloudWatchLogs({ apiVersion: this._configuration.apiVersion || '2014-03-28' });
 					}).then(() => {
-						logger.info('CloudWatchLogs provider started');
+						logger.info('The CloudWatchLogsProvider has started');
 
 						this._started = true;
 
 						return this._started;
 					}).catch((e) => {
-						logger.error('CloudWatchLogs provider failed to start', e);
+						logger.error('The CloudWatchLogsProvider failed to start', e);
 
 						throw e;
 					});
@@ -103,14 +103,14 @@ module.exports = (() => {
 							limit: limit
 						};
 
-						this._cloudWatchLogs.startQuery(params, (err, data) => {
-							if (err) {
-								logger.error(`CloudWatchLogs Provider failed to start query for [ ${name} ]`);
-								logger.error(err);
+						this._cloudWatchLogs.startQuery(params, (e, data) => {
+							if (e) {
+								logger.error(`Failed to start query on [ ${name} ]`);
+								logger.error(e);
 
-								reject(err);
+								reject(e);
 							} else {
-								logger.debug(`Query [ ${name} ] started`);
+								logger.debug(`Started query on [ ${name} ]`);
 
 								resolve(data);
 							}
@@ -134,11 +134,11 @@ module.exports = (() => {
 					checkReady.call(this);
 
 					return promise.build((resolve, reject) => {
-						this._cloudWatchLogs.getQueryResults({ queryId: queryId }, (err, data) => {
-							if (err) {
-								logger.error(err);
+						this._cloudWatchLogs.getQueryResults({ queryId: queryId }, (e, data) => {
+							if (e) {
+								logger.error(e);
 
-								reject(err);
+								reject(e);
 							} else {
 								resolve(data);
 							}
@@ -162,11 +162,11 @@ module.exports = (() => {
 					checkReady.call(this);
 
 					return promise.build((resolve, reject) => {
-						this._cloudWatchLogs.describeLogGroups({ logGroupNamePrefix: logGroupNamePrefix }, (err, data) => {
-							if (err) {
-								logger.error(err);
+						this._cloudWatchLogs.describeLogGroups({ logGroupNamePrefix: logGroupNamePrefix }, (e, data) => {
+							if (e) {
+								logger.error(e);
 
-								reject(err);
+								reject(e);
 							} else {
 								resolve(data);
 							}
@@ -199,7 +199,7 @@ module.exports = (() => {
 		}
 
 		_onDispose() {
-			logger.debug('CloudWatchLogs provider disposed');
+			logger.debug('CloudWatchLogsProvider disposed');
 		}
 
 		toString() {
@@ -227,11 +227,11 @@ module.exports = (() => {
 				payload.limit = limit;
 			}
 
-			this._cloudWatchLogs.describeLogStreams(payload, (err, data) => {
-				if (err) {
-					logger.error(err);
+			this._cloudWatchLogs.describeLogStreams(payload, (e, data) => {
+				if (e) {
+					logger.error(e);
 
-					reject(err);
+					reject(e);
 				} else {
 					resolve(data);
 				}
