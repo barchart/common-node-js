@@ -62,7 +62,7 @@ module.exports = (() => {
 		 */
 		start() {
 			if (this.getIsDisposed()) {
-				return Promise.reject('The SqsProvider has been disposed.');
+				return Promise.reject('Unable to start, the SqsProvider has been disposed.');
 			}
 
 			if (this._startPromise === null) {

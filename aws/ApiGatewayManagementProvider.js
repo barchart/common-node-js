@@ -48,7 +48,7 @@ module.exports = (() => {
 		 */
 		start() {
 			if (this.getIsDisposed()) {
-				return Promise.reject('The Api Gateway Management Provider has been disposed.');
+				return Promise.reject('Unable to start, the Api Gateway Management Provider has been disposed.');
 			}
 
 			if (this._startPromise === null) {

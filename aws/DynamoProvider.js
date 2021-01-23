@@ -74,7 +74,7 @@ module.exports = (() => {
 		 */
 		start() {
 			if (this.getIsDisposed()) {
-				return Promise.reject('The Dynamo Provider has been disposed.');
+				return Promise.reject('Unable to start, the Dynamo Provider has been disposed.');
 			}
 
 			if (this._startPromise === null) {

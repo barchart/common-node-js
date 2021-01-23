@@ -46,7 +46,7 @@ module.exports = (() => {
 		 */
 		start() {
 			if (this.getIsDisposed()) {
-				return Promise.reject('The Lambda Provider has been disposed.');
+				return Promise.reject('Unable to start, the Lambda Provider has been disposed.');
 			}
 
 			if (this._startPromise === null) {

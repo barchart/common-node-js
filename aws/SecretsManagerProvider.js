@@ -44,7 +44,7 @@ module.exports = (() => {
 		 */
 		start() {
 			if (this.getIsDisposed()) {
-				return Promise.reject('The SecretsManagerProvider has been disposed');
+				return Promise.reject('Unable to start, the SecretsManagerProvider has been disposed');
 			}
 
 			if (this._startPromise === null) {
