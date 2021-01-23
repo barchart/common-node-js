@@ -2,8 +2,7 @@ const aws = require('aws-sdk'),
 	log4js = require('log4js');
 
 const assert = require('@barchart/common-js/lang/assert'),
-	Disposable = require('@barchart/common-js/lang/Disposable'),
-	object = require('@barchart/common-js/lang/object');
+	Disposable = require('@barchart/common-js/lang/Disposable');
 
 module.exports = (() => {
 	'use strict';
@@ -28,9 +27,9 @@ module.exports = (() => {
 			assert.argumentIsRequired(configuration.region, 'configuration.region', String);
 			assert.argumentIsOptional(configuration.apiVersion, 'configuration.apiVersion', String);
 
-			this._sm = null;
-
 			this._configuration = configuration;
+
+			this._secretsManager = null;
 
 			this._startPromise = null;
 			this._started = false;
@@ -45,7 +44,7 @@ module.exports = (() => {
 		 */
 		start() {
 			if (this.getIsDisposed()) {
-				return Promise.reject('The Secrets Manager Provider has been disposed.');
+				return Promise.reject('The SecretsManagerProvider has been disposed');
 			}
 
 			if (this._startPromise === null) {
@@ -53,15 +52,15 @@ module.exports = (() => {
 					.then(() => {
 						aws.config.update({ region: this._configuration.region });
 
-						this._sm = new aws.SecretsManager({ apiVersion: this._configuration.apiVersion || '2017-10-17' });
+						this._secretsManager = new aws.SecretsManager({ apiVersion: this._configuration.apiVersion || '2017-10-17' });
 					}).then(() => {
-						logger.info('Secrets Manager provider started');
+						logger.info('The SecretsManagerProvider has started');
 
 						this._started = true;
 
 						return this._started;
 					}).catch((e) => {
-						logger.error('Secrets Manager provider failed to start', e);
+						logger.error('The SecretsManagerProvider failed to start', e);
 
 						throw e;
 					});
@@ -83,28 +82,24 @@ module.exports = (() => {
 					assert.argumentIsRequired(secretId, 'secretId', String);
 
 					if (secretId.length === 0) {
-						throw new Error('Unable to retrieve value of a zero-length secret');
+						throw new Error('The "secretId" argument cannot be a zero-length string');
 					}
 
 					checkReady.call(this);
 
-					const params = { };
+					logger.debug(`Attempting to retrieve secret [ ${secretId} ]`);
 
-					params.SecretId = secretId;
-
-					return Promise.resolve(this._sm.getSecretValue(params).promise())
+					return Promise.resolve(this._secretsManager.getSecretValue({ SecretId: secretId }).promise())
 						.then((response) => {
+							logger.info(`Retrieved secret [ ${secretId} ]`);
+
 							return response.SecretString;
 						}).catch((err) => {
-							logger.error(`SecretsManager Provider failed to get secret [ ${secretId} ]`);
+							logger.error(`Failed to retrieve secret [ ${secretId} ]`);
 
 							return Promise.reject(err);
 						});
 				});
-		}
-
-		_onDispose() {
-			logger.debug('Secrets Manager Provider disposed');
 		}
 
 		toString() {
@@ -114,11 +109,11 @@ module.exports = (() => {
 
 	function checkReady() {
 		if (this.getIsDisposed()) {
-			throw new Error('The SecretsManager Provider has been disposed.');
+			throw new Error('The SecretsManagerProvider has been disposed');
 		}
 
 		if (!this._started) {
-			throw new Error('The SecretsManager Provider has not been started.');
+			throw new Error('The SecretsManagerProvider has not been started');
 		}
 	}
 
