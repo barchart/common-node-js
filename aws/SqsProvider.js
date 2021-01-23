@@ -62,7 +62,7 @@ module.exports = (() => {
 		 */
 		start() {
 			if (this.getIsDisposed()) {
-				return Promise.reject('The SQS Provider has been disposed.');
+				return Promise.reject('The SqsProvider has been disposed.');
 			}
 
 			if (this._startPromise === null) {
@@ -72,13 +72,13 @@ module.exports = (() => {
 
 						this._sqs = new aws.SQS({apiVersion: this._configuration.apiVersion || '2012-11-05'});
 					}).then(() => {
-						logger.info('SQS Provider started');
+						logger.info('The SqsProvider has started');
 
 						this._started = true;
 
 						return this._started;
 					}).catch((e) => {
-						logger.error('SQS Provider failed to start', e);
+						logger.error('The SqsProvider failed to start', e);
 
 						throw e;
 					});
@@ -96,7 +96,7 @@ module.exports = (() => {
 		 */
 		getConfiguration() {
 			if (this.getIsDisposed()) {
-				throw new Error('The SQS Provider has been disposed.');
+				throw new Error('The SqsProvider has been disposed.');
 			}
 
 			return object.clone(this._configuration);
@@ -156,17 +156,17 @@ module.exports = (() => {
 					assert.argumentIsRequired(queueName, 'queueName', String);
 
 					if (this.getIsDisposed()) {
-						throw new Error('The SQS Provider has been disposed.');
+						throw new Error('The SqsProvider has been disposed.');
 					}
 
 					if (!this._started) {
-						throw new Error('The SQS Provider has not been started.');
+						throw new Error('The SqsProvider has not been started.');
 					}
 
 					const qualifiedQueueName = getQualifiedQueueName(this._configuration.prefix, queueName);
 
 					if (!this._queueUrlPromises.hasOwnProperty(qualifiedQueueName)) {
-						logger.debug('The SQS Provider has not cached the queue URL. Issuing request to create queue.');
+						logger.debug('The SqsProvider has not cached the queue URL. Issuing request to create queue.');
 
 						this._queueUrlPromises[qualifiedQueueName] = this.createQueue(queueName);
 					}
@@ -193,11 +193,11 @@ module.exports = (() => {
 					}
 
 					if (this.getIsDisposed()) {
-						throw new Error('The SQS Provider has been disposed.');
+						throw new Error('The SqsProvider has been disposed.');
 					}
 
 					if (!this._started) {
-						throw new Error('The SQS Provider has not been started.');
+						throw new Error('The SqsProvider has not been started.');
 					}
 
 					const payload = { };
@@ -238,11 +238,11 @@ module.exports = (() => {
 					assert.argumentIsRequired(queueName, 'queueName', String);
 
 					if (this.getIsDisposed()) {
-						throw new Error('The SQS Provider has been disposed.');
+						throw new Error('The SqsProvider has been disposed.');
 					}
 
 					if (!this._started) {
-						throw new Error('The SQS Provider has not been started.');
+						throw new Error('The SqsProvider has not been started.');
 					}
 
 					const qualifiedQueueName = getQualifiedQueueName(this._configuration.prefix, queueName);
@@ -295,11 +295,11 @@ module.exports = (() => {
 					assert.argumentIsOptional(retentionTime, 'retentionTime', Number);
 
 					if (this.getIsDisposed()) {
-						throw new Error('The SQS Provider has been disposed.');
+						throw new Error('The SqsProvider has been disposed.');
 					}
 
 					if (!this._started) {
-						throw new Error('The SQS Provider has not been started.');
+						throw new Error('The SqsProvider has not been started.');
 					}
 
 					const qualifiedQueueName = getQualifiedQueueName(this._configuration.prefix, queueName);
@@ -352,11 +352,11 @@ module.exports = (() => {
 					assert.argumentIsRequired(queueName, 'queueName', String);
 
 					if (this.getIsDisposed()) {
-						throw new Error('The SQS Provider has been disposed.');
+						throw new Error('The SqsProvider has been disposed.');
 					}
 
 					if (!this._started) {
-						throw new Error('The SQS Provider has not been started.');
+						throw new Error('The SqsProvider has not been started.');
 					}
 
 					const qualifiedQueueName = getQualifiedQueueName(this._configuration.prefix, queueName);
@@ -410,11 +410,11 @@ module.exports = (() => {
 					assert.argumentIsOptional(delaySeconds, 'delaySeconds', Number);
 
 					if (this.getIsDisposed()) {
-						throw new Error('The SQS Provider has been disposed.');
+						throw new Error('The SqsProvider has been disposed.');
 					}
 
 					if (!this._started) {
-						throw new Error('The SQS Provider has not been started.');
+						throw new Error('The SqsProvider has not been started.');
 					}
 
 					return this.getQueueUrl(queueName)
@@ -479,11 +479,11 @@ module.exports = (() => {
 					}
 
 					if (this.getIsDisposed()) {
-						throw new Error('The SQS Provider has been disposed.');
+						throw new Error('The SqsProvider has been disposed.');
 					}
 
 					if (!this._started) {
-						throw new Error('The SQS Provider has not been started.');
+						throw new Error('The SqsProvider has not been started.');
 					}
 
 					return this.getQueueUrl(queueName)
@@ -552,11 +552,11 @@ module.exports = (() => {
 					assert.argumentIsOptional(synchronousDelete, 'synchronousDelete', Boolean);
 
 					if (this.getIsDisposed()) {
-						throw new Error('The SQS Provider has been disposed.');
+						throw new Error('The SqsProvider has been disposed.');
 					}
 
 					if (!this._started) {
-						throw new Error('The SQS Provider has not been started.');
+						throw new Error('The SqsProvider has not been started.');
 					}
 
 					const qualifiedQueueName = getQualifiedQueueName(this._configuration.prefix, queueName);
@@ -630,11 +630,11 @@ module.exports = (() => {
 					assert.argumentIsRequired(queueName, 'queueName', String);
 
 					if (this.getIsDisposed()) {
-						throw new Error('The SQS Provider has been disposed.');
+						throw new Error('The SqsProvider has been disposed.');
 					}
 
 					if (!this._started) {
-						throw new Error('The SQS Provider has not been started.');
+						throw new Error('The SqsProvider has not been started.');
 					}
 
 					return this.getQueueUrl(queueName)
@@ -684,11 +684,11 @@ module.exports = (() => {
 			assert.argumentIsOptional(batchSize, 'batchSize', Number);
 
 			if (this.getIsDisposed()) {
-				throw new Error('The SQS Provider has been disposed.');
+				throw new Error('The SqsProvider has been disposed.');
 			}
 
 			if (!this._started) {
-				throw new Error('The SQS Provider has not been started.');
+				throw new Error('The SqsProvider has not been started.');
 			}
 
 			const qualifiedQueueName = getQualifiedQueueName(this._configuration.prefix, queueName);
@@ -770,11 +770,11 @@ module.exports = (() => {
 					assert.argumentIsRequired(policy, 'policy', Object);
 
 					if (this.getIsDisposed()) {
-						throw new Error('The SQS Provider has been disposed.');
+						throw new Error('The SqsProvider has been disposed.');
 					}
 
 					if (!this._started) {
-						throw new Error('The SQS Provider has not been started.');
+						throw new Error('The SqsProvider has not been started.');
 					}
 
 					return this.getQueueUrl(queueName)
@@ -819,8 +819,6 @@ module.exports = (() => {
 			this._queueArnPromises = null;
 
 			this._queueObservers = null;
-
-			logger.info('SQS Provider disposed');
 		}
 
 		static getPolicyForSnsDelivery(queueArn, topicArn) {
@@ -853,11 +851,11 @@ module.exports = (() => {
 
 	function receiveMessages(queueName, waitTime, maximumMessages, synchronousDelete) {
 		if (this.getIsDisposed()) {
-			throw new Error('The SQS Provider has been disposed.');
+			throw new Error('The SqsProvider has been disposed.');
 		}
 
 		if (!this._started) {
-			throw new Error('The SQS Provider has not been started.');
+			throw new Error('The SqsProvider has not been started.');
 		}
 
 		let waitTimeToUse;
