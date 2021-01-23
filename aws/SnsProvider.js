@@ -32,9 +32,9 @@ module.exports = (() => {
 			assert.argumentIsRequired(configuration.prefix, 'configuration.prefix', String);
 			assert.argumentIsOptional(configuration.apiVersion, 'configuration.apiVersion', String);
 
-			this._sns = null;
-
 			this._configuration = configuration;
+
+			this._sns = null;
 
 			this._startPromise = null;
 			this._started = false;

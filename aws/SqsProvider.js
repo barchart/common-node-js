@@ -35,9 +35,9 @@ module.exports = (() => {
 			assert.argumentIsRequired(configuration.prefix, 'configuration.prefix', String);
 			assert.argumentIsOptional(configuration.apiVersion, 'configuration.apiVersion', String);
 
-			this._sqs = null;
-
 			this._configuration = configuration;
+
+			this._sqs = null;
 
 			this._scheduler = new Scheduler();
 
