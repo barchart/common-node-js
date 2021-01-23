@@ -46,23 +46,23 @@ module.exports = (() => {
 		 */
 		start() {
 			if (this.getIsDisposed()) {
-				return Promise.reject('Unable to start, the Lambda Provider has been disposed.');
+				return Promise.reject('Unable to start, the LambdaProvider has been disposed.');
 			}
 
 			if (this._startPromise === null) {
 				this._startPromise = Promise.resolve()
 					.then(() => {
-						aws.config.update({region: this._configuration.region});
+						aws.config.update({ region: this._configuration.region });
 
-						this._lambda = new aws.Lambda({apiVersion: this._configuration.apiVersion || '2015-03-31'});
+						this._lambda = new aws.Lambda({ apiVersion: this._configuration.apiVersion || '2015-03-31' });
 					}).then(() => {
-						logger.info('Lambda provider started');
+						logger.info('The LambdaProvider has started');
 
 						this._started = true;
 
 						return this._started;
 					}).catch((e) => {
-						logger.error('Lambda provider failed to start', e);
+						logger.error('The LambdaProvider failed to start', e);
 
 						throw e;
 					});
@@ -109,10 +109,6 @@ module.exports = (() => {
 				});
 		}
 
-		_onDispose() {
-			logger.debug('Lambda provider disposed');
-		}
-
 		toString() {
 			return '[LambdaProvider]';
 		}
@@ -120,11 +116,11 @@ module.exports = (() => {
 
 	function checkReady() {
 		if (this.getIsDisposed()) {
-			throw new Error('The Dynamo Provider has been disposed.');
+			throw new Error('The LambdaProvider has been disposed.');
 		}
 
 		if (!this._started) {
-			throw new Error('The Dynamo Provider has not been started.');
+			throw new Error('The LambdaProvider has not been started.');
 		}
 	}
 

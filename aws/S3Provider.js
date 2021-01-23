@@ -60,7 +60,7 @@ module.exports = (() => {
 		 */
 		start() {
 			if (this.getIsDisposed()) {
-				return Promise.reject('Unable to start, the S3 Provider has been disposed.');
+				return Promise.reject('Unable to start, the S3Provider has been disposed.');
 			}
 
 			if (this._startPromise === null) {
