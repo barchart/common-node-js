@@ -110,7 +110,7 @@ module.exports = (() => {
 					const qualifiedTopicName = getQualifiedTopicName(this._configuration.prefix, topicName);
 
 					if (!this._topicPromises.hasOwnProperty(qualifiedTopicName)) {
-						logger.debug('The SnsProvider has not cached the topic ARN. Issuing request to create topic.');
+						logger.debug('The SnsProvider has not cached the topic ARN. Issuing request to create topic');
 
 						this._topicPromises[qualifiedTopicName] = this.createTopic(topicName);
 					}
@@ -368,11 +368,11 @@ module.exports = (() => {
 
 							this._sns.listTopics(params, (error, data) => {
 								if (error === null) {
-									logger.info('SNS topic list batch [', ++batchCount, '] received.');
+									logger.info('SNS topic list batch [', ++batchCount, '] received');
 
 									resolveCallback(data);
 								} else {
-									logger.info('SNS topic list batch [', ++batchCount, '] failed.', error);
+									logger.info('SNS topic list batch [', ++batchCount, '] failed', error);
 
 									rejectCallback('Failed to retrieve list of SNS topics.');
 								}
@@ -391,7 +391,7 @@ module.exports = (() => {
 								if (data.NextToken) {
 									nextPromise = getTopicBatches(nextTopics, data.NextToken);
 								} else {
-									logger.info('Final SNS topic batch complete, [', nextTopics.length, '] topics received.');
+									logger.info('Final SNS topic batch complete, [', nextTopics.length, '] topics received');
 
 									nextPromise = Promise.resolve(nextTopics);
 								}
