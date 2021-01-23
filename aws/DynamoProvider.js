@@ -74,7 +74,7 @@ module.exports = (() => {
 		 */
 		start() {
 			if (this.getIsDisposed()) {
-				return Promise.reject('Unable to start, the Dynamo Provider has been disposed.');
+				return Promise.reject('Unable to start, the DynamoProvider has been disposed');
 			}
 
 			if (this._startPromise === null) {
@@ -82,17 +82,17 @@ module.exports = (() => {
 					.then(() => {
 						this._scheduler = new Scheduler();
 					}).then(() => {
-						aws.config.update({region: this._configuration.region});
+						aws.config.update({ region: this._configuration.region });
 
-						this._dynamo = new aws.DynamoDB({apiVersion: this._configuration.apiVersion || '2012-08-10'});
+						this._dynamo = new aws.DynamoDB({ apiVersion: this._configuration.apiVersion || '2012-08-10' });
 					}).then(() => {
-						logger.debug('Dynamo Provider started');
+						logger.debug('The DynamoProvider has started');
 
 						this._started = true;
 
 						return this._started;
 					}).catch((e) => {
-						logger.error('Dynamo Provider failed to start', e);
+						logger.error('The DynamoProvider failed to start', e);
 
 						throw e;
 					});
@@ -110,7 +110,7 @@ module.exports = (() => {
 		 */
 		getConfiguration() {
 			if (this.getIsDisposed()) {
-				throw new Error('The Dynamo Provider has been disposed.');
+				throw new Error('The DynamoProvider has been disposed');
 			}
 
 			return object.clone(this._configuration);
@@ -272,7 +272,7 @@ module.exports = (() => {
 								} else {
 									const matches = data.TableNames.filter(name => name.startsWith(this._configuration.prefix));
 
-									logger.info('Retrieved', matches.length, 'matching DynamoDB tables.');
+									logger.info('Retrieved [', matches.length, '] matching DynamoDB tables');
 
 									if (is.string(data.LastEvaluatedTableName)) {
 										getTablesRecursive(data.LastEvaluatedTableName)
@@ -910,7 +910,7 @@ module.exports = (() => {
 				}).then((composite) => {
 					const results = composite.results;
 
-					logger.debug('Ran [', scan.description, '] on [', scan.table.name + (scan.index ? '/' + scan.index.name : ''), '] and matched [', (scan.countOnly ? results : results.length), '] results.');
+					logger.debug('Ran [', scan.description, '] on [', scan.table.name + (scan.index ? '/' + scan.index.name : ''), '] and matched [', (scan.countOnly ? results : results.length), '] results');
 
 					if (composite.timing) {
 						const timing = composite.timing;
@@ -1014,7 +1014,7 @@ module.exports = (() => {
 							}
 						});
 				}).then((results) => {
-					logger.debug('Ran [', scan.description, '] in chunk mode on [', scan.table.name + (scan.index ? '/ ' + scan.index.name : ''), '] and matched [', results.results.length ,'] results.');
+					logger.debug('Ran [', scan.description, '] in chunk mode on [', scan.table.name + (scan.index ? '/ ' + scan.index.name : ''), '] and matched [', results.results.length ,'] results');
 
 					return results;
 				}).catch((e) => {
@@ -1238,7 +1238,7 @@ module.exports = (() => {
 				}).then((composite) => {
 					const results = composite.results;
 
-					logger.debug('Ran [', query.description, '] on [', query.table.name + (query.index ? '/' + query.index.name : ''), '] and matched [', (query.countOnly ? results : results.length), '] results.');
+					logger.debug('Ran [', query.description, '] on [', query.table.name + (query.index ? '/' + query.index.name : ''), '] and matched [', (query.countOnly ? results : results.length), '] results');
 
 					if (composite.timing) {
 						const timing = composite.timing;
@@ -1361,7 +1361,7 @@ module.exports = (() => {
 						}
 					});
 				}).then((results) => {
-					logger.debug('Ran [', query.description, '] in chunk mode on [', query.table.name + (query.index ? '/ ' + query.index.name : ''), '] and matched [', results.results.length ,'] results.');
+					logger.debug('Ran [', query.description, '] in chunk mode on [', query.table.name + (query.index ? '/ ' + query.index.name : ''), '] and matched [', results.results.length ,'] results');
 
 					return results;
 				}).catch((e) => {
@@ -1386,8 +1386,6 @@ module.exports = (() => {
 		}
 
 		_onDispose() {
-			logger.debug('Dynamo Provider disposed');
-
 			if (this._scheduler !== null) {
 				this._scheduler.dispose();
 				this._scheduler = null;
@@ -1406,11 +1404,11 @@ module.exports = (() => {
 
 	function checkReady() {
 		if (this.getIsDisposed()) {
-			throw new Error('The Dynamo Provider has been disposed.');
+			throw new Error('The DynamoProvider has been disposed');
 		}
 
 		if (!this._started) {
-			throw new Error('The Dynamo Provider has not been started.');
+			throw new Error('The DynamoProvider has not been started');
 		}
 	}
 
@@ -1497,7 +1495,7 @@ module.exports = (() => {
 							if (unprocessedItems.length === 0) {
 								resolveCallback({ code: DYNAMO_RESULT.SUCCESS });
 							} else {
-								logger.debug('Continuing batch', type.description,'on [', qualifiedTableName, '] for batch number [', batchNumber,'] with [', unprocessedItems.length, '] unprocessed items');
+								logger.debug('Continuing batch [', type.description, '] on [', qualifiedTableName, '] for batch number [', batchNumber,'] with [', unprocessedItems.length, '] unprocessed items');
 
 								const continuePayload = getBatchPayload(qualifiedTableName, unprocessedItems);
 
@@ -1526,12 +1524,12 @@ module.exports = (() => {
 			return this._scheduler.backoff(() => writeBatch(originalPayload), WRITE_MILLISECOND_BACKOFF)
 				.then((result) => {
 					if (result.code === DYNAMO_RESULT.FAILURE) {
-						logger.error('Failed batch', type.description, 'on [', qualifiedTableName, '] for batch number [', batchNumber,'] with [', items.length, '] items');
+						logger.error('Failed batch [', type.description, '] on [', qualifiedTableName, '] for batch number [', batchNumber,'] with [', items.length, '] items');
 
 						throw result.error;
 					}
 
-					logger.debug('Finished batch', type.description, 'on [', qualifiedTableName, '] for batch number [', batchNumber,'] with [', items.length, '] items');
+					logger.debug('Finished batch [', type.description, '] on [', qualifiedTableName, '] for batch number [', batchNumber,'] with [', items.length, '] items');
 
 					return true;
 				});
