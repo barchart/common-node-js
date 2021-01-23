@@ -43,9 +43,9 @@ module.exports = (() => {
 			assert.argumentIsOptional(configuration.bucket, 'configuration.bucket', String);
 			assert.argumentIsOptional(configuration.folder, 'configuration.folder', String);
 
-			this._s3 = null;
-
 			this._configuration = configuration;
+
+			this._s3 = null;
 
 			this._startPromise = null;
 			this._started = false;

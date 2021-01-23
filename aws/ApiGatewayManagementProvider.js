@@ -31,9 +31,9 @@ module.exports = (() => {
 			assert.argumentIsRequired(configuration.region, 'configuration.region', String);
 			assert.argumentIsOptional(configuration.apiVersion, 'configuration.apiVersion', String);
 
-			this._agm = null;
-
 			this._configuration = configuration;
+
+			this._agm = null;
 
 			this._startPromise = null;
 			this._started = false;

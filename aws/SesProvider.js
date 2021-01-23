@@ -43,10 +43,10 @@ module.exports = (() => {
 
 			assert.argumentIsOptional(configuration.rateLimitPerSecond, 'configuration.rateLimitPerSecond', Number);
 
+			this._configuration = configuration;
+
 			this._ses = null;
 			this._transport = null;
-
-			this._configuration = configuration;
 
 			this._startPromise = null;
 			this._started = false;
