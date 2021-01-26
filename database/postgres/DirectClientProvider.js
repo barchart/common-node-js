@@ -11,6 +11,18 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('common-node/database/postgres/DirectClientProvider');
 
+	/**
+	 * A {@link ClientProvider} which uses a dedicated connection.
+	 *
+	 * @public
+	 * @extends {ClientProvider}
+	 * @param {String} host
+	 * @param {String} database
+	 * @param {String} username
+	 * @param {String} password
+	 * @param {Number=} port
+	 * @param {String=} applicationName
+	 */
 	class DirectClientProvider extends ClientProvider {
 		constructor(host, database, username, password, port, applicationName) {
 			super(host, database, username, password, port, applicationName);
