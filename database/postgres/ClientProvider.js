@@ -47,6 +47,10 @@ module.exports = (() => {
 		getClient() {
 			return Promise.resolve()
 				.then(() => {
+					if (this.getIsDisposed()) {
+						return Promise.reject(`Unable to get Postgres client, the ${this.toString()} has been disposed`);
+					}
+
 					return this._getClient();
 				});
 		}
@@ -56,7 +60,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Returns the provider configuration (e.g. host, port, etc).
+		 * Returns the database configuration (e.g. host, port, etc).
 		 *
 		 * @public
 		 * @returns {Object}

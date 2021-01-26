@@ -27,7 +27,12 @@ module.exports = (() => {
 		constructor(host, database, username, password, port, applicationName) {
 			super(host, database, username, password, port, applicationName);
 
+			this._pool = new pg.Pool(this.getConfiguration());
 			this._preparedStatementMap = {};
+
+			this._pool.on('error', (e, client) => {
+				logger.error('Postgres connection pool experienced an error', e);
+			});
 		}
 
 		_getClient() {
@@ -36,7 +41,7 @@ module.exports = (() => {
 
 				logger.debug('Creating new [PooledClient] for [', configuration.host, '] [', configuration.database, ']');
 
-				pg.connect(this.getConfiguration(), (err, pgClient, releaseCallback) => {
+				this._pool.connect((err, pgClient, releaseCallback) => {
 					if (err) {
 						rejectCallback(err);
 						return;
@@ -52,7 +57,8 @@ module.exports = (() => {
 		}
 
 		_onDispose() {
-			pg.end();
+			this._pool.end();
+			this._pool = null;
 		}
 
 		toString() {

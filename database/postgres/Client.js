@@ -54,6 +54,10 @@ module.exports = (() => {
 		query(query, parameters, name) {
 			return Promise.resolve()
 				.then(() => {
+					if (this.getIsDisposed()) {
+						return Promise.reject(`Unable to execute Postgres query, the ${this.toString()} has been disposed`);
+					}
+
 					assert.argumentIsRequired(query, 'query', String);
 					assert.argumentIsOptional(name, 'name', String);
 
