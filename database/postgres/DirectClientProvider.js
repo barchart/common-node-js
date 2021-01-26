@@ -29,16 +29,17 @@ module.exports = (() => {
 		}
 
 		_getClient() {
-			logger.debug('Creating new connection.');
-
 			return promise.build((resolveCallback, rejectCallback) => {
-				const pgClient = new pg.Client(this.getConfiguration());
+				const configuration = this.getConfiguration()
+				const pgClient = new pg.Client(configuration);
+
+				logger.debug('Connecting new [ DirectClient ] to [', configuration.host, '] [', configuration.database, ']');
 
 				pgClient.connect((err) => {
 					if (err) {
 						rejectCallback(err);
 					} else {
-						logger.debug('Connection created.');
+						logger.info('Connected new [ DirectClient ] to [', configuration.host, '] [', configuration.database, ']');
 
 						resolveCallback(new DirectClient(pgClient));
 					}
