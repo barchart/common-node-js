@@ -203,7 +203,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {*} response
-		 * @param {*} error
+		 * @param {*=} error
 		 * @returns {Promise}
 		 */
 		sendRaw(response, error) {
