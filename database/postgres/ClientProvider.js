@@ -5,7 +5,7 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * An abstract class for generating Postgres {@link Client} instances.
+	 * An abstract contract for generating Postgres {@link Client} instances.
 	 *
 	 * @public
 	 * @abstract
