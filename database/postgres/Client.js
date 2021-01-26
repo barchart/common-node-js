@@ -82,16 +82,16 @@ module.exports = (() => {
 
 						const queryCount = queryCounter;
 
-						logger.debug('Executing query', queryCount);
-						logger.trace('Executing query', queryCount, 'with:', queryObject);
+						logger.debug('Executing query [', queryCount, '] from client [', this._id, ']');
+						logger.trace('Executing query [', queryCount, '] from client [', this._id, ']', queryObject);
 
 						this._pgClient.query(queryObject, (err, result) => {
 							if (err) {
-								logger.debug('Query', queryCount, 'failed');
+								logger.debug('Query [', queryCount, '] from client [', this._id, '] failed ');
 
 								rejectCallback(err);
 							} else {
-								logger.debug('Query', queryCount, 'finished');
+								logger.debug('Query [', queryCount, '] from client [', this._id, '] finished');
 
 								resolveCallback(result);
 							}

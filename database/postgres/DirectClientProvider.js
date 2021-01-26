@@ -51,7 +51,7 @@ module.exports = (() => {
 		}
 
 		_onDispose() {
-			pg.end();
+			return;
 		}
 
 		toString() {
