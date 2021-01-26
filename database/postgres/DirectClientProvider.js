@@ -12,7 +12,8 @@ module.exports = (() => {
 	const logger = log4js.getLogger('common-node/database/postgres/DirectClientProvider');
 
 	/**
-	 * A {@link ClientProvider} which uses a dedicated connection.
+	 * A {@link ClientProvider} which uses a dedicated connections to the
+	 * Postgres database.
 	 *
 	 * @public
 	 * @extends {ClientProvider}
