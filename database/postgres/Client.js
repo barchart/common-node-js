@@ -1,5 +1,7 @@
 const log4js = require('log4js');
 
+const uuid = require('uuid');
+
 const assert = require('@barchart/common-js/lang/assert'),
 	 Disposable = require('@barchart/common-js/lang/Disposable'),
 	 is = require('@barchart/common-js/lang/is'),
@@ -25,8 +27,19 @@ module.exports = (() => {
 			assert.argumentIsRequired(pgClient, 'pgClient');
 			assert.argumentIsRequired(preparedStatementMap, 'preparedStatementMap');
 
+			this._id = uuid.v4();
 			this._pgClient = pgClient;
 			this._preparedStatementMap = preparedStatementMap;
+		}
+
+		/**
+		 * A unique identifier to identify the client.
+		 *
+		 * @public
+		 * @returns {String}
+		 */
+		get id() {
+			return this._id;
 		}
 
 		/**

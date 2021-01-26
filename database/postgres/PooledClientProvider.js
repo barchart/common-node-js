@@ -11,6 +11,18 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('common-node/database/postgres/PooledClientProvider');
 
+	/**
+	 * A Postgres {@link ClientProvider} which uses a a connection pool.
+	 *
+	 * @public
+	 * @extends {ClientProvider}
+	 * @param {String} host
+	 * @param {String} database
+	 * @param {String} username
+	 * @param {String} password
+	 * @param {Number=} port
+	 * @param {String=} applicationName
+	 */
 	class PooledClientProvider extends ClientProvider {
 		constructor(host, database, username, password, port, applicationName) {
 			super(host, database, username, password, port, applicationName);
@@ -19,17 +31,22 @@ module.exports = (() => {
 		}
 
 		_getClient() {
-			logger.debug('Retrieving client from connection pool.');
-
 			return promise.build((resolveCallback, rejectCallback) => {
+				const configuration = this.getConfiguration();
+
+				logger.debug('Creating new [PooledClient] for [', configuration.host, '] [', configuration.database, ']');
+
 				pg.connect(this.getConfiguration(), (err, pgClient, releaseCallback) => {
 					if (err) {
 						rejectCallback(err);
-					} else {
-						logger.debug('Retrieved client from connection pool.');
-
-						resolveCallback(new PooledClient(pgClient, this._preparedStatementMap, releaseCallback));
+						return;
 					}
+
+					const client = new PooledClient(pgClient, this._preparedStatementMap, releaseCallback);
+
+					logger.info('Created new [PooledClient] [', client.id, '] for [', configuration.host, '] [', configuration.database, ']');
+
+					resolveCallback(client);
 				});
 			});
 		}
@@ -56,7 +73,7 @@ module.exports = (() => {
 			this._pgClient = null;
 			this._releaseCallback = null;
 
-			logger.debug('Returned client to connection pool.');
+			logger.info('Disposed [PooledClient] [', this.id, ']');
 		}
 
 		toString() {

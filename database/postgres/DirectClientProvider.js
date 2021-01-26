@@ -12,8 +12,7 @@ module.exports = (() => {
 	const logger = log4js.getLogger('common-node/database/postgres/DirectClientProvider');
 
 	/**
-	 * A {@link ClientProvider} which uses a dedicated connections to the
-	 * Postgres database.
+	 * A Postgres {@link ClientProvider} which uses a dedicated, individual connections.
 	 *
 	 * @public
 	 * @extends {ClientProvider}
@@ -31,19 +30,22 @@ module.exports = (() => {
 
 		_getClient() {
 			return promise.build((resolveCallback, rejectCallback) => {
-				const configuration = this.getConfiguration()
+				const configuration = this.getConfiguration();
 				const pgClient = new pg.Client(configuration);
 
-				logger.debug('Connecting new [ DirectClient ] to [', configuration.host, '] [', configuration.database, ']');
+				logger.debug('Connecting new [DirectClient] to [', configuration.host, '] [', configuration.database, ']');
 
 				pgClient.connect((err) => {
 					if (err) {
 						rejectCallback(err);
-					} else {
-						logger.info('Connected new [ DirectClient ] to [', configuration.host, '] [', configuration.database, ']');
-
-						resolveCallback(new DirectClient(pgClient));
+						return;
 					}
+
+					const client = new DirectClient(pgClient);
+
+					logger.info('Connected new [DirectClient] [', client.id, '] to [', configuration.host, '] [', configuration.database, ']');
+
+					resolveCallback(client);
 				});
 			});
 		}
@@ -66,7 +68,7 @@ module.exports = (() => {
 			this._pgClient.end();
 			this._pgClient = null;
 
-			logger.debug('Connection disposed');
+			logger.info('Disposed [DirectClient] [', this.id, ']');
 		}
 
 		toString() {
