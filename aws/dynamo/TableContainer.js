@@ -279,22 +279,6 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Runs a transactional write for array of {@link Update} operations.
-		 *
-		 * @public
-		 * @param {Array<Update>} updates
-		 * @returns {Promise<Object>}
-		 */
-		transactUpdateItems(updates) {
-			return Promise.resolve()
-				.then(() => {
-					checkReady.call(this);
-
-					return this._provider.transactUpdateItems(updates);
-				});
-		}
-
-		/**
 		 * Runs a scan on the table.
 		 *
 		 * @public
