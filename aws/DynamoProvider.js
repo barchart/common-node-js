@@ -474,7 +474,7 @@ module.exports = (() => {
 								if (error) {
 									const dynamoError = Enum.fromCode(DynamoError, error.code);
 
-									if (dynamoError !== null && dynamoError.retryable) {
+									if (dynamoError !== null && dynamoError.getRetryable(error)) {
 										logger.debug('Encountered retryable error [', error.code, '] while putting an item into [', qualifiedTableName, ']');
 
 										rejectCallback(error);
@@ -532,8 +532,8 @@ module.exports = (() => {
 
 								let result;
 
-								if (dynamoError !== null && dynamoError.retryable) {
-									logger.debug('Encountered retryable error [', error.code, '] while putting an item into [', table.name, ']');
+								if (dynamoError !== null && dynamoError.getRetryable(error)) {
+									logger.debug('Encountered retryable error [', error.code, '] while putting an item into [', update.table.name, ']');
 
 									result = Promise.reject(error);
 								} else {
@@ -586,7 +586,7 @@ module.exports = (() => {
 
 										let result;
 
-										if (dynamoError !== null && dynamoError.retryable) {
+										if (dynamoError !== null && dynamoError.getRetryable(error)) {
 											logger.debug(`Encountered retryable error [ ${error.code} ] while performing transactional write`);
 
 											result = Promise.reject(error);
@@ -677,7 +677,7 @@ module.exports = (() => {
 								if (error) {
 									const dynamoError = Enum.fromCode(DynamoError, error.code);
 
-									if (dynamoError !== null && dynamoError.retryable) {
+									if (dynamoError !== null && dynamoError.getRetryable(error)) {
 										logger.debug('Encountered retryable error [', error.code, '] while deleting an item from [', qualifiedTableName, ']');
 
 										rejectCallback(error);
@@ -786,7 +786,7 @@ module.exports = (() => {
 									if (error) {
 										const dynamoError = Enum.fromCode(DynamoError, error.code);
 
-										if (dynamoError !== null && dynamoError.retryable) {
+										if (dynamoError !== null && dynamoError.getRetryable(error)) {
 											logger.debug('Encountered retryable error [', error.code, '] while scanning [', scan.table.name, ']');
 
 											rejectCallback(error);
@@ -960,7 +960,7 @@ module.exports = (() => {
 								if (error) {
 									const dynamoError = Enum.fromCode(DynamoError, error.code);
 
-									if (dynamoError !== null && dynamoError.retryable) {
+									if (dynamoError !== null && dynamoError.getRetryable(error)) {
 										logger.debug('Encountered retryable error [', error.code, '] while scanning [', scan.table.name, ']');
 
 										rejectCallback(error);
@@ -1108,7 +1108,7 @@ module.exports = (() => {
 									if (error) {
 										const dynamoError = Enum.fromCode(DynamoError, error.code);
 
-										if (dynamoError !== null && dynamoError.retryable) {
+										if (dynamoError !== null && dynamoError.getRetryable(error)) {
 											logger.debug('Encountered retryable error [', error.code, '] while querying [', query.table.name, ']');
 
 											rejectCallback(error);
@@ -1308,7 +1308,7 @@ module.exports = (() => {
 								if (error) {
 									const dynamoError = Enum.fromCode(DynamoError, error.code);
 
-									if (dynamoError !== null && dynamoError.retryable) {
+									if (dynamoError !== null && dynamoError.getRetryable(error)) {
 										logger.debug('Encountered retryable error [', error.code, '] while querying [', query.table.name, ']');
 
 										rejectCallback(error);
@@ -1476,7 +1476,7 @@ module.exports = (() => {
 						if (error) {
 							const dynamoError = Enum.fromCode(DynamoError, error.code);
 
-							if (dynamoError !== null && dynamoError.retryable) {
+							if (dynamoError !== null && dynamoError.getRetryable(error)) {
 								logger.debug('Encountered retryable error [', error.code, '] while running batch', type.description, 'on [', qualifiedTableName, ']');
 
 								rejectCallback(error);
@@ -1552,14 +1552,14 @@ module.exports = (() => {
 	};
 
 	class DynamoError extends Enum {
-		constructor(code, description, retryable) {
+		constructor(code, description, retryablePredicate) {
 			super(code, description);
 
-			this._retryable = retryable;
+			this._retryablePredicate = retryablePredicate;
 		}
 
-		get retryable() {
-			return this._retryable;
+		getRetryable(error) {
+			return this._retryablePredicate(error);
 		}
 
 		toString() {
@@ -1567,10 +1567,11 @@ module.exports = (() => {
 		}
 	}
 
-	const dynamoErrorThrottling = new DynamoError('ThrottlingException', 'Throttling Exception', true);
-	const dynamoErrorThroughput = new DynamoError('ProvisionedThroughputExceededException', 'Provisioned Throughput Exceeded Exception', true);
-	const dynamoErrorConditional = new DynamoError('ConditionalCheckFailedException', 'Conditional Check Failed Exception', false);
-	const dynamoErrorUnavailable = new DynamoError('UnknownError', 'Service Unavailable Exception', true);
+	const dynamoErrorThrottling = new DynamoError('ThrottlingException', 'Throttling Exception', () => true);
+	const dynamoErrorThroughput = new DynamoError('ProvisionedThroughputExceededException', 'Provisioned Throughput Exceeded Exception', () => true);
+	const dynamoErrorConditional = new DynamoError('ConditionalCheckFailedException', 'Conditional Check Failed Exception', () => false);
+	const dynamoErrorUnavailable = new DynamoError('UnknownError', 'Unknown Error Exception', (error) => is.boolean(error.retryable) && error.retryable);
+	const dynamoErrorTimeout = new DynamoError('TimeoutError', 'Timeout Error Exception', (error) => is.boolean(error.retryable) && error.retryable);
 
 	class DynamoBatchType extends Enum {
 		constructor(code, description, requestTypeName, requestItemName, keysOnly) {
