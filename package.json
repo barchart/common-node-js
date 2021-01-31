@@ -22,7 +22,7 @@
   ],
   "dependencies": {
     "@barchart/common-js": "^4.0.0",
-    "@barchart/marketdata-api-js": "^5.7.2",
+    "@barchart/marketdata-api-js": "^5.7.4",
     "aws-sdk": "^2.821.0",
     "body-parser": "1.15.2",
     "client-sessions": "0.7.0",
