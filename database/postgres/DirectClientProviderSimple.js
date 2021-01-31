@@ -41,14 +41,13 @@ module.exports = (() => {
 				pgClient.connect((err) => {
 					if (err) {
 						rejectCallback(err);
-						return;
+					} else {
+						const client = new DirectClient(pgClient);
+
+						logger.info('Connected new [DirectClientSimple] [', client.id, '] to [', configuration.host, '] [', configuration.database, ']');
+
+						resolveCallback(client);
 					}
-
-					const client = new DirectClient(pgClient);
-
-					logger.info('Connected new [DirectClientSimple] [', client.id, '] to [', configuration.host, '] [', configuration.database, ']');
-
-					resolveCallback(client);
 				});
 			});
 		}

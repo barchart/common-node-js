@@ -1,5 +1,5 @@
 const log4js = require('log4js'),
-	pg = require('pg');
+	mysql = require('mysql');
 
 const promise = require('@barchart/common-js/lang/promise');
 
@@ -12,7 +12,7 @@ module.exports = (() => {
 	const logger = log4js.getLogger('common-node/database/postgres/DirectClientProvider');
 
 	/**
-	 * A Postgres {@link ClientProvider} which uses a dedicated, individual connections.
+	 * A MySQL {@link ClientProvider} which uses a dedicated, individual connections.
 	 *
 	 * @public
 	 * @extends {ClientProvider}
@@ -29,17 +29,17 @@ module.exports = (() => {
 		}
 
 		_getClient() {
+			const configuration = this.getConfiguration();
+			const connection = mysql.createConnection(configuration);
+
+			logger.debug('Connecting new [DirectClient] to [', configuration.host, '] [', configuration.database, ']');
+
 			return promise.build((resolveCallback, rejectCallback) => {
-				const configuration = this.getConfiguration();
-				const pgClient = new pg.Client(configuration);
-
-				logger.debug('Connecting new [DirectClient] to [', configuration.host, '] [', configuration.database, ']');
-
-				pgClient.connect((e) => {
+				connection.connect((e) => {
 					if (e) {
 						rejectCallback('Failed to connect [DirectClient] to [', configuration.host, '] [', configuration.database, ']', e);
 					} else {
-						const client = new DirectClient(pgClient);
+						const client = new DirectClient(connection);
 
 						logger.info('Connected new [DirectClient] [', client.id, '] to [', configuration.host, '] [', configuration.database, ']');
 
@@ -59,13 +59,13 @@ module.exports = (() => {
 	}
 
 	class DirectClient extends Client {
-		constructor(pgClient) {
-			super(pgClient, {});
+		constructor(connection) {
+			super(connection, {});
 		}
 
 		_onDispose() {
-			this._pgClient.end();
-			this._pgClient = null;
+			this._connection.end();
+			this._connection = null;
 
 			logger.info('Disposed [DirectClient] [', this.id, ']');
 		}

@@ -44,14 +44,13 @@ module.exports = (() => {
 				this._pool.connect((err, pgClient, releaseCallback) => {
 					if (err) {
 						rejectCallback(err);
-						return;
+					} else {
+						const client = new PooledClient(pgClient, this._preparedStatementMap, releaseCallback);
+
+						logger.info('Created new [PooledClient] [', client.id, '] for [', configuration.host, '] [', configuration.database, ']');
+
+						resolveCallback(client);
 					}
-
-					const client = new PooledClient(pgClient, this._preparedStatementMap, releaseCallback);
-
-					logger.info('Created new [PooledClient] [', client.id, '] for [', configuration.host, '] [', configuration.database, ']');
-
-					resolveCallback(client);
 				});
 			});
 		}
