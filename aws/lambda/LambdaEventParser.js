@@ -47,7 +47,7 @@ module.exports = (() => {
 		 * @returns {Boolean}
 		 */
 		get plainText() {
-			return this.getQuerystring('mode') === 'text';
+			return this.getQueryString('mode') === 'text';
 		}
 
 		/**
@@ -93,11 +93,41 @@ module.exports = (() => {
 		 * Retrieves a value from querystring parameters.
 		 *
 		 * @public
+		 * @deprecated
 		 * @param {String} key
 		 * @returns {String|undefined}
 		 */
 		getQuerystring(key) {
-			return read(Object.assign({}, this._event.queryStringParameters), key);
+			return this.getQueryString(key);
+		}
+
+		/**
+		 * Retrieves a value from querystring parameters.
+		 *
+		 * @public
+		 * @param {String} key
+		 * @param {Function=} parser
+		 * @returns {*}
+		 */
+		getQueryString(key, parser) {
+			assert.argumentIsRequired(key, 'key', String);
+			assert.argumentIsOptional(parser, 'parser', Function);
+
+			const value = read(this._event.queryStringParameters, key);
+
+			let parsed;
+
+			if (parser && value !== null) {
+				try {
+					parsed = parser(value);
+				} catch (e) {
+					parsed = null;
+				}
+			} else {
+				parsed = value;
+			}
+
+			return parsed;
 		}
 
 		/**
@@ -139,7 +169,7 @@ module.exports = (() => {
 		getSchema(type) {
 			assert.argumentIsValid(type, 'type', x => is.extension(Enum, type), 'is an enumeration');
 
-			const code = this.getQuerystring('schema');
+			const code = this.getQueryString('schema');
 
 			let schema;
 
