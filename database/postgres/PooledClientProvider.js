@@ -41,9 +41,11 @@ module.exports = (() => {
 
 				logger.debug('Creating new [PooledClient] for [', configuration.host, '] [', configuration.database, ']');
 
-				this._pool.connect((err, pgClient, releaseCallback) => {
-					if (err) {
-						rejectCallback(err);
+				this._pool.connect((e, pgClient, releaseCallback) => {
+					if (e) {
+						logger.error('Failed to connect [PooledClient] to [', configuration.host, '] [', configuration.database, ']', e);
+
+						rejectCallback(e);
 					} else {
 						const client = new PooledClient(pgClient, this._preparedStatementMap, releaseCallback);
 

@@ -38,9 +38,11 @@ module.exports = (() => {
 
 				logger.debug('Connecting new [DirectClientSimple] to [', configuration.host, '] [', configuration.database, ']');
 
-				pgClient.connect((err) => {
-					if (err) {
-						rejectCallback(err);
+				pgClient.connect((e) => {
+					if (e) {
+						logger.error('Failed to connect [DirectClientSimple] to [', configuration.host, '] [', configuration.database, ']', e);
+
+						rejectCallback(e);
 					} else {
 						const client = new DirectClient(pgClient);
 

@@ -37,7 +37,9 @@ module.exports = (() => {
 
 				pgClient.connect((e) => {
 					if (e) {
-						rejectCallback('Failed to connect [DirectClient] to [', configuration.host, '] [', configuration.database, ']', e);
+						logger.error('Failed to connect [DirectClient] to [', configuration.host, '] [', configuration.database, ']', e);
+
+						rejectCallback(e);
 					} else {
 						const client = new DirectClient(pgClient);
 
