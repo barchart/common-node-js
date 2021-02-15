@@ -64,7 +64,7 @@ module.exports = (() => {
 						return generator.generate(responseCode, responseHeaders, responseData, responseSize)
 							.then((response) => {
 								if (response !== null) {
-									logger.info('Processed response using [', generator.toString(), ']');
+									logger.debug('Processed response using [', generator.toString(), ']');
 
 									return response;
 								} else {
