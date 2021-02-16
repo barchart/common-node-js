@@ -388,7 +388,7 @@ module.exports = (() => {
 				.then(() => {
 					assert.argumentIsRequired(queueUrl, 'queueUrl', String);
 
-					return executeQueueDelete.call(this, 'unspecified', queueUrl);
+					return executeQueueDelete.call(this, 'name not specified', queueUrl);
 				});
 		}
 
