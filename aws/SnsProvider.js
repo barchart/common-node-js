@@ -344,7 +344,7 @@ module.exports = (() => {
 		 * Returns a list of topic ARN's that match a given prefix.
 		 *
 		 * @public
-		 * @param {string} topicNamePrefix - The prefix a topic name must have to be returned.
+		 * @param {string=} topicNamePrefix - The prefix a topic name must have to be returned.
 		 * @returns {Promise<String[]>}
 		 */
 		getTopics(topicNamePrefix) {
