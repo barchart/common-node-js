@@ -107,7 +107,7 @@ module.exports = (() => {
 		 * given prefix.
 		 *
 		 * @public
-		 * @param {string} queueNamePrefix - The prefix a queue name must have to be returned.
+		 * @param {string=} queueNamePrefix - The prefix a queue name must have to be returned.
 		 * @returns {Promise<String[]>}
 		 */
 		getQueues(queueNamePrefix) {
