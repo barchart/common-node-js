@@ -37,7 +37,6 @@ module.exports = (() => {
 			};
 		}
 
-
 		/**
 		 * Creates a new Postgres {@link Client} instance.
 		 *
