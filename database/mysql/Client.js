@@ -67,7 +67,7 @@ module.exports = (() => {
 
 						this._connection.query(query, parameters || [ ], (e, result) => {
 							if (e) {
-								logger.debug('Query [', queryCount, '] from client [', this._id, '] failed ');
+								logger.debug('Query [', queryCount, '] from client [', this._id, '] failed');
 
 								rejectCallback(e);
 							} else {
