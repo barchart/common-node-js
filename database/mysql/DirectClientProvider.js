@@ -9,7 +9,7 @@ const Client = require('./Client'),
 module.exports = (() => {
 	'use strict';
 
-	const logger = log4js.getLogger('common-node/database/postgres/DirectClientProvider');
+	const logger = log4js.getLogger('common-node/database/mysql/DirectClientProvider');
 
 	/**
 	 * A MySQL {@link ClientProvider} which uses a dedicated, individual connections.

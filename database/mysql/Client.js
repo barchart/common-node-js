@@ -9,7 +9,7 @@ const assert = require('@barchart/common-js/lang/assert'),
 module.exports = (() => {
 	'use strict';
 
-	const logger = log4js.getLogger('common-node/database/postgres/Client');
+	const logger = log4js.getLogger('common-node/database/mysql/Client');
 
 	let queryCounter = 0;
 
