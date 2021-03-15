@@ -14,6 +14,7 @@ module.exports = (() => {
 	 * An object that is used to store environment variables for the current process.
 	 *
 	 * @public
+	 * @deprecated
 	 * @param {string} environmentName - The name of the environment mode (e.g. "development" or "production").
 	 * @param {Object} configuration - The application's configuration data.
 	 * @param {string} version - The version of the application.
@@ -66,7 +67,7 @@ module.exports = (() => {
 		 * @returns {boolean}
 		 */
 		getIsProduction() {
-			return this._name === 'production';
+			return this._name === 'production' || this._name === 'prod';
 		}
 
 		readConfigurationFile(filePath) {
