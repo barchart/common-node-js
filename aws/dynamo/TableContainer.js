@@ -121,6 +121,7 @@ module.exports = (() => {
 						} else {
 							createPromise = this._provider.createTable(this.definition);
 						}
+
 						return createPromise;
 					}).then(() => {
 						logger.debug('Dynamo table wrapper for', this._definition.name, 'initialized');
