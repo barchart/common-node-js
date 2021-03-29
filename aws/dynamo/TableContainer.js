@@ -14,9 +14,9 @@ module.exports = (() => {
 	const logger = log4js.getLogger('common-node/aws/dynamo/TableContainer');
 
 	/**
-	 * A container that houses functions for implementing with a
+	 * A container that houses functions for interacting with a
 	 * single DynamoDB table. In other words, this is the base
-	 * class for a DynamoDB based repository pattern.
+	 * class for a implementing a repository pattern.
 	 *
 	 * @public
 	 * @abstract
