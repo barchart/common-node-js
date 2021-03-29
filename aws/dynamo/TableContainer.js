@@ -107,7 +107,7 @@ module.exports = (() => {
 				this._startPromise = Promise.resolve()
 					.then(() => {
 						if (this.getIsDisposed()) {
-							return Promise.reject('The Dynamo Provider has been disposed.');
+							return Promise.reject(`The ${this.toString()} has been disposed.`);
 						}
 
 						assert.argumentIsOptional(skipVerification, 'skipVerification', Boolean);
@@ -372,11 +372,11 @@ module.exports = (() => {
 
 	function checkReady() {
 		if (this.getIsDisposed()) {
-			throw new Error('The Table has been disposed.');
+			throw new Error(`The ${this.toString()} has been disposed.`);
 		}
 
 		if (!this._started) {
-			throw new Error('The Table has not been started.');
+			throw new Error(`The ${this.toString()} has not been started.`);
 		}
 	}
 
