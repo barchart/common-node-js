@@ -77,16 +77,59 @@ module.exports = (() => {
 		}
 
 		/**
+		 * If "proxy" mode is being used, all path parameters are returned
+		 * as an array.
+		 *
+		 * @public
+		 * @returns {String[]}
+		 */
+		getPaths() {
+			const proxy = this.getPath('proxy', null, true);
+
+			if (is.string(proxy)) {
+				return proxy.split('/').filter(p => p).map(p => decodeURIComponent(p));
+			} else {
+				return [ ];
+			}
+		}
+
+		/**
 		 * Retrieves a value from path parameters.
 		 *
 		 * @public
 		 * @param {String} key
-		 * @returns {String|undefined}
+		 * @param {Function=} parser
+		 * @param {Boolean=} raw
+		 * @returns {String|null|undefined}
 		 */
-		getPath(key) {
+		getPath(key, parser, raw) {
 			assert.argumentIsRequired(key, 'key', String);
+			assert.argumentIsOptional(parser, 'parser', Function);
+			assert.argumentIsOptional(raw, 'raw', Boolean);
 
-			return read(this._event, `pathParameters.${key}`);
+			const value = read(this._event, `pathParameters.${key}`);
+
+			if (is.undefined(value) || is.null(value)) {
+				return value;
+			}
+
+			let parsed;
+
+			if (raw) {
+				parsed = value;
+			} else {
+				parsed = decodeURIComponent(value);
+			}
+
+			if (parser) {
+				try {
+					parsed = parser(value);
+				} catch (e) {
+					parsed = null;
+				}
+			}
+
+			return parsed;
 		}
 
 		/**
@@ -167,7 +210,7 @@ module.exports = (() => {
 		 * @returns {Schema|null}
 		 */
 		getSchema(type) {
-			assert.argumentIsValid(type, 'type', x => is.extension(Enum, type), 'is an enumeration');
+			assert.argumentIsValid(type, 'type', t => is.extension(Enum, t), 'is an enumeration');
 
 			const code = this.getQueryString('schema');
 
@@ -252,6 +295,12 @@ module.exports = (() => {
 		}
 	}
 
+	/**
+	 * @private
+	 * @param {Object} object
+	 * @param {String} key
+	 * @returns {String|null|undefined}
+	 */
 	function read(object, key) {
 		if (is.object(object)) {
 			return attributes.read(object, key);
