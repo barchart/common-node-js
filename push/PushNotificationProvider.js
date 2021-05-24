@@ -39,13 +39,15 @@ module.exports = (() => {
 
 			const protocolType = Enum.fromCode(ProtocolType, protocol.toUpperCase());
 
-			const requestInterceptor = getRequestInterceptorForJwt.call(this);
+			const requestInterceptorForRegister = getRequestInterceptorForJwtForRegister.call(this);
+			const requestInterceptorForSend = getRequestInterceptorForJwtForSend.call(this);
 			
 			this._protocol = protocol;
 			this._host = host;
 			this._port = port;
 			
-			this._jwtProvider = null;
+			this._jwtProviderRegister = null;
+			this._jwtProviderSend = null;
 			this._started = true;
 			
 			this._sendNotificationEndpoint = EndpointBuilder.for('send-notification', 'send notification')
@@ -58,7 +60,7 @@ module.exports = (() => {
 						.withLiteralParameter('send', 'send')
 				)
 				.withBody()
-				.withRequestInterceptor(requestInterceptor)
+				.withRequestInterceptor(requestInterceptorForSend)
 				.withResponseInterceptor(ResponseInterceptor.DATA)
 				.withErrorInterceptor(ErrorInterceptor.GENERAL)
 				.endpoint;
@@ -73,7 +75,7 @@ module.exports = (() => {
 						.withLiteralParameter('register', 'register')
 				)
 				.withBody()
-				.withRequestInterceptor(requestInterceptor)
+				.withRequestInterceptor(requestInterceptorForRegister)
 				.withResponseInterceptor(ResponseInterceptor.DATA)
 				.withErrorInterceptor(ErrorInterceptor.GENERAL)
 				.endpoint;
@@ -88,7 +90,7 @@ module.exports = (() => {
 						.withLiteralParameter('unregister', 'unregister')
 				)
 				.withBody()
-				.withRequestInterceptor(requestInterceptor)
+				.withRequestInterceptor(requestInterceptorForRegister)
 				.withResponseInterceptor(ResponseInterceptor.DATA)
 				.withErrorInterceptor(ErrorInterceptor.GENERAL)
 				.endpoint;
@@ -100,15 +102,18 @@ module.exports = (() => {
 		 * connection has been established and other instance methods can be used.
 		 *
 		 * @public
-		 * @param {JwtProvider} jwtProvider - Your implementation of {@link JwtProvider}.
+		 * @param {JwtProvider} jwtProviderRegister - Your implementation of {@link JwtProvider} for {@link registerDevice} and {@link unregisterDevice} functions.
+		 * @param {JwtProvider} jwtProviderSend - Your implementation of {@link JwtProvider} for {@link send} function.
 		 * @returns {Promise<PushNotificationProvider>}
 		 */
-		start(jwtProvider) {
+		start(jwtProviderRegister, jwtProviderSend) {
 			return Promise.resolve()
 				.then(() => {
-					assert.argumentIsOptional(jwtProvider, 'jwtProvider', JwtProvider, 'JwtProvider');
+					assert.argumentIsOptional(jwtProviderRegister, 'jwtProviderRegister', JwtProvider, 'JwtProvider');
+					assert.argumentIsOptional(jwtProviderSend, 'jwtProviderSend', JwtProvider, 'JwtProvider');
 
-					this._jwtProvider = jwtProvider;
+					this._jwtProviderRegister = jwtProviderRegister;
+					this._jwtProviderSend = jwtProviderSend;
 					this._started = true;
 
 					return Promise.resolve(true)
@@ -181,7 +186,7 @@ module.exports = (() => {
 		 * @param {Object} query.user - An object contains user data
 		 * @param {String} query.user.id - A user id
 		 * @param {String} query.user.context - A user context
-		 * @param {Object?} query.device - An object contains APNS or FCM data
+		 * @param {Object} query.device - An object contains APNS or FCM data
 		 * @param {String} query.device.device - APNS device token or FCM IID
 		 * @param {String} query.device.bundle - Bundle or Package name of the application
 		 * @returns {Promise<Object>}
@@ -216,8 +221,8 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Object} query - The query object
-		 * @param {String} query.bundle - The query object
-		 * @param {Object} query.notification - The notification object
+		 * @param {String} query.bundle - An application bundle or package name
+		 * @param {Object} query.notification - An notification object
 		 * @param {Boolean?} query.development - Forces APNS to send notifications in the development mode
 		 * @returns {Promise<Object>}
 		 */
@@ -244,10 +249,11 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Object} query - The query object
-		 * @param {String} query.user.id - The query object
-		 * @param {String} query.user.context - The query object
-		 * @param {String} query.bundle - The query object
-		 * @param {Object} query.notification - The notification object
+		 * @param {Object} query.user - A user object
+		 * @param {String} query.user.id - A user id
+		 * @param {String} query.user.context - A user context
+		 * @param {String} query.bundle - An application bundle or package name
+		 * @param {Object} query.notification - An notification object
 		 * @param {Boolean?} query.development - Forces APNS to send notifications in the development mode
 		 * @returns {Promise<Object>}
 		 */
@@ -278,8 +284,8 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Object} query - The query object
-		 * @param {String} query.device - The query object
-		 * @param {Object} query.notification - The notification object
+		 * @param {String} query.device - An APNS device token or FCM IID
+		 * @param {Object} query.notification - An notification object
 		 * @param {Boolean?} query.development - Forces APNS to send notifications in the development mode
 		 * @returns {Promise<Object>}
 		 */
@@ -304,7 +310,7 @@ module.exports = (() => {
 		_onDispose() {
 			logger.debug('Push Notification provider disposed');
 			
-			this._jwtProvider = null;
+			this._jwtProviderRegister = null;
 			this._started = false;
 		}
 
@@ -313,21 +319,43 @@ module.exports = (() => {
 		}
 	}
 
-	function getRequestInterceptorForJwt() {
+	function getRequestInterceptorForJwtForRegister() {
 		return RequestInterceptor.fromDelegate((options, endpoint) => {
 			const getFailure = (e) => {
-				const failure = FailureReason.forRequest({endpoint: endpoint})
+				return FailureReason.forRequest({endpoint: endpoint})
 					.addItem(FailureType.REQUEST_IDENTITY_FAILURE)
 					.format();
-
-				return failure;
 			};
 
-			if (this._jwtProvider === null) {
+			if (this._jwtProviderRegister === null) {
 				return Promise.reject(getFailure());
 			}
 
-			return this._jwtProvider.getToken()
+			return this._jwtProviderRegister.getToken()
+				.then((token) => {
+					options.headers = options.headers || {};
+					options.headers.Authorization = `Bearer ${token}`;
+
+					return options;
+				}).catch((e) => {
+					return Promise.reject(getFailure(e));
+				});
+		});
+	}
+
+	function getRequestInterceptorForJwtForSend() {
+		return RequestInterceptor.fromDelegate((options, endpoint) => {
+			const getFailure = (e) => {
+				return FailureReason.forRequest({endpoint: endpoint})
+					.addItem(FailureType.REQUEST_IDENTITY_FAILURE)
+					.format();
+			};
+
+			if (this._jwtProviderSend === null) {
+				return Promise.reject(getFailure());
+			}
+
+			return this._jwtProviderSend.getToken()
 				.then((token) => {
 					options.headers = options.headers || {};
 					options.headers.Authorization = `Bearer ${token}`;
