@@ -2,7 +2,8 @@ const log4js = require('log4js'),
 	Stream = require('stream');
 
 const assert = require('@barchart/common-js/lang/assert'),
-	is = require('@barchart/common-js/lang/is');
+	is = require('@barchart/common-js/lang/is'),
+	object = require('@barchart/common-js/lang/object');
 
 module.exports = (() => {
 	'use strict';
@@ -16,13 +17,15 @@ module.exports = (() => {
 	 * @extends {Steam.Transform}
 	 * @param {String=} description
 	 * @param {Boolean=} silent
+	 * @param {Object=} options
 	 */
 	class SplitTransformer extends Stream.Transform {
-		constructor(description, silent) {
-			super({ objectMode: true });
+		constructor(description, silent, options) {
+			super(object.merge({ objectMode: true }, (options || { })));
 
 			assert.argumentIsOptional(description, 'description', String);
 			assert.argumentIsOptional(silent, 'silent', Boolean);
+			assert.argumentIsOptional(options, 'options', Object);
 
 			this._description = description || 'Split Transformer';
 			this._silent = is.boolean(silent) && silent;

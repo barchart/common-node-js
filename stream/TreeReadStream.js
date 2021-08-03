@@ -12,6 +12,7 @@ module.exports = (() => {
      *
      * @public
      * @extends {Steam.Readable}
+     * @param {Tree} tree
      * @param {Object=} options
      */
     class TreeReadStream extends Stream.Readable {
@@ -19,6 +20,7 @@ module.exports = (() => {
             super(object.merge({ objectMode: true }, (options || { })));
 
             assert.argumentIsRequired(tree, 'tree', Tree, 'Tree');
+            assert.argumentIsOptional(options, 'options', Object);
 
             this._generator = walk(tree);
         }

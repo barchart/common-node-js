@@ -3,6 +3,7 @@ const log4js = require('log4js'),
 
 const assert = require('@barchart/common-js/lang/assert'),
 	is = require('@barchart/common-js/lang/is'),
+	object = require('@barchart/common-js/lang/object'),
 	promise = require('@barchart/common-js/lang/promise');
 
 const Transformation = require('./transformations/Transformation');
@@ -21,14 +22,16 @@ module.exports = (() => {
 	 * @param {Array<Transformation>} transformations
 	 * @param {String=} description
 	 * @param {Boolean=} silent
+	 * @param {Object=} options
 	 */
 	class ObjectTransformer extends Stream.Transform {
-		constructor(transformations, description, silent) {
-			super({ objectMode: true, highWaterMark: 1000 });
+		constructor(transformations, description, silent, options) {
+			super(object.merge({ objectMode: true, highWaterMark: 1000 }, (options || { })));
 
 			assert.argumentIsArray(transformations, 'transformations', Transformation);
 			assert.argumentIsOptional(description, 'description', String);
 			assert.argumentIsOptional(silent, 'silent', Boolean);
+			assert.argumentIsOptional(options, 'options', Object);
 
 			this._tranformations = transformations;
 
@@ -69,8 +72,8 @@ module.exports = (() => {
 			return new ObjectTransformer(this._tranformations.concat([ transformation ]), this._description, this._silent);
 		}
 
-		static define(description, silent) {
-			return new ObjectTransformer([ ], description, silent);
+		static define(description, silent, options) {
+			return new ObjectTransformer([ ], description, silent, options);
 		}
 
 		toString() {
