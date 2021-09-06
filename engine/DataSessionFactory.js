@@ -1,6 +1,7 @@
 const log4js = require('log4js');
 
-const assert = require('@barchart/common-js/lang/assert');
+const assert = require('@barchart/common-js/lang/assert'),
+	is = require('@barchart/common-js/lang/is');
 
 const FailureReason = require('@barchart/common-js/api/failures/FailureReason');
 
@@ -91,21 +92,24 @@ module.exports = (() => {
 
 					return flushPromise;
 				}).catch((e) => {
-					if (e instanceof FailureReason) {
-						try {
-							if (e.getIsSevere()) {
-								logger.error('Session flush failed', e.format());
-							} else {
-								logger.warn('Session flush failed', e.format());
-							}
-						} catch (ignored) {
+					let errorPromise;
 
-						}
+					if (is.object(options) && is.fn(options.handleError)) {
+						errorPromise = Promise.resolve()
+							.then(() => {
+								try {
+									return options.handleError(e, logger);
+								} catch (e2) {
+									logger.error('User-defined error handler threw an error', e2);
+
+									return handleError(e);
+								}
+							});
 					} else {
-						logger.error('Session flush failed', e);
+						errorPromise = handleError(e);
 					}
 
-					return Promise.reject(e);
+					return errorPromise;
 				});
 		}
 
@@ -152,6 +156,24 @@ module.exports = (() => {
 		toString() {
 			return '[DataSessionFactory]';
 		}
+	}
+
+	function handleError(e) {
+		if (e instanceof FailureReason) {
+			try {
+				if (e.getIsSevere()) {
+					logger.error('Session flush failed', e.format());
+				} else {
+					logger.warn('Session flush failed', e.format());
+				}
+			} catch (ignored) {
+
+			}
+		} else {
+			logger.error('Session flush failed', e);
+		}
+
+		return Promise.reject(e);
 	}
 
 	/**
