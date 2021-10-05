@@ -15,9 +15,10 @@ module.exports = (() => {
 	 * @param {String} password
 	 * @param {Number=} port
 	 * @param {String=} applicationName
+	 * @param {String=} charset
 	 */
 	class ClientProvider extends Disposable {
-		constructor(host, database, username, password, port, applicationName) {
+		constructor(host, database, username, password, port, applicationName, charset) {
 			super();
 
 			assert.argumentIsRequired(host, 'host', String);
@@ -26,6 +27,7 @@ module.exports = (() => {
 			assert.argumentIsRequired(password, 'password', String);
 			assert.argumentIsOptional(port, 'port', Number);
 			assert.argumentIsOptional(applicationName, 'applicationName', String);
+			assert.argumentIsOptional(charset, 'charset', String);
 
 			this._configuration = {
 				host: host,
@@ -35,6 +37,10 @@ module.exports = (() => {
 				password: password,
 				multipleStatements: true
 			};
+
+			if (charset) {
+				this._configuration.charset = charset;
+			}
 		}
 
 		/**
@@ -54,6 +60,10 @@ module.exports = (() => {
 				});
 		}
 
+		/**
+		 * @protected
+		 * @returns {Client|Promise<Client>}
+		 */
 		_getClient() {
 			return null;
 		}

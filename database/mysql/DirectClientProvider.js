@@ -22,10 +22,11 @@ module.exports = (() => {
 	 * @param {String} password
 	 * @param {Number=} port
 	 * @param {String=} applicationName
+	 * @param {String=} charset
 	 */
 	class DirectClientProvider extends ClientProvider {
-		constructor(host, database, username, password, port, applicationName) {
-			super(host, database, username, password, port, applicationName);
+		constructor(host, database, username, password, port, applicationName, charset) {
+			super(host, database, username, password, port, applicationName, charset);
 		}
 
 		_getClient() {
