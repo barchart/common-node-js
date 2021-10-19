@@ -16,7 +16,7 @@ module.exports = (() => {
 	const logger = log4js.getLogger('common-node/messaging/routers/AwsRouter');
 
 	class AwsRouter extends Router {
-		constructor(sqsProvider, suppressExpressions) {
+		constructor(sqsProvider, suppressExpressions, tags) {
 			super(suppressExpressions);
 
 			assert.argumentIsRequired(sqsProvider, 'sqsProvider', SqsProvider, 'SqsProvider');
@@ -27,6 +27,13 @@ module.exports = (() => {
 			this._routerId = uuid.v4();
 
 			this._requestHandlers = {};
+
+			this._createOptions = null;
+
+			if (tags) {
+				this._createOptions = { };
+				this._createOptions.tags = tags;
+			}
 
 			this._disposeStack = new DisposableStack();
 		}
@@ -52,7 +59,7 @@ module.exports = (() => {
 								callbacks.resolve(message.payload);
 							}
 						}
-					}, 100, 20000, 10);
+					}, 100, 20000, 10, this._createOptions);
 
 					const responseQueueBinding = Disposable.fromAction(() => {
 						this._sqsProvider.deleteQueue(responseQueueName);
@@ -88,7 +95,7 @@ module.exports = (() => {
 				};
 			});
 
-			return this._sqsProvider.send(messageType, envelope)
+			return this._sqsProvider.send(messageType, envelope, null, this._createOptions)
 				.then(() => {
 					return routePromise;
 				});
@@ -118,7 +125,7 @@ module.exports = (() => {
 							payload: response || {}
 						};
 
-						return this._sqsProvider.send(responseQueueName, envelope);
+						return this._sqsProvider.send(responseQueueName, envelope, null, this._createOptions);
 					};
 
 					handlerPromise = handlerPromise.then((response) => {
@@ -135,7 +142,7 @@ module.exports = (() => {
 				}
 
 				return handlerPromise;
-			}, 100, 20000, 10);
+			}, 100, 20000, 10, this._createOptions);
 
 			this._requestHandlers[messageType] = registerObserver;
 

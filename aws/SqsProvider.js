@@ -30,7 +30,7 @@ module.exports = (() => {
 		constructor(configuration) {
 			super();
 
-			assert.argumentIsRequired(configuration, 'configuration');
+			assert.argumentIsRequired(configuration, 'configuration', Object);
 			assert.argumentIsRequired(configuration.region, 'configuration.region', String);
 			assert.argumentIsRequired(configuration.prefix, 'configuration.prefix', String);
 			assert.argumentIsOptional(configuration.apiVersion, 'configuration.apiVersion', String);
@@ -148,9 +148,10 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {string} queueName - The name of the queue to find.
+		 * @param {Object=} createOptions - Options to use when queue does not exist and must be created.
 		 * @returns {Promise<String>}
 		 */
-		getQueueUrl(queueName) {
+		getQueueUrl(queueName, createOptions) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(queueName, 'queueName', String);
@@ -168,7 +169,19 @@ module.exports = (() => {
 					if (!this._queueUrlPromises.hasOwnProperty(qualifiedQueueName)) {
 						logger.debug('The SqsProvider has not cached the queue URL. Issuing request to create queue.');
 
-						this._queueUrlPromises[qualifiedQueueName] = this.createQueue(queueName);
+						let retentionTime = null;
+
+						if (createOptions && is.number(createOptions.retentionTime)) {
+							retentionTime = createOptions.retentionTime;
+						}
+
+						let tags = null;
+
+						if (createOptions && is.object(createOptions.tags)) {
+							tags = createOptions.tags;
+						}
+
+						this._queueUrlPromises[qualifiedQueueName] = this.createQueue(queueName, retentionTime, tags);
 					}
 
 					return this._queueUrlPromises[qualifiedQueueName];
@@ -230,9 +243,10 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {string} queueName - The name of the queue to find.
+		 * @param {Object=} createOptions - Options to use when queue does not exist and must be created.
 		 * @returns {Promise<String>}
 		 */
-		getQueueArn(queueName) {
+		getQueueArn(queueName, createOptions) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(queueName, 'queueName', String);
@@ -248,7 +262,7 @@ module.exports = (() => {
 					const qualifiedQueueName = getQualifiedQueueName(this._configuration.prefix, queueName);
 
 					if (!this._queueArnPromises.hasOwnProperty(qualifiedQueueName)) {
-						this._queueArnPromises[qualifiedQueueName] = this.getQueueUrl(queueName)
+						this._queueArnPromises[qualifiedQueueName] = this.getQueueUrl(queueName, createOptions)
 							.then((queueUrl) => {
 								return promise.build(
 									(resolveCallback, rejectCallback) => {
@@ -286,13 +300,15 @@ module.exports = (() => {
 		 * @public
 		 * @param {string} queueName - The name of the queue to create.
 		 * @param {Number=} retentionTime - The length of time a queue will retain a message in seconds.
+		 * @param {Object=} tags - Tags to assign to the queue.
 		 * @returns {Promise<String>}
 		 */
-		createQueue(queueName, retentionTime) {
+		createQueue(queueName, retentionTime, tags) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(queueName, 'queueName', String);
 					assert.argumentIsOptional(retentionTime, 'retentionTime', Number);
+					assert.argumentIsOptional(tags, 'tags', Object);
 
 					if (this.getIsDisposed()) {
 						throw new Error('The SqsProvider has been disposed.');
@@ -316,6 +332,25 @@ module.exports = (() => {
 								payload.Attributes = {
 									MessageRetentionPeriod: retentionTime.toString()
 								};
+							}
+
+							if (is.object(tags)) {
+								const keys = object.keys(tags);
+
+								const t = keys.reduce((accumulator, key) => {
+									const tag = { };
+
+									tag.Key = key;
+									tag.Value = tags[key];
+
+									accumulator.push(tag);
+
+									return accumulator;
+								}, [ ]);
+
+								if (t.length > 0) {
+									payload.Tags = t;
+								}
 							}
 
 							this._sqs.createQueue(payload, (error, data) => {
@@ -400,9 +435,10 @@ module.exports = (() => {
 		 * @param {string} queueName - The name of the queue to add the message to.
 		 * @param {Object} payload - The message to enqueue (will be serialized to JSON).
 		 * @param {Number=} delaySeconds - The number of seconds to prevent message from being retrieved from the queue.
+		 * @param {Object=} createOptions - Options to use when queue does not exist and must be created.
 		 * @returns {Promise}
 		 */
-		send(queueName, payload, delaySeconds) {
+		send(queueName, payload, delaySeconds, createOptions) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(queueName, 'queueName', String);
@@ -417,7 +453,7 @@ module.exports = (() => {
 						throw new Error('The SqsProvider has not been started.');
 					}
 
-					return this.getQueueUrl(queueName)
+					return this.getQueueUrl(queueName, createOptions)
 						.then((queueUrl) => {
 							return promise.build(
 								(resolveCallback, rejectCallback) => {
@@ -462,9 +498,10 @@ module.exports = (() => {
 		 * @public
 		 * @param {string} queueName - The name of the queue to add the message to.
 		 * @param {Object[]} batch - The messages to enqueue (each will be serialized to JSON).
+		 * @param {Object=} createOptions - Options to use when queue does not exist and must be created.
 		 * @returns {Promise}
 		 */
-		sendBatch(queueName, batch) {
+		sendBatch(queueName, batch, createOptions) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(queueName, 'queueName', String);
@@ -486,7 +523,7 @@ module.exports = (() => {
 						throw new Error('The SqsProvider has not been started.');
 					}
 
-					return this.getQueueUrl(queueName)
+					return this.getQueueUrl(queueName, createOptions)
 						.then((queueUrl) => {
 							return promise.build(
 								(resolveCallback, rejectCallback) => {
@@ -674,9 +711,10 @@ module.exports = (() => {
 		 * @param {Number=} pollInterval - The milliseconds to wait between polling the queue.
 		 * @param {Number=} pollDuration - The maximum amount of time the server-side long-poll will wait for messages to become available.
 		 * @param {Number=} maximumMessages - The maximum number of messages to read per request (cannot be more than 10).
+		 * @param {Object=} createOptions - Options to use when queue does not exist and must be created.
 		 * @returns {Disposable}
 		 */
-		observe(queueName, callback, pollInterval, pollDuration, batchSize) {
+		observe(queueName, callback, pollInterval, pollDuration, batchSize, createOptions) {
 			assert.argumentIsRequired(queueName, 'queueName', String);
 			assert.argumentIsRequired(callback, 'callback', Function);
 			assert.argumentIsOptional(pollInterval, 'pollInterval', Number);
@@ -716,7 +754,7 @@ module.exports = (() => {
 
 				let delay;
 
-				receiveMessages.call(this, queueName, pollDuration, batchSize, false)
+				receiveMessages.call(this, queueName, pollDuration, batchSize, false, createOptions)
 					.then((messages) => {
 						return Promise.all(messages.map((message) => {
 							if (disposed) {
@@ -849,7 +887,7 @@ module.exports = (() => {
 		}
 	}
 
-	function receiveMessages(queueName, waitTime, maximumMessages, synchronousDelete) {
+	function receiveMessages(queueName, waitTime, maximumMessages, synchronousDelete, createOptions) {
 		if (this.getIsDisposed()) {
 			throw new Error('The SqsProvider has been disposed.');
 		}
@@ -878,7 +916,7 @@ module.exports = (() => {
 			maximumMessagesToUse = 1;
 		}
 
-		return this.getQueueUrl(queueName)
+		return this.getQueueUrl(queueName, createOptions)
 			.then((queueUrl) => {
 				return promise.build(
 					(resolveCallback, rejectCallback) => {

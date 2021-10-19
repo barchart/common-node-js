@@ -3,6 +3,7 @@ const aws = require('aws-sdk'),
 
 const assert = require('@barchart/common-js/lang/assert'),
 	Disposable = require('@barchart/common-js/lang/Disposable'),
+	is = require('@barchart/common-js/lang/is'),
 	object = require('@barchart/common-js/lang/object'),
 	promise = require('@barchart/common-js/lang/promise');
 
@@ -27,7 +28,7 @@ module.exports = (() => {
 		constructor(configuration) {
 			super();
 
-			assert.argumentIsRequired(configuration, 'configuration');
+			assert.argumentIsRequired(configuration, 'configuration', Object);
 			assert.argumentIsRequired(configuration.region, 'configuration.region', String);
 			assert.argumentIsRequired(configuration.prefix, 'configuration.prefix', String);
 			assert.argumentIsOptional(configuration.apiVersion, 'configuration.apiVersion', String);
@@ -94,13 +95,14 @@ module.exports = (() => {
 
 		/**
 		 * Given a topic's name, return Amazon's unique identifier for the topic
-		 * (i.e. the ARN). If no topc with the given name exists, it will be created.
+		 * (i.e. the ARN). If no topic with the given name exists, it will be created.
 		 *
 		 * @public
-		 * @param {string} topicName - The name of the topic to find.
+		 * @param {string} topicName - The name of the topic to find (or create).
+		 * @param {Object=} createOptions - Options to use when topic does not exist and must be created.
 		 * @returns {Promise<String>}
 		 */
-		getTopicArn(topicName) {
+		getTopicArn(topicName, createOptions) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(topicName, 'topicName', String);
@@ -112,7 +114,13 @@ module.exports = (() => {
 					if (!this._topicPromises.hasOwnProperty(qualifiedTopicName)) {
 						logger.debug('The SnsProvider has not cached the topic ARN. Issuing request to create topic');
 
-						this._topicPromises[qualifiedTopicName] = this.createTopic(topicName);
+						let tags = null;
+
+						if (createOptions && createOptions.tags) {
+							tags = createOptions.tags;
+						}
+
+						this._topicPromises[qualifiedTopicName] = this.createTopic(topicName, tags);
 					}
 
 					return this._topicPromises[qualifiedTopicName];
@@ -125,12 +133,14 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {string} topicName - The name of the topic to create.
+		 * @param {Object=} tags - Tags to assign to the topic.
 		 * @returns {Promise<String>}
 		 */
-		createTopic(topicName) {
+		createTopic(topicName, tags) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(topicName, 'topicName', String);
+					assert.argumentIsOptional(tags, 'tags', Object);
 
 					checkReady.call(this);
 
@@ -140,9 +150,30 @@ module.exports = (() => {
 
 							logger.debug('Creating SNS topic [', qualifiedTopicName, ']');
 
-							this._sns.createTopic({
+							const payload = {
 								Name: qualifiedTopicName
-							}, (error, data) => {
+							};
+
+							if (is.object(tags)) {
+								const keys = object.keys(tags);
+
+								const t = keys.reduce((accumulator, key) => {
+									const tag = { };
+
+									tag.Key = key;
+									tag.Value = tags[key];
+
+									accumulator.push(tag);
+
+									return accumulator;
+								}, [ ]);
+
+								if (t.length > 0) {
+									payload.Tags = t;
+								}
+							}
+
+							this._sns.createTopic(payload, (error, data) => {
 								if (error === null) {
 									logger.info('SNS topic created [', qualifiedTopicName, ']');
 
@@ -227,9 +258,10 @@ module.exports = (() => {
 		 * @public
 		 * @param {string} topicName - The name of the topic to publish to.
 		 * @param {Object} payload - The message to publish (which will be serialized as JSON).
+		 * @param {Object=} createOptions - Options to use when topic does not exist and must be created.
 		 * @returns {Promise}
 		 */
-		publish(topicName, payload) {
+		publish(topicName, payload, createOptions) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(topicName, 'topicName', String);
@@ -237,7 +269,7 @@ module.exports = (() => {
 
 					checkReady.call(this);
 
-					return this.getTopicArn(topicName)
+					return this.getTopicArn(topicName, createOptions)
 						.then((topicArn) => {
 							const qualifiedTopicName = getQualifiedTopicName(this._configuration.prefix, topicName);
 

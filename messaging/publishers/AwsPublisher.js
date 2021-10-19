@@ -18,12 +18,13 @@ module.exports = (() => {
 	const logger = log4js.getLogger('common-node/messaging/publishers/AwsPublisher');
 
 	class AwsPublisher extends Publisher {
-		constructor(snsProvider, sqsProvider, suppressEcho, suppressExpressions) {
+		constructor(snsProvider, sqsProvider, suppressEcho, suppressExpressions, tags) {
 			super(suppressExpressions);
 
 			assert.argumentIsRequired(snsProvider, 'snsProvider', SnsProvider, 'SnsProvider');
 			assert.argumentIsRequired(sqsProvider, 'sqsProvider', SqsProvider, 'SqsProvider');
 			assert.argumentIsOptional(suppressEcho, 'suppressEcho', Boolean);
+			assert.argumentIsOptional(tags, 'tags', Object);
 
 			this._snsProvider = snsProvider;
 			this._sqsProvider = sqsProvider;
@@ -33,6 +34,13 @@ module.exports = (() => {
 			this._publisherId = uuid.v4();
 
 			this._subscriptionPromises = {};
+
+			this._createOptions = null;
+
+			if (tags) {
+				this._createOptions = { };
+				this._createOptions.tags = tags;
+			}
 		}
 
 		_start() {
@@ -60,7 +68,7 @@ module.exports = (() => {
 			logger.debug('Publishing message to AWS:', topic);
 			logger.trace(payload);
 
-			return this._snsProvider.publish(topic, envelope);
+			return this._snsProvider.publish(topic, envelope, this._createOptions);
 		}
 
 		_subscribe(messageType, handler) {
@@ -80,8 +88,8 @@ module.exports = (() => {
 				subscriptionStack.push(subscriptionEvent);
 
 				this._subscriptionPromises[topic] = Promise.all([
-					this._snsProvider.getTopicArn(topic),
-					this._sqsProvider.getQueueArn(subscriptionQueueName)
+					this._snsProvider.getTopicArn(topic, this._createOptions),
+					this._sqsProvider.getQueueArn(subscriptionQueueName, this._createOptions)
 				]).then((resultGroup) => {
 					const topicArn = resultGroup[0];
 					const queueArn = resultGroup[1];
