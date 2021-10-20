@@ -337,19 +337,8 @@ module.exports = (() => {
 							if (is.object(tags)) {
 								const keys = object.keys(tags);
 
-								const t = keys.reduce((accumulator, key) => {
-									const tag = { };
-
-									tag.Key = key;
-									tag.Value = tags[key];
-
-									accumulator.push(tag);
-
-									return accumulator;
-								}, [ ]);
-
-								if (t.length > 0) {
-									payload.Tags = t;
+								if (keys.length > 0) {
+									payload.tags = tags;
 								}
 							}
 
