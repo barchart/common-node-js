@@ -457,6 +457,13 @@ module.exports = (() => {
 				});
 		}
 
+		/**
+		 * Deletes a subscription to an SNS topic.
+		 *
+		 * @public
+		 * @param {String} subscriptionArn
+		 * @returns {Promise}
+		 */
 		unsubscribe(subscriptionArn) {
 			return Promise.resolve()
 				.then(() => {
