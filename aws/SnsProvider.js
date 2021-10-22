@@ -468,7 +468,7 @@ module.exports = (() => {
 						(resolveCallback, rejectCallback) => {
 							logger.debug('Deleting SNS subscription at ARN [', subscriptionArn, ']');
 
-							this._sns.deleteTopic({
+							this._sns.unsubscribe({
 								SubscriptionArn: subscriptionArn
 							}, (error, data) => {
 								if (error === null) {
