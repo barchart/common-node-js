@@ -450,7 +450,7 @@ module.exports = (() => {
 
 					return listSubscriptionsRecursive()
 						.then((results) => {
-							logger.debug('Completed [', counts.queries, '] queries subscriptions to SNS topics with prefix [', this._configuration.prefix, '] yielding [', counts.matches, '] matching subscriptions out of [', counts.total, '] total subscriptions');
+							logger.debug('Completed [', counts.queries, '] queries for subscriptions to SNS topics with prefix [', this._configuration.prefix, '] yielding [', counts.matches, '] matching subscriptions out of [', counts.total, '] total subscriptions');
 
 							return results;
 						});
