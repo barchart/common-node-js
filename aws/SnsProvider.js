@@ -298,72 +298,6 @@ module.exports = (() => {
 				});
 		}
 
-		getSubscriptionsFor(topicName) {
-			return Promise.resolve()
-				.then(() => {
-					assert.argumentIsRequired(topicName, 'topicName', String);
-
-					checkReady.call(this);
-
-					return this.getTopicArn(topicName)
-						.then((topicArn) => {
-							let run = 0;
-							let count = 0;
-
-							const listSubscriptionsRecursive = (nextToken) => {
-								return promise.build((resolveCallback, rejectCallback) => {
-									const r = ++run;
-
-									const payload = { };
-
-									payload.TopicArn = topicArn;
-
-									if (nextToken) {
-										payload.NextToken = nextToken;
-									}
-
-									this._sns.listSubscriptionsByTopic(payload, (error, data) => {
-										if (error) {
-											logger.debug('Encountered error [', error.code, '] while getting subscriptions for [', topicName, ']');
-
-											rejectCallback({ error });
-
-											return;
-										}
-
-										const currentResults = data.Subscriptions.map((s) => {
-											return {
-												subscriptionArn: s.SubscriptionArn,
-												protocol: s.Protocol
-											};
-										});
-
-										const continuationPromise = Promise.resolve()
-											.then(() => {
-												if (data.Subscriptions && data.Subscriptions.length !== 0) {
-													count += data.Subscriptions.length;
-												}
-
-												if (data.NextToken) {
-													return listSubscriptionsRecursive(data.NextToken);
-												} else {
-													return Promise.resolve([ ]);
-												}
-											});
-
-										return continuationPromise
-											.then((continuationResults) => {
-												resolveCallback(currentResults.concat(continuationResults));
-											});
-									});
-								});
-							};
-
-							return listSubscriptionsRecursive();
-						});
-				});
-		}
-
 		/**
 		 * Subscribes an SQS queue to an SNS topic. Once the subscription
 		 * has been established the queue can be monitored (see
@@ -524,7 +458,33 @@ module.exports = (() => {
 		}
 
 		unsubscribe(subscriptionArn) {
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsRequired(subscriptionArn, 'subscriptionArn', String);
 
+					checkReady.call(this);
+
+					return promise.build(
+						(resolveCallback, rejectCallback) => {
+							logger.debug('Deleting SNS subscription at ARN [', subscriptionArn, ']');
+
+							this._sns.deleteTopic({
+								SubscriptionArn: subscriptionArn
+							}, (error, data) => {
+								if (error === null) {
+									logger.info('SNS subscription deleted at ARN [', subscriptionArn, ']');
+
+									resolveCallback();
+								} else {
+									logger.error('SNS subscription deletion failed at ARN [', subscriptionArn, ']');
+									logger.error(error);
+
+									rejectCallback('Failed to delete SNS subscription.');
+								}
+							});
+						}
+					);
+				});
 		}
 
 		/**
