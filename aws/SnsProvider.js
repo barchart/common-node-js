@@ -298,6 +298,72 @@ module.exports = (() => {
 				});
 		}
 
+		getSubscriptionsFor(topicName) {
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsRequired(topicName, 'topicName', String);
+
+					checkReady.call(this);
+
+					return this.getTopicArn(topicName)
+						.then((topicArn) => {
+							let run = 0;
+							let count = 0;
+
+							const listSubscriptionsRecursive = (nextToken) => {
+								return promise.build((resolveCallback, rejectCallback) => {
+									const r = ++run;
+
+									const payload = { };
+
+									payload.TopicArn = topicArn;
+
+									if (nextToken) {
+										payload.NextToken = nextToken;
+									}
+
+									this._sns.listSubscriptionsByTopic(payload, (error, data) => {
+										if (error) {
+											logger.debug('Encountered error [', error.code, '] while getting subscriptions for [', topicName, ']');
+
+											rejectCallback({ error });
+
+											return;
+										}
+
+										const currentResults = data.Subscriptions.map((s) => {
+											return {
+												subscriptionArn: s.SubscriptionArn,
+												protocol: s.Protocol
+											};
+										});
+
+										const continuationPromise = Promise.resolve()
+											.then(() => {
+												if (data.Subscriptions && data.Subscriptions.length !== 0) {
+													count += data.Subscriptions.length;
+												}
+
+												if (data.NextToken) {
+													return listSubscriptionsRecursive(data.NextToken);
+												} else {
+													return Promise.resolve([ ]);
+												}
+											});
+
+										return continuationPromise
+											.then((continuationResults) => {
+												resolveCallback(currentResults.concat(continuationResults));
+											});
+									});
+								});
+							};
+
+							return listSubscriptionsRecursive();
+						});
+				});
+		}
+
 		/**
 		 * Subscribes an SQS queue to an SNS topic. Once the subscription
 		 * has been established the queue can be monitored (see
@@ -370,6 +436,95 @@ module.exports = (() => {
 
 					return this._subscriptionPromises[qualifiedTopicName];
 				});
+		}
+
+		/**
+		 * Returns a list of all subscriptions to SNS topics from SQS queues. This includes "zombie"
+		 * subscriptions (where the SQS queue no longer exists).
+		 *
+		 * @public
+		 * @returns {Promise<Object>}
+		 */
+		getSubscriptions() {
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
+
+					let counts = { };
+
+					counts.queries = 0;
+					counts.total = 0;
+					counts.matches = 0;
+
+					const topicArnRegex = new RegExp(`^(arn:aws:sns):(${this._configuration.region}):(.*):(${this._configuration.prefix})-(.*)$`);
+
+					const listSubscriptionsRecursive = (nextToken) => {
+						return promise.build((resolveCallback, rejectCallback) => {
+							const payload = { };
+
+							if (nextToken) {
+								payload.NextToken = nextToken;
+							}
+
+							const query = ++counts.queries;
+
+							logger.debug('Executing subscription query [', query, '] for prefix [', this._configuration.prefix, ']');
+
+							this._sns.listSubscriptions(payload, (error, data) => {
+								if (error) {
+									logger.warn('Encountered error [', error.code, '] while executing subscription query [', query, ']');
+
+									rejectCallback({ error });
+
+									return;
+								}
+
+								logger.debug('Finished subscription query [', query, '] for prefix [', this._configuration.prefix, '] with [', data.Subscriptions.length, '] results');
+
+								const matches = data.Subscriptions.filter(s => s.Protocol === 'sqs')
+									.filter(s => topicArnRegex.test(s.TopicArn));
+
+								counts.total = counts.total + data.Subscriptions.length;
+								counts.matches = counts.matches + matches.length;
+
+								const currentResults = matches.map((m) => {
+									const result = { };
+
+									result.topicArn = m.TopicArn;
+									result.queueArn = m.Endpoint;
+									result.subscriptionArn = m.SubscriptionArn;
+
+									return result;
+								});
+
+								const continuationPromise = Promise.resolve()
+									.then(() => {
+										if (data.NextToken) {
+											return listSubscriptionsRecursive(data.NextToken);
+										} else {
+											return Promise.resolve([ ]);
+										}
+									});
+
+								return continuationPromise
+									.then((continuationResults) => {
+										resolveCallback(currentResults.concat(continuationResults));
+									});
+							});
+						});
+					};
+
+					return listSubscriptionsRecursive()
+						.then((results) => {
+							logger.debug('Completed [', counts.queries, '] queries subscriptions to SNS topics with prefix [', this._configuration.prefix, '] yielding [', counts.matches, '] matching subscriptions out of [', counts.total, '] total subscriptions');
+
+							return results;
+						});
+				});
+		}
+
+		unsubscribe(subscriptionArn) {
+
 		}
 
 		/**
