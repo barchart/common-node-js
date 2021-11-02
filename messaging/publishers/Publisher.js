@@ -61,7 +61,7 @@ module.exports = (() => {
 			let publishPromise;
 
 			if (checkSuppression(messageType, this._suppressExpressions)) {
-				logger.trace('Suppressing publish for', messageType);
+				logger.trace('Suppressing publish for [', messageType, ']');
 
 				publishPromise = Promise.resolve(Disposable.getEmpty());
 			} else {
@@ -93,7 +93,7 @@ module.exports = (() => {
 			let subscribePromise;
 
 			if (checkSuppression(messageType, this._suppressExpressions)) {
-				logger.debug('Suppressing subscription to', messageType);
+				logger.debug('Suppressing subscription to [', messageType, ']');
 
 				subscribePromise = Promise.resolve(Disposable.getEmpty());
 			} else {

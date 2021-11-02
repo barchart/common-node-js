@@ -65,7 +65,7 @@ module.exports = (() => {
 				envelope.qualifier = qualifier;
 			}
 
-			logger.debug('Publishing message to AWS:', topic);
+			logger.debug('Publishing message to AWS [', topic, ']');
 			logger.trace(payload);
 
 			return this._snsProvider.publish(topic, envelope, this._createOptions);
@@ -75,7 +75,7 @@ module.exports = (() => {
 			const topic = getTopic(messageType);
 			const qualifier = getQualifier(messageType);
 
-			logger.debug('Subscribing to AWS messages:', topic);
+			logger.debug('Subscribing to AWS messages [', topic, ']');
 
 			if (!this._subscriptionPromises.hasOwnProperty(topic)) {
 				const subscriptionStack = new DisposableStack();
@@ -130,7 +130,7 @@ module.exports = (() => {
 								subscriptionEvents.fire(message.qualifier, content);
 							}
 						} else {
-							logger.debug('AWS publisher dropped an "echo" message for', topic);
+							logger.debug('AWS publisher dropped an "echo" message for [', topic, ']');
 						}
 					}, 100, 20000, 10);
 				}).then((queueObserver) => {

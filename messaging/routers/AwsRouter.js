@@ -77,7 +77,7 @@ module.exports = (() => {
 		}
 
 		_route(messageType, payload) {
-			logger.debug('Routing message to AWS:', messageType);
+			logger.debug('Routing message to AWS [', messageType, ']');
 			logger.trace(payload);
 
 			const messageId = uuid.v4();
@@ -102,11 +102,12 @@ module.exports = (() => {
 		}
 
 		_register(messageType, handler) {
-			logger.debug('Registering AWS handler for:', messageType);
+			logger.debug('Registering AWS handler for [', messageType, ']');
 
 			const registerObserver = this._sqsProvider.observe(messageType, (message) => {
 				if (!is.string(message.id) || !is.object(message.payload) || !(is.string(message.sender) || message.sender === null)) {
-					logger.warn('Dropping malformed request received from SQS queue (' + messageType + ').');
+					logger.warn(`Dropping malformed request received from SQS queue [ ${messageType} ]`);
+
 					return;
 				}
 
