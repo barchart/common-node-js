@@ -189,7 +189,7 @@ module.exports = (() => {
 	const messageTypeRegex = /(.*)#(.*)$/;
 
 	function getSubscriptionQueue(topic) {
-		return topic + '-' + this._publisherId;
+		return `${topic}-${this._publisherId}`;
 	}
 
 	function getTopic(messageType) {
