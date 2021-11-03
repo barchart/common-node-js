@@ -15,16 +15,28 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('common-node/messaging/routers/AwsRouter');
 
+	/**
+	 * A {@link Bus} component that provides request-response messaging via AWS SQS.
+	 *
+	 * @public
+	 * @extends {Router}
+	 * @param {SqsProvider} sqsProvider
+	 * @param {RexExp[]=} suppressExpressions
+	 * @param {Object=} tags
+	 * @param {String=} identifier
+	 */
 	class AwsRouter extends Router {
-		constructor(sqsProvider, suppressExpressions, tags) {
+		constructor(sqsProvider, suppressExpressions, tags, identifier) {
 			super(suppressExpressions);
 
 			assert.argumentIsRequired(sqsProvider, 'sqsProvider', SqsProvider, 'SqsProvider');
+			assert.argumentIsOptional(tags, 'tags', Object);
+			assert.argumentIsOptional(identifier, 'identifier', String);
 
 			this._sqsProvider = sqsProvider;
 
 			this._pendingRequests = {};
-			this._routerId = uuid.v4();
+			this._routerId = identifier || uuid.v4();
 
 			this._requestHandlers = {};
 

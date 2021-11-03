@@ -8,9 +8,23 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('common-node/messaging/routers/Router');
 
+	/**
+	 * A {@link Bus} component that processes request-response
+	 * semantics, where the exact implementation is up to the
+	 * inheritor.
+	 *
+	 * @public
+	 * @extends Disposable
+	 * @abstract
+	 * @param {RegExp[]=} suppressExpressions
+	 */
 	class Router extends Disposable {
 		constructor(suppressExpressions) {
 			super();
+
+			if (suppressExpressions) {
+				assert.argumentIsArray(suppressExpressions, 'suppressExpressions', RegExp, 'RegExp');
+			}
 
 			this._suppressExpressions = suppressExpressions || [ ];
 

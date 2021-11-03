@@ -17,21 +17,34 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('common-node/messaging/publishers/AwsPublisher');
 
+	/**
+	 * A {@link Bus} component that provides publish-subscribe messaging via AWS SNS and AWS SQS.
+	 *
+	 * @public
+	 * @extends {Router}
+	 * @param {SnsProvider} snsProvider
+	 * @param {SqsProvider} sqsProvider
+	 * @param {Boolean[]=} suppressEcho
+	 * @param {RexExp[]=} suppressExpressions
+	 * @param {Object=} tags
+	 * @param {String=} identifier
+	 */
 	class AwsPublisher extends Publisher {
-		constructor(snsProvider, sqsProvider, suppressEcho, suppressExpressions, tags) {
+		constructor(snsProvider, sqsProvider, suppressEcho, suppressExpressions, tags, identifier) {
 			super(suppressExpressions);
 
 			assert.argumentIsRequired(snsProvider, 'snsProvider', SnsProvider, 'SnsProvider');
 			assert.argumentIsRequired(sqsProvider, 'sqsProvider', SqsProvider, 'SqsProvider');
 			assert.argumentIsOptional(suppressEcho, 'suppressEcho', Boolean);
 			assert.argumentIsOptional(tags, 'tags', Object);
+			assert.argumentIsOptional(identifier, 'identifier', String);
 
 			this._snsProvider = snsProvider;
 			this._sqsProvider = sqsProvider;
 
 			this._suppressEcho = suppressEcho || false;
 
-			this._publisherId = uuid.v4();
+			this._publisherId = identifier || uuid.v4();
 
 			this._subscriptionPromises = {};
 

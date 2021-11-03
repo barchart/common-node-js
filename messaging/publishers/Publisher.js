@@ -8,11 +8,19 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('common-node/messaging/publishers/Publisher');
 
+	/**
+	 * A {@link Bus} component that processes publish-subscribe
+	 * semantics, where the exact implementation is up to the
+	 * inheritor.
+	 *
+	 * @public
+	 * @extends {Disposable}
+	 * @abstract
+	 * @param {RegExp[]=} suppressExpressions
+	 */
 	class Publisher extends Disposable {
 		constructor(suppressExpressions) {
 			super();
-
-			assert.argumentIsOptional(suppressExpressions, 'suppressExpressions', Array);
 
 			if (suppressExpressions) {
 				assert.argumentIsArray(suppressExpressions, 'suppressExpressions', RegExp, 'RegExp');
