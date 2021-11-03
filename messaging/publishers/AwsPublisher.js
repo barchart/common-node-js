@@ -202,6 +202,10 @@ module.exports = (() => {
 	const messageTypeRegex = /(.*)#(.*)$/;
 
 	function getSubscriptionQueue(topic) {
+		if (topic.endsWith(this._publisherId)) {
+			return topic;
+		}
+
 		return `${topic}-${this._publisherId}`;
 	}
 
