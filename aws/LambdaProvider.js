@@ -46,7 +46,7 @@ module.exports = (() => {
 		 */
 		start() {
 			if (this.getIsDisposed()) {
-				return Promise.reject('Unable to start, the LambdaProvider has been disposed.');
+				return Promise.reject('Unable to start, the Lambda provider has been disposed.');
 			}
 
 			if (this._startPromise === null) {
@@ -56,13 +56,13 @@ module.exports = (() => {
 
 						this._lambda = new aws.Lambda({ apiVersion: this._configuration.apiVersion || '2015-03-31' });
 					}).then(() => {
-						logger.info('The LambdaProvider has started');
+						logger.info('The Lambda provider has started');
 
 						this._started = true;
 
 						return this._started;
 					}).catch((e) => {
-						logger.error('The LambdaProvider failed to start', e);
+						logger.error('The Lambda provider failed to start', e);
 
 						throw e;
 					});
@@ -116,11 +116,11 @@ module.exports = (() => {
 
 	function checkReady() {
 		if (this.getIsDisposed()) {
-			throw new Error('The LambdaProvider has been disposed.');
+			throw new Error('The Lambda provider has been disposed.');
 		}
 
 		if (!this._started) {
-			throw new Error('The LambdaProvider has not been started.');
+			throw new Error('The Lambda provider has not been started.');
 		}
 	}
 

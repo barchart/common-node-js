@@ -63,7 +63,7 @@ module.exports = (() => {
 		 */
 		start() {
 			if (this.getIsDisposed()) {
-				return Promise.reject('Unable to start, the SesProvider has been disposed.');
+				return Promise.reject('Unable to start, the SES provider has been disposed.');
 			}
 
 			if (this._startPromise === null) {
@@ -79,13 +79,13 @@ module.exports = (() => {
 
 						this._ses = new aws.SES({apiVersion: this._configuration.apiVersion || '2010-12-01'});
 					}).then(() => {
-						logger.info('The SesProvider has started');
+						logger.info('The SES provider has started');
 
 						this._started = true;
 
 						return this._started;
 					}).catch((e) => {
-						logger.error('The SesProvider failed to start', e);
+						logger.error('The SES provider failed to start', e);
 
 						throw e;
 					});
@@ -102,7 +102,7 @@ module.exports = (() => {
 		 */
 		getConfiguration() {
 			if (this.getIsDisposed()) {
-				throw new Error('The SesProvider has been disposed.');
+				throw new Error('The SES provider has been disposed.');
 			}
 
 			return object.clone(this._configuration);
@@ -117,7 +117,9 @@ module.exports = (() => {
 					assert.argumentIsRequired(options.recipientAddress, 'senderAddress', String);
 
 					assert.argumentIsOptional(options.headers, 'headers', Object);
-				}).then(() => {
+
+					checkReady.call(this);
+
 					return this._rateLimiter.enqueue(() => {
 						return promise.build((resolve, reject) => {
 							logger.debug('Sending email to [', options.recipientAddress, ']');
@@ -131,7 +133,7 @@ module.exports = (() => {
 								headers: options.headers
 							}, (error, result) => {
 								if (error) {
-									logger.error('SES Email Provider failed to send email message', options);
+									logger.error('SES provider failed to send email message', options);
 									logger.error(error);
 
 									reject(error);
@@ -161,8 +163,6 @@ module.exports = (() => {
 				.then(() => {
 					assert.argumentIsRequired(senderAddress, 'senderAddress', String);
 
-					checkReady.call(this);
-
 					if (is.array(recipientAddress)) {
 						assert.argumentIsArray(recipientAddress, 'recipientAddress', String);
 					} else {
@@ -173,13 +173,7 @@ module.exports = (() => {
 					assert.argumentIsOptional(htmlBody, 'htmlBody', String);
 					assert.argumentIsOptional(textBody, 'textBody', String);
 
-					if (this.getIsDisposed()) {
-						throw new Error('The SesProvider has been disposed');
-					}
-
-					if (!this._started) {
-						throw new Error('The SesProvider has not been started');
-					}
+					checkReady.call(this);
 
 					if (this._configuration.recipientOverride) {
 						logger.warn('Overriding email recipient for testing purposes, using [', this._configuration.recipientOverride, ']');
@@ -229,7 +223,7 @@ module.exports = (() => {
 
 							this._ses.sendEmail(params, (error, data) => {
 								if (error) {
-									logger.error('SES Email Provider failed to send email message', params);
+									logger.error('SES provider failed to send email message', params);
 									logger.error(error);
 
 									rejectCallback(error);
@@ -255,11 +249,11 @@ module.exports = (() => {
 
 	function checkReady() {
 		if (this.getIsDisposed()) {
-			throw new Error('The SesProvider has been disposed.');
+			throw new Error('The SES provider has been disposed.');
 		}
 
 		if (!this._started) {
-			throw new Error('The SesProvider has not been started.');
+			throw new Error('The SES provider has not been started.');
 		}
 	}
 

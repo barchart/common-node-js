@@ -60,7 +60,7 @@ module.exports = (() => {
 		 */
 		start() {
 			if (this.getIsDisposed()) {
-				return Promise.reject('Unable to start, the S3Provider has been disposed.');
+				return Promise.reject('Unable to start, the S3 provider has been disposed.');
 			}
 
 			if (this._startPromise === null) {
@@ -70,13 +70,13 @@ module.exports = (() => {
 
 						this._s3 = new aws.S3({ apiVersion: this._configuration.apiVersion || '2006-03-01' });
 					}).then(() => {
-						logger.info('The S3Provider has started');
+						logger.info('The S3 provider has started');
 
 						this._started = true;
 
 						return this._started;
 					}).catch((e) => {
-						logger.error('The S3Provider failed to start', e);
+						logger.error('The S3 provider failed to start', e);
 
 						throw e;
 					});
@@ -93,7 +93,7 @@ module.exports = (() => {
 		 */
 		getConfiguration() {
 			if (this.getIsDisposed()) {
-				throw new Error('The S3 Provider has been disposed.');
+				throw new Error('The S3 provider has been disposed.');
 			}
 
 			return object.clone(this._configuration);
@@ -112,12 +112,12 @@ module.exports = (() => {
 		getBucketContents(prefix, bucket, maximum, start) {
 			return Promise.resolve()
 				.then(() => {
-					checkReady.call(this);
-
 					assert.argumentIsOptional(bucket, 'bucket', String);
 					assert.argumentIsOptional(prefix, 'prefix', String);
 					assert.argumentIsOptional(maximum, 'maximum', Number);
 					assert.argumentIsOptional(start, 'start', String);
+
+					checkReady.call(this);
 
 					const getBucketContentsRecursive = (continuationToken) => {
 						return promise.build((resolveCallback, rejectCallback) => {
@@ -185,11 +185,11 @@ module.exports = (() => {
 		getSignedUrl(operation, key, expires) {
 			return Promise.resolve()
 				.then(() => {
-					checkReady.call(this);
-
 					assert.argumentIsRequired(operation, 'operation', String);
 					assert.argumentIsRequired(key, 'key', String);
 					assert.argumentIsOptional(expires, 'expires', Number);
+
+					checkReady.call(this);
 
 					return promise.build((resolveCallback, rejectCallback) => {
 						const payload = { };
@@ -432,11 +432,11 @@ module.exports = (() => {
 
 	function checkReady() {
 		if (this.getIsDisposed()) {
-			throw new Error('The S3Provider has been disposed.');
+			throw new Error('The S3 provider has been disposed.');
 		}
 
 		if (!this._started) {
-			throw new Error('The S3Provider has not been started.');
+			throw new Error('The S3 provider has not been started.');
 		}
 	}
 

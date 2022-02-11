@@ -74,7 +74,7 @@ module.exports = (() => {
 		 */
 		start() {
 			if (this.getIsDisposed()) {
-				return Promise.reject('Unable to start, the DynamoProvider has been disposed');
+				return Promise.reject('Unable to start, the Dynamo provider has been disposed');
 			}
 
 			if (this._startPromise === null) {
@@ -86,13 +86,13 @@ module.exports = (() => {
 
 						this._dynamo = new aws.DynamoDB({ apiVersion: this._configuration.apiVersion || '2012-08-10' });
 					}).then(() => {
-						logger.debug('The DynamoProvider has started');
+						logger.debug('The Dynamo provider has started');
 
 						this._started = true;
 
 						return this._started;
 					}).catch((e) => {
-						logger.error('The DynamoProvider failed to start', e);
+						logger.error('The Dynamo provider failed to start', e);
 
 						throw e;
 					});
@@ -110,7 +110,7 @@ module.exports = (() => {
 		 */
 		getConfiguration() {
 			if (this.getIsDisposed()) {
-				throw new Error('The DynamoProvider has been disposed');
+				throw new Error('The Dynamo provider has been disposed');
 			}
 
 			return object.clone(this._configuration);
@@ -121,15 +121,17 @@ module.exports = (() => {
 		 * the promise is rejected.
 		 *
 		 * @public
-		 * @param {string} name - The (unqualified) name of the table.
+		 * @param {string} tableName - The (unqualified) name of the table.
 		 * @returns {Promise<Table>}
 		 */
-		getTable(name) {
+		getTable(tableName) {
 			return Promise.resolve()
 				.then(() => {
+					assert.argumentIsRequired(tableName, 'tableName', String);
+
 					checkReady.call(this);
 
-					const qualifiedTableName = getQualifiedTableName(this._configuration.prefix, name);
+					const qualifiedTableName = getQualifiedTableName(this._configuration.prefix, tableName);
 
 					return getTable.call(this, qualifiedTableName)
 						.then((tableData) => {
@@ -141,16 +143,19 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Creates a backup of the table.
+		 * Lists backups for a table.
 		 *
 		 * @public
-		 * @param {string} tableName
+		 * @param {string} tableName - The fully-qualified name of the table.
 		 * @param {string} backupName
 		 * @returns {Promise<Object>}
 		 */
 		createBackup(tableName, backupName) {
 			return Promise.resolve()
 				.then(() => {
+					assert.argumentIsRequired(tableName, 'tableName', String);
+					assert.argumentIsRequired(backupName, 'backupName', String);
+
 					checkReady.call(this);
 
 					return promise.build((resolve, reject) => {
@@ -177,7 +182,7 @@ module.exports = (() => {
 		 * Creates a backup of the table
 		 *
 		 * @public
-		 * @param {string} tableName
+		 * @param {string} tableName - The fully-qualified name of the table.
 		 * @param {string=} lowerBound
 		 * @param {string=} upperBound
 		 * @returns {Promise<Object>}
@@ -185,6 +190,8 @@ module.exports = (() => {
 		listBackups(tableName, lowerBound, upperBound) {
 			return Promise.resolve()
 				.then(() => {
+					assert.argumentIsRequired(tableName, 'tableName', String);
+
 					checkReady.call(this);
 
 					return promise.build((resolve, reject) => {
@@ -215,7 +222,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Creates a backup of the table
+		 * Deletes a backup of the table (given the ARN of the backup).
 		 *
 		 * @public
 		 * @param {string} arn
@@ -224,6 +231,8 @@ module.exports = (() => {
 		deleteBackup(arn) {
 			return Promise.resolve()
 				.then(() => {
+					assert.argumentIsRequired(arn, 'arn', String);
+
 					checkReady.call(this);
 
 					return promise.build((resolve, reject) => {
@@ -401,13 +410,15 @@ module.exports = (() => {
 		 * Deletes a table.
 		 *
 		 * @public
-		 * @param {string} tableName - the name.
+		 * @param {string} tableName - The (unqualified) name of the table.
 		 * @returns {Promise<Object>}
 		 */
 		deleteTable(tableName) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(tableName, 'tableName', String);
+
+					checkReady.call(this);
 
 					const params = { TableName: tableName };
 
@@ -1349,11 +1360,11 @@ module.exports = (() => {
 
 	function checkReady() {
 		if (this.getIsDisposed()) {
-			throw new Error('The DynamoProvider has been disposed');
+			throw new Error('The Dynamo provider has been disposed');
 		}
 
 		if (!this._started) {
-			throw new Error('The DynamoProvider has not been started');
+			throw new Error('The Dynamo provider has not been started');
 		}
 	}
 

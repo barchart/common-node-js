@@ -47,7 +47,7 @@ module.exports = (() => {
 		 */
 		start() {
 			if (this.getIsDisposed()) {
-				return Promise.reject('Unable to start, the CloudWatchLogsProvider has been disposed.');
+				return Promise.reject('Unable to start, the CloudWatch Logs provider has been disposed.');
 			}
 
 			if (this._startPromise === null) {
@@ -57,13 +57,13 @@ module.exports = (() => {
 
 						this._cloudWatchLogs = new aws.CloudWatchLogs({ apiVersion: this._configuration.apiVersion || '2014-03-28' });
 					}).then(() => {
-						logger.info('The CloudWatchLogsProvider has started');
+						logger.info('The CloudWatch Logs provider has started');
 
 						this._started = true;
 
 						return this._started;
 					}).catch((e) => {
-						logger.error('The CloudWatchLogsProvider failed to start', e);
+						logger.error('The CloudWatch Logs provider failed to start', e);
 
 						throw e;
 					});
@@ -199,7 +199,7 @@ module.exports = (() => {
 		}
 
 		_onDispose() {
-			logger.debug('CloudWatchLogsProvider disposed');
+			logger.debug('CloudWatch Logs provider disposed');
 		}
 
 		toString() {
@@ -209,11 +209,11 @@ module.exports = (() => {
 
 	function checkReady() {
 		if (this.getIsDisposed()) {
-			throw new Error('The CloudWatchLogsProvider has been disposed.');
+			throw new Error('The CloudWatch Logs provider has been disposed.');
 		}
 
 		if (!this._started) {
-			throw new Error('The CloudWatchLogsProvider has not been started.');
+			throw new Error('The CloudWatch Logs provider has not been started.');
 		}
 	}
 

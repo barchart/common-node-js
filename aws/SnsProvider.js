@@ -53,7 +53,7 @@ module.exports = (() => {
 		 */
 		start() {
 			if (this.getIsDisposed()) {
-				return Promise.reject('Unable to start, the SnsProvider has been disposed.');
+				return Promise.reject('Unable to start, the SNS provider has been disposed.');
 			}
 
 			if (this._startPromise === null) {
@@ -63,13 +63,13 @@ module.exports = (() => {
 
 						this._sns = new aws.SNS({apiVersion: this._configuration.apiVersion || '2010-03-31'});
 					}).then(() => {
-						logger.info('The SnsProvider has started');
+						logger.info('The SNS provider has started');
 
 						this._started = true;
 
 						return this._started;
 					}).catch((e) => {
-						logger.error('The SnsProvider failed to start', e);
+						logger.error('The SNS provider failed to start', e);
 
 						throw e;
 					});
@@ -87,7 +87,7 @@ module.exports = (() => {
 		 */
 		getConfiguration() {
 			if (this.getIsDisposed()) {
-				throw new Error('The SnsProvider has been disposed.');
+				throw new Error('The SNS provider has been disposed.');
 			}
 
 			return object.clone(this._configuration);
@@ -112,7 +112,7 @@ module.exports = (() => {
 					const qualifiedTopicName = getQualifiedTopicName(this._configuration.prefix, topicName);
 
 					if (!this._topicPromises.hasOwnProperty(qualifiedTopicName)) {
-						logger.debug('The SnsProvider has not cached the topic ARN. Issuing request to create topic');
+						logger.debug('The SNS provider has not cached the topic ARN. Issuing request to create topic');
 
 						let tags = null;
 
@@ -581,11 +581,11 @@ module.exports = (() => {
 
 	function checkReady() {
 		if (this.getIsDisposed()) {
-			throw new Error('The Dynamo Provider has been disposed.');
+			throw new Error('The SNS provider has been disposed.');
 		}
 
 		if (!this._started) {
-			throw new Error('The Dynamo Provider has not been started.');
+			throw new Error('The SNS provider has not been started.');
 		}
 	}
 

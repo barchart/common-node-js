@@ -48,7 +48,7 @@ module.exports = (() => {
 		 */
 		start() {
 			if (this.getIsDisposed()) {
-				return Promise.reject('Unable to start, the ApiGatewayManagementProvider has been disposed');
+				return Promise.reject('Unable to start, the API Gateway provider has been disposed');
 			}
 
 			if (this._startPromise === null) {
@@ -60,13 +60,13 @@ module.exports = (() => {
 							region: this._configuration.region,
 						});
 					}).then(() => {
-						logger.info('The ApiGatewayManagementProvider has started');
+						logger.info('The API Gateway provider has started');
 
 						this._started = true;
 
 						return this._started;
 					}).catch((e) => {
-						logger.error('The ApiGatewayManagementProvider failed to start', e);
+						logger.error('The API Gateway provider failed to start', e);
 
 						throw e;
 					});
@@ -100,11 +100,11 @@ module.exports = (() => {
 
 	function checkReady() {
 		if (this.getIsDisposed()) {
-			throw new Error('The ApiGatewayManagementProvider has been disposed.');
+			throw new Error('The API Gateway provider has been disposed.');
 		}
 
 		if (!this._started) {
-			throw new Error('The ApiGatewayManagementProvider has not been started.');
+			throw new Error('The API Gateway provider has not been started.');
 		}
 	}
 
