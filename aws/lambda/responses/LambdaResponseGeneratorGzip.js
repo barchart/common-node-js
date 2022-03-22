@@ -29,7 +29,7 @@ module.exports = (() => {
 		}
 
 		_generate(responseCode, responseHeaders, responseData, responseSize) {
-			const acceptEncoding = this._parser.getHeader('Accept-Encoding');
+			const acceptEncoding = this._parser.getHeader('Accept-Encoding') || this._parser.getHeader('accept-encoding');
 
 			if (!(is.string(acceptEncoding) && acceptEncoding.includes('gzip'))) {
 				logger.debug('Unable to compress response, the request header [ Accept-Encoding ] does not include the [ gzip ] option');
