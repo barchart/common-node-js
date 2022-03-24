@@ -4,7 +4,6 @@ const gulp = require('gulp');
 
 const git = require('gulp-git'),
     gitStatus = require('git-get-status'),
-    jasmine = require('gulp-jasmine'),
     jshint = require('gulp-jshint'),
 	prompt = require('gulp-prompt');
 
@@ -73,9 +72,14 @@ gulp.task('create-tag', (cb) => {
     });
 });
 
-gulp.task('execute-node-tests', () => {
-    return gulp.src(['test/specs/**/*.js'])
-        .pipe(jasmine());
+gulp.task('execute-node-tests', (cb) => {
+	exec(`npm test`, { cwd: './' }, (error) => {
+		if (error) {
+			cb(error);
+		}
+
+		cb();
+	});
 });
 
 gulp.task('execute-tests', gulp.series('execute-node-tests'));

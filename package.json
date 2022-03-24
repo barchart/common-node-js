@@ -8,7 +8,7 @@
     "url": "https://www.barchart.com"
   },
   "scripts": {
-    "test": "gulp test"
+    "test": "jasmine --config=jasmine.json"
   },
   "repository": {
     "type": "git",
@@ -21,8 +21,8 @@
     "Node.js"
   ],
   "dependencies": {
-    "@barchart/common-js": "^4.0.0",
-    "@barchart/marketdata-api-js": "^5.7.4",
+    "@barchart/common-js": "^4.19.2",
+    "@barchart/marketdata-api-js": "^5.17.0",
     "aws-sdk": "^2.821.0",
     "body-parser": "1.15.2",
     "client-sessions": "0.7.0",
@@ -31,7 +31,8 @@
     "express-http-proxy": "0.10.1",
     "http-digest-client": "0.0.3",
     "log4js": "^5.3.0",
-    "moment-timezone": "0.5.26",
+    "moment": "^2.29.1",
+    "moment-timezone": "^0.5.34",
     "multer": "1.2.1",
     "node-yaml-config": "0.0.4",
     "nodemailer": "^6.3.0",
@@ -45,9 +46,9 @@
     "git-get-status": "^1.0.5",
     "gulp": "^4.0.2",
     "gulp-git": "^2.10.1",
-    "gulp-jasmine": "^4.0.0",
     "gulp-jshint": "^2.1.0",
     "gulp-prompt": "^1.2.0",
+    "jasmine": "^4.0.2",
     "jshint": "^2.12.0"
   },
   "license": "MIT",
