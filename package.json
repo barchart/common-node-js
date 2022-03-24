@@ -21,7 +21,7 @@
     "Node.js"
   ],
   "dependencies": {
-    "@barchart/common-js": "^4.19.2",
+    "@barchart/common-js": "^4.19.4",
     "@barchart/marketdata-api-js": "^5.17.0",
     "aws-sdk": "^2.821.0",
     "body-parser": "1.15.2",
