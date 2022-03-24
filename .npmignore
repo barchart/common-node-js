@@ -1,12 +1,13 @@
 .idea
-node_modules
-.DS_Store
-npm-debug.log
-
 .releases
+example
 test
+node_modules
 
+.DS_Store
 .gitignore
 .jshintrc
-gulpfile.js
 buildspec.yml
+gulpfile.js
+jasmine.json
+npm-debug.log
