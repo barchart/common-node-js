@@ -4,12 +4,15 @@ const aws = require('aws-sdk'),
 const assert = require('@barchart/common-js/lang/assert'),
 	Disposable = require('@barchart/common-js/lang/Disposable'),
 	is = require('@barchart/common-js/lang/is'),
-	promise = require('@barchart/common-js/lang/promise');
+	promise = require('@barchart/common-js/lang/promise'),
+	Scheduler = require('@barchart/common-js/timing/Scheduler');
 
 module.exports = (() => {
 	'use strict';
 
 	const logger = log4js.getLogger('common-node/aws/CloudWatchLogsProvider');
+
+	const READ_MILLISECOND_BACKOFF = 500;
 
 	/**
 	 * A facade for Amazon's CloudWatchLogs Service. The constructor
@@ -32,6 +35,8 @@ module.exports = (() => {
 
 			this._configuration = configuration;
 
+			this._scheduler = new Scheduler();
+
 			this._cloudWatchLogs = null;
 
 			this._startPromise = null;
@@ -47,23 +52,23 @@ module.exports = (() => {
 		 */
 		start() {
 			if (this.getIsDisposed()) {
-				return Promise.reject('Unable to start, the CloudWatch Logs provider has been disposed.');
+				return Promise.reject('Unable to start, the CloudWatchLogsProvider has been disposed.');
 			}
 
 			if (this._startPromise === null) {
 				this._startPromise = Promise.resolve()
 					.then(() => {
-						aws.config.update({ region: this._configuration.region });
+						aws.config.update({region: this._configuration.region});
 
-						this._cloudWatchLogs = new aws.CloudWatchLogs({ apiVersion: this._configuration.apiVersion || '2014-03-28' });
+						this._cloudWatchLogs = new aws.CloudWatchLogs({apiVersion: this._configuration.apiVersion || '2014-03-28'});
 					}).then(() => {
-						logger.info('The CloudWatch Logs provider has started');
+						logger.info('The CloudWatchLogsProvider has started');
 
 						this._started = true;
 
 						return this._started;
 					}).catch((e) => {
-						logger.error('The CloudWatch Logs provider failed to start', e);
+						logger.error('The CloudWatchLogsProvider failed to start', e);
 
 						throw e;
 					});
@@ -134,7 +139,7 @@ module.exports = (() => {
 					checkReady.call(this);
 
 					return promise.build((resolve, reject) => {
-						this._cloudWatchLogs.getQueryResults({ queryId: queryId }, (e, data) => {
+						this._cloudWatchLogs.getQueryResults({queryId: queryId}, (e, data) => {
 							if (e) {
 								logger.error(e);
 
@@ -162,7 +167,7 @@ module.exports = (() => {
 					checkReady.call(this);
 
 					return promise.build((resolve, reject) => {
-						this._cloudWatchLogs.describeLogGroups({ logGroupNamePrefix: logGroupNamePrefix }, (e, data) => {
+						this._cloudWatchLogs.describeLogGroups({logGroupNamePrefix: logGroupNamePrefix}, (e, data) => {
 							if (e) {
 								logger.error(e);
 
@@ -176,10 +181,66 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Lists all log groups.
+		 *
+		 * @public
+		 * @param {Object} options
+		 * @param {String} [options.logGroupNamePrefix]
+		 * @param {String} [options.nextToken]
+		 * @param {Number} [options.limit]
+		 * @returns {Promise<Array>}
+		 */
+		getLogGroups(options = {}) {
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
+
+					assert.argumentIsRequired(options, 'options', Object);
+					assert.argumentIsOptional(options.logGroupNamePrefix, 'options.logGroupNamePrefix', String);
+					assert.argumentIsOptional(options.nextToken, 'options.nextToken', String);
+					assert.argumentIsOptional(options.limit, 'options.limit', Number);
+
+					let logGroups = [];
+
+					const readLogGroups = (options) => {
+						return promise.build((resolve, reject) => {
+							return this._cloudWatchLogs.describeLogGroups(options, (e, data) => {
+								if (e) {
+									logger.error(e);
+
+									reject(e);
+								} else {
+									if (data.logGroups) {
+										logGroups = [...logGroups, ...data.logGroups];
+									}
+
+									if (data.nextToken) {
+										const newOptions = {...options};
+
+										newOptions.nextToken = data.nextToken;
+
+										readLogGroups(newOptions).then(() => {
+											resolve();
+										});
+									} else {
+										return resolve();
+									}
+								}
+							});
+						});
+					};
+
+					return readLogGroups(options).then(() => {
+						return logGroups;
+					});
+				});
+		}
+
+		/**
 		 * Indicates if the log group has at least one log stream.
 		 *
 		 * @public
-		 * @string {String} logGroupName
+		 * @param {String} logGroupName
 		 * @returns {Promise<Boolean>}
 		 */
 		getLogStreamExists(logGroupName) {
@@ -198,8 +259,239 @@ module.exports = (() => {
 				});
 		}
 
+		/**
+		 * Lists all log streams by LogGroup name.
+		 *
+		 * @param {Object} options
+		 * @param {String} options.logGroupName - The name of the log group.
+		 * @param {String} [options.logStreamNamePrefix] - The log stream prefix to match.
+		 * @param {String} [options.orderBy] - If the value is LogStreamName, the results are ordered by log stream name. If the value is LastEventTime, the results are ordered by the event time. The default value is LogStreamName.
+		 * @param {Boolean} [options.descending] - If the value is true, results are returned in descending order. If the value is to false, results are returned in ascending order. The default value is false.
+		 * @param {String} [options.nextToken] - The token for the next set of items to return. (You received this token from a previous call.)
+		 * @param {Number} [options.limit] - The maximum number of items returned. If you don't specify a value, the default is up to 50 items.
+		 * @returns {Promise<Array>}
+		 */
+		getLogStreams(options) {
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
+
+					assert.argumentIsRequired(options, 'options', Object);
+					assert.argumentIsRequired(options.logGroupName, 'options.logGroupName', String);
+					assert.argumentIsOptional(options.logStreamNamePrefix, 'options.logStreamNamePrefix', String);
+					assert.argumentIsOptional(options.orderBy, 'options.orderBy', String);
+					assert.argumentIsOptional(options.descending, 'options.descending', Boolean);
+					assert.argumentIsOptional(options.nextToken, 'options.nextToken', String);
+					assert.argumentIsOptional(options.limit, 'options.limit', Number);
+
+					let logStreams = [];
+
+					const readLogStreams = (options) => {
+						return promise.build((resolve, reject) => {
+							this._cloudWatchLogs.describeLogStreams(options, (e, data) => {
+								if (e) {
+									logger.error(e);
+
+									reject(e);
+								} else {
+									if (data.logStreams) {
+										logStreams = [...logStreams, ...data.logStreams];
+									}
+
+									if (data.nextToken) {
+										const newOptions = {...options};
+
+										newOptions.nextToken = data.nextToken;
+
+										return this._scheduler.backoff(readLogStreams.bind(this, newOptions)).then(() => {
+											resolve();
+										});
+									} else {
+										return resolve();
+									}
+								}
+							});
+						});
+					};
+
+					return this._scheduler.backoff(readLogStreams.bind(this, options)).then(() => {
+						return logStreams;
+					});
+				});
+		}
+
+		/**
+		 * Deletes a log group
+		 *
+		 * @param {String} logGroupName - The name of the log group.
+		 * @returns {Promise}
+		 */
+		deleteLogGroup(logGroupName) {
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
+
+					assert.argumentIsRequired(logGroupName, 'logGroupName', String);
+
+					return promise.build((resolve, reject) => {
+						this._cloudWatchLogs.deleteLogGroup(logGroupName, (e) => {
+							if (e) {
+								logger.error(e);
+
+								reject(e);
+							} else {
+								resolve(true);
+							}
+						});
+					});
+				});
+		}
+
+		/**
+		 * Deletes a log stream
+		 *
+		 * @param {String} logGroupName - The name of the log group.
+		 * @param {String} logStreamName - The name of the log stream.
+		 * @returns {Promise}
+		 */
+		deleteLogStream(logGroupName, logStreamName) {
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
+
+					assert.argumentIsRequired(logGroupName, 'logGroupName', String);
+					assert.argumentIsRequired(logStreamName, 'logStreamName', String);
+
+					return promise.build((resolve, reject) => {
+						this._cloudWatchLogs.deleteLogStream(logGroupName, (e) => {
+							if (e) {
+								logger.error(e);
+
+								reject(e);
+							} else {
+								resolve(true);
+							}
+						});
+					});
+				});
+		}
+
+		/**
+		 * Creates tags for a log group
+		 *
+		 * @param {String} logGroupName - The name of the log group.
+		 * @param {Object} tags - The key-value pairs to use for the tags.
+		 * @returns {Promise}
+		 */
+		tagLogGroup(logGroupName, tags) {
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
+
+					assert.argumentIsRequired(logGroupName, 'logGroupName', String);
+					assert.argumentIsRequired(tags, 'tags', Object);
+
+					return promise.build((resolve, reject) => {
+						this._cloudWatchLogs.tagLogGroup({logGroupName, tags}, (e) => {
+							if (e) {
+								logger.error(e);
+
+								reject(e);
+							} else {
+								resolve(true);
+							}
+						});
+					});
+				});
+		}
+
+		/**
+		 * Deletes tags for a log group
+		 *
+		 * @param {String} logGroupName - The name of the log group.
+		 * @param {Array<String>} tags - The tag keys. The corresponding tags are removed from the log group.
+		 * @returns {Promise}
+		 */
+		untagLogGroup(logGroupName, tags) {
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
+
+					assert.argumentIsRequired(logGroupName, 'logGroupName', String);
+					assert.argumentIsRequired(tags, 'tags', Array);
+
+					return promise.build((resolve, reject) => {
+						this._cloudWatchLogs.untagLogGroup({logGroupName, tags}, (e) => {
+							if (e) {
+								logger.error(e);
+
+								reject(e);
+							} else {
+								resolve(true);
+							}
+						});
+					});
+				});
+		}
+
+		/**
+		 * Sets retention in days for a log group
+		 *
+		 * @param {String} logGroupName - The name of the log group.
+		 * @param {Number} retentionInDays - The number of days to retain the log events in the specified log group. Possible values are: 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, and 3653.
+		 * @returns {Promise}
+		 */
+		putRetentionPolicy(logGroupName, retentionInDays) {
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
+
+					assert.argumentIsRequired(logGroupName, 'logGroupName', String);
+					assert.argumentIsRequired(retentionInDays, 'retentionInDays', Number);
+
+					return promise.build((resolve, reject) => {
+						this._cloudWatchLogs.putRetentionPolicy({logGroupName, retentionInDays}, (e) => {
+							if (e) {
+								logger.error(e);
+
+								reject(e);
+							} else {
+								resolve(true);
+							}
+						});
+					});
+				});
+		}
+
+		/**
+		 * Deletes the specified retention policy.
+		 *
+		 * @param {String} logGroupName - The name of the log group.
+		 * @returns {Promise}
+		 */
+		deleteRetentionPolicy(logGroupName) {
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
+
+					assert.argumentIsRequired(logGroupName, 'logGroupName', String);
+
+					return promise.build((resolve, reject) => {
+						this._cloudWatchLogs.deleteLogStream({logGroupName}, (e) => {
+							if (e) {
+								logger.error(e);
+
+								reject(e);
+							} else {
+								resolve(true);
+							}
+						});
+					});
+				});
+		}
+
 		_onDispose() {
-			logger.debug('CloudWatch Logs provider disposed');
+			logger.debug('CloudWatchLogsProvider disposed');
 		}
 
 		toString() {
@@ -209,17 +501,17 @@ module.exports = (() => {
 
 	function checkReady() {
 		if (this.getIsDisposed()) {
-			throw new Error('The CloudWatch Logs provider has been disposed.');
+			throw new Error('The CloudWatchLogsProvider has been disposed.');
 		}
 
 		if (!this._started) {
-			throw new Error('The CloudWatch Logs provider has not been started.');
+			throw new Error('The CloudWatchLogsProvider has not been started.');
 		}
 	}
 
 	function describeLogStreams(logGroupName, limit) {
 		return promise.build((resolve, reject) => {
-			const payload = { };
+			const payload = {};
 
 			payload.logGroupName = logGroupName;
 
