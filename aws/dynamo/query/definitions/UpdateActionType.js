@@ -89,7 +89,7 @@ module.exports = (() => {
 
 	const add = new UpdateActionType('add', 'add', 'ADD', [ UpdateOperatorType.SPACE ]);
 	const del = new UpdateActionType('delete', 'delete', 'DELETE', [ UpdateOperatorType.SPACE ]);
-	const set = new UpdateActionType('set', 'set', 'SET',  [ UpdateOperatorType.EQUALS, UpdateOperatorType.EQUALS_IF_NOT_EXISTS, UpdateOperatorType.MINUS, UpdateOperatorType.PLUS, UpdateOperatorType.LIST_APPEND ]);
+	const set = new UpdateActionType('set', 'set', 'SET', [ UpdateOperatorType.EQUALS, UpdateOperatorType.EQUALS_IF_NOT_EXISTS, UpdateOperatorType.MINUS, UpdateOperatorType.PLUS, UpdateOperatorType.LIST_APPEND ]);
 	const remove = new UpdateActionType('remove', 'remove', 'REMOVE', [ UpdateOperatorType.EMPTY ]);
 
 	return UpdateActionType;

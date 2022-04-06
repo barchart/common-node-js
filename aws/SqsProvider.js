@@ -495,7 +495,7 @@ module.exports = (() => {
 									}, (error, data) => {
 										if (error === null) {
 											if (data.Failed.length !== 0) {
-												logger.error('Queue send [',  start, '] through [', end, '] failed, [', data.Failed.length, '] messages could not be enqueued [', qualifiedQueueName, ']');
+												logger.error('Queue send [', start, '] through [', end, '] failed, [', data.Failed.length, '] messages could not be enqueued [', qualifiedQueueName, ']');
 
 												rejectCallback('Failed to send messages to queue.');
 											} else {
@@ -504,7 +504,7 @@ module.exports = (() => {
 												resolveCallback();
 											}
 										} else {
-											logger.error('Queue send [',  start, '] through [', end, '] failed, [', batch.length, '] messages could not be enqueued [', qualifiedQueueName, ']');
+											logger.error('Queue send [', start, '] through [', end, '] failed, [', batch.length, '] messages could not be enqueued [', qualifiedQueueName, ']');
 											logger.error(error);
 
 											rejectCallback('Failed to send messages to queue.');

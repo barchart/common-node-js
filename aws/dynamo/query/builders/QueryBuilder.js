@@ -88,7 +88,7 @@ module.exports = (() => {
 
 		/**
 		 * Adds a {@link Filter} to the query which results after the key filter has
-		 * been evaluated.  Uses a callback to provides the consumer with a {@link FilterBuilder}.
+		 * been evaluated. Uses a callback to provides the consumer with a {@link FilterBuilder}.
 		 *
 		 * @public
 		 * @param {Function} callback - Synchronously called, providing a {@link FilterBuilder} tied to the current instance.

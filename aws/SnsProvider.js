@@ -128,7 +128,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Creates a topic with the given name  and returns the topic's ARN. If the topic already
+		 * Creates a topic with the given name and returns the topic's ARN. If the topic already
 		 * exists, the ARN of the existing topic is returned.
 		 *
 		 * @public

@@ -1422,7 +1422,7 @@ module.exports = (() => {
 		const workQueue = this._batches.get(qualifiedTableName);
 
 		return workQueue.enqueue(() => {
-			const batchNumber =  workQueue.getCurrent();
+			const batchNumber = workQueue.getCurrent();
 
 			logger.debug('Starting batch', type.description, 'on [', qualifiedTableName, '] for batch number [', batchNumber, '] with [', items.length, '] items');
 

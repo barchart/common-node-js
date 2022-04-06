@@ -7,7 +7,7 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('common-node/aws/lambda/responses/LambdaResponseGenerator');
 
-	const MAXIMUM_RESPONSE_LENGTH_IN_BYTES =  5 * 1024 * 1024;
+	const MAXIMUM_RESPONSE_LENGTH_IN_BYTES = 5 * 1024 * 1024;
 
 	const MINIMUM_RESPONSE_SIZE_FOR_COMPRESSION_IN_BYTES = 1 * 1024;
 	const MAXIMUM_RESPONSE_SIZE_FOR_COMPRESSION_IN_BYTES = 50 * 1024 * 1024;
