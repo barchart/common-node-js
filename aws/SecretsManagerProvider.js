@@ -54,13 +54,13 @@ module.exports = (() => {
 
 						this._secretsManager = new aws.SecretsManager({ apiVersion: this._configuration.apiVersion || '2017-10-17' });
 					}).then(() => {
-						logger.info('The Secrets Manager provider  has started');
+						logger.info('The Secrets Manager provider has started');
 
 						this._started = true;
 
 						return this._started;
 					}).catch((e) => {
-						logger.error('The Secrets Manager provider  failed to start', e);
+						logger.error('The Secrets Manager provider failed to start', e);
 
 						throw e;
 					});
@@ -109,11 +109,11 @@ module.exports = (() => {
 
 	function checkReady() {
 		if (this.getIsDisposed()) {
-			throw new Error('The Secrets Manager provider  has been disposed');
+			throw new Error('The Secrets Manager provider has been disposed');
 		}
 
 		if (!this._started) {
-			throw new Error('The Secrets Manager provider  has not been started');
+			throw new Error('The Secrets Manager provider has not been started');
 		}
 	}
 
