@@ -1,6 +1,7 @@
 const assert = require('@barchart/common-js/lang/assert');
 
 const DataProvider = require('./DataProvider'),
+	DataOperationAdjustment = require('./DataOperationAdjustment'),
 	DataOperationContainer = require('./DataOperationContainer'),
 	DataOperationResult = require('./DataOperationResult'),
 	DataOperationStage = require('./DataOperationStage');
@@ -12,7 +13,7 @@ module.exports = (() => {
 	 * An operation that runs within the context of a {@link DataSession}.
 	 *
 	 * @public
-	 * @interface
+	 * @abstract
 	 */
 	class DataOperation {
 		constructor() {
@@ -30,6 +31,17 @@ module.exports = (() => {
 		 */
 		get stage() {
 			return DataOperationStage.PROCESS;
+		}
+
+		/**
+		 * Priority of the operation (among other operations sharing the
+		 * same {@link DataOperationStage}).
+		 *
+		 * @public
+		 * @returns {DataOperationAdjustment}
+		 */
+		get adjustment() {
+			return DataOperationAdjustment.NONE;
 		}
 
 		/**
@@ -88,13 +100,14 @@ module.exports = (() => {
 		 * @protected
 		 * @param {DataOperation} operation
 		 * @param {DataOperationStage=} priority
+		 * @param {DataOperationAdjustment=} adjustment
 		 */
-		_spawn(operation, priority) {
+		_spawn(operation, priority, adjustment) {
 			if (!this._processing) {
 				throw new Error('A new data operation can only be spawned during the processing of the operation.');
 			}
 
-			this._children.push(new DataOperationContainer(operation, priority || operation.stage));
+			this._children.push(new DataOperationContainer(operation, priority || operation.stage, adjustment || operation.adjustment));
 		}
 
 		/**

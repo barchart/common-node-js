@@ -103,7 +103,7 @@ module.exports = (() => {
 				throw new Error('Unable to add operation to session, it has been flushed.');
 			}
 
-			enqueue.call(this, new DataOperationContainer(operation, operation.stage));
+			enqueue.call(this, new DataOperationContainer(operation, operation.stage, operation.adjustment));
 
 			return this;
 		}

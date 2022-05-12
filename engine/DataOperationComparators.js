@@ -32,6 +32,7 @@ module.exports = (() => {
 
 	const instance = ComparatorBuilder
 		.startWith((a, b) => comparators.compareNumbers(a.stage.priority, b.stage.priority))
+		.thenBy((a, b) => comparators.compareNumbers(a.adjustment.priority, b.adjustment.priority))
 		.thenBy((a, b) => comparators.compareNumbers(a.order, b.order))
 		.toComparator();
 

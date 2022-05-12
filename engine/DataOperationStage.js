@@ -46,7 +46,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Normal priority level -- occurring before any persistence level operations.
+		 * Normal priority level — occurring before any persistence level operations.
 		 *
 		 * @public
 		 * @static
@@ -57,7 +57,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Normal priority level -- occurring after any {@link DataOperationStage.PROCESS} operations.
+		 * Normal priority level — occurring after any {@link DataOperationStage.PROCESS} operations.
 		 *
 		 * @public
 		 * @static
@@ -68,7 +68,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Persistence priority level -- occurring after all normal priority operations.
+		 * Persistence priority level — occurring after all normal priority operations.
 		 *
 		 * @public
 		 * @static
@@ -79,7 +79,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Persistence priority level -- occurring after any {@link DataOperationStage.SAVE} operations.
+		 * Persistence priority level — occurring after any {@link DataOperationStage.SAVE} operations.
 		 *
 		 * @public
 		 * @static
@@ -90,7 +90,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Persistence priority level -- occurring after any {@link DataOperationStage.UPDATE} operations.
+		 * Persistence priority level — occurring after any {@link DataOperationStage.UPDATE} operations.
 		 *
 		 * @public
 		 * @static
