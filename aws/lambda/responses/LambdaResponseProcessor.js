@@ -38,8 +38,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Runs generators in a sequential order while one of
-		 * them won't return not null result.
+		 * Runs generators in a sequential order.
 		 *
 		 * @public
 		 * @param {Number} responseCode
