@@ -183,9 +183,9 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Object} options
-		 * @param {String} [options.logGroupNamePrefix]
-		 * @param {String} [options.nextToken]
-		 * @param {Number} [options.limit]
+		 * @param {String} options.logGroupNamePrefix
+		 * @param {String} options.nextToken
+		 * @param {Number} options.limit
 		 * @returns {Promise<Array>}
 		 */
 		getLogGroups(options = {}) {
