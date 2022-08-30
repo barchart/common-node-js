@@ -12,8 +12,6 @@ module.exports = (() => {
 
 	const logger = log4js.getLogger('common-node/aws/CloudWatchLogsProvider');
 
-	const READ_MILLISECOND_BACKOFF = 500;
-
 	/**
 	 * A facade for Amazon's CloudWatchLogs Service. The constructor
 	 * accepts configuration options. The promise-based instance functions
