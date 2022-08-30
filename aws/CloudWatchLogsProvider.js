@@ -266,7 +266,6 @@ module.exports = (() => {
 		 * @param {String} options.logStreamNamePrefix - The log stream prefix to match.
 		 * @param {String} options.orderBy - If the value is LogStreamName, the results are ordered by log stream name. If the value is LastEventTime, the results are ordered by the event time. The default value is LogStreamName.
 		 * @param {Boolean} options.descending - If the value is true, results are returned in descending order. If the value is false, results are returned in ascending order. The default value is false.
-		 * @param {String} options.nextToken - The token for the next set of items to return (received from a previous call).
 		 * @param {Number} options.limit - The maximum number of items returned. If you don't specify a value, the default is up to 50 items.
 		 * @returns {Promise<Array>}
 		 */
