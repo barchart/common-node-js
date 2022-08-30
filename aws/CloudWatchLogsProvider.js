@@ -83,7 +83,7 @@ module.exports = (() => {
 		 * @param {String} query - The query string.
 		 * @param {Number} startTime - The beginning of the time range to query. The number of seconds since January 1, 1970, 00:00:00 UTC.
 		 * @param {Number} endTime - The end of the time range to query. The number of seconds since January 1, 1970, 00:00:00 UTC.
-		 * @param {Number=} limit - The maximum number of log events to return in the query.
+		 * @param {Number=} limit - The maximum number of log events to return.
 		 * @returns {Promise<Object>}
 		 */
 		startQuery(name, query, startTime, endTime, limit) {
