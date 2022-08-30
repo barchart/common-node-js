@@ -260,6 +260,7 @@ module.exports = (() => {
 		/**
 		 * Lists all log streams by LogGroup name.
 		 *
+		 * @public
 		 * @param {Object} options
 		 * @param {String} options.logGroupName - The name of the log group.
 		 * @param {String} [options.logStreamNamePrefix] - The log stream prefix to match.
@@ -321,6 +322,7 @@ module.exports = (() => {
 		/**
 		 * Deletes a log group
 		 *
+		 * @public
 		 * @param {String} logGroupName - The name of the log group.
 		 * @returns {Promise}
 		 */
@@ -348,6 +350,7 @@ module.exports = (() => {
 		/**
 		 * Deletes a log stream
 		 *
+		 * @public
 		 * @param {String} logGroupName - The name of the log group.
 		 * @param {String} logStreamName - The name of the log stream.
 		 * @returns {Promise}
@@ -377,6 +380,7 @@ module.exports = (() => {
 		/**
 		 * Creates tags for a log group
 		 *
+		 * @public
 		 * @param {String} logGroupName - The name of the log group.
 		 * @param {Object} tags - The key-value pairs to use for the tags.
 		 * @returns {Promise}
@@ -406,6 +410,7 @@ module.exports = (() => {
 		/**
 		 * Deletes tags for a log group
 		 *
+		 * @public
 		 * @param {String} logGroupName - The name of the log group.
 		 * @param {Array<String>} tags - The tag keys. The corresponding tags are removed from the log group.
 		 * @returns {Promise}
@@ -435,6 +440,7 @@ module.exports = (() => {
 		/**
 		 * Sets retention in days for a log group
 		 *
+		 * @public
 		 * @param {String} logGroupName - The name of the log group.
 		 * @param {Number} retentionInDays - The number of days to retain the log events in the specified log group. Possible values are: 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, and 3653.
 		 * @returns {Promise}
@@ -464,6 +470,7 @@ module.exports = (() => {
 		/**
 		 * Deletes the specified retention policy.
 		 *
+		 * @public
 		 * @param {String} logGroupName - The name of the log group.
 		 * @returns {Promise}
 		 */
