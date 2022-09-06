@@ -128,7 +128,7 @@ module.exports = (() => {
 		 * Returns a {@link DataProvider} for use by a {@link DataSession}.
 		 *
 		 * @protected
-		 * @param options
+		 * @param {Object} options
 		 * @return {Promise}
 		 */
 		getDataProvider(options) {
@@ -147,6 +147,7 @@ module.exports = (() => {
 		 * {@link DataProvider} used when flushing a {@link DataSession}.
 		 *
 		 * @protected
+		 * @param {Object} options
 		 * @returns {Promise<DataProvider>|DataProvider}
 		 */
 		_getDataProvider(options) {
