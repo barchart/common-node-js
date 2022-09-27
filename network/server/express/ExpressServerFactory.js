@@ -12,7 +12,6 @@ const bodyParser = require('body-parser'),
 	socketIO = require('socket.io');
 
 const assert = require('@barchart/common-js/lang/assert'),
-	attributes = require('@barchart/common-js/lang/attributes'),
 	CommandHandler = require('@barchart/common-js/commands/CommandHandler'),
 	Disposable = require('@barchart/common-js/lang/Disposable'),
 	DisposableStack = require('@barchart/common-js/collections/specialized/DisposableStack'),
@@ -984,8 +983,10 @@ module.exports = (() => {
 					const validationData = {
 						payload: argumentExtractionStrategy.getCommandArguments(verb, request) || { }
 					};
-					
-					if (attributes.has(request, 'headers.authorization')) {
+
+					const authorization = request.get('authorization');
+
+					if (is.string(authorization) && authorization.length > 0) {
 						validationData.context = { };
 						validationData.context.token = request.headers.authorization;
 					} else {
