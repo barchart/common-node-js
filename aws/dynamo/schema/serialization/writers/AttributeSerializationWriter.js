@@ -17,7 +17,7 @@ module.exports = (() => {
 	 * @public
 	 * @extends {Writer}
 	 * @param {Attribute} attribute
-	 * @param {Boolean=} explicit - If true, derivation is suppressed
+	 * @param {Boolean=} explicit - If true, derivation is suppressed.
 	 */
 	class AttributeSerializationWriter extends Writer {
 		constructor(attribute, explicit) {
@@ -28,24 +28,24 @@ module.exports = (() => {
 			this._attribute = attribute;
 			this._serializer = Serializers.forAttribute(attribute);
 
-			let existsDelegate;
+			let validDelegate;
 			let readDelegate;
 
 			if (this._attribute.derivation === null || (is.boolean(explicit) && explicit)) {
-				const attributeDelegates = getDelegatesForAttribute(this._attribute);
+				const attributeDelegates = getDelegatesForAttribute(this._attribute, false);
 
-				existsDelegate = attributeDelegates.exists;
+				validDelegate = attributeDelegates.valid;
 				readDelegate = attributeDelegates.read;
 			} else {
 				const derivation = this._attribute.derivation;
 
-				const derivationDelegates = derivation.attributes.map(a => getDelegatesForAttribute(a));
+				const derivationDelegates = derivation.attributes.map((a, i) => getDelegatesForAttribute(a, derivation.optionalities[i] || false));
 
-				existsDelegate = source => derivationDelegates.every(dd => dd.exists(source));
+				validDelegate = source => derivationDelegates.every(dd => dd.valid(source));
 				readDelegate = source => derivation.generator(derivationDelegates.map(dd => dd.read(source)));
 			}
 
-			this._existsDelegate = existsDelegate;
+			this._validDelegate = validDelegate;
 			this._readDelegate = readDelegate;
 		}
 
@@ -56,7 +56,7 @@ module.exports = (() => {
 		}
 
 		_canWrite(source, target) {
-			return this._serializer !== null && is.object(source) && this._existsDelegate(source);
+			return this._serializer !== null && is.object(source) && this._validDelegate(source);
 		}
 
 		toString() {
@@ -64,26 +64,26 @@ module.exports = (() => {
 		}
 	}
 
-	function getDelegatesForAttribute(attribute) {
+	function getDelegatesForAttribute(attribute, optional) {
 		let existsDelegate;
-		let readDelegate;
+		let extractDelegate;
 
 		if (attribute.name.includes(Writer.SEPARATOR)) {
 			const names = attribute.name.split(Writer.SEPARATOR);
 
 			existsDelegate = source => attributes.has(source, names);
-			readDelegate = source => attributes.read(source, names);
+			extractDelegate = source => attributes.read(source, names);
 		} else {
 			const name = attribute.name;
 
 			existsDelegate = source => source.hasOwnProperty(name);
-			readDelegate = source => source[name];
+			extractDelegate = source => source[name];
 		}
 
-		return {
-			exists: existsDelegate,
-			read: readDelegate
-		};
+		const valid = source => existsDelegate(source) || optional;
+		const read = source => existsDelegate(source) ? extractDelegate(source) : null;
+
+		return { valid, read };
 	}
 
 	return AttributeSerializationWriter;
