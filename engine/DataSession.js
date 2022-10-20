@@ -15,7 +15,7 @@ const DataProvider = require('./DataProvider'),
 module.exports = (() => {
 	'use strict';
 
-	const logger = log4js.getLogger('portfolio-common/engine/DataSession');
+	const logger = log4js.getLogger('common-node/engine/DataSession');
 
 	let instance = 0;
 

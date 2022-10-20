@@ -8,7 +8,7 @@ const FailureReason = require('@barchart/common-js/api/failures/FailureReason');
 module.exports = (() => {
 	'use strict';
 
-	const logger = log4js.getLogger('portfolio-common/engine/DataSessionFactory');
+	const logger = log4js.getLogger('common-node/engine/DataSessionFactory');
 
 	/**
 	 * A factory for creating {@link DataSession} instances.
