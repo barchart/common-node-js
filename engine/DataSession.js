@@ -213,9 +213,9 @@ module.exports = (() => {
 
 					return flushRecursive(DataOperationResult.getInitial())
 						.then(() => {
-							const transformedResults = results.reduceRight((resolvedResults, result, i, a) => {
+							const transformedResults = results.reduceRight((resolvedResults, result) => {
 								const spawnResults = result.children.map((spawnContainer) => {
-									return a.find((previousResult) => previousResult.operation === spawnContainer.operation);
+									return resolvedResults.find((previousResult) => previousResult.operation === spawnContainer.operation);
 								});
 
 								resolvedResults.push(result.operation.transformResult(result, spawnResults));
