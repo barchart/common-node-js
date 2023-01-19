@@ -14,7 +14,7 @@ module.exports = (() => {
 	 * options. The promise-based instance functions abstract knowledge of the AWS API.
 	 *
 	 * @public
-	 * @extends Disposable
+	 * @extends {Disposable}
 	 * @param {object} configuration
 	 * @param {string} configuration.region - The AWS region (e.g. "us-east-1").
 	 * @param {string=} configuration.apiVersion - The Secrets Manager version (defaults to "2017-10-17").
