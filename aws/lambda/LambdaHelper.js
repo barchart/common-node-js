@@ -66,8 +66,6 @@ module.exports = (() => {
 		 * @return {Promise<String>}
 		 */
 		static getSecretValue(secretId) {
-			assert.argumentIsRequired(secretId, 'secretId', String);
-
 			return LambdaSecretsManager.INSTANCE.getValue(secretId);
 		}
 

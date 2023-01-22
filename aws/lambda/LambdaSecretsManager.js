@@ -1,3 +1,5 @@
+const assert = require('@barchart/common-js/lang/assert');
+
 const SecretsManagerProvider = require('./../SecretsManagerProvider');
 
 module.exports = (() => {
@@ -32,22 +34,23 @@ module.exports = (() => {
 		 * @return {Promise<String>}
 		 */
 		getValue(secretId) {
-			return getSecretsManagerProvider()
-				.then((provider) => {
-					let result;
+			return Promise.resolve()
+				.then(() => {
+					assert.argumentIsRequired(secretId, 'secretId', String);
 
 					if (this._cache.has(secretId)) {
-						result = Promise.resolve(this._cache.get(secretId));
-					} else {
-						result = provider.getSecretValue(secretId)
-							.then((data) => {
-								this._cache.set(secretId, data);
-
-								return data;
-							});
+						return Promise.resolve(this._cache.get(secretId));
 					}
 
-					return result;
+					return getSecretsManagerProvider()
+						.then((provider) => {
+							return provider.getSecretValue(secretId)
+								.then((data) => {
+									this._cache.set(secretId, data);
+
+									return data;
+								});
+						});
 				});
 		}
 	}
