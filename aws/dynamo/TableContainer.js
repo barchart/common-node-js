@@ -143,7 +143,6 @@ module.exports = (() => {
 		 * Returns true, if the item conforms to the table's schema; otherwise false.
 		 *
 		 * @protected
-		 * @abstract
 		 * @param {Object} item
 		 * @returns {Boolean}
 		 */
