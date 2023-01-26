@@ -112,7 +112,7 @@ module.exports = (() => {
 					const qualifiedTopicName = getQualifiedTopicName(this._configuration.prefix, topicName);
 
 					if (!this._topicPromises.hasOwnProperty(qualifiedTopicName)) {
-						logger.debug('The SNS provider has not cached the topic ARN. Issuing request to create topic');
+						logger.debug('The SNS provider has not cached the topic. Issuing request to create topic.');
 
 						let tags = null;
 
