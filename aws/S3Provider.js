@@ -314,9 +314,6 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {string} filename
-		 * @param {string|Buffer} buffer - The content to upload
-		 * @param {string=} mimeType = Defaults to "text/plain"
-		 * @param {boolean=} secure = Indicates if the "private" ACL applies to the object
 		 * @returns {Promise<Object>}
 		 */
 		download(filename) {
