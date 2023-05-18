@@ -1,8 +1,8 @@
 const log4js = require('log4js');
 
 const assert = require('@barchart/common-js/lang/assert'),
-	Enum = require('@barchart/common-js/lang/Enum');
-Disposable = require('@barchart/common-js/lang/Disposable');
+	Enum = require('@barchart/common-js/lang/Enum'),
+	Disposable = require('@barchart/common-js/lang/Disposable');
 
 const EndpointBuilder = require('@barchart/common-js/api/http/builders/EndpointBuilder'),
 	ErrorInterceptor = require('@barchart/common-js/api/http/interceptors/ErrorInterceptor'),
@@ -102,8 +102,8 @@ module.exports = (() => {
 		 * connection has been established and other instance methods can be used.
 		 *
 		 * @public
-		 * @param {JwtProvider} jwtProviderRegister - Your implementation of {@link JwtProvider} for {@link registerDevice} and {@link unregisterDevice} functions.
-		 * @param {JwtProvider} jwtProviderSend - Your implementation of {@link JwtProvider} for {@link send} function.
+		 * @param {JwtProvider=} jwtProviderRegister - Your implementation of {@link JwtProvider} for {@link registerDevice} and {@link unregisterDevice} functions.
+		 * @param {JwtProvider=} jwtProviderSend - Your implementation of {@link JwtProvider} for {@link send} function.
 		 * @returns {Promise<PushNotificationProvider>}
 		 */
 		start(jwtProviderRegister, jwtProviderSend) {
