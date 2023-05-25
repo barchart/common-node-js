@@ -182,6 +182,16 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Attribute matches one of the operand values.
+		 *
+		 * @public
+		 * @returns {OperatorType}
+		 */
+		static get IN() {
+			return operatorTypeIn;
+		}
+
+		/**
 		 * Attribute exists.
 		 *
 		 * @public
@@ -223,6 +233,8 @@ module.exports = (() => {
 
 	const operatorTypeAttributeExists = new OperatorType('Attribute Exists', (f, o) => `attribute_exists(${f})`, 0, [ ]);
 	const operatorTypeAttributeNotExists = new OperatorType('Attribute Not Exists', (f, o) => `attribute_not_exists(${f})`, 0, [ KeyType.HASH, KeyType.RANGE ]);
+
+	const operatorTypeIn = new OperatorType('In', (f, o) => `${f} IN (${o.join(',')})`, 2, [ KeyType.RANGE ]);
 
 	return OperatorType;
 })();
