@@ -19,15 +19,15 @@ module.exports = (() => {
 	 * @extends {Stream.Writable}
 	 * @param {Table} table - The table schema which items must conform to.
 	 * @param {DynamoProvider} provider - The provider used to write records.
-	 * @param {Boolean} remove - If true, the items are deleted (instead of written) to the database.
+	 * @param {Boolean=} remove - If true, the items are deleted (instead of written) to the database.
 	 * @param {Boolean=} explicit - If true, attribute derivation is skipped (only applies when remove is true).
 	 */
 	class DynamoStreamWriter extends Stream.Writable {
 		constructor(table, provider, remove, explicit) {
 			super({ objectMode: true, highWaterMark: 100 });
 
-			assert.argumentIsRequired(provider, 'provider', DynamoProvider, 'DynamoProvider');
 			assert.argumentIsRequired(table, 'table', Table, 'Table');
+			assert.argumentIsRequired(provider, 'provider', DynamoProvider, 'DynamoProvider');
 			assert.argumentIsOptional(remove, 'remove', Boolean);
 			assert.argumentIsOptional(explicit, 'explicit', Boolean);
 
