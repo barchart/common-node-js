@@ -45,6 +45,7 @@ module.exports = (() => {
 		 * Ascending.
 		 *
 		 * @public
+		 * @static
 		 * @returns {OrderingType}
 		 */
 		static get ASCENDING() {
@@ -55,6 +56,7 @@ module.exports = (() => {
 		 * Descending.
 		 *
 		 * @public
+		 * @static
 		 * @returns {OrderingType}
 		 */
 		static get DESCENDING() {
