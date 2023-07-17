@@ -2,7 +2,7 @@ const assert = require('@barchart/common-js/lang/assert'),
 	attributes = require('@barchart/common-js/lang/attributes'),
 	Enum = require('@barchart/common-js/lang/Enum'),
 	is = require('@barchart/common-js/lang/is'),
-	promise = require('@barchart/common-js/lang/promise');
+	promise = require('@barchart/common-js/lang/promise'),
 	Schema = require('@barchart/common-js/serialization/json/Schema');
 
 const FailureReason = require('@barchart/common-js/api/failures/FailureReason'),
