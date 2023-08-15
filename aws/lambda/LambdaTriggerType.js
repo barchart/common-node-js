@@ -111,6 +111,18 @@ module.exports = (() => {
 			return sqs;
 		}
 
+		/**
+		 * A direct invocation of a Lambda function from the Barchart Scheduler
+		 * Service (see https://github.com/barchart/scheduler-private).
+		 *
+		 * @public
+		 * @static
+		 * @returns {LambdaTriggerType}
+		 */
+		static get BARCHART_SCHEDULER() {
+			return barchartScheduler;
+		}
+
 		toString() {
 			return `[LambdaTriggerType (code=${this.code})]`;
 		}
@@ -120,6 +132,8 @@ module.exports = (() => {
 	const dynamo = new LambdaTriggerType('DYNAMO', m => m.eventSource === 'aws:dynamodb', m => m.eventID, m => m.dynamodb);
 	const sns = new LambdaTriggerType('SNS', m => m.EventSource === 'aws:sns', m => m.Sns.MessageId, m => m.Sns.Message);
 	const sqs = new LambdaTriggerType('SQS', m => m.eventSource === 'aws:sqs', m => m.messageId, m => m.body);
+
+	const barchartScheduler = new LambdaTriggerType('BARCHART_SCHEDULER', m => m.source === 'barchart:scheduler', m => m.guid, m => m);
 
 	return LambdaTriggerType;
 })();
