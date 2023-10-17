@@ -135,7 +135,7 @@ module.exports = (() => {
 
 					return getTable.call(this, qualifiedTableName)
 						.then((tableData) => {
-							logger.debug('Table definition retrieved for [', qualifiedTableName,']');
+							logger.debug('Table definition retrieved for [', qualifiedTableName, ']');
 
 							return TableBuilder.fromDefinition(tableData);
 						});
