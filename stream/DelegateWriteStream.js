@@ -47,7 +47,7 @@ module.exports = (() => {
 		try {
 			delegate(chunk);
 		} catch (e) {
-			result = new Error('Delegate write stream processing failed.', e);
+			result = e;
 		}
 
 		callback(result);
@@ -60,7 +60,7 @@ module.exports = (() => {
 			}).then(() => {
 				return null;
 			}).catch((e) => {
-				return new Error('Delegate write stream processing failed.', e);
+				return e;
 			}).then((result) => {
 				callback(result);
 			});
