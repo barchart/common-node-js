@@ -25,9 +25,10 @@ module.exports = (() => {
 	 * @param {Boolean=} skipDeserialization
 	 * @param {Boolean=} countOnly
 	 * @param {String=} description
+	 * @param {Boolean=} monitorCapacityConsumed
 	 */
 	class Scan extends Action {
-		constructor(table, index, filter, attributes, limit, segment, totalSegments, consistentRead, skipDeserialization, countOnly, description) {
+		constructor(table, index, filter, attributes, limit, segment, totalSegments, consistentRead, skipDeserialization, countOnly, description, monitorCapacityConsumed) {
 			super(table, index, (description || '[Unnamed Scan]'));
 
 			this._filter = filter || null;
@@ -38,6 +39,7 @@ module.exports = (() => {
 			this._skipDeserialization = skipDeserialization || false;
 			this._consistentRead = consistentRead || false;
 			this._countOnly = countOnly || false;
+			this._monitorCapacityConsumed = monitorCapacityConsumed || false;
 		}
 
 		/**
@@ -121,6 +123,16 @@ module.exports = (() => {
 		 */
 		get countOnly() {
 			return this._countOnly;
+		}
+
+		/**
+		 * If true, the total RCU (read capacity units) consumed will be monitored.
+		 *
+		 * @public
+		 * @returns {Boolean}
+		 */
+		get monitorCapacityConsumed() {
+			return this._monitorCapacityConsumed;
 		}
 
 		/**
@@ -228,6 +240,10 @@ module.exports = (() => {
 
 			if (this._consistentRead) {
 				schema.ConsistentRead = true;
+			}
+
+			if (this._monitorCapacityConsumed) {
+				schema.ReturnConsumedCapacity = 'TOTAL';
 			}
 
 			return schema;

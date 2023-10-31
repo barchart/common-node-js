@@ -61,7 +61,7 @@ module.exports = (() => {
 		withIndex(indexName) {
 			assert.argumentIsRequired(indexName, 'indexName', String);
 
-			this._query = new Query(this._query.table, getIndex(indexName, this._query.table), this._query.keyFilter, this._query.resultsFilter, this._query.parallelFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.countOnly, this._query.description);
+			this._query = new Query(this._query.table, getIndex(indexName, this._query.table), this._query.keyFilter, this._query.resultsFilter, this._query.parallelFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.countOnly, this._query.description, this._query.monitorCapacityConsumed);
 
 			return this;
 		}
@@ -81,7 +81,7 @@ module.exports = (() => {
 
 			callback(filterBuilder);
 
-			this._query = new Query(this._query.table, this._query.index, filterBuilder.filter, this._query.resultsFilter, this._query.parallelFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.countOnly, this._query.description);
+			this._query = new Query(this._query.table, this._query.index, filterBuilder.filter, this._query.resultsFilter, this._query.parallelFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.countOnly, this._query.description, this._query.monitorCapacityConsumed);
 
 			return this;
 		}
@@ -101,7 +101,7 @@ module.exports = (() => {
 
 			callback(filterBuilder);
 
-			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, filterBuilder.filter, this._query.parallelFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.countOnly, this._query.description);
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, filterBuilder.filter, this._query.parallelFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.countOnly, this._query.description, this._query.monitorCapacityConsumed);
 
 			return this;
 		}
@@ -124,7 +124,7 @@ module.exports = (() => {
 				if (!attributes.some(a => a.name === attribute.name)) {
 					attributes.push(attribute);
 
-					this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.parallelFilter, attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.countOnly, this._query.description);
+					this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.parallelFilter, attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.countOnly, this._query.description, this._query.monitorCapacityConsumed);
 				}
 			}
 
@@ -141,7 +141,7 @@ module.exports = (() => {
 		withLimit(limit) {
 			assert.argumentIsRequired(limit, 'limit', Number);
 
-			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.parallelFilter, this._query.attributes, limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.countOnly, this._query.description);
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.parallelFilter, this._query.attributes, limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.countOnly, this._query.description, this._query.monitorCapacityConsumed);
 
 			return this;
 		}
@@ -156,7 +156,7 @@ module.exports = (() => {
 		withDescription(description) {
 			assert.argumentIsRequired(description, 'description', String);
 
-			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.parallelFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.countOnly, description);
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.parallelFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.countOnly, description, this._query.monitorCapacityConsumed);
 
 			return this;
 		}
@@ -171,7 +171,7 @@ module.exports = (() => {
 		withOrderingType(orderingType) {
 			assert.argumentIsRequired(orderingType, 'orderingType', OrderingType, 'OrderingType');
 
-			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.parallelFilter, this._query.attributes, this._query.limit, orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.countOnly, this._query.description);
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.parallelFilter, this._query.attributes, this._query.limit, orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.countOnly, this._query.description, this._query.monitorCapacityConsumed);
 
 			return this;
 		}
@@ -183,7 +183,7 @@ module.exports = (() => {
 		 * @returns {QueryBuilder}
 		 */
 		withConsistentRead() {
-			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.parallelFilter, this._query.attributes, this._query.limit, this._query.orderingType, true, this._query.skipDeserialization, this._query.countOnly, this._query.description);
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.parallelFilter, this._query.attributes, this._query.limit, this._query.orderingType, true, this._query.skipDeserialization, this._query.countOnly, this._query.description, this._query.monitorCapacityConsumed);
 
 			return this;
 		}
@@ -196,7 +196,7 @@ module.exports = (() => {
 		 * @returns {QueryBuilder}
 		 */
 		withDeserializationSkipped() {
-			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.parallelFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, true, this._query.countOnly, this._query.description);
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.parallelFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, true, this._query.countOnly, this._query.description, this._query.monitorCapacityConsumed);
 
 			return this;
 		}
@@ -208,7 +208,19 @@ module.exports = (() => {
 		 * @returns {QueryBuilder}
 		 */
 		withCount() {
-			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.parallelFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, true, this._query.description);
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.parallelFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, true, this._query.description, this._query.monitorCapacityConsumed);
+
+			return this;
+		}
+
+		/**
+		 * Adds a directive to track RCU (read capacity units) consumed by the query's execution;
+		 *
+		 * @public
+		 * @returns {QueryBuilder}
+		 */
+		withCapacityMonitored() {
+			this._query = new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, this._query.parallelFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, this._query.countOnly, this._query.description, true);
 
 			return this;
 		}
@@ -266,7 +278,7 @@ module.exports = (() => {
 
 				const parallelFilter = new Filter([ expression ]);
 
-				return new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, parallelFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, false, `${this._query.description} [ ${i} ]`);
+				return new Query(this._query.table, this._query.index, this._query.keyFilter, this._query.resultsFilter, parallelFilter, this._query.attributes, this._query.limit, this._query.orderingType, this._query.consistentRead, this._query.skipDeserialization, false, `${this._query.description} [ ${i} ]`, this._query.monitorCapacityConsumed);
 			});
 		}
 

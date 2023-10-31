@@ -951,6 +951,10 @@ module.exports = (() => {
 											wrapper.startKey = Serializer.deserialize(data.LastEvaluatedKey, scan.table);
 										}
 
+										if (data.ConsumedCapacity) {
+											wrapper.capacityConsumed = data.ConsumedCapacity.CapacityUnits || 0;
+										}
+
 										wrapper.code = DYNAMO_RESULT.SUCCESS;
 										wrapper.results = results;
 
@@ -1297,6 +1301,10 @@ module.exports = (() => {
 
 										if (data.LastEvaluatedKey) {
 											wrapper.startKey = Serializer.deserialize(data.LastEvaluatedKey, query.table);
+										}
+
+										if (data.ConsumedCapacity) {
+											wrapper.capacityConsumed = data.ConsumedCapacity.CapacityUnits || 0;
 										}
 
 										wrapper.code = DYNAMO_RESULT.SUCCESS;

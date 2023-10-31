@@ -45,6 +45,8 @@ module.exports = (() => {
 			this._stopping = false;
 			this._reading = false;
 
+			this._capacityConsumed = 0;
+
 			this._error = false;
 
 			this._readPromise = null;
@@ -81,6 +83,13 @@ module.exports = (() => {
 		 */
 		get completed() {
 			 return this._previous !== null && !this._previous.startKey;
+		}
+
+		/**
+		 * Returns the RCU (read capacity units) consumed (so far).
+		 */
+		get capacityConsumed() {
+			return this._capacityConsumed;
 		}
 
 		/**
@@ -172,6 +181,10 @@ module.exports = (() => {
 
 							if (results.results.length !== 0) {
 								this._scanned = this._scanned + results.results.length;
+
+								if (results.capacityConsumed) {
+									this._capacityConsumed = this._capacityConsumed + results.capacityConsumed;
+								}
 
 								if (this._discrete) {
 									this._reading = results.results.reduce((accumulator, item) => {
