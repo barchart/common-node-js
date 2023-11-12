@@ -1,7 +1,8 @@
 const crypto = require('crypto'),
 	zlib = require('zlib');
 
-const assert = require('@barchart/common-js/lang/assert');
+const assert = require('@barchart/common-js/lang/assert'),
+	is = require('@barchart/common-js/lang/is');
 
 const AttributeSerializer = require('./AttributeSerializer'),
 	CompressionType = require('./../../definitions/CompressionType'),
@@ -65,6 +66,10 @@ module.exports = (() => {
 			const value = wrapper[DataType.BINARY.code];
 
 			let deserialized = value;
+
+			if (is.string(deserialized)) {
+				deserialized = Buffer.from(deserialized, 'base64');
+			}
 
 			const encryptor = this._getEncryptor();
 
