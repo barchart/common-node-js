@@ -79,6 +79,7 @@ module.exports = (() => {
 		 * @async
 		 * @param {String} functionName
 		 * @param {Object} event
+		 * @param {Boolean=} synchronous
 		 * @return {Promise<Object>}
 		 */
 		async invoke(functionName, event, synchronous) {
