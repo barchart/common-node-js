@@ -112,10 +112,11 @@ module.exports = (() => {
 		 * Processes all the {@link DataOperation} instances held within the session.
 		 *
 		 * @public
+		 * @async
 		 * @param {DataProvider} dataProvider
 		 * @returns {Promise}
 		 */
-		flush(dataProvider) {
+		async flush(dataProvider) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(dataProvider, 'dataProvider', DataProvider, 'DataProvider');

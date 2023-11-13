@@ -50,12 +50,13 @@ module.exports = (() => {
 		 * current instance.
 		 *
 		 * @public
+		 * @async
 		 * @param {DataProvider} dataProvider
 		 * @param {String} session
 		 * @param {String|null} name
 		 * @returns {Promise}
 		 */
-		process(dataProvider, session, name) {
+		async process(dataProvider, session, name) {
 			return Promise.resolve()
 				.then(() => {
 					this._validateDataProvider(dataProvider);

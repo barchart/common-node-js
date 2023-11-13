@@ -21,7 +21,7 @@ module.exports = (() => {
 			this._startPromise = null;
 		}
 
-		start() {
+		async start() {
 			if (this._startPromise === null) {
 				this._startPromise = Promise.resolve()
 					.then(() => {
@@ -46,11 +46,12 @@ module.exports = (() => {
 		 * promise.
 		 *
 		 * @public
+		 * @async
 		 * @param {DataSessionFactory~dataSessionCallback} callback - Provides the {@link DataSession}
 		 * @param {Object=} options
 		 * @returns {Promise}
 		 */
-		startSession(callback, options) {
+		async startSession(callback, options) {
 			return Promise.resolve()
 				.then(() => {
 					if (!this._started) {
@@ -127,11 +128,12 @@ module.exports = (() => {
 		/**
 		 * Returns a {@link DataProvider} for use by a {@link DataSession}.
 		 *
-		 * @protected
+		 * @public
+		 * @async
 		 * @param {Object} options
 		 * @return {Promise}
 		 */
-		getDataProvider(options) {
+		async getDataProvider(options) {
 			return Promise.resolve()
 				.then(() => {
 					if (!this._started) {
