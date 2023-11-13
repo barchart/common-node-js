@@ -42,9 +42,10 @@ module.exports = (() => {
 		 * functions.
 		 *
 		 * @public
+		 * @async
 		 * @returns {Promise<Boolean>}
 		 */
-		start() {
+		async start() {
 			if (this.getIsDisposed()) {
 				return Promise.reject('Unable to start, the Lambda provider has been disposed.');
 			}
@@ -75,11 +76,12 @@ module.exports = (() => {
 		 * Triggers a lambda function, asynchronously or synchronously.
 		 *
 		 * @public
+		 * @async
 		 * @param {String} functionName
 		 * @param {Object} event
 		 * @return {Promise<Object>}
 		 */
-		invoke(functionName, event, synchronous) {
+		async invoke(functionName, event, synchronous) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(functionName, 'functionName', String);
