@@ -123,6 +123,17 @@ module.exports = (() => {
 			return barchartScheduler;
 		}
 
+		/**
+		 * A direct, recursive invocation of a Lambda function.
+		 *
+		 * @public
+		 * @static
+		 * @returns {LambdaTriggerType}
+		 */
+		static get BARCHART_RECURSIVE() {
+			return barchartRecursive;
+		}
+
 		toString() {
 			return `[LambdaTriggerType (code=${this.code})]`;
 		}
@@ -133,7 +144,8 @@ module.exports = (() => {
 	const sns = new LambdaTriggerType('SNS', m => m.EventSource === 'aws:sns', m => m.Sns.MessageId, m => m.Sns.Message);
 	const sqs = new LambdaTriggerType('SQS', m => m.eventSource === 'aws:sqs', m => m.messageId, m => m.body);
 
-	const barchartScheduler = new LambdaTriggerType('BARCHART_SCHEDULER', m => m.source === 'barchart:scheduler', m => m.guid, m => m);
+	const barchartScheduler = new LambdaTriggerType('BARCHART_SCHEDULER', m => m.source === 'barchart:scheduler', m => m.guid, m => m.data);
+	const barchartRecursive = new LambdaTriggerType('BARCHART_RECURSIVE', m => m.source === 'barchart:recursive', m => m.guid, m => m.data);
 
 	return LambdaTriggerType;
 })();
