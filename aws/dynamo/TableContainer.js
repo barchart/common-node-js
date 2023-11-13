@@ -99,10 +99,11 @@ module.exports = (() => {
 		 * functions.
 		 *
 		 * @public
+		 * @async
 		 * @param {Boolean=} skipVerification - If true, verification of table's existence and schema is skipped. This could be considered unsafe, but startup will be faster.
 		 * @returns {Promise<Boolean>}
 		 */
-		start(skipVerification) {
+		async start(skipVerification) {
 			if (this._startPromise === null) {
 				this._startPromise = Promise.resolve()
 					.then(() => {
@@ -154,11 +155,12 @@ module.exports = (() => {
 		 * Creates a new item.
 		 *
 		 * @protected
+		 * @async
 		 * @param {Object} item
 		 * @param {Boolean=} preventOverwrite
 		 * @returns {Promise<Boolean>}
 		 */
-		_createItem(item, preventOverwrite) {
+		async _createItem(item, preventOverwrite) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
@@ -177,10 +179,11 @@ module.exports = (() => {
 		 * Creates multiple items, in an batch operation.
 		 *
 		 * @protected
+		 * @async
 		 * @param {Object[]} items
 		 * @returns {Promise<Boolean>}
 		 */
-		_createItems(items) {
+		async _createItems(items) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
@@ -201,10 +204,11 @@ module.exports = (() => {
 		 * Deletes an item from the table.
 		 *
 		 * @protected
+		 * @async
 		 * @param {Object} item
 		 * @returns {Promise<Boolean>}
 		 */
-		_deleteItem(item) {
+		async _deleteItem(item) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
@@ -223,10 +227,11 @@ module.exports = (() => {
 		 * Deletes multiple items, in an batch operation.
 		 *
 		 * @protected
+		 * @async
 		 * @param {Object[]} items
 		 * @returns {Promise<Boolean>}
 		 */
-		_deleteItems(items) {
+		async _deleteItems(items) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
@@ -244,12 +249,30 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Updates an item from the table.
+		 *
+		 * @protected
+		 * @async
+		 * @param {Update} update
+		 * @returns {Promise<Object>}
+		 */
+		async _updateItem(update) {
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
+
+					return this._provider.updateItem(update);
+				});
+		}
+
+		/**
 		 * Deletes a table.
 		 *
 		 * @public
+		 * @async
 		 * @returns {Promise<Object>}
 		 */
-		deleteTable() {
+		async deleteTable() {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
@@ -266,27 +289,25 @@ module.exports = (() => {
 		/**
 		 * Runs an update of the table item.
 		 *
+		 * @deprecated
 		 * @public
+		 * @async
 		 * @param {Update} update
 		 * @returns {Promise<Object>}
 		 */
-		updateItem(update) {
-			return Promise.resolve()
-				.then(() => {
-					checkReady.call(this);
-
-					return this._provider.updateItem(update);
-				});
+		async updateItem(update) {
+			return this._updateItem(update);
 		}
 
 		/**
 		 * Runs a scan on the table.
 		 *
 		 * @public
+		 * @async
 		 * @param {Scan} scan
 		 * @returns {Promise<Object[]>}
 		 */
-		scan(scan) {
+		async scan(scan) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
@@ -299,11 +320,12 @@ module.exports = (() => {
 		 * Runs a scan, returning a page of results.
 		 *
 		 * @public
+		 * @async
 		 * @param {Scan} scan
 		 * @param {Object=} startKey
 		 * @return {Promise}
 		 */
-		scanChunk(scan, startKey) {
+		async scanChunk(scan, startKey) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
@@ -315,11 +337,12 @@ module.exports = (() => {
 		/**
 		 * Runs a query on the table.
 		 *
-		 * @protected
+		 * @public
+		 * @async
 		 * @param {Query} query
 		 * @returns {Promise<Object[]>}
 		 */
-		query(query) {
+		async query(query) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
@@ -332,10 +355,11 @@ module.exports = (() => {
 		 * Runs parallel queries.
 		 *
 		 * @public
+		 * @async
 		 * @param {Query[]} queries
 		 * @returns {Promise<Object[]>}
 		 */
-		queryParallel(queries) {
+		async queryParallel(queries) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
@@ -348,11 +372,12 @@ module.exports = (() => {
 		 * Runs a query, returning a page of results.
 		 *
 		 * @public
+		 * @async
 		 * @param {Query} query
 		 * @param {Object=} startKey
 		 * @return {Promise}
 		 */
-		queryChunk(query, startKey) {
+		async queryChunk(query, startKey) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);

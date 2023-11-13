@@ -70,9 +70,10 @@ module.exports = (() => {
 		 * functions.
 		 *
 		 * @public
+		 * @async
 		 * @returns {Promise<Boolean>}
 		 */
-		start() {
+		async start() {
 			if (this.getIsDisposed()) {
 				return Promise.reject('Unable to start, the Dynamo provider has been disposed');
 			}
@@ -121,10 +122,11 @@ module.exports = (() => {
 		 * the promise is rejected.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} tableName - The (unqualified) name of the table.
 		 * @returns {Promise<Table>}
 		 */
-		getTable(tableName) {
+		async getTable(tableName) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(tableName, 'tableName', String);
@@ -146,11 +148,12 @@ module.exports = (() => {
 		 * Lists backups for a table.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} tableName - The fully-qualified name of the table.
 		 * @param {string} backupName
 		 * @returns {Promise<Object>}
 		 */
-		createBackup(tableName, backupName) {
+		async createBackup(tableName, backupName) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(tableName, 'tableName', String);
@@ -182,12 +185,13 @@ module.exports = (() => {
 		 * Creates a backup of the table
 		 *
 		 * @public
+		 * @async
 		 * @param {string} tableName - The fully-qualified name of the table.
 		 * @param {string=} lowerBound
 		 * @param {string=} upperBound
 		 * @returns {Promise<Object>}
 		 */
-		listBackups(tableName, lowerBound, upperBound) {
+		async listBackups(tableName, lowerBound, upperBound) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(tableName, 'tableName', String);
@@ -225,10 +229,11 @@ module.exports = (() => {
 		 * Deletes a backup of the table (given the ARN of the backup).
 		 *
 		 * @public
+		 * @async
 		 * @param {string} arn
 		 * @returns {Promise<Object>}
 		 */
-		deleteBackup(arn) {
+		async deleteBackup(arn) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(arn, 'arn', String);
@@ -258,9 +263,10 @@ module.exports = (() => {
 		 * Gets a list of all table names.
 		 *
 		 * @public
+		 * @async
 		 * @returns {Promise<String>}
 		 */
-		getTables() {
+		async getTables() {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
@@ -305,10 +311,11 @@ module.exports = (() => {
 		 * metadata once the table becomes ready.
 		 *
 		 * @public
+		 * @async
 		 * @param {Table} definition - Describes the schema of the table to create.
 		 * @returns {Promise<Table>}
 		 */
-		createTable(definition) {
+		async createTable(definition) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(definition, 'definition', Table, 'Table');
@@ -410,10 +417,11 @@ module.exports = (() => {
 		 * Deletes a table.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} tableName - The (unqualified) name of the table.
 		 * @returns {Promise<Object>}
 		 */
-		deleteTable(tableName) {
+		async deleteTable(tableName) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(tableName, 'tableName', String);
@@ -444,12 +452,13 @@ module.exports = (() => {
 		 * Adds a new item to a table. If the item already exists, it is overwritten.
 		 *
 		 * @public
+		 * @async
 		 * @param {Object} item - The item to write.
 		 * @param {Table} table - Describes the schema of the table to write to.
 		 * @param {Boolean=} preventOverwrite - If true, the resulting promise will reject if another item shares the same key.
 		 * @returns {Promise<Boolean>}
 		 */
-		saveItem(item, table, preventOverwrite) {
+		async saveItem(item, table, preventOverwrite) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(table, 'table', Table, 'Table');
@@ -514,10 +523,11 @@ module.exports = (() => {
 		 * Edits an existing item's attributes.
 		 *
 		 * @public
+		 * @async
 		 * @param {Update} update
 		 * @returns {Promise<Object|null>}
 		 */
-		updateItem(update) {
+		async updateItem(update) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(update, 'update', Update, 'Update');
@@ -572,11 +582,12 @@ module.exports = (() => {
 		 * writes from a subsequent batch are started.
 		 *
 		 * @public
-		 * @param {Object[]} item - The items to write.
+		 * @async
+		 * @param {Object[]} items - The items to write.
 		 * @param {Table} table - Describes the schema of the table to write to.
 		 * @returns {Promise<Boolean>}
 		 */
-		createItems(items, table) {
+		async createItems(items, table) {
 			return Promise.resolve()
 				.then(() => {
 					return processBatch.call(this, table, DynamoBatchType.PUT, items);
@@ -589,12 +600,13 @@ module.exports = (() => {
 		 * deletes from a subsequent batch are started.
 		 *
 		 * @public
-		 * @param {Object[]} item - The items to write.
+		 * @async
+		 * @param {Object[]} items - The items to write.
 		 * @param {Table} table - Describes the schema of the table to write to.
 		 * @param {Boolean=} explicit - If keys are derived, the item will be deleted as-is, without rederiving the key.
 		 * @returns {Promise<Boolean>}
 		 */
-		deleteItems(items, table, explicit) {
+		async deleteItems(items, table, explicit) {
 			return Promise.resolve()
 				.then(() => {
 					return processBatch.call(this, table, DynamoBatchType.DELETE, items, explicit);
@@ -605,12 +617,13 @@ module.exports = (() => {
 		 * Removes an item from a table.
 		 *
 		 * @public
+		 * @async
 		 * @param {Object} item - The item to delete.
 		 * @param {Table} table - Describes the schema of the table to write to.
 		 * @param {Boolean=} explicit - If keys are derived, the item will be deleted as-is, without rederiving the key.
 		 * @returns {Promise<Boolean>}
 		 */
-		deleteItem(item, table, explicit) {
+		async deleteItem(item, table, explicit) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(table, 'table', Table, 'Table');
@@ -663,10 +676,11 @@ module.exports = (() => {
 		 * all the items matching the scan.
 		 *
 		 * @public
+		 * @async
 		 * @param {Scan} scan
 		 * @returns {Promise<Object[]>|Promise<Number>}
 		 */
-		scan(scan) {
+		async scan(scan) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(scan, 'scan', Scan, 'Scan');
@@ -886,11 +900,12 @@ module.exports = (() => {
 		 * Runs a scan, returning a page of results.
 		 *
 		 * @public
+		 * @async
 		 * @param {Scan} scan
 		 * @param {Object=} startKey
 		 * @return {Promise}
 		 */
-		scanChunk(scan, startKey) {
+		async scanChunk(scan, startKey) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(scan, 'scan', Scan, 'Scan');
@@ -989,10 +1004,11 @@ module.exports = (() => {
 		 * all the items matching the query.
 		 *
 		 * @public
+		 * @async
 		 * @param {Query} query
 		 * @returns {Promise<Object[]>|Promise<Number>}
 		 */
-		query(query) {
+		async query(query) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(query, 'query', Query, 'Query');
@@ -1219,10 +1235,11 @@ module.exports = (() => {
 		 * all the items matching.
 		 *
 		 * @public
+		 * @async
 		 * @param {Query[]} queries
 		 * @returns {Promise<Object[]>}
 		 */
-		queryParallel(queries) {
+		async queryParallel(queries) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsArray(queries, 'queries', Query, 'Query');
@@ -1238,11 +1255,12 @@ module.exports = (() => {
 		 * Runs a query, returning a page of results.
 		 *
 		 * @public
+		 * @async
 		 * @param {Query} query
 		 * @param {Object=} startKey
 		 * @return {Promise}
 		 */
-		queryChunk(query, startKey) {
+		async queryChunk(query, startKey) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(query, 'query', Query, 'Query');
@@ -1339,7 +1357,7 @@ module.exports = (() => {
 		 * Returns a new {@link TableBuilder} instance, suitable for use by the
 		 * {@link DynamoProvider#createTable} function.
 		 *
-		 * @public
+		 * @publicq
 		 * @param {string} name - The (unqualified) name of the table.
 		 * @returns {TableBuilder}
 		 */
