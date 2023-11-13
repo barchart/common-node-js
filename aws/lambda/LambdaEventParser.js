@@ -229,12 +229,13 @@ module.exports = (() => {
 		 * Attempts to deserialize JSON string into the given schema
 		 *
 		 * @public
+		 * @async
 		 * @param {String} jsonString
 		 * @param {Object} schema
 		 * @param {String} description
 		 * @returns {Promise<Object>}
 		 */
-		parseSchema(jsonString, schema, description) {
+		async parseSchema(jsonString, schema, description) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(jsonString, 'jsonString', String);

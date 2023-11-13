@@ -22,10 +22,11 @@ module.exports = (() => {
 		 * Checks messages contained within a Lambda event for validity.
 		 *
 		 * @public
+		 * @async
 		 * @param {Object} event
 		 * @return {Promise<Boolean>}
 		 */
-		validate(event) {
+		async validate(event) {
 			return Promise.resolve()
 				.then(() => {
 					let messages;

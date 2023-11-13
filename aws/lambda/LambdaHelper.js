@@ -62,10 +62,11 @@ module.exports = (() => {
 		 * Returns secret value from AWS Secrets Manager.
 		 *
 		 * @public
+		 * @async
 		 * @param {String} secretId
 		 * @return {Promise<String>}
 		 */
-		static getSecretValue(secretId) {
+		static async getSecretValue(secretId) {
 			return LambdaSecretsManager.INSTANCE.getValue(secretId);
 		}
 
@@ -119,13 +120,14 @@ module.exports = (() => {
 		 * the processor, and responding with the processor's result.
 		 *
 		 * @public
+		 * @async
 		 * @param {String} description - Human-readable description of the Lambda Function.
 		 * @param {Object} event - The actual "event" object passed to the Lambda Function by the AWS framework.
 		 * @param {Function} callback - The actual "callback" function passed to the Lambda Function by the AWS framework.
 		 * @param {Callbacks.LambdaProcessorCallback} processor - The processor that is invoked to perform the work.
 		 * @returns {Promise}
 		 */
-		static process(description, event, callback, processor) {
+		static async process(description, event, callback, processor) {
 			const context = { };
 
 			return Promise.resolve(context)

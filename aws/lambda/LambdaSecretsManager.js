@@ -30,10 +30,11 @@ module.exports = (() => {
 		 * Gets value from AWS Secrets Manager.
 		 *
 		 * @public
+		 * @async
 		 * @param {String} secretId
 		 * @return {Promise<String>}
 		 */
-		getValue(secretId) {
+		async getValue(secretId) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(secretId, 'secretId', String);
@@ -57,11 +58,6 @@ module.exports = (() => {
 
 	let secretsManagerProviderPromise = null;
 
-	/**
-	 * @function
-	 * @private
-	 * @returns {Promise<SecretsManagerProvider>}
-	 */
 	function getSecretsManagerProvider() {
 		if (secretsManagerProviderPromise === null) {
 			secretsManagerProviderPromise = Promise.resolve()
