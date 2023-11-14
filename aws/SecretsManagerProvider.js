@@ -40,9 +40,10 @@ module.exports = (() => {
 		 * functions.
 		 *
 		 * @public
+		 * @async
 		 * @returns {Promise<Boolean>}
 		 */
-		start() {
+		async start() {
 			if (this.getIsDisposed()) {
 				return Promise.reject('Unable to start, the Secrets Manager provider has been disposed');
 			}
@@ -73,10 +74,11 @@ module.exports = (() => {
 		 * Gets a secret's value.
 		 *
 		 * @public
+		 * @async
 		 * @param {String} secretId
 		 * @returns {Promise<String>}
 		 */
-		getSecretValue(secretId) {
+		async getSecretValue(secretId) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(secretId, 'secretId', String);
