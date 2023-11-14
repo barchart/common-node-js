@@ -49,9 +49,10 @@ module.exports = (() => {
 		 * functions.
 		 *
 		 * @public
+		 * @async
 		 * @returns {Promise<Boolean>}
 		 */
-		start() {
+		async start() {
 			if (this.getIsDisposed()) {
 				return Promise.reject('Unable to start, the SNS provider has been disposed.');
 			}
@@ -98,11 +99,12 @@ module.exports = (() => {
 		 * (i.e. the ARN). If no topic with the given name exists, it will be created.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} topicName - The name of the topic to find (or create).
 		 * @param {Object=} createOptions - Options to use when topic does not exist and must be created.
 		 * @returns {Promise<String>}
 		 */
-		getTopicArn(topicName, createOptions) {
+		async getTopicArn(topicName, createOptions) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(topicName, 'topicName', String);
@@ -132,11 +134,12 @@ module.exports = (() => {
 		 * exists, the ARN of the existing topic is returned.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} topicName - The name of the topic to create.
 		 * @param {Object=} tags - Tags to assign to the topic.
 		 * @returns {Promise<String>}
 		 */
-		createTopic(topicName, tags) {
+		async createTopic(topicName, tags) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(topicName, 'topicName', String);
@@ -194,10 +197,11 @@ module.exports = (() => {
 		 * Deletes a topic having the given name.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} topicName - The name of the topic to delete.
 		 * @returns {Promise}
 		 */
-		deleteTopic(topicName) {
+		async deleteTopic(topicName) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(topicName, 'topicName', String);
@@ -219,10 +223,11 @@ module.exports = (() => {
 		 * Deletes a topic having the given URL.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} topicArn - The ARN the topic to delete.
 		 * @returns {Promise}
 		 */
-		deleteTopicArn(topicArn) {
+		async deleteTopicArn(topicArn) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(topicArn, 'topicArn', String);
@@ -256,12 +261,13 @@ module.exports = (() => {
 		 * Publishes a message to a topic. The message will be serialized as JSON.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} topicName - The name of the topic to publish to.
 		 * @param {Object} payload - The message to publish (which will be serialized as JSON).
 		 * @param {Object=} createOptions - Options to use when topic does not exist and must be created.
 		 * @returns {Promise}
 		 */
-		publish(topicName, payload, createOptions) {
+		async publish(topicName, payload, createOptions) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(topicName, 'topicName', String);
@@ -307,11 +313,12 @@ module.exports = (() => {
 		 * dispose method to delete the subscription.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} topicName - The name of the topic to subscribe to.
 		 * @param {Object} queueArn - The ARN of the queue to receive notifications (see {@link SqsProvider#getQueueArn}).
 		 * @returns {Promise<Disposable>}
 		 */
-		subscribe(topicName, queueArn) {
+		async subscribe(topicName, queueArn) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(topicName, 'topicName', String);
@@ -377,9 +384,10 @@ module.exports = (() => {
 		 * subscriptions (where the SQS queue no longer exists).
 		 *
 		 * @public
+		 * @async
 		 * @returns {Promise<Object>}
 		 */
-		getSubscriptions() {
+		async getSubscriptions() {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
@@ -461,10 +469,11 @@ module.exports = (() => {
 		 * Deletes a subscription to an SNS topic.
 		 *
 		 * @public
+		 * @async
 		 * @param {String} subscriptionArn
 		 * @returns {Promise}
 		 */
-		unsubscribe(subscriptionArn) {
+		async unsubscribe(subscriptionArn) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(subscriptionArn, 'subscriptionArn', String);
@@ -498,10 +507,11 @@ module.exports = (() => {
 		 * Returns a list of topic ARN's that match a given prefix.
 		 *
 		 * @public
+		 * @async
 		 * @param {string=} topicNamePrefix - The prefix a topic name must have to be returned.
 		 * @returns {Promise<String[]>}
 		 */
-		getTopics(topicNamePrefix) {
+		async getTopics(topicNamePrefix) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsOptional(topicNamePrefix, 'topicNamePrefix', String);
