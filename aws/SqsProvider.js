@@ -58,9 +58,10 @@ module.exports = (() => {
 		 * functions.
 		 *
 		 * @public
+		 * @async
 		 * @returns {Promise<Boolean>}
 		 */
-		start() {
+		async start() {
 			if (this.getIsDisposed()) {
 				return Promise.reject('Unable to start, the SQS provider has been disposed.');
 			}
@@ -107,10 +108,11 @@ module.exports = (() => {
 		 * given prefix.
 		 *
 		 * @public
+		 * @async
 		 * @param {string=} queueNamePrefix - The prefix a queue name must have to be returned.
 		 * @returns {Promise<String[]>}
 		 */
-		getQueues(queueNamePrefix) {
+		async getQueues(queueNamePrefix) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsOptional(queueNamePrefix, 'queueNamePrefix', String);
@@ -147,11 +149,12 @@ module.exports = (() => {
 		 * name exists, it will be created.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} queueName - The name of the queue to find.
 		 * @param {Object=} createOptions - Options to use when queue does not exist and must be created.
 		 * @returns {Promise<String>}
 		 */
-		getQueueUrl(queueName, createOptions) {
+		async getQueueUrl(queueName, createOptions) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(queueName, 'queueName', String);
@@ -186,11 +189,12 @@ module.exports = (() => {
 		 * Given a queue's name, return the queue's attributes.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} queueUrl - The url of the queue to find.
 		 * @param {array=} attributes - The names of attributes to return. By default set to 'All'.
 		 * @returns {Promise<Object>}
 		 */
-		getQueueAttributes(queueUrl, attributes) {
+		async getQueueAttributes(queueUrl, attributes) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(queueUrl, 'queueName', String);
@@ -230,11 +234,12 @@ module.exports = (() => {
 		 * (i.e. the ARN). If no queue with the given name exists, it will be created.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} queueName - The name of the queue to find.
 		 * @param {Object=} createOptions - Options to use when queue does not exist and must be created.
 		 * @returns {Promise<String>}
 		 */
-		getQueueArn(queueName, createOptions) {
+		async getQueueArn(queueName, createOptions) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(queueName, 'queueName', String);
@@ -280,12 +285,13 @@ module.exports = (() => {
 		 * queue is returned.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} queueName - The name of the queue to create.
 		 * @param {Number=} retentionTime - The length of time a queue will retain a message in seconds.
 		 * @param {Object=} tags - Tags to assign to the queue.
 		 * @returns {Promise<String>}
 		 */
-		createQueue(queueName, retentionTime, tags) {
+		async createQueue(queueName, retentionTime, tags) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(queueName, 'queueName', String);
@@ -343,10 +349,11 @@ module.exports = (() => {
 		 * Deletes a queue having the given name.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} queueName - The name of the queue to delete.
 		 * @returns {Promise}
 		 */
-		deleteQueue(queueName) {
+		async deleteQueue(queueName) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(queueName, 'queueName', String);
@@ -374,10 +381,11 @@ module.exports = (() => {
 		 * Deletes a queue having the given URL.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} queueUrl - The URL of the queue to delete.
 		 * @returns {Promise}
 		 */
-		deleteQueueUrl(queueUrl) {
+		async deleteQueueUrl(queueUrl) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(queueUrl, 'queueUrl', String);
@@ -391,13 +399,14 @@ module.exports = (() => {
 		 * be created.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} queueName - The name of the queue to add the message to.
 		 * @param {Object} payload - The message to enqueue (will be serialized to JSON).
 		 * @param {Number=} delaySeconds - The number of seconds to prevent message from being retrieved from the queue.
 		 * @param {Object=} createOptions - Options to use when queue does not exist and must be created.
 		 * @returns {Promise}
 		 */
-		send(queueName, payload, delaySeconds, createOptions) {
+		async send(queueName, payload, delaySeconds, createOptions) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(queueName, 'queueName', String);
@@ -449,12 +458,13 @@ module.exports = (() => {
 		 * be created.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} queueName - The name of the queue to add the message to.
 		 * @param {Object[]} batch - The messages to enqueue (each will be serialized to JSON).
 		 * @param {Object=} createOptions - Options to use when queue does not exist and must be created.
 		 * @returns {Promise}
 		 */
-		sendBatch(queueName, batch, createOptions) {
+		async sendBatch(queueName, batch, createOptions) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(queueName, 'queueName', String);
@@ -521,13 +531,14 @@ module.exports = (() => {
 		 * the operation, the queue will not necessarily be empty.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} queueName - The name of the queue to read.
 		 * @param {Number=} waitDuration - The maximum amount of time the server-side long-poll will wait for messages to become available.
 		 * @param {Number=} maximumMessages - The maximum number of messages to read (cannot be more than 10).
 		 * @param {Boolean=} synchronousDelete - If true, the promise won't resolve until new messages have been read *and deleted* from the queue.
 		 * @returns {Promise<Object[]>}
 		 */
-		receive(queueName, waitDuration, maximumMessages, synchronousDelete) {
+		async receive(queueName, waitDuration, maximumMessages, synchronousDelete) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(queueName, 'queueName', String);
@@ -552,13 +563,14 @@ module.exports = (() => {
 		 * AWS SDK) and returns an array of messages (use with caution).
 		 *
 		 * @public
+		 * @async
 		 * @param {string} queueName - The name of the queue to read.
 		 * @param {Function=} mapper - A function that can be used to map messages into something else.
 		 * @param {Boolean=} synchronousDelete - If true, the promise won't resolve until new messages have been read *and deleted* from the queue.
 		 * @param {Number=} maximumMessages - If positive, the maximum number of messages to read before stopping. This logic is approximate, you may receive a few more messages (up to ten more).
 		 * @returns {Promise<Object[]>}
 		 */
-		drain(queueName, mapper, synchronousDelete, maximumMessages) {
+		async drain(queueName, mapper, synchronousDelete, maximumMessages) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(queueName, 'queueName', String);
@@ -599,10 +611,11 @@ module.exports = (() => {
 		 * Purges all messages from an SQS queue.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} queueName - The name of the queue to purge.
 		 * @returns {Promise<Boolean>}
 		 */
-		purge(queueName) {
+		async purge(queueName) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(queueName, 'queueName', String);
@@ -726,11 +739,12 @@ module.exports = (() => {
 		 * Changes the policy on a Queue. The "policy" must conform to Amazon's schema.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} queueName - The name of the queue to adjust.
 		 * @param {Object} policy - The Amazon schema-compliant policy.
 		 * @returns {Promise}
 		 */
-		setQueuePolicy(queueName, policy) {
+		async setQueuePolicy(queueName, policy) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(queueName, 'queueName', String);
@@ -810,7 +824,7 @@ module.exports = (() => {
 		}
 	}
 
-	function receiveMessages(queueName, waitTime, maximumMessages, synchronousDelete, createOptions) {
+	async function receiveMessages(queueName, waitTime, maximumMessages, synchronousDelete, createOptions) {
 		let waitTimeToUse;
 
 		if (is.number(waitTime)) {
@@ -897,7 +911,7 @@ module.exports = (() => {
 			});
 	}
 
-	function deleteMessages(qualifiedQueueName, queueUrl, messages) {
+	async function deleteMessages(qualifiedQueueName, queueUrl, messages) {
 		const messageCount = messages.length;
 
 		if (messageCount === 0) {
@@ -946,7 +960,7 @@ module.exports = (() => {
 		);
 	}
 
-	function executeQueueDelete(qualifiedQueueName, queueUrl) {
+	async function executeQueueDelete(qualifiedQueueName, queueUrl) {
 		return promise.build(
 			(resolveCallback, rejectCallback) => {
 				logger.debug('Deleting queue [', qualifiedQueueName, '] at URL [', queueUrl, ']');
