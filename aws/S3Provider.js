@@ -56,9 +56,10 @@ module.exports = (() => {
 		 * functions.
 		 *
 		 * @public
+		 * @async
 		 * @returns {Promise<Boolean>}
 		 */
-		start() {
+		async start() {
 			if (this.getIsDisposed()) {
 				return Promise.reject('Unable to start, the S3 provider has been disposed.');
 			}
@@ -103,13 +104,14 @@ module.exports = (() => {
 		 * Retrieves the contents of a bucket.
 		 *
 		 * @public
+		 * @async
 		 * @param {string=} prefix
 		 * @param {string=} bucket
 		 * @param {number=} maximum
 		 * @param {string=} start
 		 * @returns {Promise<Object[]>}
 		 */
-		getBucketContents(prefix, bucket, maximum, start) {
+		async getBucketContents(prefix, bucket, maximum, start) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsOptional(bucket, 'bucket', String);
@@ -177,12 +179,13 @@ module.exports = (() => {
 		 * Gets a signed url.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} operation
 		 * @param {string} key
 		 * @param {Number=} expires
 		 * @returns {Promise<string>}
 		 */
-		getSignedUrl(operation, key, expires) {
+		async getSignedUrl(operation, key, expires) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(operation, 'operation', String);
@@ -219,13 +222,14 @@ module.exports = (() => {
 		 * in the provider's configuration.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} filename
 		 * @param {string|Buffer} buffer - The content to upload
 		 * @param {string=} mimeType = Defaults to "text/plain"
 		 * @param {boolean=} secure = Indicates if the "private" ACL applies to the object
 		 * @returns {Promise<Object>}
 		 */
-		upload(filename, content, mimeType, secure) {
+		async upload(filename, content, mimeType, secure) {
 			return this.uploadObject(this._configuration.bucket, S3Provider.getQualifiedFilename(this._configuration.folder, filename), content, mimeType, secure);
 		}
 
@@ -233,6 +237,7 @@ module.exports = (() => {
 		 * Uploads an object.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} bucket
 		 * @param {string} filename
 		 * @param {string|Buffer} buffer - The content to upload
@@ -240,7 +245,7 @@ module.exports = (() => {
 		 * @param {boolean=} secure = Indicates if the "private" ACL applies to the object
 		 * @returns {Promise<Object>}
 		 */
-		uploadObject(bucket, filename, content, mimeType, secure) {
+		async uploadObject(bucket, filename, content, mimeType, secure) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
@@ -294,12 +299,13 @@ module.exports = (() => {
 		 * Uploads an object through the stream.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} bucket
 		 * @param {string} key
 		 * @param {stream} reader
 		 * @return {Promise<Object>}
 		 */
-		uploadStream(bucket, key, reader) {
+		async uploadStream(bucket, key, reader) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
@@ -313,10 +319,11 @@ module.exports = (() => {
 		 * in the provider's configuration.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} filename
 		 * @returns {Promise<Object>}
 		 */
-		download(filename) {
+		async download(filename) {
 			return this.downloadObject(this._configuration.bucket, S3Provider.getQualifiedFilename(this._configuration.folder, filename));
 		}
 
@@ -324,11 +331,12 @@ module.exports = (() => {
 		 * Downloads an object.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} bucket
 		 * @param {string} filename
 		 * @returns {Promise<Object>}
 		 */
-		downloadObject(bucket, filename) {
+		async downloadObject(bucket, filename) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
@@ -351,11 +359,12 @@ module.exports = (() => {
 		 * Creates a readable stream for s3 object.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} bucket
 		 * @param {string} key
 		 * @return {Promise<stream.Readable>}
 		 */
-		createReadStream(bucket, key) {
+		async createReadStream(bucket, key) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
@@ -368,11 +377,12 @@ module.exports = (() => {
 		 * Deletes an object from a bucket.
 		 *
 		 * @public
+		 * @async
 		 * @param {string} bucket
 		 * @param {string} filename
 		 * @returns {Promise<Object>}
 		 */
-		deleteObject(bucket, filename) {
+		async deleteObject(bucket, filename) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
