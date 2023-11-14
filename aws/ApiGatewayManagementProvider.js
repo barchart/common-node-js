@@ -44,9 +44,10 @@ module.exports = (() => {
 		 * functions.
 		 *
 		 * @public
+		 * @async
 		 * @returns {Promise<Boolean>}
 		 */
-		start() {
+		async start() {
 			if (this.getIsDisposed()) {
 				return Promise.reject('Unable to start, the API Gateway provider has been disposed');
 			}
@@ -78,11 +79,13 @@ module.exports = (() => {
 		/**
 		 * Sends data to provided connection.
 		 *
+		 * @public
+		 * @async
 		 * @param {String} connectionId
 		 * @param {Buffer|String} data
 		 * @returns {Promise}
 		 */
-		postToConnection(connectionId, data) {
+		async postToConnection(connectionId, data) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(connectionId, 'connectionId', String);
