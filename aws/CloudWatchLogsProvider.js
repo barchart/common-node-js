@@ -46,9 +46,10 @@ module.exports = (() => {
 		 * functions.
 		 *
 		 * @public
+		 * @async
 		 * @returns {Promise<Boolean>}
 		 */
-		start() {
+		async start() {
 			if (this.getIsDisposed()) {
 				return Promise.reject('Unable to start, the CloudWatchLogsProvider has been disposed.');
 			}
@@ -79,6 +80,7 @@ module.exports = (() => {
 		 * Starts a query.
 		 *
 		 * @public
+		 * @async
 		 * @param {String} name - The name of log group to query.
 		 * @param {String} query - The query string.
 		 * @param {Number} startTime - The beginning of the time range to query. The number of seconds since January 1, 1970, 00:00:00 UTC.
@@ -86,7 +88,7 @@ module.exports = (() => {
 		 * @param {Number=} limit - The maximum number of log events to return.
 		 * @returns {Promise<Object>}
 		 */
-		startQuery(name, query, startTime, endTime, limit) {
+		async startQuery(name, query, startTime, endTime, limit) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(name, 'name', String);
@@ -126,10 +128,11 @@ module.exports = (() => {
 		 * Gets a result for query.
 		 *
 		 * @public
+		 * @async
 		 * @param {String} queryId - The identifier returned from {@link CloudWatchLogsProvider#startQuery}
 		 * @returns {Promise<Object>}
 		 */
-		getQueryResults(queryId) {
+		async getQueryResults(queryId) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(queryId, 'queryId', String);
@@ -154,10 +157,11 @@ module.exports = (() => {
 		 * Lists the specified log groups by prefix.
 		 *
 		 * @public
+		 * @async
 		 * @param {String} logGroupNamePrefix
 		 * @returns {Promise<Object>}
 		 */
-		describeLogGroups(logGroupNamePrefix) {
+		async describeLogGroups(logGroupNamePrefix) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(logGroupNamePrefix, 'logGroupNamePrefix', String);
@@ -182,13 +186,14 @@ module.exports = (() => {
 		 * Lists all log groups.
 		 *
 		 * @public
+		 * @async
 		 * @param {Object} options
 		 * @param {String} options.logGroupNamePrefix
 		 * @param {String} options.nextToken
 		 * @param {Number} options.limit
 		 * @returns {Promise<Array>}
 		 */
-		getLogGroups(options = {}) {
+		async getLogGroups(options = {}) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
@@ -238,10 +243,11 @@ module.exports = (() => {
 		 * Indicates if the log group has at least one log stream.
 		 *
 		 * @public
+		 * @async
 		 * @param {String} logGroupName
 		 * @returns {Promise<Boolean>}
 		 */
-		getLogStreamExists(logGroupName) {
+		async getLogStreamExists(logGroupName) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(logGroupName, 'logGroupName', String);
@@ -261,6 +267,7 @@ module.exports = (() => {
 		 * Lists all log streams by LogGroup name.
 		 *
 		 * @public
+		 * @async
 		 * @param {Object} options
 		 * @param {String} options.logGroupName - The name of the log group.
 		 * @param {String} options.logStreamNamePrefix - The log stream prefix to match.
@@ -269,7 +276,7 @@ module.exports = (() => {
 		 * @param {Number} options.limit - The maximum number of items returned. If you don't specify a value, the default is up to 50 items.
 		 * @returns {Promise<Array>}
 		 */
-		getLogStreams(options) {
+		async getLogStreams(options) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
@@ -322,10 +329,11 @@ module.exports = (() => {
 		 * Deletes a log group
 		 *
 		 * @public
+		 * @async
 		 * @param {String} logGroupName - The name of the log group.
 		 * @returns {Promise}
 		 */
-		deleteLogGroup(logGroupName) {
+		async deleteLogGroup(logGroupName) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
@@ -350,11 +358,12 @@ module.exports = (() => {
 		 * Deletes a log stream
 		 *
 		 * @public
+		 * @async
 		 * @param {String} logGroupName - The name of the log group.
 		 * @param {String} logStreamName - The name of the log stream.
 		 * @returns {Promise}
 		 */
-		deleteLogStream(logGroupName, logStreamName) {
+		async deleteLogStream(logGroupName, logStreamName) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
@@ -380,11 +389,12 @@ module.exports = (() => {
 		 * Creates tags for a log group
 		 *
 		 * @public
+		 * @async
 		 * @param {String} logGroupName - The name of the log group.
 		 * @param {Object} tags - The key-value pairs to use for the tags.
 		 * @returns {Promise}
 		 */
-		tagLogGroup(logGroupName, tags) {
+		async tagLogGroup(logGroupName, tags) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
@@ -410,11 +420,12 @@ module.exports = (() => {
 		 * Deletes tags for a log group
 		 *
 		 * @public
+		 * @async
 		 * @param {String} logGroupName - The name of the log group.
 		 * @param {Array<String>} tags - The tag keys. The corresponding tags are removed from the log group.
 		 * @returns {Promise}
 		 */
-		untagLogGroup(logGroupName, tags) {
+		async untagLogGroup(logGroupName, tags) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
@@ -440,11 +451,12 @@ module.exports = (() => {
 		 * Sets retention in days for a log group
 		 *
 		 * @public
+		 * @async
 		 * @param {String} logGroupName - The name of the log group.
 		 * @param {Number} retentionInDays - The number of days to retain the log events in the specified log group. Possible values are: 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, and 3653.
 		 * @returns {Promise}
 		 */
-		putRetentionPolicy(logGroupName, retentionInDays) {
+		async putRetentionPolicy(logGroupName, retentionInDays) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
@@ -470,10 +482,11 @@ module.exports = (() => {
 		 * Deletes the specified retention policy.
 		 *
 		 * @public
+		 * @async
 		 * @param {String} logGroupName - The name of the log group.
 		 * @returns {Promise}
 		 */
-		deleteRetentionPolicy(logGroupName) {
+		async deleteRetentionPolicy(logGroupName) {
 			return Promise.resolve()
 				.then(() => {
 					checkReady.call(this);
@@ -513,7 +526,7 @@ module.exports = (() => {
 		}
 	}
 
-	function describeLogStreams(logGroupName, limit) {
+	async function describeLogStreams(logGroupName, limit) {
 		return promise.build((resolve, reject) => {
 			const payload = {};
 
