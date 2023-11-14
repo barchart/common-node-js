@@ -59,9 +59,10 @@ module.exports = (() => {
 		 * functions.
 		 *
 		 * @public
+		 * @async
 		 * @returns {Promise<Boolean>}
 		 */
-		start() {
+		async start() {
 			if (this.getIsDisposed()) {
 				return Promise.reject('Unable to start, the SES provider has been disposed.');
 			}
@@ -108,7 +109,7 @@ module.exports = (() => {
 			return object.clone(this._configuration);
 		}
 
-		send(options) {
+		async send(options) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(options.senderAddress, 'senderAddress', String);
@@ -151,6 +152,8 @@ module.exports = (() => {
 		/**
 		 * Attempts to send an email.
 		 *
+		 * @public
+		 * @async
 		 * @param {string} senderAddress - The "from" email address.
 		 * @param {string|string[]} recipientAddress - The "to" email address(es).
 		 * @param {string=} subject - The email's subject.
@@ -158,7 +161,7 @@ module.exports = (() => {
 		 * @param {string=} textBody - The email's body.
 		 * @returns {Promise}
 		 */
-		sendEmail(senderAddress, recipientAddress, subject, htmlBody, textBody) {
+		async sendEmail(senderAddress, recipientAddress, subject, htmlBody, textBody) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsRequired(senderAddress, 'senderAddress', String);
