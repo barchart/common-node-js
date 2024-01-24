@@ -60,7 +60,11 @@ module.exports = (() => {
 		getContext(key) {
 			assert.argumentIsRequired(key, 'key', String);
 
-			return read(this._event, `requestContext.authorizer.${key}`);
+			if (this._event.version && this._event.version === '2.0') {
+				return read(this._event, `requestContext.authorizer.lambda.${key}`);
+			} else {
+				return read(this._event, `requestContext.authorizer.${key}`);
+			}
 		}
 
 		/**
