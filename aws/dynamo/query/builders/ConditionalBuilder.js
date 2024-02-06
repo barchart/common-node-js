@@ -84,7 +84,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @static
-		 * @param {String} name - Name of the table.
+		 * @param {Table} table - Name of the table.
 		 * @returns {ConditionalBuilder}
 		 */
 		static targeting(table) {
