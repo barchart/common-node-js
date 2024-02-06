@@ -36,6 +36,7 @@ module.exports = (() => {
 		 * Nothing is returned.
 		 *
 		 * @public
+		 * @static
 		 * @returns {ReturnValueType}
 		 */
 		static get NONE() {
@@ -46,6 +47,7 @@ module.exports = (() => {
 		 * Returns all of the attributes of the item, as they appeared before the update operation.
 		 *
 		 * @public
+		 * @static
 		 * @returns {ReturnValueType}
 		 */
 		static get ALL_OLD() {
@@ -56,6 +58,7 @@ module.exports = (() => {
 		 * Returns only the updated attributes, as they appeared before the update operation.
 		 *
 		 * @public
+		 * @static
 		 * @returns {ReturnValueType}
 		 */
 		static get UPDATED_OLD() {
@@ -66,6 +69,7 @@ module.exports = (() => {
 		 * Returns all of the attributes of the item, as they appear after the update operation.
 		 *
 		 * @public
+		 * @static
 		 * @returns {ReturnValueType}
 		 */
 		static get ALL_NEW() {
@@ -76,6 +80,7 @@ module.exports = (() => {
 		 * Returns only the updated attributes, as they appear after the update operation.
 		 *
 		 * @public
+		 * @static
 		 * @returns {ReturnValueType}
 		 */
 		static get UPDATED_NEW() {

@@ -42,6 +42,7 @@ module.exports = (() => {
 		 * Empty.
 		 *
 		 * @public
+		 * @static
 		 * @returns {UpdateOperatorType}
 		 */
 		static get EMPTY() {
@@ -52,6 +53,7 @@ module.exports = (() => {
 		 * Space.
 		 *
 		 * @public
+		 * @static
 		 * @returns {UpdateOperatorType}
 		 */
 		static get SPACE() {
@@ -62,6 +64,7 @@ module.exports = (() => {
 		 * Equals.
 		 *
 		 * @public
+		 * @static
 		 * @returns {UpdateOperatorType}
 		 */
 		static get EQUALS() {
@@ -72,6 +75,7 @@ module.exports = (() => {
 		 * Plus.
 		 *
 		 * @public
+		 * @static
 		 * @returns {UpdateOperatorType}
 		 */
 		static get PLUS() {
@@ -82,6 +86,7 @@ module.exports = (() => {
 		 * Minus.
 		 *
 		 * @public
+		 * @static
 		 * @returns {UpdateOperatorType}
 		 */
 		static get MINUS() {
@@ -92,6 +97,7 @@ module.exports = (() => {
 		 * Equals if not exists.
 		 *
 		 * @public
+		 * @static
 		 * @returns {UpdateOperatorType}
 		 */
 		static get EQUALS_IF_NOT_EXISTS() {
@@ -102,6 +108,7 @@ module.exports = (() => {
 		 * List append.
 		 *
 		 * @public
+		 * @static
 		 * @returns {UpdateOperatorType}
 		 */
 		static get LIST_APPEND() {

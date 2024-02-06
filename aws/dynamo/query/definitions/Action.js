@@ -60,6 +60,7 @@ module.exports = (() => {
 		 * on an AWS query or scan object.
 		 *
 		 * @protected
+		 * @static
 		 * @param {Table} table
 		 * @param {Array<Attribute>} attributes
 		 * @returns {String}
@@ -82,6 +83,7 @@ module.exports = (() => {
 		 * on an AWS query or scan object.
 		 *
 		 * @protected
+		 * @static
 		 * @param {Table} table
 		 * @param {Array<Attribute>} projectedAttributes - Attributes to project (i.e. select).
 		 * @returns {String}
@@ -99,6 +101,7 @@ module.exports = (() => {
 		 * field.
 		 *
 		 * @protected
+		 * @static
 		 * @param {Table} table
 		 * @param {Filter} filter
 		 * @param {Number=} offset - Used to "offset" the alias counter (when calling this function many times -- e.g. query key condition and result filter)

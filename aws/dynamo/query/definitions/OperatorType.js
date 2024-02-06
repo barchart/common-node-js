@@ -85,6 +85,7 @@ module.exports = (() => {
 		 * Equals.
 		 *
 		 * @public
+		 * @static
 		 * @returns {OperatorType}
 		 */
 		static get EQUALS() {
@@ -95,6 +96,7 @@ module.exports = (() => {
 		 * Not equals.
 		 *
 		 * @public
+		 * @static
 		 * @returns {OperatorType}
 		 */
 		static get NOT_EQUALS() {
@@ -105,6 +107,7 @@ module.exports = (() => {
 		 * Greater than.
 		 *
 		 * @public
+		 * @static
 		 * @returns {OperatorType}
 		 */
 		static get GREATER_THAN() {
@@ -115,6 +118,7 @@ module.exports = (() => {
 		 * Less than.
 		 *
 		 * @public
+		 * @static
 		 * @returns {OperatorType}
 		 */
 		static get LESS_THAN() {
@@ -125,6 +129,7 @@ module.exports = (() => {
 		 * Greater than or equal to.
 		 *
 		 * @public
+		 * @static
 		 * @returns {OperatorType}
 		 */
 		static get GREATER_THAN_OR_EQUAL_TO() {
@@ -135,6 +140,7 @@ module.exports = (() => {
 		 * Less than or equal to.
 		 *
 		 * @public
+		 * @static
 		 * @returns {OperatorType}
 		 */
 		static get LESS_THAN_OR_EQUAL_TO() {
@@ -145,6 +151,7 @@ module.exports = (() => {
 		 * Contains.
 		 *
 		 * @public
+		 * @static
 		 * @returns {OperatorType}
 		 */
 		static get CONTAINS() {
@@ -155,6 +162,7 @@ module.exports = (() => {
 		 * Does not contain.
 		 *
 		 * @public
+		 * @static
 		 * @returns {OperatorType}
 		 */
 		static get DOES_NOT_CONTAIN() {
@@ -165,6 +173,7 @@ module.exports = (() => {
 		 * Between.
 		 *
 		 * @public
+		 * @static
 		 * @returns {OperatorType}
 		 */
 		static get BETWEEN() {
@@ -175,6 +184,7 @@ module.exports = (() => {
 		 * Attribute begins with text.
 		 *
 		 * @public
+		 * @static
 		 * @returns {OperatorType}
 		 */
 		static get BEGINS_WITH() {
@@ -185,6 +195,7 @@ module.exports = (() => {
 		 * Attribute matches one of the operand values.
 		 *
 		 * @public
+		 * @static
 		 * @returns {OperatorType}
 		 */
 		static get IN() {
@@ -195,6 +206,7 @@ module.exports = (() => {
 		 * Attribute exists.
 		 *
 		 * @public
+		 * @static
 		 * @returns {OperatorType}
 		 */
 		static get ATTRIBUTE_EXISTS() {
@@ -205,6 +217,7 @@ module.exports = (() => {
 		 * Attribute doesn't exist (for use with {@link Conditional} instances only}).
 		 *
 		 * @public
+		 * @static
 		 * @returns {OperatorType}
 		 */
 		static get ATTRIBUTE_NOT_EXISTS() {

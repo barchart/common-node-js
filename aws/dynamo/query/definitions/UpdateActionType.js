@@ -36,7 +36,8 @@ module.exports = (() => {
 		/**
 		 * An array of supported operator types.
 		 *
-		 * @return {Array<UpdateOperatorType>}
+		 * @public
+		 * @returns {Array<UpdateOperatorType>}
 		 */
 		get operators() {
 			return this._operators;
@@ -46,6 +47,7 @@ module.exports = (() => {
 		 * Add.
 		 *
 		 * @public
+		 * @static
 		 * @returns {UpdateActionType}
 		 */
 		static get ADD() {
@@ -56,6 +58,7 @@ module.exports = (() => {
 		 * Delete.
 		 *
 		 * @public
+		 * @static
 		 * @returns {UpdateActionType}
 		 */
 		static get DELETE() {
@@ -66,6 +69,7 @@ module.exports = (() => {
 		 * Set.
 		 *
 		 * @public
+		 * @static
 		 * @returns {UpdateActionType}
 		 */
 		static get SET() {
@@ -76,6 +80,7 @@ module.exports = (() => {
 		 * Remove.
 		 *
 		 * @public
+		 * @static
 		 * @returns {UpdateActionType}
 		 */
 		static get REMOVE() {
