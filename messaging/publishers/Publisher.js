@@ -14,8 +14,8 @@ module.exports = (() => {
 	 * inheritor.
 	 *
 	 * @public
-	 * @extends {Disposable}
 	 * @abstract
+	 * @extends {Disposable}
 	 * @param {RegExp[]=} suppressExpressions
 	 */
 	class Publisher extends Disposable {
@@ -32,7 +32,14 @@ module.exports = (() => {
 			this._started = false;
 		}
 
-		start() {
+		/**
+		 * Initializes the instance. Invoke before using other instance functions.
+		 *
+		 * @public
+		 * @async
+		 * @returns {Promise<boolean>}
+		 */
+		async start() {
 			if (this.getIsDisposed()) {
 				throw new Error('The message publisher has been disposed');
 			}
@@ -55,7 +62,16 @@ module.exports = (() => {
 			return;
 		}
 
-		publish(messageType, payload) {
+		/**
+		 * Publishes a message.
+		 *
+		 * @public
+		 * @async
+		 * @param {String} messageType
+		 * @param {*} payload
+		 * @returns {Promise}
+		 */
+		async publish(messageType, payload) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
 
 			if (!this._started) {
@@ -71,7 +87,7 @@ module.exports = (() => {
 			if (checkSuppression(messageType, this._suppressExpressions)) {
 				logger.trace('Suppressing publish for [', messageType, ']');
 
-				publishPromise = Promise.resolve(Disposable.getEmpty());
+				publishPromise = Promise.resolve();
 			} else {
 				publishPromise = Promise.resolve()
 					.then(() => {
@@ -86,7 +102,17 @@ module.exports = (() => {
 			return;
 		}
 
-		subscribe(messageType, handler) {
+		/**
+		 * Subscribes to messages by type and returns a {@link Disposable} that
+		 * can be used to terminate the subscription.
+		 *
+		 * @public
+		 * @async
+		 * @param {String} messageType
+		 * @param {Function} handler
+		 * @returns {Promise<Disposable>}
+		 */
+		async subscribe(messageType, handler) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
 			assert.argumentIsRequired(handler, 'handler', Function);
 

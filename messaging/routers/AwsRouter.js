@@ -16,7 +16,7 @@ module.exports = (() => {
 	const logger = log4js.getLogger('common-node/messaging/routers/AwsRouter');
 
 	/**
-	 * A {@link Bus} component that provides request-response messaging via AWS SQS.
+	 * A {@link Router} that provides request-response messaging via AWS SQS.
 	 *
 	 * @public
 	 * @extends {Router}

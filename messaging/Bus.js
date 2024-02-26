@@ -15,6 +15,14 @@ module.exports = (() => {
 
 	const DEFAULT_TIMEOUT_MILLISECONDS = 20000;
 
+	/**
+	 * A central mechanism for publish-subscribe and request-response processing.
+	 *
+	 * @public
+	 * @extends {Disposable}
+	 * @param {Publisher} publisher
+	 * @param {Router} router
+	 */
 	class Bus extends Disposable {
 		constructor(publisher, router) {
 			super();
@@ -29,7 +37,14 @@ module.exports = (() => {
 			this._started = false;
 		}
 
-		start() {
+		/**
+		 * Initializes the instance. Invoke before using other instance functions.
+		 *
+		 * @public
+		 * @async
+		 * @returns {Promise<boolean>}
+		 */
+		async start() {
 			if (this.getIsDisposed()) {
 				throw new Error('The message bus has been disposed');
 			}
@@ -46,7 +61,16 @@ module.exports = (() => {
 			return this._startPromise;
 		}
 
-		publish(messageType, payload) {
+		/**
+		 * Publishes a message.
+		 *
+		 * @public
+		 * @async
+		 * @param {String} messageType
+		 * @param {*} payload
+		 * @returns {Promise}
+		 */
+		async publish(messageType, payload) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
 
 			if (!this._started) {
@@ -60,7 +84,17 @@ module.exports = (() => {
 			return this._publisher.publish(messageType, payload);
 		}
 
-		subscribe(messageType, handler) {
+		/**
+		 * Subscribes to messages by type and returns a {@link Disposable} that
+		 * can be used to terminate the subscription.
+		 *
+		 * @public
+		 * @async
+		 * @param {String} messageType
+		 * @param {Function} handler
+		 * @returns {Promise<Disposable>}
+		 */
+		async subscribe(messageType, handler) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
 			assert.argumentIsRequired(handler, 'handler', Function);
 
@@ -75,7 +109,17 @@ module.exports = (() => {
 			return this._publisher.subscribe(messageType, handler);
 		}
 
-		request(messageType, payload, timeout) {
+		/**
+		 * Sends a request (where the response is returned as a promise).
+		 *
+		 * @public
+		 * @async
+		 * @param {String} messageType
+		 * @param {*} payload
+		 * @param {Number=} timeout
+		 * @returns {Promise<*>}
+		 */
+		async request(messageType, payload, timeout) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
 			assert.argumentIsOptional(timeout, 'timeout', Number);
 
@@ -125,7 +169,17 @@ module.exports = (() => {
 			return requestPromise;
 		}
 
-		register(messageType, handler) {
+		/**
+		 * Registers a handler for requests (of a certain type) and returns
+		 * a {@link Disposable} that can be used to unregister the handler.
+		 *
+		 * @public
+		 * @async
+		 * @param {String} messageType
+		 * @param {Function} handler
+		 * @returns {Promise<Disposable>}
+		 */
+		async register(messageType, handler) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
 			assert.argumentIsRequired(handler, 'handler', Function);
 

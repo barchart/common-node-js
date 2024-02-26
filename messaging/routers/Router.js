@@ -32,7 +32,14 @@ module.exports = (() => {
 			this._started = false;
 		}
 
-		start() {
+		/**
+		 * Initializes the instance. Invoke before using other instance functions.
+		 *
+		 * @public
+		 * @async
+		 * @returns {Promise<boolean>}
+		 */
+		async start() {
 			if (this.getIsDisposed()) {
 				throw new Error('The message publisher has been disposed');
 			}
@@ -55,6 +62,13 @@ module.exports = (() => {
 			return;
 		}
 
+		/**
+		 * Determines if this router can handle a request (of a certain type).
+		 *
+		 * @public
+		 * @param {String} messageType
+		 * @returns {boolean}
+		 */
 		canRoute(messageType) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
 
@@ -73,7 +87,16 @@ module.exports = (() => {
 			return false;
 		}
 
-		route(messageType, payload) {
+		/**
+		 * Sends a request (where the response is returned as a promise).
+		 *
+		 * @public
+		 * @async
+		 * @param {String} messageType
+		 * @param {*} payload
+		 * @returns {Promise<*>}
+		 */
+		async route(messageType, payload) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
 
 			if (!this._started) {
@@ -98,7 +121,17 @@ module.exports = (() => {
 			return;
 		}
 
-		register(messageType, handler) {
+		/**
+		 * Registers a handler for requests (of a certain type) and returns
+		 * a {@link Disposable} that can be used to unregister the handler.
+		 *
+		 * @public
+		 * @async
+		 * @param {String} messageType
+		 * @param {Function} handler
+		 * @returns {Promise<Disposable>}
+		 */
+		async register(messageType, handler) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
 			assert.argumentIsRequired(handler, 'handler', Function);
 

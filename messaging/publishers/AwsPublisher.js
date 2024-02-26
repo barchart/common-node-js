@@ -18,10 +18,10 @@ module.exports = (() => {
 	const logger = log4js.getLogger('common-node/messaging/publishers/AwsPublisher');
 
 	/**
-	 * A {@link Bus} component that provides publish-subscribe messaging via AWS SNS and AWS SQS.
+	 * A {@link Publisher} that provides publish-subscribe messaging via AWS SNS and AWS SQS.
 	 *
 	 * @public
-	 * @extends {Router}
+	 * @extends {Publisher}
 	 * @param {SnsProvider} snsProvider
 	 * @param {SqsProvider} sqsProvider
 	 * @param {Boolean[]=} suppressEcho
