@@ -402,6 +402,50 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Returns metadata regarding an object, using the bucket (and folder) specified
+		 * in the provider's configuration.
+		 *
+		 * @public
+		 * @async
+		 * @param {string} filename
+		 * @returns {Promise<Object>}
+		 */
+		async getMetadata(filename) {
+			return this.getMetadataObject(this._configuration.bucket, S3Provider.getQualifiedFilename(this._configuration.folder, filename));
+		}
+
+		/**
+		 * Returns metadata regarding an object.
+		 *
+		 * @public
+		 * @async
+		 * @param {string} bucket
+		 * @param {string} filename
+		 * @returns {Promise<Object>}
+		 */
+		async getMetadataObject(bucket, filename) {
+			return Promise.resolve()
+				.then(() => {
+					checkReady.call(this);
+
+					assert.argumentIsRequired(bucket, 'bucket', String);
+					assert.argumentIsRequired(filename, 'filename', String);
+
+					return promise.build((resolveCallback, rejectCallback) => {
+						this._s3.headObject(getParameters(bucket, filename), (e, data) => {
+							if (e) {
+								logger.error('S3 failed to delete object', e);
+
+								rejectCallback(e);
+							} else {
+								resolveCallback({data: data});
+							}
+						});
+					});
+				});
+		}
+
+		/**
 		 * Creates a filename that uses a folder.
 		 *
 		 * @static
