@@ -454,7 +454,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Enqueues b batch of messages (up to 10) in the queue. If the queue doesn't exist, it will
+		 * Enqueues a batch of messages (up to 10) in the queue. If the queue doesn't exist, it will
 		 * be created.
 		 *
 		 * @public
