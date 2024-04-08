@@ -130,7 +130,7 @@ module.exports = (() => {
 					logger.info('Session [', this._instanceCounter, '] flush starting [', this._instanceId, ']');
 
 					if (this._pending.empty()) {
-						logger.warn('Session [', this._instanceCounter, '] has no operations.');
+						logger.warn('Session [', this._instanceCounter, '] has no operations');
 					}
 
 					let operationCounter = 0;
@@ -162,7 +162,7 @@ module.exports = (() => {
 										operationCount = ++operationCounter;
 
 										if (candidate.equals(previousResult.operation)) {
-											logger.debug('Session [', this._instanceCounter, '] operation [', operationCount, '][', candidate.toString() ,'] discarded as duplicate.');
+											logger.debug('Session [', this._instanceCounter, '] operation [', operationCount, '][', candidate.toString() ,'] discarded as duplicate');
 										} else {
 											operation = candidate;
 										}
@@ -173,11 +173,11 @@ module.exports = (() => {
 									} else {
 										this._processed.push(operation);
 
-										logger.debug('Session [', this._instanceCounter, '] operation [', operationCount, '][', operation.toString() ,'] starting.');
+										logger.debug('Session [', this._instanceCounter, '] operation [', operationCount, '][', operation.toString() ,'] starting');
 
 										processPromise = operation.process(dataProvider, this._instanceId, this._name)
 											.then((result) => {
-												logger.debug('Session [', this._instanceCounter, '] operation [', operationCount, '][', operation.toString() ,'] complete.');
+												logger.debug('Session [', this._instanceCounter, '] operation [', operationCount, '][', operation.toString() ,'] complete');
 
 												results.push(result);
 
