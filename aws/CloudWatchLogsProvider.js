@@ -214,11 +214,11 @@ module.exports = (() => {
 									reject(e);
 								} else {
 									if (data.logGroups) {
-										logGroups = [...logGroups, ...data.logGroups];
+										logGroups = [ ...logGroups, ...data.logGroups ];
 									}
 
 									if (data.nextToken) {
-										const newOptions = {...options};
+										const newOptions = { ...options };
 
 										newOptions.nextToken = data.nextToken;
 
@@ -274,7 +274,7 @@ module.exports = (() => {
 		 * @param {String} options.orderBy - If the value is LogStreamName, the results are ordered by log stream name. If the value is LastEventTime, the results are ordered by the event time. The default value is LogStreamName.
 		 * @param {Boolean} options.descending - If the value is true, results are returned in descending order. If the value is false, results are returned in ascending order. The default value is false.
 		 * @param {Number} options.limit - The maximum number of items returned. If you don't specify a value, the default is up to 50 items.
-		 * @returns {Promise<Array>}
+		 * @returns {Promise<Array<Array>>}
 		 */
 		async getLogStreams(options) {
 			return Promise.resolve()
@@ -299,12 +299,12 @@ module.exports = (() => {
 
 									reject(e);
 								} else {
-									if (data.logStreams) {
-										logStreams = [...logStreams, ...data.logStreams];
+									if (data.logStreams && data.logStreams.length > 0) {
+										logStreams.push(data.logStreams);
 									}
 
 									if (data.nextToken) {
-										const newOptions = {...options};
+										const newOptions = { ...options };
 
 										newOptions.nextToken = data.nextToken;
 
