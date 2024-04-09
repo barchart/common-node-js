@@ -341,7 +341,7 @@ module.exports = (() => {
 					assert.argumentIsRequired(logGroupName, 'logGroupName', String);
 
 					return promise.build((resolve, reject) => {
-						this._cloudWatchLogs.deleteLogGroup(logGroupName, (e) => {
+						this._cloudWatchLogs.deleteLogGroup({ logGroupName }, (e) => {
 							if (e) {
 								logger.error(e);
 
@@ -372,7 +372,7 @@ module.exports = (() => {
 					assert.argumentIsRequired(logStreamName, 'logStreamName', String);
 
 					return promise.build((resolve, reject) => {
-						this._cloudWatchLogs.deleteLogStream(logGroupName, (e) => {
+						this._cloudWatchLogs.deleteLogStream({ logGroupName, logStreamName }, (e) => {
 							if (e) {
 								logger.error(e);
 
@@ -403,7 +403,7 @@ module.exports = (() => {
 					assert.argumentIsRequired(tags, 'tags', Object);
 
 					return promise.build((resolve, reject) => {
-						this._cloudWatchLogs.tagLogGroup({logGroupName, tags}, (e) => {
+						this._cloudWatchLogs.tagLogGroup({ logGroupName, tags }, (e) => {
 							if (e) {
 								logger.error(e);
 
@@ -434,7 +434,7 @@ module.exports = (() => {
 					assert.argumentIsRequired(tags, 'tags', Array);
 
 					return promise.build((resolve, reject) => {
-						this._cloudWatchLogs.untagLogGroup({logGroupName, tags}, (e) => {
+						this._cloudWatchLogs.untagLogGroup({ logGroupName, tags }, (e) => {
 							if (e) {
 								logger.error(e);
 
@@ -465,7 +465,7 @@ module.exports = (() => {
 					assert.argumentIsRequired(retentionInDays, 'retentionInDays', Number);
 
 					return promise.build((resolve, reject) => {
-						this._cloudWatchLogs.putRetentionPolicy({logGroupName, retentionInDays}, (e) => {
+						this._cloudWatchLogs.putRetentionPolicy({ logGroupName, retentionInDays }, (e) => {
 							if (e) {
 								logger.error(e);
 
@@ -494,7 +494,7 @@ module.exports = (() => {
 					assert.argumentIsRequired(logGroupName, 'logGroupName', String);
 
 					return promise.build((resolve, reject) => {
-						this._cloudWatchLogs.deleteLogStream({logGroupName}, (e) => {
+						this._cloudWatchLogs.deleteRetentionPolicy({ logGroupName }, (e) => {
 							if (e) {
 								logger.error(e);
 
