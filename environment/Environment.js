@@ -78,6 +78,8 @@ module.exports = (() => {
 		 * Builds the a singleton instance of the {@link Environment} class; accessible
 		 * from the {@link Environment.getInstance} function.
 		 *
+		 * @public
+		 * @static
 		 * @param {string} applicationPath - The root application directory, which must contain a "config" folder with a "config.yml" file.
 		 * @param {string} version - The version of the application.
 		 * @returns {Environment}
@@ -88,7 +90,9 @@ module.exports = (() => {
 
 			let name;
 
-			if (is.object(process) && is.object(process.env) && is.string(process.env.NODE_ENV)) {
+			if (is.object(process) && is.object(process.env) && is.string(process.env.ENV_NAME)) {
+				name = process.env.ENV_NAME;
+			} else if (is.object(process) && is.object(process.env) && is.string(process.env.NODE_ENV)) {
 				name = process.env.NODE_ENV;
 			} else {
 				name = 'development';
@@ -109,6 +113,8 @@ module.exports = (() => {
 		 * {@link Environment.initialize} function must be called before using
 		 * this function.
 		 *
+		 * @public
+		 * @static
 		 * @returns {Environment}
 		 */
 		static getInstance() {
@@ -126,6 +132,8 @@ module.exports = (() => {
 		 * a map with keys, "a" and "b" would be returned having values 1 and 2,
 		 * respectively.
 		 *
+		 * @public
+		 * @static
 		 * @returns {object}
 		 */
 		static parseProcessArguments() {
