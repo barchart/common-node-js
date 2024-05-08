@@ -170,7 +170,7 @@ module.exports = (() => {
 		 * then returns the current instance.
 		 *
 		 * @public
-		 * @param {Function} callback - Synchronously called, providing a {@link ProvisionedThroughputBuilder} tied to the current instance.
+		 * @param {ProvisionedThroughputBuilder} provisionedThroughputBuilder
 		 * @returns {IndexBuilder}
 		 */
 		withProvisionedThroughputBuilder(provisionedThroughputBuilder) {
