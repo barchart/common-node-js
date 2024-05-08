@@ -14,7 +14,7 @@ module.exports = (() => {
 
 	// 2020/11/29, BRI. Inheriting the LambdaValidator is a hack. The LambdaValidator
 	// is scheduled for removal in the next major release. For now, the inheritance
-	// is only intended to maintains backwards compatibility for type checking purposes.
+	// is only intended to maintain backwards compatibility for type checking purposes.
 
 	/**
 	 * Evaluates the input to a Lambda Function to determine if processing should be
