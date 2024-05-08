@@ -168,10 +168,10 @@ module.exports = (() => {
 		 * @param {Function} callback - Synchronously called, providing a {@link KeyBuilder} tied to the current instance.
 		 * @returns {TableBuilder}
 		 */
-		withKeyBuilder(name, callback) {
+		withKeyBuilder(keyName, callback) {
 			assert.argumentIsRequired(callback, 'callback', Function);
 
-			const keyBuilder = new KeyBuilder(name, this);
+			const keyBuilder = new KeyBuilder(keyName, this);
 
 			callback(keyBuilder);
 
