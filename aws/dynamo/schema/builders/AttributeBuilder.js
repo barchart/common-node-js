@@ -53,6 +53,7 @@ module.exports = (() => {
 		 * Sets a strategy for the framework to compose the {@link Attribute} value from
 		 * other fields.
 		 *
+		 * @public
 		 * @param {Function} callback - Synchronously called, providing a {@link DerivationBuilder} tied to the current instance.
 		 * @returns {AttributeBuilder}
 		 */
@@ -73,6 +74,7 @@ module.exports = (() => {
 		/**
 		 * Sets the encryption strategy for the field.
 		 *
+		 * @public
 		 * @param {EncryptionType} encryptionType
 		 * @param {String} key
 		 * @returns {AttributeBuilder}
@@ -89,6 +91,7 @@ module.exports = (() => {
 		/**
 		 * Sets the encryption strategy for the field, using an {@link EncryptorBuilder} provided via callback.
 		 *
+		 * @public
 		 * @param {Function} callback - Synchronously called, providing a {@link EncryptorBuilder} tied to the current instance.
 		 * @returns {AttributeBuilder}
 		 */
@@ -109,6 +112,7 @@ module.exports = (() => {
 		/**
 		 * Sets the {@link CompressionType} for the field.
 		 *
+		 * @public
 		 * @param {CompressionType} compressionType
 		 * @returns {AttributeBuilder}
 		 */
