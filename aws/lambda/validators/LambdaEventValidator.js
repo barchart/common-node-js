@@ -52,10 +52,12 @@ module.exports = (() => {
 		 * Checks messages contained within a Lambda event for validity.
 		 *
 		 * @public
+		 * @async
+		 * @override
 		 * @param {Object} event
 		 * @returns {Promise<Boolean>}
 		 */
-		validate(event) {
+		async validate(event) {
 			return Promise.resolve()
 				.then(() => {
 					if (this._messageValidators.length === 0) {

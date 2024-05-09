@@ -21,6 +21,7 @@ module.exports = (() => {
 		 * Validates a message.
 		 *
 		 * @public
+		 * @async
 		 * @param {String} name
 		 * @param {Object} message
 		 * @param {Object} event
@@ -28,7 +29,7 @@ module.exports = (() => {
 		 * @param {String=} messageId
 		 * @returns {Promise<Boolean>}
 		 */
-		validate(name, message, event, trigger, messageId) {
+		async validate(name, message, event, trigger, messageId) {
 			return Promise.resolve()
 				.then(() => {
 					assert.argumentIsOptional(trigger, 'trigger', LambdaTriggerType, 'LambdaTriggerType');
