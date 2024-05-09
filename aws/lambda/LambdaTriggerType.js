@@ -1,3 +1,5 @@
+const is = require('@barchart/common-js/lang/is');
+
 const Enum = require('@barchart/common-js/lang/Enum');
 
 module.exports = (() => {
@@ -134,6 +136,28 @@ module.exports = (() => {
 			return barchartRecursive;
 		}
 
+		/**
+		 * A trigger from the API Gateway (in the original REST mode).
+		 *
+		 * @public
+		 * @static
+		 * @returns {LambdaTriggerType}
+		 */
+		static get API_GATEWAY_REST() {
+			return apiGatewayRest;
+		}
+
+		/**
+		 * A trigger from the API Gateway (in the newer HTTP mode).
+		 *
+		 * @public
+		 * @static
+		 * @returns {LambdaTriggerType}
+		 */
+		static get API_GATEWAY_HTTP() {
+			return apiGatewayHttp;
+		}
+
 		toString() {
 			return `[LambdaTriggerType (code=${this.code})]`;
 		}
@@ -146,6 +170,9 @@ module.exports = (() => {
 
 	const barchartScheduler = new LambdaTriggerType('BARCHART_SCHEDULER', m => m.source === 'barchart:scheduler', m => m.guid, m => m.data);
 	const barchartRecursive = new LambdaTriggerType('BARCHART_RECURSIVE', m => m.source === 'barchart:recursive', m => m.guid, m => m.data);
+
+	const apiGatewayRest = new LambdaTriggerType('API_GATEWAY_REST', m => is.object(m.requestContext) && !m.hasOwnProperty('version'), m => m.requestContext.requestId || null, m => m);
+	const apiGatewayHttp = new LambdaTriggerType('API_GATEWAY_HTTP', m => is.object(m.requestContext) && m.hasOwnProperty('version') && m.version === '2.0', m => m.requestContext.requestId || null, m => m);
 
 	return LambdaTriggerType;
 })();
