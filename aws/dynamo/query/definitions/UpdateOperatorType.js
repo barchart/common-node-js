@@ -29,7 +29,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {String} field
-		 * @param operand
+		 * @param {*} operand
 		 * @returns {String}
 		 */
 		format(field, operand) {
