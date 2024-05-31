@@ -84,13 +84,14 @@ module.exports = (() => {
 
 		/**
 		 * @protected
+		 * @async
 		 * @ignore
 		 * @param {DataProvider} dataProvider
 		 * @param {String} session
 		 * @param {String|null} name
 		 * @returns {*}
 		 */
-		_process(dataProvider, session, name) {
+		async _process(dataProvider, session, name) {
 			return;
 		}
 
