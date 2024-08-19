@@ -31,7 +31,7 @@ module.exports = (() => {
 		 * @public
 		 * @param {Object} item - The object to serialize (for DynamoDB).
 		 * @param {Table} table - The schema that controls serialization of the object.
-		 * @param {Boolean=} keysOnly - If true, only the item's key fields will be will be serialized.
+		 * @param {Boolean=} keysOnly - If true, only the item's key fields will be serialized.
 		 * @param {Boolean=} explicit - If true, derived properties will not be evaluated.
 		 * @returns {Object} - The serialized object.
 		 */
