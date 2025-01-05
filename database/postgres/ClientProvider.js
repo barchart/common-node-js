@@ -15,9 +15,10 @@ module.exports = (() => {
 	 * @param {String} password
 	 * @param {Number=} port
 	 * @param {String=} applicationName
+	 * @param {*=} ssl
 	 */
 	class ClientProvider extends Disposable {
-		constructor(host, database, username, password, port, applicationName) {
+		constructor(host, database, username, password, port, applicationName, ssl) {
 			super();
 
 			assert.argumentIsRequired(host, 'host', String);
@@ -26,6 +27,7 @@ module.exports = (() => {
 			assert.argumentIsRequired(password, 'password', String);
 			assert.argumentIsOptional(port, 'port', Number);
 			assert.argumentIsOptional(applicationName, 'applicationName', String);
+			assert.argumentIsOptional(ssl, 'ssl');
 
 			this._configuration = {
 				host: host,
@@ -35,6 +37,10 @@ module.exports = (() => {
 				password: password,
 				application_name: applicationName || 'pg-javascript-client'
 			};
+
+			if (ssl) {
+				this._configuration.ssl = ssl;
+			}
 		}
 
 		/**
