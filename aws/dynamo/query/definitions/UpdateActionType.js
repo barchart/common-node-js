@@ -17,7 +17,7 @@ module.exports = (() => {
 	 */
 	class UpdateActionType extends Enum {
 		constructor(code, description, keyword, allowedOperators) {
-			super(code, description, keyword);
+			super(code, description);
 
 			this._keyword = keyword;
 			this._operators = allowedOperators || [ ];

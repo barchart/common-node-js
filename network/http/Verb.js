@@ -7,7 +7,7 @@ module.exports = (() => {
 	 * An enumeration for HTTP verbs.
 	 *
 	 * @public
-	 * @extends Enum
+	 * @extends {Enum}
 	 */
 	class Verb extends Enum {
 		constructor(code) {
