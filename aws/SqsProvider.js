@@ -658,7 +658,7 @@ module.exports = (() => {
 		 * @param {Function} callback - Invoked with a messages as they become available.
 		 * @param {Number=} pollInterval - The milliseconds to wait between polling the queue.
 		 * @param {Number=} pollDuration - The maximum amount of time the server-side long-poll will wait for messages to become available.
-		 * @param {Number=} maximumMessages - The maximum number of messages to read per request (cannot be more than 10).
+		 * @param {Number=} batchSize - The maximum number of messages to read per request (cannot be more than 10).
 		 * @param {Object=} createOptions - Options to use when queue does not exist and must be created.
 		 * @returns {Disposable}
 		 */
