@@ -1,7 +1,8 @@
 const log4js = require('log4js');
 
 const assert = require('@barchart/common-js/lang/assert'),
-	Disposable = require('@barchart/common-js/lang/Disposable');
+	Disposable = require('@barchart/common-js/lang/Disposable'),
+	is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
 	'use strict';
@@ -94,10 +95,12 @@ module.exports = (() => {
 		 * @async
 		 * @param {String} messageType
 		 * @param {*} payload
+		 * @param {Number} timeout
 		 * @returns {Promise<*>}
 		 */
-		async route(messageType, payload) {
+		async route(messageType, payload, timeout) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
+			assert.argumentIsValid(timeout, 'timeout', is.positive, 'is positive');
 
 			if (!this._started) {
 				throw new Error('The router has not started.');
@@ -113,11 +116,11 @@ module.exports = (() => {
 
 			return Promise.resolve()
 				.then(() => {
-					return this._route(messageType, payload);
+					return this._route(messageType, payload, timeout);
 				});
 		}
 
-		_route(messageType, payload) {
+		_route(messageType, payload, timeout) {
 			return;
 		}
 

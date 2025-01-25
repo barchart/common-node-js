@@ -1,6 +1,7 @@
 const log4js = require('log4js');
 
-const Disposable = require('@barchart/common-js/lang/Disposable');
+const Disposable = require('@barchart/common-js/lang/Disposable'),
+	promise = require('@barchart/common-js/lang/promise');
 
 const Router = require('./Router');
 
@@ -20,10 +21,13 @@ module.exports = (() => {
 			return this._requestHandlers.hasOwnProperty(messageType);
 		}
 
-		_route(messageType, payload) {
-			const handler = this._requestHandlers[messageType];
+		_route(messageType, payload, timeout) {
+			return promise.timeout(Promise.resolve()
+				.then(() => {
+					const handler = this._requestHandlers[messageType];
 
-			return handler(payload, messageType);
+					return handler(payload, messageType);
+				}), timeout);
 		}
 
 		_register(messageType, handler) {

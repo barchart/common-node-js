@@ -33,12 +33,12 @@ module.exports = (() => {
 			});
 		}
 
-		_route(messageType, payload) {
+		_route(messageType, payload, timeout) {
 			const router = this._routers.find((router) => {
 				return router.canRoute(messageType);
 			});
 
-			return router.route(messageType, payload);
+			return router.route(messageType, payload, timeout);
 		}
 
 		_register(messageType, handler) {

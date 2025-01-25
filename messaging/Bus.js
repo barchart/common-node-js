@@ -1,9 +1,9 @@
 const log4js = require('log4js');
 
 const assert = require('@barchart/common-js/lang/assert'),
+	date = require('@barchart/common-js/lang/date'),
 	Disposable = require('@barchart/common-js/lang/Disposable'),
-	is = require('@barchart/common-js/lang/is'),
-	promise = require('@barchart/common-js/lang/promise');
+	is = require('@barchart/common-js/lang/is');
 
 const Publisher = require('./publishers/Publisher'),
 	Router = require('./routers/Router');
@@ -131,39 +131,35 @@ module.exports = (() => {
 				throw new Error('The message bus has been disposed');
 			}
 
-			const start = new Date();
+			const start = date.getTimestamp();
 
 			let requestPromise;
 
 			if (this._router.canRoute(messageType)) {
-				requestPromise = this._router.route(messageType, payload);
-
 				let timeoutToUse;
 
-				if (is.number(timeout)) {
-					timeoutToUse = Math.max(0, timeout);
+				if (is.number(timeout) && timeout > 0) {
+					timeoutToUse = timeout;
 				} else {
 					timeoutToUse = DEFAULT_TIMEOUT_MILLISECONDS;
 				}
 
-				if (timeoutToUse > 0) {
-					requestPromise = promise.timeout(requestPromise, timeoutToUse)
-						.then((response) => {
-							const end = new Date();
+				requestPromise = this._router.route(messageType, payload, timeoutToUse)
+					.then((response) => {
+						const end = date.getTimestamp();
 
-							logger.debug('Request [', messageType, '] completed after', (end.getTime() - start.getTime()), 'milliseconds');
+						logger.debug('Request [', messageType, '] completed after [', (end - start), '] milliseconds');
 
-							return response;
-						}).catch((e) => {
-							const end = new Date();
+						return response;
+					}).catch((e) => {
+						const end = date.getTimestamp();
 
-							logger.warn('Request [', messageType, '] failed after', (end.getTime() - start.getTime()), 'milliseconds');
+						logger.warn('Request [', messageType, '] failed after [', (end - start), '] milliseconds');
 
-							throw e;
-						});
-				}
+						throw e;
+					});
 			} else {
-				requestPromise = Promise.reject(`Existing routers are unable to handle request (${messageType}).`);
+				requestPromise = Promise.reject(`Router is unable to handle request [ ${messageType} ].`);
 			}
 
 			return requestPromise;

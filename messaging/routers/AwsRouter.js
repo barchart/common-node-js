@@ -63,8 +63,6 @@ module.exports = (() => {
 						if (is.string(message.id) && this._pendingRequests.hasOwnProperty(message.id)) {
 							const callbacks = this._pendingRequests[message.id];
 
-							delete this._pendingRequests[message.id];
-
 							if (is.boolean(message.success) && !message.success) {
 								callbacks.reject('Request failed');
 							} else if (is.object(message.payload)) {
@@ -88,7 +86,7 @@ module.exports = (() => {
 			return true;
 		}
 
-		_route(messageType, payload) {
+		_route(messageType, payload, timeout) {
 			logger.debug('Routing message to AWS [', messageType, ']');
 			logger.trace(payload);
 
@@ -107,15 +105,24 @@ module.exports = (() => {
 				};
 			});
 
-			return this._sqsProvider.send(messageType, envelope, null, this._createOptions)
+			const sendPromise = this._sqsProvider.send(messageType, envelope, null, this._createOptions)
 				.catch((e) => {
 					logger.error('Request routing failed. Unable to enqueue request message.', e);
-
-					delete this._pendingRequests[messageId];
 
 					throw e;
 				}).then(() => {
 					return routePromise;
+				});
+
+			return promise.timeout(sendPromise, timeout)
+				.then((response) => {
+					delete this._pendingRequests[messageId];
+
+					return response;
+				}).catch((e) => {
+					delete this._pendingRequests[messageId];
+
+					throw e;
 				});
 		}
 
@@ -150,7 +157,7 @@ module.exports = (() => {
 					handlerPromise = handlerPromise.then((response) => {
 						return respond(true, response);
 					}).catch((e) => {
-						logger.error('Request processing failed. Sending failure message.', e);
+						logger.error('Request processing failed. Responding with failure message.', e);
 
 						return respond(false);
 					});
