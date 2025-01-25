@@ -22,7 +22,7 @@ module.exports = (() => {
 
 	class ClusterRouter extends Router {
 		constructor(messageProvider, suppressExpressions) {
-			super();
+			super(suppressExpressions);
 
 			assert.argumentIsRequired(messageProvider, 'messageProvider', MessageProvider);
 
