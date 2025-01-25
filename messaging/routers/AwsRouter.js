@@ -108,7 +108,13 @@ module.exports = (() => {
 			});
 
 			return this._sqsProvider.send(messageType, envelope, null, this._createOptions)
-				.then(() => {
+				.catch((e) => {
+					logger.error('Request routing failed. Unable to enqueue request message.', e);
+
+					delete this._pendingRequests[messageId];
+
+					throw e;
+				}).then(() => {
 					return routePromise;
 				});
 		}
