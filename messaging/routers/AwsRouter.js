@@ -35,10 +35,10 @@ module.exports = (() => {
 
 			this._sqsProvider = sqsProvider;
 
-			this._pendingRequests = {};
+			this._pendingRequests = { };
 			this._routerId = identifier || uuid.v4();
 
-			this._requestHandlers = {};
+			this._requestHandlers = { };
 
 			this._createOptions = null;
 
@@ -174,7 +174,7 @@ module.exports = (() => {
 	}
 
 	function getResponseChannel(routerId) {
-		return 'response-' + routerId;
+		return `response-${routerId}`;
 	}
 
 	return AwsRouter;
