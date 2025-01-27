@@ -100,7 +100,7 @@ module.exports = (() => {
 		 */
 		async route(messageType, payload, timeout) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
-			assert.argumentIsValid(timeout, 'timeout', is.positive, 'is positive');
+			assert.argumentIsValid(timeout, 'timeout', x => is.positive(x), 'is positive');
 
 			if (!this._started) {
 				throw new Error('The router has not started.');
