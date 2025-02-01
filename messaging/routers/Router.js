@@ -118,11 +118,11 @@ module.exports = (() => {
 
 			return Promise.resolve()
 				.then(() => {
-					return this._route(messageType, payload, timeout);
+					return this._route(messageType, payload, timeout, forget);
 				});
 		}
 
-		_route(messageType, payload, timeout) {
+		_route(messageType, payload, timeout, forget) {
 			return;
 		}
 
