@@ -117,11 +117,13 @@ module.exports = (() => {
 		 * @param {String} messageType
 		 * @param {*} payload
 		 * @param {Number=} timeout
+		 * @param {Boolean=} forget
 		 * @returns {Promise<*>}
 		 */
-		async request(messageType, payload, timeout) {
+		async request(messageType, payload, timeout, forget) {
 			assert.argumentIsRequired(messageType, 'messageType', String);
 			assert.argumentIsOptional(timeout, 'timeout', Number);
+			assert.argumentIsOptional(forget, 'forget', Boolean);
 
 			if (!this._started) {
 				throw new Error('The bus has not started.');
@@ -144,7 +146,7 @@ module.exports = (() => {
 					timeoutToUse = DEFAULT_TIMEOUT_MILLISECONDS;
 				}
 
-				requestPromise = this._router.route(messageType, payload, timeoutToUse)
+				requestPromise = this._router.route(messageType, payload, timeoutToUse, forget || false)
 					.then((response) => {
 						const end = date.getTimestamp();
 

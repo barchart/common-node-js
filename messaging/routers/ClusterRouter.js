@@ -140,7 +140,7 @@ module.exports = (() => {
 			return this._requestRegistrations.hasOwnProperty(messageType);
 		}
 
-		_route(messageType, payload, timeout) {
+		_route(messageType, payload, timeout, forget) {
 			return promise.build((resolveCallback, rejectCallback) => {
 				const envelope = getRequestEnvelope(messageType, payload);
 				const messageId = envelope.id;

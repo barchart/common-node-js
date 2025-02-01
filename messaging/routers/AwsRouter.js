@@ -86,19 +86,33 @@ module.exports = (() => {
 			return true;
 		}
 
-		_route(messageType, payload, timeout) {
+		_route(messageType, payload, timeout, forget) {
 			logger.debug('Routing message to AWS [', messageType, ']');
 			logger.trace(payload);
 
 			const messageId = uuid.v4();
 
+			let senderToUse;
+
+			if (forget) {
+				senderToUse = null;
+			} else {
+				senderToUse = this._routerId;
+			}
+
 			const envelope = {
 				id: messageId,
-				sender: this._routerId,
+				sender: senderToUse,
 				payload: payload
 			};
 
 			const routePromise = promise.build((resolveCallback, rejectCallback) => {
+				if (forget) {
+					resolveCallback(null);
+
+					return;
+				}
+
 				this._pendingRequests[messageId] = {
 					resolve: resolveCallback,
 					reject: rejectCallback

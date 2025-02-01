@@ -21,13 +21,19 @@ module.exports = (() => {
 			return this._requestHandlers.hasOwnProperty(messageType);
 		}
 
-		_route(messageType, payload, timeout) {
-			return promise.timeout(Promise.resolve()
+		_route(messageType, payload, timeout, forget) {
+			const responsePromise = promise.timeout(Promise.resolve()
 				.then(() => {
 					const handler = this._requestHandlers[messageType];
 
 					return handler(payload, messageType);
 				}), timeout);
+
+			if (forget) {
+				return Promise.resolve(null);
+			}
+
+			return responsePromise;
 		}
 
 		_register(messageType, handler) {
