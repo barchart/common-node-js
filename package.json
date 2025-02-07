@@ -35,7 +35,6 @@
     "moment": "^2.29.1",
     "moment-timezone": "^0.5.34",
     "multer": "1.2.1",
-    "node-yaml-config": "0.0.4",
     "nodemailer": "^6.3.0",
     "numeral": "^2.0.6",
     "socket.io": "2.3.0",
