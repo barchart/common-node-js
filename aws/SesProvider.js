@@ -45,7 +45,7 @@ module.exports = (() => {
 
 			this._configuration = configuration;
 
-			this._ses = null;
+			this._sesv2 = null;
 			this._transport = null;
 
 			this._startPromise = null;
@@ -73,12 +73,12 @@ module.exports = (() => {
 						aws.config.update({region: this._configuration.region});
 
 						this._transport = nodemailer.createTransport({
-							SES: new aws.SES({
-								apiVersion: '2010-12-01'
+							SES: new aws.SESV2({
+								apiVersion: '2019-09-27'
 							})
 						});
 
-						this._ses = new aws.SES({apiVersion: this._configuration.apiVersion || '2010-12-01'});
+						this._sesv2 = new aws.SESV2({ apiVersion: this._configuration.apiVersion || '2019-09-27' });
 					}).then(() => {
 						logger.info('The SES provider has started');
 
@@ -224,7 +224,7 @@ module.exports = (() => {
 						return promise.build((resolveCallback, rejectCallback) => {
 							logger.debug('Sending email to [', recipientAddress, ']');
 
-							this._ses.sendEmail(params, (error, data) => {
+							this._sesv2.sendEmail(params, (error, data) => {
 								if (error) {
 									logger.error('SES provider failed to send email message', params);
 									logger.error(error);
@@ -238,6 +238,108 @@ module.exports = (() => {
 							});
 						});
 					});
+				});
+		}
+
+		/**
+		 * Fetches a list of suppressed email addresses.
+		 *
+		 * @public
+		 * @async
+		 * @param {string=} nextToken - The token to use for pagination.
+		 * @returns {Promise}
+		 */
+		/**
+		 * Fetches all suppressed email addresses using pagination.
+		 *
+		 * @public
+		 * @async
+		 * @returns {Promise}
+		 */
+		async getAllSuppressedEmails() {
+			checkReady.call(this);
+
+			let allSuppressedEmails = [];
+			let nextToken = null;
+
+			do {
+				const params = {};
+				if (nextToken) {
+					params.NextToken = nextToken;
+				}
+
+				const data = await this._sesv2.listSuppressedDestinations(params).promise();
+				allSuppressedEmails = allSuppressedEmails.concat(data.SuppressedDestinationSummaries.map(item => item.EmailAddress));
+				nextToken = data.NextToken || null;
+			} while (nextToken);
+
+			return allSuppressedEmails;
+		}
+
+		/**
+		 * Adds an email address to the suppression list.
+		 *
+		 * @public
+		 * @async
+		 * @param {string} email - The email address to suppress.
+		 * @returns {Promise}
+		 */
+		async addEmailToSuppressionList(email) {
+			checkReady.call(this);
+
+			assert.argumentIsRequired(email, 'email', String);
+
+			const params = {
+				EmailAddress: email,
+				Reason: "BOUNCE"
+			};
+
+			return this._sesv2.putSuppressedDestination(params).promise()
+				.then(() => {
+					logger.info(`Email ${email} added to the suppression list`);
+				})
+				.catch(error => {
+					logger.error(`Failed to add ${email} to suppression list`, error);
+					throw error;
+				});
+		}
+
+		/**
+		 * Returns the number of suppressed email addresses.
+		 *
+		 * @public
+		 * @async
+		 * @returns {Promise<number>}
+		 */
+		async getNumberOfSuppressedEmails() {
+			return this.getAllSuppressedEmails().then(result => {
+				return result.length;
+			}).catch(error => {
+				logger.error('Failed to get the number of suppressed emails', error);
+				throw error;
+			});
+		}
+
+		/**
+		 * Removes an email address from the suppression list.
+		 *
+		 * @public
+		 * @async
+		 * @param {string} email - The email address to remove from the suppression list.
+		 * @returns {Promise}
+		 */
+		async removeEmailFromSuppressionList(email) {
+			checkReady.call(this);
+
+			assert.argumentIsRequired(email, 'email', String);
+
+			return this._sesv2.deleteSuppressedDestination({ EmailAddress: email }).promise()
+				.then(() => {
+					logger.info(`Email ${email} removed from the suppression list`);
+				})
+				.catch(error => {
+					logger.error(`Failed to remove ${email} from suppression list`, error);
+					throw error;
 				});
 		}
 
