@@ -4,6 +4,7 @@ async function main() {
     const configuration = {
         region: 'us-east-1'
     };
+    const emailToAdd = 'tafox89745@lassora.com';
 
     const sesProvider = new SesProvider(configuration);
     await sesProvider.start();
@@ -11,19 +12,14 @@ async function main() {
     const suppressedEmails = await sesProvider.getAllSuppressedEmails();
     console.log('Suppressed Emails:', suppressedEmails);
 
-    const emailToAdd = 'tafox89745@lassora.com';
-
     await sesProvider.addEmailToSuppressionList(emailToAdd);
-    console.log(`Added ${emailToAdd} to the suppression list`);
+    console.log('Email added to suppression list:', emailToAdd);
 
-    const suppressedEmailsAfterAdd = await sesProvider.getNumberOfSuppressedEmails();
-    console.log('Number of suppressed emails after adding:', suppressedEmailsAfterAdd);
+    const suppressedDestination = await sesProvider.getSuppressedDestination(emailToAdd);
+    console.log('Suppressed Destination:', suppressedDestination);
 
     await sesProvider.removeEmailFromSuppressionList(emailToAdd);
-    console.log(`Removed ${emailToAdd} from the suppression list`);
-
-    const suppressedEmailsAfterRemove = await sesProvider.getNumberOfSuppressedEmails();
-    console.log('Number of suppressed emails after removing:', suppressedEmailsAfterRemove);
+    console.log('Email removed from suppression list:', emailToAdd);
 }
 
 main().catch(error => {
