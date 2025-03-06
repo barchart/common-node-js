@@ -246,14 +246,6 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @async
-		 * @param {string=} nextToken - The token to use for pagination.
-		 * @returns {Promise}
-		 */
-		/**
-		 * Fetches all suppressed email addresses using pagination.
-		 *
-		 * @public
-		 * @async
 		 * @returns {Promise}
 		 */
 		async getAllSuppressedEmails() {
@@ -262,7 +254,7 @@ module.exports = (() => {
 			let allSuppressedEmails = [];
 			let nextToken = null;
 
-			do {
+			while (true) {
 				const params = {};
 				if (nextToken) {
 					params.NextToken = nextToken;
@@ -271,7 +263,11 @@ module.exports = (() => {
 				const data = await this._sesv2.listSuppressedDestinations(params).promise();
 				allSuppressedEmails = allSuppressedEmails.concat(data.SuppressedDestinationSummaries.map(item => item.EmailAddress));
 				nextToken = data.NextToken || null;
-			} while (nextToken);
+
+				if (!nextToken) {
+					break;
+				}
+			}
 
 			return allSuppressedEmails;
 		}
@@ -282,26 +278,29 @@ module.exports = (() => {
 		 * @public
 		 * @async
 		 * @param {string} email - The email address to suppress.
-		 * @returns {Promise}
+		 * @param {string=} reason - The reason for suppression (valid values: "BOUNCE", "COMPLAINT"). Defaults to "COMPLAINT".
+		 * @returns {Promise<void>}
 		 */
-		async addEmailToSuppressionList(email) {
+		async addEmailToSuppressionList(email, reason = 'COMPLAINT') {
 			checkReady.call(this);
 
 			assert.argumentIsRequired(email, 'email', String);
 
+			const normalizedReason = reason.toUpperCase();
+			assert.argumentIsValid(normalizedReason, 'reason', value => value === 'BOUNCE' || value === 'COMPLAINT', 'BOUNCE or COMPLAINT');
+
 			const params = {
 				EmailAddress: email,
-				Reason: "BOUNCE"
+				Reason: normalizedReason
 			};
 
-			return this._sesv2.putSuppressedDestination(params).promise()
-				.then(() => {
-					logger.info(`Email ${email} added to the suppression list`);
-				})
-				.catch(error => {
-					logger.error(`Failed to add ${email} to suppression list`, error);
-					throw error;
-				});
+			try {
+				await this._sesv2.putSuppressedDestination(params).promise();
+				logger.info(`Email ${email} added to the suppression list`);
+			} catch (error) {
+				logger.error(`Failed to add ${email} to suppression list`, error);
+				throw error;
+			}
 		}
 
 		/**
