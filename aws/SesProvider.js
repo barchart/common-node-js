@@ -259,6 +259,26 @@ module.exports = (() => {
 		}
 
 		/**
+		 * Fetches a suppressed email address.
+		 *
+		 * @param email - The email address to fetch the data for.
+		 * @returns {Promise}
+		 */
+		async getSuppressedDestination(email) {
+			checkReady.call(this);
+			const params = {
+				EmailAddress: email
+			};
+
+			try {
+				return await this._sesv2.getSuppressedDestination(params).promise();
+			} catch (error) {
+				logger.error(`Failed to get suppressed destination for ${email}`, error);
+				throw error;
+			}
+		}
+
+		/**
 		 * Adds an email address to the suppression list.
 		 *
 		 * @public
