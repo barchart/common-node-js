@@ -234,8 +234,8 @@ module.exports = (() => {
 		 * @public
 		 * @async
 		 * @param {Object} [options={}] - The options for fetching suppressed emails.
-		 * @param {string} [options.startDate=null] - The start date for fetching suppressed emails.
-		 * @param {string} [options.endDate=null] - The end date for fetching suppressed emails.
+		 * @param {string | null} [options.startDate=null] - The start date for fetching suppressed emails.
+		 * @param {string | null} [options.endDate=null] - The end date for fetching suppressed emails.
 		 * @returns {Promise}
 		 */
 		async getSuppressedEmails({ startDate = null, endDate = null } = {}) {
