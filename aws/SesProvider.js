@@ -212,7 +212,7 @@ module.exports = (() => {
 				return promise.build((resolveCallback, rejectCallback) => {
 					logger.debug('Sending email to [', recipientAddress, ']');
 
-					this._sesv2.sendEmail(params, (error, data) => {
+					this._sesv2.sendEmail(params, (error) => {
 						if (error) {
 							logger.error('SES provider failed to send email message', params);
 							logger.error(error);
