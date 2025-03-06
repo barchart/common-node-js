@@ -157,89 +157,75 @@ module.exports = (() => {
 		 * @param {string} senderAddress - The "from" email address.
 		 * @param {string|string[]} recipientAddress - The "to" email address(es).
 		 * @param {string=} subject - The email's subject.
-		 * @param {string=} htmlBody - The email's body.
-		 * @param {string=} textBody - The email's body.
+		 * @param {string=} htmlBody - The email's HTML body.
+		 * @param {string=} textBody - The email's text body.
 		 * @returns {Promise}
 		 */
 		async sendEmail(senderAddress, recipientAddress, subject, htmlBody, textBody) {
-			return Promise.resolve()
-				.then(() => {
-					assert.argumentIsRequired(senderAddress, 'senderAddress', String);
+			assert.argumentIsRequired(senderAddress, 'senderAddress', String);
 
-					if (is.array(recipientAddress)) {
-						assert.argumentIsArray(recipientAddress, 'recipientAddress', String);
-					} else {
-						assert.argumentIsRequired(recipientAddress, 'recipientAddress', String);
+			if (is.array(recipientAddress)) {
+				assert.argumentIsArray(recipientAddress, 'recipientAddress', String);
+			} else {
+				assert.argumentIsRequired(recipientAddress, 'recipientAddress', String);
+			}
+
+			assert.argumentIsOptional(subject, 'subject', String);
+			assert.argumentIsOptional(htmlBody, 'htmlBody', String);
+			assert.argumentIsOptional(textBody, 'textBody', String);
+
+			checkReady.call(this);
+
+			if (this._configuration.recipientOverride) {
+				logger.warn('Overriding email recipient for testing purposes, using [', this._configuration.recipientOverride, ']');
+				recipientAddress = this._configuration.recipientOverride;
+			}
+
+			let recipientAddressesToUse;
+			if (is.array(recipientAddress)) {
+				recipientAddressesToUse = recipientAddress;
+			} else {
+				recipientAddressesToUse = [recipientAddress];
+			}
+
+			const params = {
+				Destination: {
+					ToAddresses: recipientAddressesToUse
+				},
+				Content: {
+					Simple: {
+						Subject: { Data: subject || '' },
+						Body: {}
 					}
+				},
+				FromEmailAddress: senderAddress
+			};
 
-					assert.argumentIsOptional(subject, 'subject', String);
-					assert.argumentIsOptional(htmlBody, 'htmlBody', String);
-					assert.argumentIsOptional(textBody, 'textBody', String);
+			if (is.string(htmlBody) && htmlBody.length > 0) {
+				params.Content.Simple.Body.Html = { Data: htmlBody };
+			}
+			if (is.string(textBody) && textBody.length > 0) {
+				params.Content.Simple.Body.Text = { Data: textBody };
+			}
 
-					checkReady.call(this);
+			return this._rateLimiter.enqueue(() => {
+				return promise.build((resolveCallback, rejectCallback) => {
+					logger.debug('Sending email to [', recipientAddress, ']');
 
-					if (this._configuration.recipientOverride) {
-						logger.warn('Overriding email recipient for testing purposes, using [', this._configuration.recipientOverride, ']');
-
-						recipientAddress = this._configuration.recipientOverride;
-					}
-
-					let recipientAddressesToUse;
-
-					if (is.array(recipientAddress)) {
-						recipientAddressesToUse = recipientAddress;
-					} else {
-						recipientAddressesToUse = [recipientAddress];
-					}
-
-					const params = {
-						Destination: {
-							ToAddresses: recipientAddressesToUse
-						},
-						Message: {
-							Body: {}
-						},
-						Source: senderAddress
-					};
-
-					if (is.string(subject) && subject.length > 0) {
-						params.Message.Subject = {
-							Data: subject
-						};
-					}
-
-					if (is.string(htmlBody) && htmlBody.length > 0) {
-						params.Message.Body.Html = {
-							Data: htmlBody
-						};
-					}
-
-					if (is.string(textBody) && textBody.length > 0) {
-						params.Message.Body.Text = {
-							Data: textBody
-						};
-					}
-
-					return this._rateLimiter.enqueue(() => {
-						return promise.build((resolveCallback, rejectCallback) => {
-							logger.debug('Sending email to [', recipientAddress, ']');
-
-							this._sesv2.sendEmail(params, (error, data) => {
-								if (error) {
-									logger.error('SES provider failed to send email message', params);
-									logger.error(error);
-
-									rejectCallback(error);
-								} else {
-									logger.debug('Sent email to [', recipientAddress, ']');
-
-									resolveCallback();
-								}
-							});
-						});
+					this._sesv2.sendEmail(params, (error, data) => {
+						if (error) {
+							logger.error('SES provider failed to send email message', params);
+							logger.error(error);
+							rejectCallback(error);
+						} else {
+							logger.debug('Sent email to [', recipientAddress, ']');
+							resolveCallback();
+						}
 					});
 				});
+			});
 		}
+
 
 		/**
 		 * Fetches a list of suppressed email addresses.
