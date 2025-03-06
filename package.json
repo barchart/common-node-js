@@ -9,8 +9,7 @@
   },
   "scripts": {
     "lint": "gulp lint",
-    "test": "jasmine --config=jasmine-unit.json",
-    "test-integration": "jasmine --config=jasmine-integration.json"
+    "test": "jasmine --config=jasmine.json"
   },
   "repository": {
     "type": "git",
