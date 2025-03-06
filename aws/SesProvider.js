@@ -227,14 +227,18 @@ module.exports = (() => {
 		}
 
 
+
 		/**
-		 * Fetches a list of suppressed email addresses.
+		 * Fetches a list of suppressed email addresses with optional start and end dates.
 		 *
 		 * @public
 		 * @async
+		 * @param {Object} [options={}] - The options for fetching suppressed emails.
+		 * @param {string} [options.startDate=null] - The start date for fetching suppressed emails.
+		 * @param {string} [options.endDate=null] - The end date for fetching suppressed emails.
 		 * @returns {Promise}
 		 */
-		async getSuppressedEmails() {
+		async getSuppressedEmails({ startDate = null, endDate = null } = {}) {
 			checkReady.call(this);
 
 			let allSuppressedEmails = [];
@@ -244,6 +248,12 @@ module.exports = (() => {
 				const params = {};
 				if (nextToken) {
 					params.NextToken = nextToken;
+				}
+				if (startDate) {
+					params.StartDate = startDate;
+				}
+				if (endDate) {
+					params.EndDate = endDate;
 				}
 
 				const data = await this._sesv2.listSuppressedDestinations(params).promise();
