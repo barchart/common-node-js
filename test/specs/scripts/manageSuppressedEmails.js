@@ -5,11 +5,13 @@ async function main() {
         region: 'us-east-1'
     };
     const emailToAdd = 'tafox89745@lassora.com';
+    const startDate = new Date('2025-01-01').toISOString();
+    const endDate = new Date('2025-12-31').toISOString();
 
     const sesProvider = new SesProvider(configuration);
     await sesProvider.start();
 
-    const suppressedEmails = await sesProvider.getSuppressedEmails();
+    const suppressedEmails = await sesProvider.getSuppressedEmails({ startDate, endDate });
     console.log('Suppressed Emails:', suppressedEmails);
 
     await sesProvider.addEmailToSuppressionList(emailToAdd);
