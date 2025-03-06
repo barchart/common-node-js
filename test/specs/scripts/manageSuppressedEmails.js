@@ -9,7 +9,7 @@ async function main() {
     const sesProvider = new SesProvider(configuration);
     await sesProvider.start();
 
-    const suppressedEmails = await sesProvider.getAllSuppressedEmails();
+    const suppressedEmails = await sesProvider.getSuppressedEmails();
     console.log('Suppressed Emails:', suppressedEmails);
 
     await sesProvider.addEmailToSuppressionList(emailToAdd);

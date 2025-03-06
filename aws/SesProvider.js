@@ -234,7 +234,7 @@ module.exports = (() => {
 		 * @async
 		 * @returns {Promise}
 		 */
-		async getAllSuppressedEmails() {
+		async getSuppressedEmails() {
 			checkReady.call(this);
 
 			let allSuppressedEmails = [];
@@ -317,7 +317,7 @@ module.exports = (() => {
 		 * @returns {Promise<number>}
 		 */
 		async getNumberOfSuppressedEmails() {
-			return this.getAllSuppressedEmails().then(result => {
+			return this.getSuppressedEmails().then(result => {
 				return result.length;
 			}).catch(error => {
 				logger.error('Failed to get the number of suppressed emails', error);
