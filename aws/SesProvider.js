@@ -110,43 +110,40 @@ module.exports = (() => {
 		}
 
 		async send(options) {
-			return Promise.resolve()
-				.then(() => {
-					assert.argumentIsRequired(options.senderAddress, 'senderAddress', String);
-					assert.argumentIsRequired(options.recipientAddress, 'recipientAddress', String);
-					assert.argumentIsRequired(options.subject, 'subject', String);
-					assert.argumentIsRequired(options.recipientAddress, 'senderAddress', String);
+			assert.argumentIsRequired(options.senderAddress, 'senderAddress', String);
+			assert.argumentIsRequired(options.recipientAddress, 'recipientAddress', String);
+			assert.argumentIsRequired(options.subject, 'subject', String);
+			assert.argumentIsRequired(options.recipientAddress, 'senderAddress', String);
 
-					assert.argumentIsOptional(options.headers, 'headers', Object);
+			assert.argumentIsOptional(options.headers, 'headers', Object);
 
-					checkReady.call(this);
+			checkReady.call(this);
 
-					return this._rateLimiter.enqueue(() => {
-						return promise.build((resolve, reject) => {
-							logger.debug('Sending email to [', options.recipientAddress, ']');
+			return this._rateLimiter.enqueue(() => {
+				return promise.build((resolve, reject) => {
+					logger.debug('Sending email to [', options.recipientAddress, ']');
 
-							this._transport.sendMail({
-								from: options.senderAddress,
-								to: options.recipientAddress,
-								subject: options.subject,
-								html: options.htmlBody,
-								text: options.textBody,
-								headers: options.headers
-							}, (error, result) => {
-								if (error) {
-									logger.error('SES provider failed to send email message', options);
-									logger.error(error);
+					this._transport.sendMail({
+						from: options.senderAddress,
+						to: options.recipientAddress,
+						subject: options.subject,
+						html: options.htmlBody,
+						text: options.textBody,
+						headers: options.headers
+					}, (error, result) => {
+						if (error) {
+							logger.error('SES provider failed to send email message', options);
+							logger.error(error);
 
-									reject(error);
-								} else {
-									logger.debug('Sent email to [', options.recipientAddress, ']');
+							reject(error);
+						} else {
+							logger.debug('Sent email to [', options.recipientAddress, ']');
 
-									resolve(result);
-								}
-							});
-						});
+							resolve(result);
+						}
 					});
 				});
+			});
 		}
 
 		/**
@@ -178,14 +175,16 @@ module.exports = (() => {
 
 			if (this._configuration.recipientOverride) {
 				logger.warn('Overriding email recipient for testing purposes, using [', this._configuration.recipientOverride, ']');
+
 				recipientAddress = this._configuration.recipientOverride;
 			}
 
 			let recipientAddressesToUse;
+
 			if (is.array(recipientAddress)) {
 				recipientAddressesToUse = recipientAddress;
 			} else {
-				recipientAddressesToUse = [recipientAddress];
+				recipientAddressesToUse = [ recipientAddress ];
 			}
 
 			const params = {
@@ -204,6 +203,7 @@ module.exports = (() => {
 			if (is.string(htmlBody) && htmlBody.length > 0) {
 				params.Content.Simple.Body.Html = { Data: htmlBody };
 			}
+
 			if (is.string(textBody) && textBody.length > 0) {
 				params.Content.Simple.Body.Text = { Data: textBody };
 			}
@@ -225,8 +225,6 @@ module.exports = (() => {
 				});
 			});
 		}
-
-
 
 		/**
 		 * Fetches a list of suppressed email addresses with optional start and end dates.
