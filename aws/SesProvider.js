@@ -227,63 +227,71 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Fetches a list of suppressed email addresses with optional start and end dates.
+		 * Returns a specific item on the account-level suppression list.
 		 *
 		 * @public
 		 * @async
-		 * @param {Object} [options={}] - The options for fetching suppressed emails.
-		 * @param {string | null} [options.startDate=null] - The start date for fetching suppressed emails.
-		 * @param {string | null} [options.endDate=null] - The end date for fetching suppressed emails.
-		 * @returns {Promise}
+		 * @param {string} email
+		 * @returns {Promise<Object|null>}
 		 */
-		async getSuppressedEmails({ startDate = null, endDate = null } = {}) {
+		async getSuppressedItem(email) {
 			checkReady.call(this);
 
-			let allSuppressedEmails = [];
-			let nextToken = null;
+			assert.argumentIsRequired(email, 'email', String);
+
+			let item;
+
+			try {
+				const response = await this._sesv2.getSuppressedDestination({ EmailAddress: email }).promise();
+
+				item = transformSuppressionListItem(response.SuppressedDestination);
+			} catch (e) {
+				if (e && e.code === 'NotFoundException') {
+					item = null;
+				} else {
+					throw e;
+				}
+			}
+
+			return item;
+		}
+
+		/**
+		 * Returns the list of items on the account-level suppression list.
+		 *
+		 * @public
+		 * @async
+		 * @returns {Promise}
+		 */
+		async getSuppressedItems() {
+			checkReady.call(this);
+
+			const items = [];
+
+			let token = null;
 
 			while (true) {
 				const params = {};
-				if (nextToken) {
-					params.NextToken = nextToken;
-				}
-				if (startDate) {
-					params.StartDate = startDate;
-				}
-				if (endDate) {
-					params.EndDate = endDate;
+
+				if (token) {
+					params.NextToken = token;
 				}
 
-				const data = await this._sesv2.listSuppressedDestinations(params).promise();
-				allSuppressedEmails = allSuppressedEmails.concat(data.SuppressedDestinationSummaries.map(item => item.EmailAddress));
-				nextToken = data.NextToken || null;
+				const response = await this._sesv2.listSuppressedDestinations(params).promise();
+				const batch = response.SuppressedDestinationSummaries;
 
-				if (!nextToken) {
+				for (let i = 0; i < batch.length; i++) {
+					items.push(transformSuppressionListItem(batch[i]));
+				}
+
+				token = batch.NextToken || null;
+
+				if (token === null) {
 					break;
 				}
 			}
 
-			return allSuppressedEmails;
-		}
-
-		/**
-		 * Fetches a suppressed email address.
-		 *
-		 * @param email - The email address to fetch the data for.
-		 * @returns {Promise}
-		 */
-		async getSuppressedDestination(email) {
-			checkReady.call(this);
-			const params = {
-				EmailAddress: email
-			};
-
-			try {
-				return await this._sesv2.getSuppressedDestination(params).promise();
-			} catch (error) {
-				logger.error(`Failed to get suppressed destination for ${email}`, error);
-				throw error;
-			}
+			return items;
 		}
 
 		/**
@@ -293,44 +301,17 @@ module.exports = (() => {
 		 * @async
 		 * @param {string} email - The email address to suppress.
 		 * @param {string=} reason - The reason for suppression (valid values: "BOUNCE", "COMPLAINT"). Defaults to "COMPLAINT".
-		 * @returns {Promise<void>}
+		 * @returns {Promise}
 		 */
-		async addEmailToSuppressionList(email, reason = 'COMPLAINT') {
+		async addSuppressedItem(email, reason = 'COMPLAINT') {
 			checkReady.call(this);
 
 			assert.argumentIsRequired(email, 'email', String);
+			assert.argumentIsOptional(reason, 'reason', String);
 
-			const normalizedReason = reason.toUpperCase();
-			assert.argumentIsValid(normalizedReason, 'reason', value => value === 'BOUNCE' || value === 'COMPLAINT', 'BOUNCE or COMPLAINT');
+			assert.argumentIsValid(reason, 'reason', r => r.toUpperCase() === 'BOUNCE' || r.toUpperCase() === 'COMPLAINT', 'must be one of [ BOUNCE, COMPLIANT ]');
 
-			const params = {
-				EmailAddress: email,
-				Reason: normalizedReason
-			};
-
-			try {
-				await this._sesv2.putSuppressedDestination(params).promise();
-				logger.info(`Email ${email} added to the suppression list`);
-			} catch (error) {
-				logger.error(`Failed to add ${email} to suppression list`, error);
-				throw error;
-			}
-		}
-
-		/**
-		 * Returns the number of suppressed email addresses.
-		 *
-		 * @public
-		 * @async
-		 * @returns {Promise<number>}
-		 */
-		async getNumberOfSuppressedEmails() {
-			return this.getSuppressedEmails().then(result => {
-				return result.length;
-			}).catch(error => {
-				logger.error('Failed to get the number of suppressed emails', error);
-				throw error;
-			});
+			await this._sesv2.putSuppressedDestination({ EmailAddress: email, Reason: reason.toUpperCase() }).promise();
 		}
 
 		/**
@@ -341,19 +322,12 @@ module.exports = (() => {
 		 * @param {string} email - The email address to remove from the suppression list.
 		 * @returns {Promise}
 		 */
-		async removeEmailFromSuppressionList(email) {
+		async removeSuppressedItem(email) {
 			checkReady.call(this);
 
 			assert.argumentIsRequired(email, 'email', String);
 
-			return this._sesv2.deleteSuppressedDestination({ EmailAddress: email }).promise()
-				.then(() => {
-					logger.info(`Email ${email} removed from the suppression list`);
-				})
-				.catch(error => {
-					logger.error(`Failed to remove ${email} from suppression list`, error);
-					throw error;
-				});
+			await this._sesv2.deleteSuppressedDestination({ EmailAddress: email }).promise();
 		}
 
 		_onDispose() {
@@ -373,6 +347,14 @@ module.exports = (() => {
 		if (!this._started) {
 			throw new Error('The SES provider has not been started.');
 		}
+	}
+
+	function transformSuppressionListItem(data) {
+		const email = data.EmailAddress;
+		const reason = data.Reason;
+		const date = data.LastUpdateTime;
+
+		return { email, reason, date };
 	}
 
 	return SesProvider;
