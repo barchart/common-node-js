@@ -1,6 +1,6 @@
-const SesProvider = require('../../../aws/SesProvider');
+const SesProvider = require('./../../../aws/SesProvider');
 
-async function sendEmail() {
+async function sesProvider_TestSendEmail() {
     const configuration = {
         region: 'us-east-1'
     };
@@ -22,6 +22,6 @@ async function sendEmail() {
     }
 }
 
-sendEmail().catch(error => {
+sesProvider_TestSendEmail().catch(error => {
     console.error('Error:', error);
 });

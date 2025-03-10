@@ -1,26 +1,25 @@
-const SesProvider = require('../../../aws/SesProvider');
+const SesProvider = require('./../../../aws/SesProvider');
 
 async function main() {
     const configuration = {
         region: 'us-east-1'
     };
+
     const emailToAdd = 'tafox89745@lassora.com';
-    const startDate = new Date('2025-01-01').toISOString();
-    const endDate = new Date('2025-12-31').toISOString();
 
     const sesProvider = new SesProvider(configuration);
     await sesProvider.start();
 
-    const suppressedEmails = await sesProvider.getSuppressedEmails({ startDate, endDate });
+    const suppressedEmails = await sesProvider.getSuppressedItems();
     console.log('Suppressed Emails:', suppressedEmails);
 
-    await sesProvider.addEmailToSuppressionList(emailToAdd);
+    await sesProvider.addSuppressedItem(emailToAdd);
     console.log('Email added to suppression list:', emailToAdd);
 
-    const suppressedDestination = await sesProvider.getSuppressedDestination(emailToAdd);
+    const suppressedDestination = await sesProvider.getSuppressedItem(emailToAdd);
     console.log('Suppressed Destination:', suppressedDestination);
 
-    await sesProvider.removeEmailFromSuppressionList(emailToAdd);
+    await sesProvider.removeSuppressedItem(emailToAdd);
     console.log('Email removed from suppression list:', emailToAdd);
 }
 
