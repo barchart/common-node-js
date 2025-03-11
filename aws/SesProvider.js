@@ -110,14 +110,14 @@ module.exports = (() => {
 		}
 
 		async send(options) {
+			checkReady.call(this);
+
 			assert.argumentIsRequired(options.senderAddress, 'senderAddress', String);
 			assert.argumentIsRequired(options.recipientAddress, 'recipientAddress', String);
 			assert.argumentIsRequired(options.subject, 'subject', String);
 			assert.argumentIsRequired(options.recipientAddress, 'senderAddress', String);
 
 			assert.argumentIsOptional(options.headers, 'headers', Object);
-
-			checkReady.call(this);
 
 			return this._rateLimiter.enqueue(() => {
 				return promise.build((resolve, reject) => {
@@ -159,6 +159,8 @@ module.exports = (() => {
 		 * @returns {Promise}
 		 */
 		async sendEmail(senderAddress, recipientAddress, subject, htmlBody, textBody) {
+			checkReady.call(this);
+
 			assert.argumentIsRequired(senderAddress, 'senderAddress', String);
 
 			if (is.array(recipientAddress)) {
@@ -170,8 +172,6 @@ module.exports = (() => {
 			assert.argumentIsOptional(subject, 'subject', String);
 			assert.argumentIsOptional(htmlBody, 'htmlBody', String);
 			assert.argumentIsOptional(textBody, 'textBody', String);
-
-			checkReady.call(this);
 
 			if (this._configuration.recipientOverride) {
 				logger.warn('Overriding email recipient for testing purposes, using [', this._configuration.recipientOverride, ']');
