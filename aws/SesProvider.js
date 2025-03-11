@@ -311,11 +311,7 @@ module.exports = (() => {
 
 			assert.argumentIsValid(reason, 'reason', r => r.toUpperCase() === 'BOUNCE' || r.toUpperCase() === 'COMPLAINT', 'must be one of [ BOUNCE, COMPLIANT ]');
 
-			const r = reason.toUpperCase();
-
-			await this._sesv2.putSuppressedDestination({ EmailAddress: email, Reason: r }).promise();
-
-			return { email, reason: r };
+			await this._sesv2.putSuppressedDestination({ EmailAddress: email, Reason: reason.toUpperCase() }).promise();
 		}
 
 		/**
