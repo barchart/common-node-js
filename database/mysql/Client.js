@@ -43,41 +43,39 @@ module.exports = (() => {
 		 * Executes a query.
 		 *
 		 * @public
+		 * @async
 		 * @param {String} query
 		 * @param {Array=} parameters
 		 * @param {String=} name
 		 * @returns {Promise<Object[]>}
 		 */
-		query(query, parameters, name) {
-			return Promise.resolve()
-				.then(() => {
-					if (this.getIsDisposed()) {
-						return Promise.reject(`Unable to execute MySQL query, the ${this.toString()} has been disposed`);
+		async query(query, parameters, name) {
+			if (this.getIsDisposed()) {
+				return Promise.reject(`Unable to execute MySQL query, the ${this.toString()} has been disposed`);
+			}
+
+			assert.argumentIsRequired(query, 'query', String);
+			assert.argumentIsOptional(name, 'name', String);
+
+			return promise.build((resolveCallback, rejectCallback) => {
+				queryCounter = queryCounter + 1;
+
+				const queryCount = queryCounter;
+
+				logger.debug('Executing query [', queryCount, '] from client [', this._id, ']');
+
+				this._connection.query(query, parameters || [ ], (e, result) => {
+					if (e) {
+						logger.debug('Query [', queryCount, '] from client [', this._id, '] failed');
+
+						rejectCallback(e);
+					} else {
+						logger.debug('Query [', queryCount, '] from client [', this._id, '] finished');
+
+						resolveCallback(result);
 					}
-
-					assert.argumentIsRequired(query, 'query', String);
-					assert.argumentIsOptional(name, 'name', String);
-
-					return promise.build((resolveCallback, rejectCallback) => {
-						queryCounter = queryCounter + 1;
-
-						const queryCount = queryCounter;
-
-						logger.debug('Executing query [', queryCount, '] from client [', this._id, ']');
-
-						this._connection.query(query, parameters || [ ], (e, result) => {
-							if (e) {
-								logger.debug('Query [', queryCount, '] from client [', this._id, '] failed');
-
-								rejectCallback(e);
-							} else {
-								logger.debug('Query [', queryCount, '] from client [', this._id, '] finished');
-
-								resolveCallback(result);
-							}
-						});
-					});
 				});
+			});
 		}
 
 		toString() {

@@ -49,7 +49,7 @@ module.exports = (() => {
 		 * @public
 		 * @returns {Promise<Client>}
 		 */
-		getClient() {
+		async getClient() {
 			return Promise.resolve()
 				.then(() => {
 					if (this.getIsDisposed()) {

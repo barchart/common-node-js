@@ -30,12 +30,12 @@ module.exports = (() => {
 		}
 
 		_getClient() {
-			const configuration = this.getConfiguration();
-			const connection = mysql.createConnection(configuration);
-
-			logger.debug('Connecting new [DirectClient] to [', configuration.host, '] [', configuration.database, ']');
-
 			return promise.build((resolveCallback, rejectCallback) => {
+				const configuration = this.getConfiguration();
+				const connection = mysql.createConnection(configuration);
+
+				logger.debug('Connecting new [DirectClient] to [', configuration.host, '] [', configuration.database, ']');
+
 				connection.connect((e) => {
 					if (e) {
 						logger.error('Failed to connect [DirectClient] to [', configuration.host, '] [', configuration.database, ']', e);

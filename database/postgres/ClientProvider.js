@@ -47,9 +47,10 @@ module.exports = (() => {
 		 * Creates a new Postgres {@link Client} instance.
 		 *
 		 * @public
+		 * @async
 		 * @returns {Promise<Client>}
 		 */
-		getClient() {
+		async getClient() {
 			return Promise.resolve()
 				.then(() => {
 					if (this.getIsDisposed()) {

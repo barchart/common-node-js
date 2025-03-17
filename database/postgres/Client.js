@@ -46,58 +46,56 @@ module.exports = (() => {
 		 * Executes a query.
 		 *
 		 * @public
+		 * @async
 		 * @param {String} query
 		 * @param {Array=} parameters
 		 * @param {String=} name
 		 * @returns {Promise<Object[]>}
 		 */
-		query(query, parameters, name) {
-			return Promise.resolve()
-				.then(() => {
-					if (this.getIsDisposed()) {
-						return Promise.reject(`Unable to execute Postgres query, the ${this.toString()} has been disposed`);
+		async query(query, parameters, name) {
+			if (this.getIsDisposed()) {
+				return Promise.reject(`Unable to execute Postgres query, the ${this.toString()} has been disposed`);
+			}
+
+			assert.argumentIsRequired(query, 'query', String);
+			assert.argumentIsOptional(name, 'name', String);
+
+			return promise.build((resolveCallback, rejectCallback) => {
+				const queryObject = {
+					values: parameters || []
+				};
+
+				if (is.string(name)) {
+					queryObject.name = name;
+
+					if (!this._preparedStatementMap.hasOwnProperty(name)) {
+						this._preparedStatementMap[name] = query;
 					}
 
-					assert.argumentIsRequired(query, 'query', String);
-					assert.argumentIsOptional(name, 'name', String);
+					queryObject.text = this._preparedStatementMap[name];
+				} else {
+					queryObject.text = query;
+				}
 
-					return promise.build((resolveCallback, rejectCallback) => {
-						const queryObject = {
-							values: parameters || []
-						};
+				queryCounter = queryCounter + 1;
 
-						if (is.string(name)) {
-							queryObject.name = name;
+				const queryCount = queryCounter;
 
-							if (!this._preparedStatementMap.hasOwnProperty(name)) {
-								this._preparedStatementMap[name] = query;
-							}
+				logger.debug('Executing query [', queryCount, '] from client [', this._id, ']');
+				logger.trace('Executing query [', queryCount, '] from client [', this._id, ']', queryObject);
 
-							queryObject.text = this._preparedStatementMap[name];
-						} else {
-							queryObject.text = query;
-						}
+				this._pgClient.query(queryObject, (err, result) => {
+					if (err) {
+						logger.debug('Query [', queryCount, '] from client [', this._id, '] failed ');
 
-						queryCounter = queryCounter + 1;
+						rejectCallback(err);
+					} else {
+						logger.debug('Query [', queryCount, '] from client [', this._id, '] finished');
 
-						const queryCount = queryCounter;
-
-						logger.debug('Executing query [', queryCount, '] from client [', this._id, ']');
-						logger.trace('Executing query [', queryCount, '] from client [', this._id, ']', queryObject);
-
-						this._pgClient.query(queryObject, (err, result) => {
-							if (err) {
-								logger.debug('Query [', queryCount, '] from client [', this._id, '] failed ');
-
-								rejectCallback(err);
-							} else {
-								logger.debug('Query [', queryCount, '] from client [', this._id, '] finished');
-
-								resolveCallback(result);
-							}
-						});
-					});
+						resolveCallback(result);
+					}
 				});
+			});
 		}
 
 		toString() {
