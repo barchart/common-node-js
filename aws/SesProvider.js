@@ -284,7 +284,7 @@ module.exports = (() => {
 					items.push(transformSuppressionListItem(batch[i]));
 				}
 
-				token = batch.NextToken || null;
+				token = response.NextToken || null;
 
 				if (token === null) {
 					break;
