@@ -6,7 +6,6 @@ const assert = require('@barchart/common-js/lang/assert'),
 	Disposable = require('@barchart/common-js/lang/Disposable'),
 	is = require('@barchart/common-js/lang/is'),
 	object = require('@barchart/common-js/lang/object'),
-	promise = require('@barchart/common-js/lang/promise'),
 	RateLimiter = require('@barchart/common-js/timing/RateLimiter');
 
 module.exports = (() => {
@@ -48,7 +47,6 @@ module.exports = (() => {
 			this._sesv2 = null;
 			this._transport = null;
 
-			this._startPromise = null;
 			this._started = false;
 
 			this._rateLimiter = new RateLimiter(configuration.rateLimitPerSecond || 10, 1000);
@@ -60,39 +58,32 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @async
-		 * @returns {Promise<Boolean>}
+		 * @returns {Promise<void>}
 		 */
 		async start() {
 			if (this.getIsDisposed()) {
-				return Promise.reject('Unable to start, the SES provider has been disposed.');
+				throw new Error('Unable to start, the SES provider has been disposed.');
 			}
 
-			if (this._startPromise === null) {
-				this._startPromise = Promise.resolve()
-					.then(() => {
-						aws.config.update({region: this._configuration.region});
+			if (!this._started) {
+				try {
+					aws.config.update({ region: this._configuration.region });
 
-						this._transport = nodemailer.createTransport({
-							SES: new aws.SESV2({
-								apiVersion: '2019-09-27'
-							})
-						});
-
-						this._sesv2 = new aws.SESV2({ apiVersion: this._configuration.apiVersion || '2019-09-27' });
-					}).then(() => {
-						logger.info('The SES provider has started');
-
-						this._started = true;
-
-						return this._started;
-					}).catch((e) => {
-						logger.error('The SES provider failed to start', e);
-
-						throw e;
+					this._transport = nodemailer.createTransport({
+						SES: new aws.SESV2({ apiVersion: '2019-09-27' })
 					});
-			}
 
-			return this._startPromise;
+					this._sesv2 = new aws.SESV2({ apiVersion: this._configuration.apiVersion || '2019-09-27' });
+
+					logger.info('The SES provider has started');
+
+					this._started = true;
+				} catch (e) {
+					logger.error('The SES provider failed to start', e);
+
+					throw e;
+				}
+			}
 		}
 
 		/**
@@ -119,30 +110,28 @@ module.exports = (() => {
 
 			assert.argumentIsOptional(options.headers, 'headers', Object);
 
-			return this._rateLimiter.enqueue(() => {
-				return promise.build((resolve, reject) => {
-					logger.debug('Sending email to [', options.recipientAddress, ']');
+			await this._rateLimiter.enqueue(async () => {
+				logger.debug('Sending email to [', options.recipientAddress, ']');
 
-					this._transport.sendMail({
+				try {
+					const result = await this._transport.sendMail({
 						from: options.senderAddress,
 						to: options.recipientAddress,
 						subject: options.subject,
 						html: options.htmlBody,
 						text: options.textBody,
 						headers: options.headers
-					}, (error, result) => {
-						if (error) {
-							logger.error('SES provider failed to send email message', options);
-							logger.error(error);
-
-							reject(error);
-						} else {
-							logger.debug('Sent email to [', options.recipientAddress, ']');
-
-							resolve(result);
-						}
 					});
-				});
+
+					logger.debug('Sent email to [', options.recipientAddress, ']');
+
+					return result;
+				} catch (error) {
+					logger.error('SES provider failed to send email message', options);
+					logger.error(error);
+
+					throw error;
+				}
 			});
 		}
 
@@ -156,7 +145,7 @@ module.exports = (() => {
 		 * @param {string=} subject - The email's subject.
 		 * @param {string=} htmlBody - The email's HTML body.
 		 * @param {string=} textBody - The email's text body.
-		 * @returns {Promise}
+		 * @returns {Promise<void>}
 		 */
 		async sendEmail(senderAddress, recipientAddress, subject, htmlBody, textBody) {
 			checkReady.call(this);
@@ -179,13 +168,7 @@ module.exports = (() => {
 				recipientAddress = this._configuration.recipientOverride;
 			}
 
-			let recipientAddressesToUse;
-
-			if (is.array(recipientAddress)) {
-				recipientAddressesToUse = recipientAddress;
-			} else {
-				recipientAddressesToUse = [ recipientAddress ];
-			}
+			const recipientAddressesToUse = is.array(recipientAddress) ? recipientAddress : [recipientAddress];
 
 			const params = {
 				Destination: {
@@ -194,8 +177,8 @@ module.exports = (() => {
 				Content: {
 					Simple: {
 						Subject: { Data: subject || '' },
-						Body: {}
-					}
+						Body: {},
+					},
 				},
 				FromEmailAddress: senderAddress
 			};
@@ -208,21 +191,19 @@ module.exports = (() => {
 				params.Content.Simple.Body.Text = { Data: textBody };
 			}
 
-			return this._rateLimiter.enqueue(() => {
-				return promise.build((resolveCallback, rejectCallback) => {
+			await this._rateLimiter.enqueue(async () => {
+				try {
 					logger.debug('Sending email to [', recipientAddress, ']');
+					
+					await this._sesv2.sendEmail(params).promise();
 
-					this._sesv2.sendEmail(params, (error) => {
-						if (error) {
-							logger.error('SES provider failed to send email message', params);
-							logger.error(error);
-							rejectCallback(error);
-						} else {
-							logger.debug('Sent email to [', recipientAddress, ']');
-							resolveCallback();
-						}
-					});
-				});
+					logger.debug('Sent email to [', recipientAddress, ']');
+				} catch (error) {
+					logger.error('SES provider failed to send email message', params);
+					logger.error(error);
+
+					throw error;
+				}
 			});
 		}
 
@@ -261,7 +242,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @async
-		 * @returns {Promise}
+		 * @returns {Promise<*[]>}
 		 */
 		async getSuppressedItems() {
 			checkReady.call(this);
@@ -301,7 +282,7 @@ module.exports = (() => {
 		 * @async
 		 * @param {string} email - The email address to suppress.
 		 * @param {string=} reason - The reason for suppression (valid values: "BOUNCE", "COMPLAINT"). Defaults to "COMPLAINT".
-		 * @returns {Promise}
+		 * @returns {Promise<void>}
 		 */
 		async addSuppressedItem(email, reason = 'COMPLAINT') {
 			checkReady.call(this);
@@ -320,7 +301,7 @@ module.exports = (() => {
 		 * @public
 		 * @async
 		 * @param {string} email - The email address to remove from the suppression list.
-		 * @returns {Promise}
+		 * @returns {Promise<void>}
 		 */
 		async removeSuppressedItem(email) {
 			checkReady.call(this);
@@ -350,11 +331,7 @@ module.exports = (() => {
 	}
 
 	function transformSuppressionListItem(data) {
-		const email = data.EmailAddress;
-		const reason = data.Reason;
-		const date = data.LastUpdateTime;
-
-		return { email, reason, date };
+		return { email: data.EmailAddress, reason: data.Reason, date: data.LastUpdateTime };
 	}
 
 	return SesProvider;
