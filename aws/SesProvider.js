@@ -177,8 +177,8 @@ module.exports = (() => {
 				Content: {
 					Simple: {
 						Subject: { Data: subject || '' },
-						Body: {},
-					},
+						Body: {}
+					}
 				},
 				FromEmailAddress: senderAddress
 			};
