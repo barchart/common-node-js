@@ -282,7 +282,7 @@ module.exports = (() => {
 		 * @async
 		 * @param {string} email - The email address to suppress.
 		 * @param {string=} reason - The reason for suppression (valid values: "BOUNCE", "COMPLAINT"). Defaults to "COMPLAINT".
-		 * @returns {Promise<void>}
+		 * @returns {Promise<Object>}
 		 */
 		async addSuppressedItem(email, reason = 'COMPLAINT') {
 			checkReady.call(this);
@@ -293,6 +293,8 @@ module.exports = (() => {
 			assert.argumentIsValid(reason, 'reason', r => r.toUpperCase() === 'BOUNCE' || r.toUpperCase() === 'COMPLAINT', 'must be one of [ BOUNCE, COMPLIANT ]');
 
 			await this._sesv2.putSuppressedDestination({ EmailAddress: email, Reason: reason.toUpperCase() }).promise();
+
+			return await this.getSuppressedItem(email);
 		}
 
 		/**
