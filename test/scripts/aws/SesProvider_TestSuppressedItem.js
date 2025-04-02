@@ -5,7 +5,7 @@ async function main() {
         region: 'us-east-1'
     };
 
-    const emailToAdd = 'tafox89745@lassora.com';
+    const emailToAdd = 'luka.sotra@barchart.com';
 
     const sesProvider = new SesProvider(configuration);
     await sesProvider.start();
