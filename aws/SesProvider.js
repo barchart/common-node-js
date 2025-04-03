@@ -8,6 +8,8 @@ const assert = require('@barchart/common-js/lang/assert'),
 	object = require('@barchart/common-js/lang/object'),
 	RateLimiter = require('@barchart/common-js/timing/RateLimiter');
 
+const DelegateReadStream = require('./../stream/DelegateReadStream');
+
 module.exports = (() => {
 	'use strict';
 
@@ -273,6 +275,43 @@ module.exports = (() => {
 			}
 
 			return items;
+		}
+
+		getSuppressedItemStream(discrete) {
+			checkReady.call(this);
+
+			let done = false;
+			let token = null;
+
+			const delegate = async() => {
+				if (done) {
+					return null;
+				}
+
+				const params = { };
+
+				if (token !== null) {
+					params.NextToken = token;
+				}
+
+				const response = await this._sesv2.listSuppressedDestinations(params).promise();
+
+				const items = response.SuppressedDestinationSummaries.reduce((accumulator, raw) => {
+					accumulator.push(transformSuppressionListItem(raw));
+
+					return accumulator;
+				}, [ ]);
+
+				token = response.NextToken || null;
+
+				if (token === null) {
+					done = true;
+				}
+
+				return items;
+			};
+
+			return new DelegateReadStream(delegate, null, discrete);
 		}
 
 		/**
