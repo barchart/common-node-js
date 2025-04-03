@@ -28,8 +28,6 @@ module.exports = (() => {
 
 			this._discrete = discrete || false;
 			
-			this._previous = null;
-			
 			this._scanned = 0;
 			this._batch = 0;
 
@@ -116,7 +114,7 @@ module.exports = (() => {
 				logger.debug(`Starting batch [ ${currentBatch} ]`);
 				
 				try {
-					const items = await this._delegate(this._previous);
+					const items = await this._delegate();
 
 					if (items === null) {
 						this._completed = true;
