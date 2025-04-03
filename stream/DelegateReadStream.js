@@ -11,8 +11,12 @@ module.exports = (() => {
 	const logger = log4js.getLogger('common-node/aws/dynamo/stream/DelegateReadStream');
 
 	/**
+	 * 	A Node.js {@link Stream.Readable} that defers data generation to
+	 * 	an external delegate.
+	 *
 	 * @public
 	 * @extends {Stream.Readable}
+	 * @param {DelegateReadStream~dataProvider} delegate
 	 * @param {Number=} highWaterMark
 	 * @param {Boolean=} discrete
 	 */
@@ -42,7 +46,7 @@ module.exports = (() => {
 		}
 
 		/**
-		 * Returns the number of items scanned (so far).
+		 * Returns the number of items generated (so far).
 		 *
 		 * @public
 		 * @returns {Number}
@@ -185,6 +189,16 @@ module.exports = (() => {
 			return '[DelegateReadStream]';
 		}
 	}
+
+	/**
+	 * A callback that provides data for the stream. When the callback returns
+	 * a null value, the no more data is available (and the stream ends).
+	 *
+	 * @public
+	 * @async
+	 * @callback DelegateReadStream~dataProvider
+	 * @returns {Promise<Array|null>}
+	 */
 
 	return DelegateReadStream;
 })();

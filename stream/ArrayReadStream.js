@@ -7,7 +7,7 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * A super-simple node.js {@link Stream.Readable} that emits an array's
+	 * A super-simple Node.js {@link Stream.Readable} that emits an array's
 	 * items. Please note, this stream has very limited use cases and
 	 * in 99% of use cases, an actual streaming source should be used
 	 * which does not require the entire stream to be pre-cached (in

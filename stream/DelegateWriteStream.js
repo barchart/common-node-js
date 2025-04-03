@@ -8,7 +8,7 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * A node.js {@link Stream.Writable} that defers its work to a delegate. By
+	 * A Node.js {@link Stream.Writable} that defers its work to a delegate. By
 	 * default, the "objectMode" option is set to true.
 	 *
 	 * @public

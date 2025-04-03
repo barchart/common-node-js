@@ -6,7 +6,7 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * A node.js {@link Stream.Writable} that does nothing. By Default,
+	 * A Node.js {@link Stream.Writable} that does nothing. By Default,
 	 * the "objectMode" option is set to true.
 	 *
 	 * @public
