@@ -11,7 +11,6 @@ const assert = require('@barchart/common-js/lang/assert'),
 const DelegateReadStream = require('./../stream/DelegateReadStream');
 
 const FailureReason = require('@barchart/common-js/api/failures/FailureReason'),
-	FailureType = require('@barchart/common-js/api/failures/FailureType'),
 	SuppressionFailureType = require('./SuppressionFailureType');
 
 module.exports = (() => {
@@ -180,7 +179,7 @@ module.exports = (() => {
 				const suppressedItem = await this.getSuppressedItem(recipient);
 
 				if (suppressedItem) {
-					throw FailureType.from(SuppressionFailureType.EMAIL_ON_SUPPRESSION_LIST);
+					throw FailureReason.from(SuppressionFailureType.EMAIL_ON_SUPPRESSION_LIST_FAILED);
 				}
 			}
 

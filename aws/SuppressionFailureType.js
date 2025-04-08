@@ -20,8 +20,8 @@ module.exports = (() => {
          * @static
          * @returns {FailureType}
          */
-        static get EMAIL_ON_SUPPRESSION_LIST() {
-            return emailOnSuppressionList;
+        static get EMAIL_ON_SUPPRESSION_LIST_FAILED() {
+            return emailOnSuppressionListFailed;
         }
 
         toString() {
@@ -29,7 +29,7 @@ module.exports = (() => {
         }
     }
 
-    const emailOnSuppressionList = new FailureType('EMAIL_ON_SUPPRESSION_LIST', 'Cannot send email. The email address is on the suppression list.', true);
+    const emailOnSuppressionListFailed = new FailureType('EMAIL_ON_SUPPRESSION_LIST', 'Cannot send email. The email address is on the suppression list.', true, 400);
 
     return SuppressionFailureType;
 })();
