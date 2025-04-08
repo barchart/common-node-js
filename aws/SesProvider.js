@@ -10,6 +10,10 @@ const assert = require('@barchart/common-js/lang/assert'),
 
 const DelegateReadStream = require('./../stream/DelegateReadStream');
 
+const FailureReason = require('@barchart/common-js/api/failures/FailureReason'),
+	FailureType = require('@barchart/common-js/api/failures/FailureType'),
+	SuppressionFailureType = require('./SuppressionFailureType');
+
 module.exports = (() => {
 	'use strict';
 
@@ -172,6 +176,14 @@ module.exports = (() => {
 
 			const recipientAddressesToUse = is.array(recipientAddress) ? recipientAddress : [recipientAddress];
 
+			for (const recipient of recipientAddressesToUse) {
+				const suppressedItem = await this.getSuppressedItem(recipient);
+
+				if (suppressedItem) {
+					throw FailureType.from(SuppressionFailureType.EMAIL_ON_SUPPRESSION_LIST);
+				}
+			}
+
 			const params = {
 				Destination: {
 					ToAddresses: recipientAddressesToUse
@@ -196,7 +208,7 @@ module.exports = (() => {
 			await this._rateLimiter.enqueue(async () => {
 				try {
 					logger.debug('Sending email to [', recipientAddress, ']');
-					
+
 					await this._sesv2.sendEmail(params).promise();
 
 					logger.debug('Sent email to [', recipientAddress, ']');
@@ -221,6 +233,8 @@ module.exports = (() => {
 			checkReady.call(this);
 
 			assert.argumentIsRequired(email, 'email', String);
+
+			email = email.toLowerCase();
 
 			let item;
 
@@ -331,6 +345,8 @@ module.exports = (() => {
 
 			assert.argumentIsValid(reason, 'reason', r => r.toUpperCase() === 'BOUNCE' || r.toUpperCase() === 'COMPLAINT', 'must be one of [ BOUNCE, COMPLIANT ]');
 
+			email = email.toLowerCase();
+
 			await this._sesv2.putSuppressedDestination({ EmailAddress: email, Reason: reason.toUpperCase() }).promise();
 
 			return await this.getSuppressedItem(email);
@@ -348,6 +364,8 @@ module.exports = (() => {
 			checkReady.call(this);
 
 			assert.argumentIsRequired(email, 'email', String);
+
+			email = email.toLowerCase();
 
 			await this._sesv2.deleteSuppressedDestination({ EmailAddress: email }).promise();
 		}
