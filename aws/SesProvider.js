@@ -288,13 +288,15 @@ module.exports = (() => {
 					return null;
 				}
 
-				const params = { };
+				const response = await this._rateLimiter.enqueue(async () => {
+					const params = { };
 
-				if (token !== null) {
-					params.NextToken = token;
-				}
+					if (token !== null) {
+						params.NextToken = token;
+					}
 
-				const response = await this._sesv2.listSuppressedDestinations(params).promise();
+					return this._sesv2.listSuppressedDestinations(params).promise();
+				});
 
 				const items = response.SuppressedDestinationSummaries.reduce((accumulator, raw) => {
 					accumulator.push(transformSuppressionListItem(raw));
