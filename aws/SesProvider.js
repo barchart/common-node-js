@@ -26,7 +26,7 @@ module.exports = (() => {
 	 * @param {string} configuration.region - The AWS region (e.g. "us-east-1").
 	 * @param {string=} configuration.apiVersion - The SES version (defaults to "2010-12-01").
 	 * @param {string=} configuration.recipientOverride - If specified, all emails sent will be redirected to this email address, ignoring the specified recipient.
-	 * @param {string=} configuration.rateLimitPerSecond - The number of emails which will be sent to the AWS SDK within one second (defaults to 10).
+	 * @param {number=} configuration.rateLimitPerSecond - The number of emails which will be sent to the AWS SDK within one second (defaults to 10).
 	 */
 	class SesProvider extends Disposable {
 		constructor(configuration) {
