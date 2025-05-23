@@ -51,7 +51,10 @@ module.exports = (() => {
 
 			this._started = false;
 
-			this._rateLimiter = new RateLimiter(configuration.rateLimitPerSecond || 10, 1000);
+			this._rateLimiters = { };
+
+			this._rateLimiters.send = new RateLimiter(configuration.rateLimitPerSecond || 10, 1000);
+			this._rateLimiters.suppressed = new RateLimiter(configuration.rateLimitPerSecond || 1, 4000);
 		}
 
 		/**
@@ -112,7 +115,7 @@ module.exports = (() => {
 
 			assert.argumentIsOptional(options.headers, 'headers', Object);
 
-			await this._rateLimiter.enqueue(async () => {
+			await this._rateLimiters.send.enqueue(async () => {
 				logger.debug('Sending email to [', options.recipientAddress, ']');
 
 				try {
@@ -193,7 +196,7 @@ module.exports = (() => {
 				params.Content.Simple.Body.Text = { Data: textBody };
 			}
 
-			await this._rateLimiter.enqueue(async () => {
+			await this._rateLimiters.send.enqueue(async () => {
 				try {
 					logger.debug('Sending email to [', recipientAddress, ']');
 
@@ -277,6 +280,13 @@ module.exports = (() => {
 			return items;
 		}
 
+		/**
+		 * Creates a readable stream for suppressed items.
+		 *
+		 * @public
+		 * @param {Boolean} discrete
+		 * @returns {Stream.Readable}
+		 */
 		getSuppressedItemStream(discrete) {
 			checkReady.call(this);
 
@@ -288,7 +298,7 @@ module.exports = (() => {
 					return null;
 				}
 
-				const response = await this._rateLimiter.enqueue(async () => {
+				const response = await this._rateLimiters.suppressed.enqueue(async () => {
 					const params = { };
 
 					if (token !== null) {
@@ -355,7 +365,10 @@ module.exports = (() => {
 		}
 
 		_onDispose() {
-			this._rateLimiter.dispose();
+			this._rateLimiters.send.dispose();
+			this._rateLimiters.suppressed.dispose();
+
+			this._rateLimiters = null;
 		}
 
 		toString() {
