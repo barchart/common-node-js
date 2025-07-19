@@ -1,6 +1,6 @@
 {
   "name": "@barchart/common-node-js",
-  "version": "4.55.1",
+  "version": "4.56.0",
   "description": "Common classes, utilities, and functions for building Node.js servers",
   "author": {
     "name": "Bryan Ingle",
