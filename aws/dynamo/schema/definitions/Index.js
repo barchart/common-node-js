@@ -4,7 +4,8 @@ const array = require('@barchart/common-js/lang/array'),
 const IndexType = require('./IndexType'),
 	Key = require('./Key'),
 	KeyType = require('./KeyType'),
-	Projection = require('./Projection');
+	Projection = require('./Projection'),
+	ProvisioningType = require('./ProvisioningType');
 
 module.exports = (() => {
 	'use strict';
@@ -64,6 +65,21 @@ module.exports = (() => {
 		get projection() {
 			return this._projection;
 		}
+
+		/**
+		 * The provisioning (payment) method for the table.
+		 *
+		 * @public
+		 * @returns {ProvisioningType}
+		 */
+		get provisioningType() {
+			if (this._provisionedThroughput === null) {
+				return ProvisioningType.ON_DEMAND;
+			} else {
+				return ProvisioningType.PROVISIONED;
+			}
+		}
+
 
 		/**
 		 * The index's {@link ProvisionedThroughput}, if applicable to the {@link IndexType}.
@@ -141,7 +157,12 @@ module.exports = (() => {
 			schema.Projection = this._projection.toProjectionSchema();
 
 			if (this.type.separateProvisioning && this._provisionedThroughput) {
-				schema.ProvisionedThroughput = this._provisionedThroughput.toProvisionedThroughputSchema();
+				if (this.provisioningType === ProvisioningType.PROVISIONED) {
+					schema.BillingMode = ProvisioningType.PROVISIONED.key;
+					schema.ProvisionedThroughput = this._provisionedThroughput.toProvisionedThroughputSchema();
+				} else {
+					schema.BillingMode = ProvisioningType.ON_DEMAND.key;
+				}
 			}
 
 			return schema;

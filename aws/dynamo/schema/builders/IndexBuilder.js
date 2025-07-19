@@ -10,6 +10,7 @@ const KeyBuilder = require('./KeyBuilder'),
 	ProvisionedThroughputBuilder = require('./ProvisionedThroughputBuilder');
 
 const LambdaStage = require('../../../lambda/LambdaStage');
+const Table = require("../definitions/Table");
 
 module.exports = (() => {
 	'use strict';
@@ -177,6 +178,19 @@ module.exports = (() => {
 			assert.argumentIsRequired(provisionedThroughputBuilder, 'provisionedThroughputBuilder', ProvisionedThroughputBuilder, 'ProvisionedThroughputBuilder');
 
 			this._index = new Index(this._index.name, this._index.type, this._index.keys, this._index.projection, provisionedThroughputBuilder.provisionedThroughput);
+
+			return this;
+		}
+
+		/**
+		 * Indicates the index should use on-demand throughput (i.e. pricing), instead of
+		 * provisioned throughput.
+		 *
+		 * @public
+		 * @returns {IndexBuilder}
+		 */
+		withOnDemandThroughput() {
+			this._index = new Index(this._index.name, this._index.type, this._index.keys, this._index.projection, null);
 
 			return this;
 		}
