@@ -163,7 +163,7 @@ module.exports = (() => {
 						.then(() => {
 							return processor(context.parser, context.responder);
 						}).then((response) => {
-							context.responder.send(response);
+							return context.responder.send(response);
 						});
 				}).catch((e) => {
 					let reason;
@@ -191,7 +191,7 @@ module.exports = (() => {
 						eventLogger.warn(JSON.stringify(event, null, 2));
 					}
 
-					context.responder.sendError(reason, reason.getErrorCode());
+					return context.responder.sendError(reason, reason.getErrorCode());
 				});
 		}
 
