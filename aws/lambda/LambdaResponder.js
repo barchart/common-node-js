@@ -12,13 +12,13 @@ module.exports = (() => {
 	 * Lambda Function bound to the API Gateway.
 	 *
 	 * @public
-	 * @param {Function=} callback - The actual "callback" function passed to the Lambda Function by the AWS framework.
+	 * @param {Function} callback - The actual "callback" function passed to the Lambda Function by the AWS framework.
 	 */
 	class LambdaResponder {
 		constructor(callback) {
-			assert.argumentIsOptional(callback, 'callback', Function);
+			assert.argumentIsRequired(callback, 'callback', Function);
 
-			this._callback = callback || null;
+			this._callback = callback;
 			this._processor = new LambdaResponseProcessor();
 
 			this._headers = LambdaResponseGenerator.getHeadersForJson();
@@ -164,9 +164,7 @@ module.exports = (() => {
 
 			return responsePromise.then((response) => {
 
-				if (this._callback) {
-					this._callback(null, response);
-				}
+				this._callback(null, response);
 
 				return response;
 			});
@@ -196,9 +194,7 @@ module.exports = (() => {
 			const response = LambdaResponseGenerator.buildResponseForApiGateway(200, this.headers, buffer.toString('base64'));
 			response.isBase64Encoded = true;
 
-			if (this._callback) {
-				this._callback(null, response);
-			}
+			this._callback(null, response);
 
 			return Promise.resolve(response);
 		}
@@ -218,9 +214,7 @@ module.exports = (() => {
 
 			this._complete = true;
 
-			if (this._callback) {
-				this._callback(error || null, response);
-			}
+			this._callback(error || null, response);
 
 			return Promise.resolve(response);
 		}
