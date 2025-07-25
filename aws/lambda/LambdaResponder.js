@@ -174,7 +174,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Buffer} buffer
-		 * @param {String=} contextType
+		 * @param {String=} contentType
 		 * @returns {Promise}
 		 */
 		sendBinary(buffer, contentType) {
