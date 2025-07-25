@@ -163,7 +163,6 @@ module.exports = (() => {
 			}
 
 			return responsePromise.then((response) => {
-
 				this._callback(null, response);
 
 				return response;

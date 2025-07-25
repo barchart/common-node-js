@@ -206,7 +206,7 @@ module.exports = (() => {
 		 * @param {Callbacks.LambdaProcessorCallback} processor - The processor that is invoked to perform the work.
 		 * @returns {Promise}
 		 */
-		static processAsync(description, event, processor) {
+		static async processAsync(description, event, processor) {
 			return LambdaHelper.process(description, event, () => { }, processor);
 		}
 
