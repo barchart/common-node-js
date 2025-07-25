@@ -12,13 +12,13 @@ module.exports = (() => {
 	 * Lambda Function bound to the API Gateway.
 	 *
 	 * @public
-	 * @param {Function} callback - The actual "callback" function passed to the Lambda Function by the AWS framework.
+	 * @param {Function=} callback - The actual "callback" function passed to the Lambda Function by the AWS framework.
 	 */
 	class LambdaResponder {
 		constructor(callback) {
-			assert.argumentIsRequired(callback, 'callback', Function);
+			assert.argumentIsOptional(callback, 'callback', Function);
 
-			this._callback = callback;
+			this._callback = callback || null;
 			this._processor = new LambdaResponseProcessor();
 
 			this._headers = LambdaResponseGenerator.getHeadersForJson();
@@ -90,7 +90,7 @@ module.exports = (() => {
 		 * Adds multiple {@link LambdaResponseGenerator} instances.
 		 *
 		 * @public
-		 * @param {Array<LambdaResponseGenerator>} strategies
+		 * @param {Array<LambdaResponseGenerator>} generators
 		 * @returns {LambdaResponder}
 		 */
 		addResponseGenerators(generators) {
@@ -163,7 +163,10 @@ module.exports = (() => {
 			}
 
 			return responsePromise.then((response) => {
-				this._callback(null, response);
+
+				if (this._callback) {
+					this._callback(null, response);
+				}
 
 				return response;
 			});
@@ -174,7 +177,7 @@ module.exports = (() => {
 		 *
 		 * @public
 		 * @param {Buffer} buffer
-		 * @param {String=} contextType
+		 * @param {String=} contentType
 		 * @returns {Promise}
 		 */
 		sendBinary(buffer, contentType) {
@@ -193,7 +196,9 @@ module.exports = (() => {
 			const response = LambdaResponseGenerator.buildResponseForApiGateway(200, this.headers, buffer.toString('base64'));
 			response.isBase64Encoded = true;
 
-			this._callback(null, response);
+			if (this._callback) {
+				this._callback(null, response);
+			}
 
 			return Promise.resolve(response);
 		}
@@ -213,7 +218,9 @@ module.exports = (() => {
 
 			this._complete = true;
 
-			this._callback(error || null, response);
+			if (this._callback) {
+				this._callback(error || null, response);
+			}
 
 			return Promise.resolve(response);
 		}

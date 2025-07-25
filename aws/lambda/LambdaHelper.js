@@ -95,7 +95,7 @@ module.exports = (() => {
 		 * Builds and returns a new {@link LambdaResponder}.
 		 *
 		 * @public
-		 * @param {Function} callback
+		 * @param {Function=} callback
 		 * @returns {LambdaResponder}
 		 */
 		static getResponder(callback) {
@@ -194,6 +194,77 @@ module.exports = (() => {
 					context.responder.sendError(reason, reason.getErrorCode());
 				});
 		}
+
+		/**
+		 * Starts a promise chain for the Lambda function, invoking the suppressor, then
+		 * the processor, and responding with the processor's result.
+		 *
+		 * @public
+		 * @async
+		 * @param {String} description - Human-readable description of the Lambda Function.
+		 * @param {Object} event - The actual "event" object passed to the Lambda Function by the AWS framework.
+		 * @param {Callbacks.LambdaProcessorCallback} processor - The processor that is invoked to perform the work.
+		 * @returns {Promise}
+		 */
+		static async processAsync(description, event, processor) {
+			const context = { };
+
+			try {
+				assert.argumentIsRequired(description, 'description', String);
+				assert.argumentIsRequired(processor, 'processor', Function);
+
+				context.parser = LambdaHelper.getEventParser(event);
+				context.responder = LambdaHelper.getResponder();
+
+				if (context.parser.plainText) {
+					context.responder.setPlainText();
+				}
+
+				if (eventLogger && eventLogger.isTraceEnabled()) {
+					eventLogger.trace(JSON.stringify(event, null, 2));
+				}
+
+				const validator = LambdaHelper.getValidator();
+				const isValid = await validator.validate(event);
+
+				if (!isValid) {
+					throw FailureReason.from(LambdaFailureType.LAMBDA_INVOCATION_SUPPRESSED);
+				}
+
+				const response = await processor(context.parser, context.responder);
+
+				return context.responder.send(response);
+
+			} catch (e) {
+				let reason;
+
+				if (e instanceof FailureReason) {
+					reason = e;
+
+					if (lambdaLogger) {
+						if (reason.getIsSevere()) {
+							lambdaLogger.error(reason.format());
+						} else {
+							lambdaLogger.warn(reason.format());
+						}
+					}
+				} else {
+					reason = new FailureReason({ endpoint: { description } });
+					reason = reason.addItem(FailureType.REQUEST_GENERAL_FAILURE);
+
+					if (lambdaLogger) {
+						lambdaLogger.error(e);
+					}
+				}
+
+				if (eventLogger && !eventLogger.isTraceEnabled()) {
+					eventLogger.warn(JSON.stringify(event, null, 2));
+				}
+
+				return context.responder.sendError(reason, reason.getErrorCode());
+			}
+		}
+
 
 		toString() {
 			return 'LambdaHelper';
