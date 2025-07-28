@@ -139,7 +139,7 @@ module.exports = (() => {
 			let finalResponse;
 
 			if (is.null(response) || is.undefined(response)) {
-				finalResponse = await LambdaResponseGenerator.buildResponseForApiGateway(responseCode || 200, this.headers, response);
+				finalResponse = LambdaResponseGenerator.buildResponseForApiGateway(responseCode || 200, this.headers, response);
 			} else {
 				let serialized;
 
