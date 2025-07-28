@@ -106,7 +106,7 @@ module.exports = (() => {
 		 * @async
 		 * @param {Object|String} response
 		 * @param {Number=} responseCode
-		 * @returns {Promise}
+		 * @returns {Promise<*>}
 		 */
 		async sendError(response, responseCode) {
 			if (this.complete) {
@@ -127,7 +127,7 @@ module.exports = (() => {
 		 * @async
 		 * @param {Object|String} response
 		 * @param {Number=} responseCode
-		 * @returns {Promise}
+		 * @returns {Promise<*>}
 		 */
 		async send(response, responseCode) {
 			if (this.complete) {
@@ -167,7 +167,7 @@ module.exports = (() => {
 		 * @async
 		 * @param {Buffer} buffer
 		 * @param {String=} contentType
-		 * @returns {Promise}
+		 * @returns {Promise<*>}
 		 */
 		async sendBinary(buffer, contentType) {
 			assert.argumentIsOptional(contentType, 'contentType', String);
@@ -197,11 +197,11 @@ module.exports = (() => {
 		 * @async
 		 * @param {*} response
 		 * @param {*=} error
-		 * @returns {Promise}
+		 * @returns {Promise<*>}
 		 */
 		async sendRaw(response, error) {
 			if (this.complete) {
-				return Promise.resolve(null);
+				return null;
 			}
 
 			this._complete = true;
