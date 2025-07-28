@@ -162,7 +162,6 @@ module.exports = (() => {
 				const response = await processor(context.parser, context.responder);
 
 				return await context.responder.send(response);
-
 			} catch (e) {
 				let reason;
 
@@ -193,7 +192,6 @@ module.exports = (() => {
 			}
 		}
 
-
 		/**
 		 * Starts a promise chain for the Lambda function, invoking the suppressor, then
 		 * the processor, and responding with the processor's result.
@@ -211,7 +209,7 @@ module.exports = (() => {
 		}
 
 		toString() {
-			return 'LambdaHelper';
+			return '[ LambdaHelper ]';
 		}
 	}
 
