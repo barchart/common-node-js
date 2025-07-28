@@ -41,39 +41,36 @@ module.exports = (() => {
 		 * Runs generators in a sequential order.
 		 *
 		 * @public
+		 * @async
 		 * @param {Number} responseCode
 		 * @param {Object} responseHeaders
 		 * @param {Buffer|String} responseData
 		 * @returns {Promise<Object>}
 		 */
-		process(responseCode, responseHeaders, responseData) {
-			return Promise.resolve()
-				.then(() => {
-					assert.argumentIsRequired(responseCode, 'responseCode', Number);
-					assert.argumentIsRequired(responseHeaders, 'responseHeaders', Object);
+		async process(responseCode, responseHeaders, responseData) {
+			assert.argumentIsRequired(responseCode, 'responseCode', Number);
+			assert.argumentIsRequired(responseHeaders, 'responseHeaders', Object);
 
-					const generators = this._generators.slice(0);
-					generators.push(LambdaResponseGenerator.DEFAULT);
+			const generators = this._generators.slice(0);
+			generators.push(LambdaResponseGenerator.DEFAULT);
 
-					const responseSize = Buffer.byteLength(responseData);
+			const responseSize = Buffer.byteLength(responseData);
 
-					return promise.first(generators.map((generator) => () => {
-						logger.debug('Attempting to process response using [', generator.toString(), ']');
+			return promise.first(generators.map((generator) => async () => {
+				logger.debug('Attempting to process response using [', generator.toString(), ']');
 
-						return generator.generate(responseCode, responseHeaders, responseData, responseSize)
-							.then((response) => {
-								if (response !== null) {
-									logger.debug('Processed response using [', generator.toString(), ']');
+				const response = await generator.generate(responseCode, responseHeaders, responseData, responseSize);
 
-									return response;
-								} else {
-									logger.debug('Unable to process response using [', generator.toString(), ']');
+				if (response !== null) {
+					logger.debug('Processed response using [', generator.toString(), ']');
 
-									return null;
-								}
-							});
-					}));
-				});
+					return response;
+				} else {
+					logger.debug('Unable to process response using [', generator.toString(), ']');
+
+					return null;
+				}
+			}));
 		}
 
 		toString() {
