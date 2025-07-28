@@ -136,11 +136,9 @@ module.exports = (() => {
 
 			this._complete = true;
 
-			let finalResponse;
+			let transformed;
 
-			if (is.null(response) || is.undefined(response)) {
-				finalResponse = LambdaResponseGenerator.buildResponseForApiGateway(responseCode || 200, this.headers, response);
-			} else {
+			if (!is.null(response) && !is.undefined(response)) {
 				let serialized;
 
 				if (Buffer.isBuffer(response)) {
@@ -152,12 +150,14 @@ module.exports = (() => {
 					serialized = response.toString();
 				}
 
-				finalResponse = await this._processor.process(responseCode || 200, this.headers, serialized);
+				transformed = await this._processor.process(responseCode || 200, this.headers, serialized);
+			} else {
+				transformed = LambdaResponseGenerator.buildResponseForApiGateway(responseCode || 200, this.headers, response);
 			}
 
-			this._callback(null, finalResponse);
+			this._callback(null, transformed);
 
-			return finalResponse;
+			return transformed;
 		}
 
 		/**
