@@ -173,7 +173,7 @@ module.exports = (() => {
 			assert.argumentIsOptional(contentType, 'contentType', String);
 
 			if (this.complete) {
-				return Promise.resolve(null);
+				return null;
 			}
 
 			this._complete = true;
