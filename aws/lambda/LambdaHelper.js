@@ -95,7 +95,7 @@ module.exports = (() => {
 		 * Builds and returns a new {@link LambdaResponder}.
 		 *
 		 * @public
-		 * @param {Function=} callback
+		 * @param {Function} callback
 		 * @returns {LambdaResponder}
 		 */
 		static getResponder(callback) {
@@ -125,7 +125,7 @@ module.exports = (() => {
 		 * @param {Object} event - The actual "event" object passed to the Lambda Function by the AWS framework.
 		 * @param {Function} callback - The actual "callback" function passed to the Lambda Function by the AWS framework.
 		 * @param {Callbacks.LambdaProcessorCallback} processor - The processor that is invoked to perform the work.
-		 * @returns {Promise}
+		 * @returns {Promise<*>}
 		 */
 		static async process(description, event, callback, processor) {
 			const context = { };
