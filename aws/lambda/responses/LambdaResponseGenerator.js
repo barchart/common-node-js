@@ -27,13 +27,14 @@ module.exports = (() => {
 		 * Processes the response data and returns a response object (or a null value).
 		 *
 		 * @public
+		 * @async
 		 * @param {Number} responseCode
 		 * @param {Object} responseHeaders
 		 * @param {Buffer|String} responseData
 		 * @param {Number} responseSize
 		 * @returns {Promise<Object|null>}
 		 */
-		generate(responseCode, responseHeaders, responseData, responseSize) {
+		async generate(responseCode, responseHeaders, responseData, responseSize) {
 			return Promise.resolve()
 				.then(() => {
 					return this._generate(responseCode, responseHeaders, responseData, responseSize);

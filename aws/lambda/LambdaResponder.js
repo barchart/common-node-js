@@ -90,7 +90,7 @@ module.exports = (() => {
 		 * Adds multiple {@link LambdaResponseGenerator} instances.
 		 *
 		 * @public
-		 * @param {Array<LambdaResponseGenerator>} strategies
+		 * @param {Array<LambdaResponseGenerator>} generators
 		 * @returns {LambdaResponder}
 		 */
 		addResponseGenerators(generators) {
@@ -103,13 +103,14 @@ module.exports = (() => {
 		 * Immediately transmits an error response.
 		 *
 		 * @public
+		 * @async
 		 * @param {Object|String} response
 		 * @param {Number=} responseCode
-		 * @returns {Promise}
+		 * @returns {Promise<*>}
 		 */
-		sendError(response, responseCode) {
+		async sendError(response, responseCode) {
 			if (this.complete) {
-				return Promise.resolve(null);
+				return null;
 			}
 
 			if (is.string(response)) {
@@ -123,65 +124,56 @@ module.exports = (() => {
 		 * Immediately transmits a successful response.
 		 *
 		 * @public
+		 * @async
 		 * @param {Object|String} response
 		 * @param {Number=} responseCode
-		 * @returns {Promise}
+		 * @returns {Promise<*>}
 		 */
-		send(response, responseCode) {
+		async send(response, responseCode) {
 			if (this.complete) {
-				return Promise.resolve(null);
+				return null;
 			}
 
 			this._complete = true;
 
-			let responsePromise = null;
+			let transformed;
 
-			if (responsePromise === null && (is.null(response) || is.undefined(response))) {
-				responsePromise = Promise.resolve()
-					.then(() => {
-						return LambdaResponseGenerator.buildResponseForApiGateway(responseCode || 200, this.headers, response);
-					});
+			if (!is.null(response) && !is.undefined(response)) {
+				let serialized;
+
+				if (Buffer.isBuffer(response)) {
+					serialized = response;
+				} else if (is.object(response)) {
+					serialized = JSON.stringify(response);
+				} else {
+					this.setHeader('Content-Type', 'text/plain');
+					serialized = response.toString();
+				}
+
+				transformed = await this._processor.process(responseCode || 200, this.headers, serialized);
+			} else {
+				transformed = LambdaResponseGenerator.buildResponseForApiGateway(responseCode || 200, this.headers, response);
 			}
 
-			if (responsePromise === null) {
-				responsePromise = Promise.resolve()
-					.then(() => {
-						let serialized;
+			this._callback(null, transformed);
 
-						if (Buffer.isBuffer(response)) {
-							serialized = response;
-						} else if (is.object(response)) {
-							serialized = JSON.stringify(response);
-						} else {
-							this.setHeader('Content-Type', 'text/plain');
-
-							serialized = response.toString();
-						}
-
-						return this._processor.process(responseCode || 200, this.headers, serialized);
-					});
-			}
-
-			return responsePromise.then((response) => {
-				this._callback(null, response);
-
-				return response;
-			});
+			return transformed;
 		}
 
 		/**
 		 * Immediately transmits a base-64 encoded response.
 		 *
 		 * @public
+		 * @async
 		 * @param {Buffer} buffer
 		 * @param {String=} contentType
-		 * @returns {Promise}
+		 * @returns {Promise<*>}
 		 */
-		sendBinary(buffer, contentType) {
+		async sendBinary(buffer, contentType) {
 			assert.argumentIsOptional(contentType, 'contentType', String);
 
 			if (this.complete) {
-				return Promise.resolve(null);
+				return null;
 			}
 
 			this._complete = true;
@@ -191,31 +183,33 @@ module.exports = (() => {
 			}
 
 			const response = LambdaResponseGenerator.buildResponseForApiGateway(200, this.headers, buffer.toString('base64'));
+
 			response.isBase64Encoded = true;
 
 			this._callback(null, response);
 
-			return Promise.resolve(response);
+			return response;
 		}
 
 		/**
 		 * Immediately transmits an ad hoc response.
 		 *
 		 * @public
+		 * @async
 		 * @param {*} response
 		 * @param {*=} error
-		 * @returns {Promise}
+		 * @returns {Promise<*>}
 		 */
-		sendRaw(response, error) {
+		async sendRaw(response, error) {
 			if (this.complete) {
-				return Promise.resolve(null);
+				return null;
 			}
 
 			this._complete = true;
 
 			this._callback(error || null, response);
 
-			return Promise.resolve(response);
+			return response;
 		}
 
 		toString() {
