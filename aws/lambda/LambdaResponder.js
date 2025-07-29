@@ -22,7 +22,9 @@ module.exports = (() => {
 			this._processor = new LambdaResponseProcessor();
 
 			this._headers = LambdaResponseGenerator.getHeadersForJson();
+
 			this._complete = false;
+			this._response = null;
 		}
 
 		/**
@@ -110,7 +112,7 @@ module.exports = (() => {
 		 */
 		async sendError(response, responseCode) {
 			if (this.complete) {
-				return null;
+				return this._response;
 			}
 
 			if (is.string(response)) {
@@ -131,7 +133,7 @@ module.exports = (() => {
 		 */
 		async send(response, responseCode) {
 			if (this.complete) {
-				return null;
+				return this._response;
 			}
 
 			this._complete = true;
@@ -155,7 +157,7 @@ module.exports = (() => {
 				transformed = LambdaResponseGenerator.buildResponseForApiGateway(responseCode || 200, this.headers, response);
 			}
 
-			this._callback(null, transformed);
+			this._callback(null, this._response = transformed);
 
 			return transformed;
 		}
@@ -173,7 +175,7 @@ module.exports = (() => {
 			assert.argumentIsOptional(contentType, 'contentType', String);
 
 			if (this.complete) {
-				return null;
+				return this._response;
 			}
 
 			this._complete = true;
@@ -186,7 +188,7 @@ module.exports = (() => {
 
 			response.isBase64Encoded = true;
 
-			this._callback(null, response);
+			this._callback(null, this._response = response);
 
 			return response;
 		}
@@ -202,12 +204,12 @@ module.exports = (() => {
 		 */
 		async sendRaw(response, error) {
 			if (this.complete) {
-				return null;
+				return this._response;
 			}
 
 			this._complete = true;
 
-			this._callback(error || null, response);
+			this._callback(error || null, this._response = response);
 
 			return response;
 		}
