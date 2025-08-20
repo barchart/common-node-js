@@ -51,7 +51,7 @@ module.exports = (() => {
 		 */
 		async query(query, parameters, name) {
 			if (this.getIsDisposed()) {
-				return Promise.reject(`Unable to execute MySQL query, the ${this.toString()} has been disposed`);
+				throw new Error(`Unable to execute query, the ${this.toString()} has been disposed`);
 			}
 
 			assert.argumentIsRequired(query, 'query', String);
@@ -76,6 +76,68 @@ module.exports = (() => {
 					}
 				});
 			});
+		}
+
+		/**
+		 * Finalizes instance operations and disposes instance. If the graceful parameter is true, any outstanding
+		 * queries will be completed.
+		 *
+		 * @public
+		 * @async
+		 * @param {Boolean} graceful
+		 * @returns {Promise<void>}
+		 */
+		async shutdown(graceful) {
+			if (this.getIsDisposed()) {
+				throw new Error(`Unable to shutdown, the [ ${this.toString()} ] has been disposed`);
+			}
+
+			if (this._connection === null) {
+				throw new Error(`Unable to shutdown, the [ ${this.toString()} ] has been shutdown`);
+			}
+
+			assert.argumentIsRequired(graceful, 'graceful', Boolean);
+
+			const connection = this._connection;
+			this._connection = null;
+
+			this.dispose();
+
+			let shutdownPromise;
+
+			if (graceful) {
+				shutdownPromise = new Promise((resolve, reject) => {
+					connection.end((error) => {
+						if (error) {
+							reject(error);
+						}
+
+						logger.info(`Shutdown [ ${this.toString()} ] [ ${this.id} ] gracefully`);
+
+						resolve();
+					});
+				});
+			} else {
+				shutdownPromise = new Promise((resolve) => {
+					connection.destroy();
+
+					logger.info(`Shutdown [ ${this.toString()} ] [ ${this.id} ] immediately`);
+
+					resolve();
+				});
+			}
+
+			return shutdownPromise;
+		}
+
+		_onDispose() {
+			if (this._connection !== null) {
+				this._connection.destroy();
+
+				this._connection = null;
+			}
+
+			logger.info(`Disposed [ ${this.toString()} ] [ ${this.id} ]`);
 		}
 
 		toString() {

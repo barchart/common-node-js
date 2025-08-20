@@ -63,14 +63,7 @@ module.exports = (() => {
 
 	class DirectClient extends Client {
 		constructor(connection) {
-			super(connection, {});
-		}
-
-		_onDispose() {
-			this._connection.end();
-			this._connection = null;
-
-			logger.info('Disposed [DirectClient] [', this.id, ']');
+			super(connection);
 		}
 
 		toString() {
