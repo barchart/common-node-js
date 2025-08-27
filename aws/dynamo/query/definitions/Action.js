@@ -9,7 +9,7 @@ module.exports = (() => {
 	'use strict';
 
 	/**
-	 * The base class for a object which defines some sort of conditional
+	 * The base class for an object which defines some sort of conditional
 	 * operation that targets a {@link Table}.
 	 *
 	 * @public

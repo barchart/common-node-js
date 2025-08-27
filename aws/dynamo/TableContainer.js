@@ -16,7 +16,7 @@ module.exports = (() => {
 	/**
 	 * A container that houses functions for interacting with a
 	 * single DynamoDB table. In other words, this is the base
-	 * class for a implementing a repository pattern.
+	 * class for an implementing a repository pattern.
 	 *
 	 * @public
 	 * @abstract

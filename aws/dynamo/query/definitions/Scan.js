@@ -26,9 +26,10 @@ module.exports = (() => {
 	 * @param {Boolean=} countOnly
 	 * @param {String=} description
 	 * @param {Boolean=} monitorCapacityConsumed
+     * @param {Object=} exclusiveStartKey
 	 */
 	class Scan extends Action {
-		constructor(table, index, filter, attributes, limit, segment, totalSegments, consistentRead, skipDeserialization, countOnly, description, monitorCapacityConsumed) {
+		constructor(table, index, filter, attributes, limit, segment, totalSegments, consistentRead, skipDeserialization, countOnly, description, monitorCapacityConsumed, exclusiveStartKey) {
 			super(table, index, (description || '[Unnamed Scan]'));
 
 			this._filter = filter || null;
@@ -40,6 +41,7 @@ module.exports = (() => {
 			this._consistentRead = consistentRead || false;
 			this._countOnly = countOnly || false;
 			this._monitorCapacityConsumed = monitorCapacityConsumed || false;
+            this._exclusiveStartKey = exclusiveStartKey || null;
 		}
 
 		/**
@@ -134,6 +136,17 @@ module.exports = (() => {
 		get monitorCapacityConsumed() {
 			return this._monitorCapacityConsumed;
 		}
+
+        /**
+         * The key from which to start scanning. Used for paginating results in DynamoDB.
+         * If provided, the scan will begin just after this key.
+         *
+         * @public
+         * @returns {Object}
+         */
+        get exclusiveStartKey(){
+            return this._exclusiveStartKey;
+        }
 
 		/**
 		 * Throws an {@link Error} if the instance is invalid.
@@ -245,6 +258,10 @@ module.exports = (() => {
 			if (this._monitorCapacityConsumed) {
 				schema.ReturnConsumedCapacity = 'TOTAL';
 			}
+
+            if (this.exclusiveStartKey) {
+                schema.ExclusiveStartKey = this.exclusiveStartKey;
+            }
 
 			return schema;
 		}
