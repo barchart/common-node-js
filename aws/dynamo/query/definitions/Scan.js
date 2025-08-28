@@ -259,8 +259,8 @@ module.exports = (() => {
 				schema.ReturnConsumedCapacity = 'TOTAL';
 			}
 
-            if (this.exclusiveStartKey) {
-                schema.ExclusiveStartKey = this.exclusiveStartKey;
+            if (this._exclusiveStartKey) {
+                schema.ExclusiveStartKey = this._exclusiveStartKey;
             }
 
 			return schema;
