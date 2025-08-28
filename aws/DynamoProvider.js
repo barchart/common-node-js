@@ -1066,6 +1066,8 @@ module.exports = (() => {
 
                                 if (previous) {
                                     options.ExclusiveStartKey = previous;
+                                } else if (is.object(query.exclusiveStartKey)) {
+                                    options.ExclusiveStartKey = Serializer.serialize(query.exclusiveStartKey, query.table, true, false);
                                 }
 
                                 if (maximum !== 0) {
@@ -1284,6 +1286,8 @@ module.exports = (() => {
                         return promise.build((resolveCallback, rejectCallback) => {
                             if (startKey) {
                                 options.ExclusiveStartKey = Serializer.serialize(startKey, query.table, false, true);
+                            } else if (query.exclusiveStartKey) {
+                                options.ExclusiveStartKey = Serializer.serialize(query.exclusiveStartKey, query.table, true, false);
                             }
 
                             this._dynamo.query(options, (error, data) => {

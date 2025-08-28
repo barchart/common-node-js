@@ -27,9 +27,10 @@ module.exports = (() => {
 	 * @param {Boolean=} countOnly
 	 * @param {String=} description
 	 * @param {Boolean=} monitorCapacityConsumed
+     * @param {Object=} exclusiveStartKey
 	 */
 	class Query extends Action {
-		constructor(table, index, keyFilter, resultsFilter, parallelFilter, attributes, limit, orderingType, consistentRead, skipDeserialization, countOnly, description, monitorCapacityConsumed) {
+		constructor(table, index, keyFilter, resultsFilter, parallelFilter, attributes, limit, orderingType, consistentRead, skipDeserialization, countOnly, description, monitorCapacityConsumed, exclusiveStartKey) {
 			super(table, index, (description || '[Unnamed Query]'));
 
 			this._keyFilter = keyFilter || null;
@@ -44,6 +45,8 @@ module.exports = (() => {
 			this._monitorCapacityConsumed = monitorCapacityConsumed || false;
 
 			this._orderingType = orderingType || OrderingType.ASCENDING;
+
+            this._exclusiveStartKey = exclusiveStartKey || null;
 		}
 
 		/**
@@ -151,6 +154,17 @@ module.exports = (() => {
 		get monitorCapacityConsumed() {
 			return this._monitorCapacityConsumed;
 		}
+
+        /**
+         * The key from which to start querying. Used for paginating results in DynamoDB.
+         * If provided, the query will begin just after this key.
+         *
+         * @public
+         * @returns {Object}
+         */
+        get exclusiveStartKey(){
+            return this._exclusiveStartKey;
+        }
 
 		/**
 		 * Throws an {@link Error} if the instance is invalid.
@@ -290,6 +304,10 @@ module.exports = (() => {
 			if (this._monitorCapacityConsumed) {
 				schema.ReturnConsumedCapacity = 'TOTAL';
 			}
+
+            if (this._exclusiveStartKey) {
+                schema.ExclusiveStartKey = this._exclusiveStartKey;
+            }
 
 			return schema;
 		}
