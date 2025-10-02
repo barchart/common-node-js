@@ -112,67 +112,64 @@ module.exports = (() => {
 		 * @returns {Promise<Object[]>}
 		 */
 		async getBucketContents(prefix, bucket, maximum, start) {
-			return Promise.resolve()
-				.then(() => {
-					assert.argumentIsOptional(bucket, 'bucket', String);
-					assert.argumentIsOptional(prefix, 'prefix', String);
-					assert.argumentIsOptional(maximum, 'maximum', Number);
-					assert.argumentIsOptional(start, 'start', String);
+			assert.argumentIsOptional(bucket, 'bucket', String);
+			assert.argumentIsOptional(prefix, 'prefix', String);
+			assert.argumentIsOptional(maximum, 'maximum', Number);
+			assert.argumentIsOptional(start, 'start', String);
 
-					checkReady.call(this);
+			checkReady.call(this);
 
-					const getBucketContentsRecursive = (continuationToken) => {
-						return promise.build((resolveCallback, rejectCallback) => {
-							const payload = { };
+			const getBucketContentsRecursive = (continuationToken) => {
+				return promise.build((resolveCallback, rejectCallback) => {
+					const payload = { };
 
-							if (bucket) {
-								payload.Bucket = bucket;
-							} else {
-								payload.Bucket = this._configuration.bucket;
-							}
+					if (bucket) {
+						payload.Bucket = bucket;
+					} else {
+						payload.Bucket = this._configuration.bucket;
+					}
 
-							if (prefix) {
-								payload.Prefix = prefix;
-							}
+					if (prefix) {
+						payload.Prefix = prefix;
+					}
 
-							if (start) {
-								payload.StartAfter = start;
-							}
+					if (start) {
+						payload.StartAfter = start;
+					}
 
-							if (continuationToken) {
-								payload.ContinuationToken = continuationToken;
-							}
+					if (continuationToken) {
+						payload.ContinuationToken = continuationToken;
+					}
 
-							this._s3.listObjectsV2(payload, (e, data) => {
-								if (e) {
-									logger.error('S3 failed to retrieve bucket contents', e);
+					this._s3.listObjectsV2(payload, (e, data) => {
+						if (e) {
+							logger.error('S3 failed to retrieve bucket contents', e);
 
-									rejectCallback(e);
-								} else {
-									const results = data.Contents.map((item) => {
-										const transformed = { };
+							rejectCallback(e);
+						} else {
+							const results = data.Contents.map((item) => {
+								const transformed = { };
 
-										transformed.key = item.Key;
-										transformed.size = item.Size;
+								transformed.key = item.Key;
+								transformed.size = item.Size;
 
-										return transformed;
-									});
-
-									if (data.IsTruncated === true) {
-										getBucketContentsRecursive(data.NextContinuationToken)
-											.then((more) => {
-												resolveCallback(results.concat(more));
-											});
-									} else {
-										resolveCallback(results);
-									}
-								}
+								return transformed;
 							});
-						});
-					};
 
-					return getBucketContentsRecursive();
+							if (data.IsTruncated === true) {
+								getBucketContentsRecursive(data.NextContinuationToken)
+									.then((more) => {
+										resolveCallback(results.concat(more));
+									});
+							} else {
+								resolveCallback(results);
+							}
+						}
+					});
 				});
+			};
+
+			return getBucketContentsRecursive();
 		}
 
 		/**
@@ -186,34 +183,31 @@ module.exports = (() => {
 		 * @returns {Promise<string>}
 		 */
 		async getSignedUrl(operation, key, expires) {
-			return Promise.resolve()
-				.then(() => {
-					assert.argumentIsRequired(operation, 'operation', String);
-					assert.argumentIsRequired(key, 'key', String);
-					assert.argumentIsOptional(expires, 'expires', Number);
+			assert.argumentIsRequired(operation, 'operation', String);
+			assert.argumentIsRequired(key, 'key', String);
+			assert.argumentIsOptional(expires, 'expires', Number);
 
-					checkReady.call(this);
+			checkReady.call(this);
 
-					return promise.build((resolveCallback, rejectCallback) => {
-						const payload = { };
+			return promise.build((resolveCallback, rejectCallback) => {
+				const payload = { };
 
-						payload.Bucket = this._configuration.bucket;
-						payload.Key = key;
+				payload.Bucket = this._configuration.bucket;
+				payload.Key = key;
 
-						if (is.number(expires)) {
-							payload.Expires = expires;
-						}
+				if (is.number(expires)) {
+					payload.Expires = expires;
+				}
 
-						this._s3.getSignedUrl(operation, payload, (e, url) => {
-							if (e) {
-								logger.error('S3 failed to get signed url', e);
+				this._s3.getSignedUrl(operation, payload, (e, url) => {
+					if (e) {
+						logger.error('S3 failed to get signed url', e);
 
-								rejectCallback(e);
-							} else {
-								resolveCallback(url);
-							}
-						});
-					});
+						rejectCallback(e);
+					} else {
+						resolveCallback(url);
+					}
+				});
 			});
 		}
 
@@ -246,57 +240,54 @@ module.exports = (() => {
 		 * @returns {Promise<Object>}
 		 */
 		async uploadObject(bucket, filename, content, mimeType, secure) {
-			return Promise.resolve()
-				.then(() => {
-					checkReady.call(this);
+			checkReady.call(this);
 
-					return promise.build((resolveCallback, rejectCallback) => {
-						let acl;
+			return promise.build((resolveCallback, rejectCallback) => {
+				let acl;
 
-						if (is.boolean(secure) && secure) {
-							acl = 'private';
-						} else {
-							acl = 'public-read';
-						}
+				if (is.boolean(secure) && secure) {
+					acl = 'private';
+				} else {
+					acl = 'public-read';
+				}
 
-						let mimeTypeToUse;
+				let mimeTypeToUse;
 
-						if (is.string(mimeType)) {
-							mimeTypeToUse = mimeType;
-						} else if (is.string(content)) {
-							mimeTypeToUse = mimeTypes.text;
-						} else if (is.object) {
-							mimeTypeToUse = mimeTypes.json;
-						} else {
-							throw new Error('Unable to automatically determine MIME type for file.');
-						}
+				if (is.string(mimeType)) {
+					mimeTypeToUse = mimeType;
+				} else if (is.string(content)) {
+					mimeTypeToUse = mimeTypes.text;
+				} else if (is.object) {
+					mimeTypeToUse = mimeTypes.json;
+				} else {
+					throw new Error('Unable to automatically determine MIME type for file.');
+				}
 
-						const params = getParameters(bucket, filename, {
-							ACL: acl,
-							Body: ContentHandler.getHandlerFor(mimeTypeToUse).toBuffer(content),
-							ContentType: mimeTypeToUse
-						});
-
-						if (is.string(secure) && secure === 'none') {
-							delete params.ACL;
-						}
-
-						const options = {
-							partSize: 10 * 1024 * 1024,
-							queueSize: 1
-						};
-
-						this._s3.upload(params, options, (e, data) => {
-							if (e) {
-								logger.error('S3 failed to upload object', e);
-
-								rejectCallback(e);
-							} else {
-								resolveCallback({data: data});
-							}
-						});
-					});
+				const params = getParameters(bucket, filename, {
+					ACL: acl,
+					Body: ContentHandler.getHandlerFor(mimeTypeToUse).toBuffer(content),
+					ContentType: mimeTypeToUse
 				});
+
+				if (is.string(secure) && secure === 'none') {
+					delete params.ACL;
+				}
+
+				const options = {
+					partSize: 10 * 1024 * 1024,
+					queueSize: 1
+				};
+
+				this._s3.upload(params, options, (e, data) => {
+					if (e) {
+						logger.error('S3 failed to upload object', e);
+
+						rejectCallback(e);
+					} else {
+						resolveCallback({data: data});
+					}
+				});
+			});
 		}
 
 		/**
@@ -310,12 +301,9 @@ module.exports = (() => {
 		 * @return {Promise<Object>}
 		 */
 		async uploadStream(bucket, key, reader) {
-			return Promise.resolve()
-				.then(() => {
-					checkReady.call(this);
+			checkReady.call(this);
 
-					return this._s3.upload({ Bucket: bucket, Key: key, Body: reader }).promise();
-				});
+			return this._s3.upload({ Bucket: bucket, Key: key, Body: reader }).promise();
 		}
 
 		/**
@@ -341,22 +329,19 @@ module.exports = (() => {
 		 * @returns {Promise<Object>}
 		 */
 		async downloadObject(bucket, filename) {
-			return Promise.resolve()
-				.then(() => {
-					checkReady.call(this);
+			checkReady.call(this);
 
-					return promise.build((resolveCallback, rejectCallback) => {
-						this._s3.getObject(getParameters(bucket, filename), (e, data) => {
-							if (e) {
-								logger.error('S3 failed to get object', e);
+			return promise.build((resolveCallback, rejectCallback) => {
+				this._s3.getObject(getParameters(bucket, filename), (e, data) => {
+					if (e) {
+						logger.error('S3 failed to get object', e);
 
-								rejectCallback(e);
-							} else {
-								resolveCallback(ContentHandler.getHandlerFor(data.ContentType).fromBuffer(data.Body));
-							}
-						});
-					});
+						rejectCallback(e);
+					} else {
+						resolveCallback(ContentHandler.getHandlerFor(data.ContentType).fromBuffer(data.Body));
+					}
 				});
+			});
 		}
 
 		/**
@@ -387,22 +372,19 @@ module.exports = (() => {
 		 * @returns {Promise<Object>}
 		 */
 		async deleteObject(bucket, filename) {
-			return Promise.resolve()
-				.then(() => {
-					checkReady.call(this);
+			checkReady.call(this);
 
-					return promise.build((resolveCallback, rejectCallback) => {
-						this._s3.deleteObject(getParameters(bucket, filename), (e, data) => {
-							if (e) {
-								logger.error('S3 failed to delete object', e);
+			return promise.build((resolveCallback, rejectCallback) => {
+				this._s3.deleteObject(getParameters(bucket, filename), (e, data) => {
+					if (e) {
+						logger.error('S3 failed to delete object', e);
 
-								rejectCallback(e);
-							} else {
-								resolveCallback({data: data});
-							}
-						});
-					});
+						rejectCallback(e);
+					} else {
+						resolveCallback({data: data});
+					}
 				});
+			});
 		}
 
 		/**
@@ -428,25 +410,22 @@ module.exports = (() => {
 		 * @returns {Promise<Object>}
 		 */
 		async getMetadataObject(bucket, filename) {
-			return Promise.resolve()
-				.then(() => {
-					checkReady.call(this);
+			checkReady.call(this);
 
-					assert.argumentIsRequired(bucket, 'bucket', String);
-					assert.argumentIsRequired(filename, 'filename', String);
+			assert.argumentIsRequired(bucket, 'bucket', String);
+			assert.argumentIsRequired(filename, 'filename', String);
 
-					return promise.build((resolveCallback, rejectCallback) => {
-						this._s3.headObject(getParameters(bucket, filename), (e, data) => {
-							if (e) {
-								logger.error('S3 failed to delete object', e);
+			return promise.build((resolveCallback, rejectCallback) => {
+				this._s3.headObject(getParameters(bucket, filename), (e, data) => {
+					if (e) {
+						logger.error('S3 failed to delete object', e);
 
-								rejectCallback(e);
-							} else {
-								resolveCallback({data: data});
-							}
-						});
-					});
+						rejectCallback(e);
+					} else {
+						resolveCallback({data: data});
+					}
 				});
+			});
 		}
 
 		/**
