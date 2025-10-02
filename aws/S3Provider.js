@@ -277,7 +277,7 @@ module.exports = (() => {
 							ContentType: mimeTypeToUse
 						});
 
-						if (acl === 'none') {
+						if (is.string(secure) && secure === 'none') {
 							delete params.ACL;
 						}
 
