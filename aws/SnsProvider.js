@@ -53,7 +53,7 @@ module.exports = (() => {
 		 * @returns {Promise<Boolean>}
 		 */
 		async start() {
-			if (this.getIsDisposed()) {
+			if (this.disposed) {
 				return Promise.reject('Unable to start, the SNS provider has been disposed.');
 			}
 
@@ -87,7 +87,7 @@ module.exports = (() => {
 		 * @returns {Object}
 		 */
 		getConfiguration() {
-			if (this.getIsDisposed()) {
+			if (this.disposed) {
 				throw new Error('The SNS provider has been disposed.');
 			}
 
@@ -344,7 +344,7 @@ module.exports = (() => {
 												logger.info('SNS subscription to SQS topic complete [', qualifiedTopicName, ']');
 
 												resolveCallback(Disposable.fromAction(() => {
-													if (this.getIsDisposed()) {
+													if (this.disposed) {
 														return;
 													}
 
@@ -590,7 +590,7 @@ module.exports = (() => {
 	}
 
 	function checkReady() {
-		if (this.getIsDisposed()) {
+		if (this.disposed) {
 			throw new Error('The SNS provider has been disposed.');
 		}
 

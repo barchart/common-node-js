@@ -53,7 +53,7 @@ module.exports = (() => {
 		async getClient() {
 			return Promise.resolve()
 				.then(() => {
-					if (this.getIsDisposed()) {
+					if (this.disposed) {
 						return Promise.reject(`Unable to get Postgres client, the ${this.toString()} has been disposed`);
 					}
 

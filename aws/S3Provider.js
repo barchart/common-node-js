@@ -60,7 +60,7 @@ module.exports = (() => {
 		 * @returns {Promise<Boolean>}
 		 */
 		async start() {
-			if (this.getIsDisposed()) {
+			if (this.disposed) {
 				return Promise.reject('Unable to start, the S3 provider has been disposed.');
 			}
 
@@ -93,7 +93,7 @@ module.exports = (() => {
 		 * @returns {*}
 		 */
 		getConfiguration() {
-			if (this.getIsDisposed()) {
+			if (this.disposed) {
 				throw new Error('The S3 provider has been disposed.');
 			}
 
@@ -465,7 +465,7 @@ module.exports = (() => {
 	}
 
 	function checkReady() {
-		if (this.getIsDisposed()) {
+		if (this.disposed) {
 			throw new Error('The S3 provider has been disposed.');
 		}
 

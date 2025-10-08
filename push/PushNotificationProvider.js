@@ -382,7 +382,7 @@ module.exports = (() => {
 	}
 
 	function checkDispose(provider, operation) {
-		if (provider.getIsDisposed()) {
+		if (provider.disposed) {
 			throw new Error(`Unable to perform ${operation}, the Push Notification Provider has been disposed`);
 		}
 	}

@@ -107,7 +107,7 @@ module.exports = (() => {
 			if (this._startPromise === null) {
 				this._startPromise = Promise.resolve()
 					.then(() => {
-						if (this.getIsDisposed()) {
+						if (this.disposed) {
 							return Promise.reject(`The ${this.toString()} has been disposed.`);
 						}
 
@@ -396,7 +396,7 @@ module.exports = (() => {
 	}
 
 	function checkReady() {
-		if (this.getIsDisposed()) {
+		if (this.disposed) {
 			throw new Error(`The ${this.toString()} has been disposed.`);
 		}
 

@@ -50,7 +50,7 @@ module.exports = (() => {
 		 * @returns {Promise<Object[]>}
 		 */
 		async query(query, parameters, name) {
-			if (this.getIsDisposed()) {
+			if (this.disposed) {
 				throw new Error(`Unable to execute query, the ${this.toString()} has been disposed`);
 			}
 
@@ -88,7 +88,7 @@ module.exports = (() => {
 		 * @returns {Promise<void>}
 		 */
 		async shutdown(graceful) {
-			if (this.getIsDisposed()) {
+			if (this.disposed) {
 				throw new Error(`Unable to shutdown, the [ ${this.toString()} ] has been disposed`);
 			}
 

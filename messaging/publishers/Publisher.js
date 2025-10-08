@@ -40,7 +40,7 @@ module.exports = (() => {
 		 * @returns {Promise<boolean>}
 		 */
 		async start() {
-			if (this.getIsDisposed()) {
+			if (this.disposed) {
 				throw new Error('The message publisher has been disposed');
 			}
 
@@ -78,7 +78,7 @@ module.exports = (() => {
 				throw new Error('The publisher has not started.');
 			}
 
-			if (this.getIsDisposed()) {
+			if (this.disposed) {
 				throw new Error('The message publisher has been disposed');
 			}
 
@@ -120,7 +120,7 @@ module.exports = (() => {
 				throw new Error('The publisher has not started.');
 			}
 
-			if (this.getIsDisposed()) {
+			if (this.disposed) {
 				throw new Error('The message publisher has been disposed');
 			}
 

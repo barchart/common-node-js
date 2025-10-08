@@ -53,7 +53,7 @@ module.exports = (() => {
 		 * @returns {Promise<Object[]>}
 		 */
 		async query(query, parameters, name) {
-			if (this.getIsDisposed()) {
+			if (this.disposed) {
 				return Promise.reject(`Unable to execute Postgres query, the ${this.toString()} has been disposed`);
 			}
 

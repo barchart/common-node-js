@@ -199,7 +199,7 @@ module.exports = (() => {
 	}
 	
 	function checkReady() {
-		if (this.getIsDisposed()) {
+		if (this.disposed) {
 			throw new Error('The Twilio provider has been disposed.');
 		}
 

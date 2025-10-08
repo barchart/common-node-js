@@ -66,7 +66,7 @@ module.exports = (() => {
 		 * @returns {Promise<void>}
 		 */
 		async start() {
-			if (this.getIsDisposed()) {
+			if (this.disposed) {
 				throw new Error('Unable to start, the SES provider has been disposed.');
 			}
 
@@ -98,7 +98,7 @@ module.exports = (() => {
 		 * @returns {Object}
 		 */
 		getConfiguration() {
-			if (this.getIsDisposed()) {
+			if (this.disposed) {
 				throw new Error('The SES provider has been disposed.');
 			}
 
@@ -377,7 +377,7 @@ module.exports = (() => {
 	}
 
 	function checkReady() {
-		if (this.getIsDisposed()) {
+		if (this.disposed) {
 			throw new Error('The SES provider has been disposed.');
 		}
 

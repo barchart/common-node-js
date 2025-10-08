@@ -46,7 +46,7 @@ module.exports = (() => {
 		start() {
 			return Promise.resolve()
 				.then(() => {
-					if (this.getIsDisposed()) {
+					if (this.disposed) {
 						throw new Error('The HTTP Provider has been disposed.');
 					}
 
@@ -92,7 +92,7 @@ module.exports = (() => {
 					assert.argumentIsOptional(secure, 'secure', Boolean);
 					assert.argumentIsOptional(port, 'port', Number);
 
-					if (this.getIsDisposed()) {
+					if (this.disposed) {
 						throw new Error('The HTTP Provider has been disposed.');
 					}
 

@@ -62,7 +62,7 @@ module.exports = (() => {
 		 * @returns {Promise<Boolean>}
 		 */
 		async start() {
-			if (this.getIsDisposed()) {
+			if (this.disposed) {
 				return Promise.reject('Unable to start, the SQS provider has been disposed.');
 			}
 
@@ -96,7 +96,7 @@ module.exports = (() => {
 		 * @returns {Object}
 		 */
 		getConfiguration() {
-			if (this.getIsDisposed()) {
+			if (this.disposed) {
 				throw new Error('The SQS provider has been disposed.');
 			}
 
@@ -984,7 +984,7 @@ module.exports = (() => {
 	}
 
 	function checkReady() {
-		if (this.getIsDisposed()) {
+		if (this.disposed) {
 			throw new Error('The SQS provider has been disposed.');
 		}
 

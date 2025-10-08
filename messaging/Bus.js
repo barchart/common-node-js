@@ -45,7 +45,7 @@ module.exports = (() => {
 		 * @returns {Promise<boolean>}
 		 */
 		async start() {
-			if (this.getIsDisposed()) {
+			if (this.disposed) {
 				throw new Error('The message bus has been disposed');
 			}
 
@@ -77,7 +77,7 @@ module.exports = (() => {
 				throw new Error('The bus has not started.');
 			}
 
-			if (this.getIsDisposed()) {
+			if (this.disposed) {
 				throw new Error('The message bus has been disposed');
 			}
 
@@ -102,7 +102,7 @@ module.exports = (() => {
 				throw new Error('The bus has not started.');
 			}
 
-			if (this.getIsDisposed()) {
+			if (this.disposed) {
 				throw new Error('The message bus has been disposed');
 			}
 
@@ -129,7 +129,7 @@ module.exports = (() => {
 				throw new Error('The bus has not started.');
 			}
 
-			if (this.getIsDisposed()) {
+			if (this.disposed) {
 				throw new Error('The message bus has been disposed');
 			}
 
@@ -185,7 +185,7 @@ module.exports = (() => {
 				throw new Error('The bus has not started.');
 			}
 
-			if (this.getIsDisposed()) {
+			if (this.disposed) {
 				throw new Error('The message bus has been disposed');
 			}
 

@@ -19,7 +19,7 @@ describe('When an SQS Provider created', () => {
 		});
 
 		it('should be disposed', () => {
-			expect(provider.getIsDisposed()).toEqual(true);
+			expect(provider.disposed).toEqual(true);
 		});
 	});
 });
