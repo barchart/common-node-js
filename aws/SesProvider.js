@@ -75,7 +75,9 @@ module.exports = (() => {
 					aws.config.update({ region: this._configuration.region });
 
 					this._transport = nodemailer.createTransport({
-						SES: new aws.SESV2({ apiVersion: '2019-09-27' })
+						SES: new aws.SES({
+							apiVersion: '2010-12-01'
+						})
 					});
 
 					this._sesv2 = new aws.SESV2({ apiVersion: this._configuration.apiVersion || '2019-09-27' });
