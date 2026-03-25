@@ -110,36 +110,9 @@ module.exports = (() => {
 		async send(options) {
 			checkReady.call(this);
 
-			assert.argumentIsRequired(options.senderAddress, 'senderAddress', String);
-			assert.argumentIsRequired(options.recipientAddress, 'recipientAddress', String);
-			assert.argumentIsRequired(options.subject, 'subject', String);
-			assert.argumentIsRequired(options.recipientAddress, 'senderAddress', String);
+			assert.argumentIsRequired(options, 'options', Object);
 
-			assert.argumentIsOptional(options.headers, 'headers', Object);
-
-			await this._rateLimiters.send.enqueue(async () => {
-				logger.debug('Sending email to [', options.recipientAddress, ']');
-
-				try {
-					const result = await this._transport.sendMail({
-						from: options.senderAddress,
-						to: options.recipientAddress,
-						subject: options.subject,
-						html: options.htmlBody,
-						text: options.textBody,
-						headers: options.headers
-					});
-
-					logger.debug('Sent email to [', options.recipientAddress, ']');
-
-					return result;
-				} catch (error) {
-					logger.error('SES provider failed to send email message', options);
-					logger.error(error);
-
-					throw error;
-				}
-			});
+			return this.sendEmail(options.senderAddress, options.recipientAddress, options.subject, options.htmlBody, options.textBody, options.attachments, options.headers);
 		}
 
 		/**
@@ -152,9 +125,11 @@ module.exports = (() => {
 		 * @param {string=} subject - The email's subject.
 		 * @param {string=} htmlBody - The email's HTML body.
 		 * @param {string=} textBody - The email's text body.
+		 * @param {Object[]=} attachments - Attachment descriptors.
+		 * @param {Object=} headers - Email headers.
 		 * @returns {Promise<void>}
 		 */
-		async sendEmail(senderAddress, recipientAddress, subject, htmlBody, textBody) {
+		async sendEmail(senderAddress, recipientAddress, subject, htmlBody, textBody, attachments, headers) {
 			checkReady.call(this);
 
 			assert.argumentIsRequired(senderAddress, 'senderAddress', String);
@@ -168,6 +143,11 @@ module.exports = (() => {
 			assert.argumentIsOptional(subject, 'subject', String);
 			assert.argumentIsOptional(htmlBody, 'htmlBody', String);
 			assert.argumentIsOptional(textBody, 'textBody', String);
+			assert.argumentIsOptional(headers, 'headers', Object);
+
+			if (attachments) {
+				assert.argumentIsArray(attachments, 'attachments', Object, 'Object');
+			}
 
 			if (this._configuration.recipientOverride) {
 				logger.warn('Overriding email recipient for testing purposes, using [', this._configuration.recipientOverride, ']');
@@ -177,36 +157,17 @@ module.exports = (() => {
 
 			const recipientAddressesToUse = is.array(recipientAddress) ? recipientAddress : [recipientAddress];
 
-			const params = {
-				Destination: {
-					ToAddresses: recipientAddressesToUse
-				},
-				Content: {
-					Simple: {
-						Subject: { Data: subject || '' },
-						Body: {}
-					}
-				},
-				FromEmailAddress: senderAddress
-			};
-
-			if (is.string(htmlBody) && htmlBody.length > 0) {
-				params.Content.Simple.Body.Html = { Data: htmlBody };
-			}
-
-			if (is.string(textBody) && textBody.length > 0) {
-				params.Content.Simple.Body.Text = { Data: textBody };
-			}
+			const message = buildMessage({ senderAddress, recipientAddresses: recipientAddressesToUse, subject, htmlBody, textBody, attachments, headers });
 
 			await this._rateLimiters.send.enqueue(async () => {
 				try {
 					logger.debug('Sending email to [', recipientAddress, ']');
 
-					await this._sesv2.sendEmail(params).promise();
+					await this._transport.sendMail(message);
 
 					logger.debug('Sent email to [', recipientAddress, ']');
 				} catch (error) {
-					logger.error('SES provider failed to send email message', params);
+					logger.error('SES provider failed to send email message', message);
 					logger.error(error);
 
 					throw error;
@@ -390,6 +351,32 @@ module.exports = (() => {
 
 	function transformSuppressionListItem(data) {
 		return { email: data.EmailAddress, reason: data.Reason, date: data.LastUpdateTime };
+	}
+
+	function buildMessage(options) {
+		const message = {
+			from: options.senderAddress,
+			to: options.recipientAddresses,
+			subject: options.subject || ''
+		};
+
+		if (is.string(options.htmlBody) && options.htmlBody.length > 0) {
+			message.html = options.htmlBody;
+		}
+
+		if (is.string(options.textBody) && options.textBody.length > 0) {
+			message.text = options.textBody;
+		}
+
+		if (options.headers) {
+			message.headers = options.headers;
+		}
+
+		if (options.attachments && options.attachments.length > 0) {
+			message.attachments = options.attachments;
+		}
+
+		return message;
 	}
 
 	return SesProvider;
