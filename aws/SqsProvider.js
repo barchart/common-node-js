@@ -698,22 +698,30 @@ module.exports = (() => {
 
 				receiveMessages.call(this, queueName, pollDuration, batchSize, false, createOptions)
 					.then((messages) => {
-						return Promise.all(messages.map((message) => {
-							if (disposed) {
-								return;
-							}
+						const executors = messages.map((message) => {
+							return () => {
+								return Promise.resolve()
+									.then(() => {
+										if (disposed) {
+											return;
+										}
 
-							return callback(message);
-						})).catch((error) => {
-							logger.error('An error occurred while processing message(s) from queue [', qualifiedQueueName, ']');
-							logger.error(error);
-						}).then(() => {
-							if (messages.length === 0) {
-								delay = pollInterval || 2000;
-							} else {
-								delay = 0;
-							}
+										return callback(message);
+									});
+							};
 						});
+
+						return promise.pipeline(executors)
+							.catch((error) => {
+								logger.error('An error occurred while processing message(s) from queue [', qualifiedQueueName, ']');
+								logger.error(error);
+							}).then(() => {
+								if (messages.length === 0) {
+									delay = pollInterval || 2000;
+								} else {
+									delay = 0;
+								}
+							});
 					}).catch((error) => {
 						logger.error('An error occurred while receiving message(s) from queue [', qualifiedQueueName, ']');
 						logger.error(error);
@@ -892,7 +900,13 @@ module.exports = (() => {
 									deletePromise = Promise.resolve();
 								}
 
-								deletePromise.then(() => {
+								deletePromise.catch((e) => {
+									try {
+										logger.error('Failed to delete message(s) received from queue [', qualifiedQueueName, '], continuing.', e);
+									} catch (error) {
+
+									}
+								}).then(() => {
 									if (messages) {
 										resolveCallback(messages);
 									} else {
