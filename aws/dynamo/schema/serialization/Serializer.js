@@ -101,14 +101,14 @@ module.exports = (() => {
 	const deserializers = new Map();
 
 	function getDeserializationWriter(table) {
-		if (!deserializers.has(table)) {
+		if (!deserializers.has(table.name)) {
 			const attributeWriters = table.attributes.map(a => new AttributeDeserializationWriter(a));
 			const componentWriters = table.components.map(c => new ComponentDeserializationWriter(c));
 
-			deserializers.set(table, new CompositeWriter(attributeWriters.concat(componentWriters)));
+			deserializers.set(table.name, new CompositeWriter(attributeWriters.concat(componentWriters)));
 		}
 
-		return deserializers.get(table);
+		return deserializers.get(table.name);
 	}
 
 	return Serializer;
