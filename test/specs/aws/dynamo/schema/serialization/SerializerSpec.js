@@ -10,7 +10,7 @@ describe('When a Serializer with a table that has "firstName" and "age" attribut
 	let table;
 
 	beforeEach(() => {
-		table = TableBuilder.withName('irrelevant')
+		table = TableBuilder.withName('serializer-flat-person')
 			.withAttribute('firstName', DataType.STRING, KeyType.HASH)
 			.withAttribute('age', DataType.NUMBER)
 			.table;
@@ -56,7 +56,7 @@ describe('When a Serializer with a table that has "person.name" and "person.age"
 	let table;
 
 	beforeEach(() => {
-		table = TableBuilder.withName('irrelevant')
+		table = TableBuilder.withName('serializer-nested-person')
 			.withAttribute('person.firstName', DataType.STRING, KeyType.HASH)
 			.withAttribute('person.age', DataType.NUMBER)
 			.table;
