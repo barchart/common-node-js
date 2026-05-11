@@ -112,8 +112,8 @@ module.exports = (() => {
 		 * @returns {Promise<Object[]>}
 		 */
 		async getBucketContents(prefix, bucket, maximum, start) {
-			assert.argumentIsOptional(bucket, 'bucket', String);
 			assert.argumentIsOptional(prefix, 'prefix', String);
+			assert.argumentIsOptional(bucket, 'bucket', String);
 			assert.argumentIsOptional(maximum, 'maximum', Number);
 			assert.argumentIsOptional(start, 'start', String);
 
