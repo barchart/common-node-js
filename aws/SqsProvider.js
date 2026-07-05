@@ -432,11 +432,11 @@ module.exports = (() => {
 			checkReady.call(this);
 
 			if (batch.length === 0) {
-				return Promise.resolve();
+				return;
 			}
 
 			if (batch.length > 10) {
-				return Promise.reject('The SQS provider is unable to enqueue more than 10 messages at once.');
+				throw new Error('The SQS provider is unable to enqueue more than 10 messages at once.');
 			}
 
 			const queueUrl = await this.getQueueUrl(queueName, createOptions);
@@ -867,7 +867,7 @@ module.exports = (() => {
 		const messageCount = messages.length;
 
 		if (messageCount === 0) {
-			return Promise.resolve();
+			return;
 		}
 
 		return new Promise((resolveCallback, rejectCallback) => {
