@@ -77,7 +77,7 @@ module.exports = (() => {
 					this._started = true;
 
 					return this._started;
-				});
+				})();
 			}
 
 			return this._startPromise;
