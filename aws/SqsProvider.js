@@ -624,7 +624,7 @@ module.exports = (() => {
 
 			const checkQueue = async () => {
 				if (disposed) {
-					logger.warn(`The queue observer for [ ${queueName} ] has been disposed. Aborting processing.`);
+					logger.warn(`The queue observer for [ ${qualifiedQueueName} ] has been disposed. Aborting processing.`);
 
 					return;
 				}
@@ -637,10 +637,10 @@ module.exports = (() => {
 					logger.error(`An error occurred while receiving messages from queue [ ${qualifiedQueueName} ]`);
 					logger.error(e);
 
-					messages = [ ];
+					messages = null;
 				}
 
-				const executors = messages.map((message, i) => {
+				const executors = (messages || [ ]).map((message, i) => {
 					return async () => {
 						if (disposed) {
 							return;
@@ -651,7 +651,7 @@ module.exports = (() => {
 						try {
 							result = callback(message);
 						} catch (e) {
-							logger.error(`An error occurred while processing message [ ${i} ] of [ ${messages.length} ] from queue [ ${qualifiedQueueName} ]`);
+							logger.error(`An error occurred while processing message [ ${i} ] from queue [ ${qualifiedQueueName} ]`);
 
 							logger.error(message);
 							logger.error(e);
@@ -673,14 +673,16 @@ module.exports = (() => {
 				}
 
 				if (disposed) {
-					logger.warn(`The queue observer for [ ${queueName} ] has been disposed. Aborting processing.`);
+					logger.warn(`The queue observer for [ ${qualifiedQueueName} ] has been disposed. Aborting processing.`);
 
 					return;
 				}
 
 				let delay;
 
-				if (messages.length === 0) {
+				if (messages === null) {
+					delay = Math.max(pollInterval || 2000, 5000);
+				} else if (messages.length === 0) {
 					delay = pollInterval || 2000;
 				} else {
 					delay = 0;
