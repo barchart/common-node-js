@@ -667,7 +667,7 @@ module.exports = (() => {
 				try {
 					await promise.pipeline(executors);
 				} catch (e) {
-					logger.error(`Processing queue messages failed. This should not happen. Continuing.`);
+					logger.error(`An error occurred while processing queue messages in sequence. This should not happen. Continuing.`);
 					logger.error(e);
 				}
 
