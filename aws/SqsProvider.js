@@ -5,8 +5,7 @@ const array = require('@barchart/common-js/lang/array'),
 	assert = require('@barchart/common-js/lang/assert'),
 	Disposable = require('@barchart/common-js/lang/Disposable'),
 	is = require('@barchart/common-js/lang/is'),
-	object = require('@barchart/common-js/lang/object'),
-	promise = require('@barchart/common-js/lang/promise');
+	object = require('@barchart/common-js/lang/object');
 
 module.exports = (() => {
 	'use strict';
@@ -665,7 +664,9 @@ module.exports = (() => {
 				});
 
 				try {
-					await promise.pipeline(executors);
+					for (const executor of executors) {
+						await executor();
+					}
 				} catch (e) {
 					logger.error(`An error occurred while processing queue messages in sequence. This should not happen. Continuing.`);
 					logger.error(e);
