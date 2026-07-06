@@ -630,7 +630,16 @@ module.exports = (() => {
 					return;
 				}
 
-				const messages = await receiveMessages.call(this, queueName, pollDuration, batchSize, false, createOptions);
+				let messages;
+
+				try {
+					messages = await receiveMessages.call(this, queueName, pollDuration, batchSize, false, createOptions);
+				} catch (e) {
+					logger.error(`An error occurred while receiving messages from queue [ ${qualifiedQueueName} ]`);
+					logger.error(e);
+
+					messages = [ ];
+				}
 
 				const executors = messages.map((message, i) => {
 					return () => {
