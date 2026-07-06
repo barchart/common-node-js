@@ -6,8 +6,7 @@ const array = require('@barchart/common-js/lang/array'),
 	Disposable = require('@barchart/common-js/lang/Disposable'),
 	is = require('@barchart/common-js/lang/is'),
 	object = require('@barchart/common-js/lang/object'),
-	promise = require('@barchart/common-js/lang/promise'),
-	Scheduler = require('@barchart/common-js/timing/Scheduler');
+	promise = require('@barchart/common-js/lang/promise');
 
 module.exports = (() => {
 	'use strict';
@@ -38,8 +37,6 @@ module.exports = (() => {
 			this._configuration = configuration;
 
 			this._sqs = null;
-
-			this._scheduler = new Scheduler();
 
 			this._queueUrlPromises = {};
 			this._queueArnPromises = {};
@@ -110,30 +107,30 @@ module.exports = (() => {
 		async getQueues(queueNamePrefix) {
 			assert.argumentIsOptional(queueNamePrefix, 'queueNamePrefix', String);
 
-			return new Promise((resolveCallback, rejectCallback) => {
-				let queuePrefixToUse = this._configuration.prefix;
+			let queuePrefixToUse = this._configuration.prefix;
 
-				if (queueNamePrefix) {
-					queuePrefixToUse = queuePrefixToUse + queueNamePrefix;
-				}
+			if (queueNamePrefix) {
+				queuePrefixToUse = queuePrefixToUse + queueNamePrefix;
+			}
 
-				logger.info('Listing queues with name prefix [', queuePrefixToUse, ']');
+			logger.info('Listing queues with name prefix [', queuePrefixToUse, ']');
 
-				this._sqs.listQueues({ QueueNamePrefix: queuePrefixToUse }, (error, data) => {
-					if (error === null) {
-						const queueUrls = data.QueueUrls || [ ];
+			let data;
 
-						logger.debug('Listing of [', queueUrls.length, '] queues with name prefix [', queuePrefixToUse, '] complete');
+			try {
+				data = await this._sqs.listQueues({ QueueNamePrefix: queuePrefixToUse }).promise();
+			} catch (e) {
+				logger.error('Listing of queues with name prefix [', queuePrefixToUse, '] failed');
+				logger.error(e);
 
-						resolveCallback(queueUrls);
-					} else {
-						logger.error('Listing of queues with name prefix [', queuePrefixToUse, '] failed');
-						logger.error(error);
+				throw e;
+			}
 
-						rejectCallback('Failed to list queues.');
-					}
-				});
-			});
+			const queueUrls = data.QueueUrls || [ ];
+
+			logger.debug('Listing of [', queueUrls.length, '] queues with name prefix [', queuePrefixToUse, '] complete');
+
+			return queueUrls;
 		}
 
 		/**
@@ -202,17 +199,20 @@ module.exports = (() => {
 				payload.AttributeNames = attributes;
 			}
 
-			return this._sqs.getQueueAttributes(payload).promise()
-				.then((data) => {
-					logger.info('Queue attribute lookup complete [', queueUrl, ']');
+			let data;
 
-					return data.Attributes;
-				}).catch((error) => {
-					logger.error('Queue attribute lookup failed [', queueUrl, ']');
-					logger.error(error);
+			try {
+				data = await this._sqs.getQueueAttributes(payload).promise();
+			} catch (e) {
+				logger.error('Queue attribute lookup failed [', queueUrl, ']');
+				logger.error(e);
 
-					throw error;
-				});
+				throw e;
+			}
+
+			logger.info('Queue attribute lookup complete [', queueUrl, ']');
+
+			return data.Attributes;
 		}
 
 		/**
@@ -236,26 +236,26 @@ module.exports = (() => {
 				return this._queueArnPromises[qualifiedQueueName];
 			}
 
-			this._queueArnPromises[qualifiedQueueName] = this.getQueueUrl(queueName, createOptions)
-				.then((queueUrl) => {
-					logger.debug('Getting queue attributes [', qualifiedQueueName, ']');
+			this._queueArnPromises[qualifiedQueueName] = (async () => {
+				const queueUrl = await this.getQueueUrl(queueName, createOptions);
 
-					this._sqs.getQueueAttributes({
-						QueueUrl: queueUrl,
-						AttributeNames: ['QueueArn']
-					}, (error, data) => {
-						if (error === null) {
-							logger.info('Queue attribute lookup complete [', qualifiedQueueName, ']');
+				logger.debug('Getting queue attributes [', qualifiedQueueName, ']');
 
-							return data.Attributes.QueueArn;
-						} else {
-							logger.error('Queue attribute lookup failed [', qualifiedQueueName, ']');
-							logger.error(error);
+				let data;
 
-							return Promise.reject('Failed to lookup ARN for queue.');
-						}
-					});
-				});
+				try {
+					data = await this._sqs.getQueueAttributes({ QueueUrl: queueUrl, AttributeNames: ['QueueArn'] }).promise();
+				} catch (e) {
+					logger.error('Queue attribute lookup failed [', qualifiedQueueName, ']');
+					logger.error(e);
+
+					throw e;
+				}
+
+				logger.info('Queue attribute lookup complete [', qualifiedQueueName, ']');
+
+				return data.Attributes.QueueArn;
+			})();
 
 			return this._queueArnPromises[qualifiedQueueName];
 		}
@@ -281,44 +281,44 @@ module.exports = (() => {
 
 			const qualifiedQueueName = getQualifiedQueueName(this._configuration.prefix, queueName);
 
-			return new Promise((resolveCallback, rejectCallback) => {
-				logger.debug('Creating queue [', qualifiedQueueName, ']');
+			logger.debug('Creating queue [', qualifiedQueueName, ']');
 
-				const payload = {
-					QueueName: qualifiedQueueName,
+			const payload = {
+				QueueName: qualifiedQueueName,
+			};
+
+			if (is.number(retentionTime)) {
+				payload.Attributes = {
+					MessageRetentionPeriod: retentionTime.toString()
 				};
+			}
 
-				if (is.number(retentionTime)) {
-					payload.Attributes = {
-						MessageRetentionPeriod: retentionTime.toString()
-					};
+			if (is.object(tags)) {
+				const keys = object.keys(tags);
+
+				if (keys.length > 0) {
+					payload.tags = tags;
 				}
+			}
 
-				if (is.object(tags)) {
-					const keys = object.keys(tags);
+			let data;
 
-					if (keys.length > 0) {
-						payload.tags = tags;
-					}
-				}
+			try {
+				data = await this._sqs.createQueue(payload).promise();
+			} catch (e) {
+				logger.error('Queue creation failed [', qualifiedQueueName, ']');
+				logger.error(e);
 
-				this._sqs.createQueue(payload, (error, data) => {
-					if (error === null) {
-						logger.info('Queue created [', qualifiedQueueName, ']');
+				throw e;
+			}
 
-						const queueUrl = data.QueueUrl;
+			logger.info('Queue created [', qualifiedQueueName, ']');
 
-						this._knownQueues[qualifiedQueueName] = queueUrl;
+			const queueUrl = data.QueueUrl;
 
-						resolveCallback(queueUrl);
-					} else {
-						logger.error('Queue creation failed [', qualifiedQueueName, ']');
-						logger.error(error);
+			this._knownQueues[qualifiedQueueName] = queueUrl;
 
-						rejectCallback('Failed to create queue.');
-					}
-				});
-			});
+			return queueUrl;
 		}
 
 		/**
@@ -381,37 +381,32 @@ module.exports = (() => {
 			checkReady.call(this);
 
 			const queueUrl = await this.getQueueUrl(queueName, createOptions);
+			const qualifiedQueueName = getQualifiedQueueName(this._configuration.prefix, queueName);
 
-			return new Promise((resolveCallback, rejectCallback) => {
-				const counter = ++this._counter;
+			const counter = ++this._counter;
 
-				const qualifiedQueueName = getQualifiedQueueName(this._configuration.prefix, queueName);
+			logger.debug('Sending message [', counter, '] to queue [', qualifiedQueueName, ']');
+			logger.trace(payload);
 
-				logger.debug('Sending message [', counter, '] to queue [', qualifiedQueueName, ']');
-				logger.trace(payload);
+			const message = { };
 
-				const message = { };
+			message.QueueUrl = queueUrl;
+			message.MessageBody = JSON.stringify(payload);
 
-				message.QueueUrl = queueUrl;
-				message.MessageBody = JSON.stringify(payload);
+			if (is.number(delaySeconds)) {
+				message.DelaySeconds = delaySeconds;
+			}
 
-				if (is.number(delaySeconds)) {
-					message.DelaySeconds = delaySeconds;
-				}
+			try {
+				await this._sqs.sendMessage(message).promise();
+			} catch (e) {
+				logger.error('Queue send [', counter, '] failed:', qualifiedQueueName, ']');
+				logger.error(e);
 
-				this._sqs.sendMessage(message, (error, data) => {
-					if (error === null) {
-						logger.info('Sent message [', counter, '] to queue [', qualifiedQueueName, ']');
+				throw e;
+			}
 
-						resolveCallback();
-					} else {
-						logger.error('Queue send [', counter, '] failed:', qualifiedQueueName, ']');
-						logger.error(error);
-
-						rejectCallback('Failed to send message to queue.');
-					}
-				});
-			});
+			logger.info('Sent message [', counter, '] to queue [', qualifiedQueueName, ']');
 		}
 
 		/**
@@ -440,45 +435,44 @@ module.exports = (() => {
 			}
 
 			const queueUrl = await this.getQueueUrl(queueName, createOptions);
+			const qualifiedQueueName = getQualifiedQueueName(this._configuration.prefix, queueName);
 
-			return new Promise((resolveCallback, rejectCallback) => {
-				this._counter += batch.length;
+			this._counter += batch.length;
 
-				const start = this._counter - batch.length + 1;
-				const end = this._counter;
+			const start = this._counter - batch.length + 1;
+			const end = this._counter;
 
-				const qualifiedQueueName = getQualifiedQueueName(this._configuration.prefix, queueName);
+			logger.debug('Sending messages [', start, '] through [', end, '] to queue [', qualifiedQueueName, ']');
+			logger.trace(batch);
 
-				logger.debug('Sending messages [', start, '] through [', end, '] to queue [', qualifiedQueueName, ']');
-				logger.trace(batch);
+			const payload = {
+				QueueUrl: queueUrl,
+				Entries: batch.map((item, i) => {
+					return {
+						Id: i.toString(),
+						MessageBody: JSON.stringify(item)
+					};
+				})
+			};
 
-				this._sqs.sendMessageBatch({
-					QueueUrl: queueUrl,
-					Entries: batch.map((item, i) => {
-						return {
-							Id: i.toString(),
-							MessageBody: JSON.stringify(item)
-						};
-					})
-				}, (error, data) => {
-					if (error === null) {
-						if (data.Failed.length !== 0) {
-							logger.error('Queue send [', start, '] through [', end, '] failed, [', data.Failed.length, '] messages could not be enqueued [', qualifiedQueueName, ']');
+			let data;
 
-							rejectCallback('Failed to send messages to queue.');
-						} else {
-							logger.info('Sent messages [', start, '] through [', end, '] to queue [', qualifiedQueueName, ']');
+			try {
+				data = await this._sqs.sendMessageBatch(payload).promise();
+			} catch (e) {
+				logger.error('Queue send [', start, '] through [', end, '] failed, [', batch.length, '] messages could not be enqueued [', qualifiedQueueName, ']');
+				logger.error(e);
 
-							resolveCallback();
-						}
-					} else {
-						logger.error('Queue send [', start, '] through [', end, '] failed, [', batch.length, '] messages could not be enqueued [', qualifiedQueueName, ']');
-						logger.error(error);
+				throw e;
+			}
 
-						rejectCallback('Failed to send messages to queue.');
-					}
-				});
-			});
+			if (data.Failed.length !== 0) {
+				logger.error('Queue send [', start, '] through [', end, '] failed, [', data.Failed.length, '] messages could not be enqueued [', qualifiedQueueName, ']');
+
+				throw new Error(`Some [ ${data.Failed.length} ] of [ ${batch.length} ] messages could not be enqueued [ ${qualifiedQueueName} ]`);
+			}
+
+			logger.info('Sent messages [', start, '] through [', end, '] to queue [', qualifiedQueueName, ']');
 		}
 
 		/**
@@ -577,24 +571,16 @@ module.exports = (() => {
 
 			logger.debug(`Queue purge beginning [ ${qualifiedQueueName} ]`);
 
-			return new Promise((resolveCallback, rejectCallback) => {
-				const payload = { };
+			try {
+				await this._sqs.purgeQueue({ QueueUrl: queueUrl }).promise();
+			} catch (e) {
+				logger.error(`Queue purge failed [ ${qualifiedQueueName} ]`);
+				logger.error(e);
 
-				payload.QueueUrl = queueUrl;
+				throw e;
+			}
 
-				this._sqs.purgeQueue(payload, (error, data) => {
-					if (error === null) {
-						logger.info(`Queue purge complete [ ${qualifiedQueueName} ]`);
-
-						resolveCallback(true);
-					} else {
-						logger.error(`Queue purge failed [ ${qualifiedQueueName} ]`);
-						logger.error(error);
-
-						rejectCallback('Failed to purge queue');
-					}
-				});
-			});
+			logger.info(`Queue purge complete [ ${qualifiedQueueName} ]`);
 		}
 
 		/**
@@ -637,56 +623,58 @@ module.exports = (() => {
 				delete this._queueObservers[qualifiedQueueName];
 			});
 
-			const checkQueue = () => {
+			const checkQueue = async () => {
 				if (disposed) {
+					logger.warn(`The queue observer for [ ${queueName} ] has been disposed. Aborting processing.`);
+
+					return;
+				}
+
+				const messages = await receiveMessages.call(this, queueName, pollDuration, batchSize, false, createOptions);
+
+				const executors = messages.map((message, i) => {
+					return () => {
+						return Promise.resolve()
+							.then(() => {
+								if (disposed) {
+									return;
+								}
+
+								return callback(message);
+							}).catch((e) => {
+								logger.error(`An error occurred while processing message [ ${i} ] of [ ${messages.length} ] from queue [ ${qualifiedQueueName} ]`);
+
+								logger.error(message);
+								logger.error(e);
+							});
+					};
+				});
+
+				try {
+					await promise.pipeline(executors);
+				} catch (e) {
+					logger.error(`Processing queue messages failed. This should not happen. Continuing.`);
+					logger.error(e);
+				}
+
+				if (disposed) {
+					logger.warn(`The queue observer for [ ${queueName} ] has been disposed. Aborting processing.`);
+
 					return;
 				}
 
 				let delay;
 
-				receiveMessages.call(this, queueName, pollDuration, batchSize, false, createOptions)
-					.then((messages) => {
-						const executors = messages.map((message) => {
-							return () => {
-								return Promise.resolve()
-									.then(() => {
-										if (disposed) {
-											return;
-										}
+				if (messages.length === 0) {
+					delay = pollInterval || 2000;
+				} else {
+					delay = 0;
+				}
 
-										return callback(message);
-									});
-							};
-						});
-
-						return promise.pipeline(executors)
-							.catch((error) => {
-								logger.error('An error occurred while processing message(s) from queue [', qualifiedQueueName, ']');
-								logger.error(error);
-							}).then(() => {
-								if (messages.length === 0) {
-									delay = pollInterval || 2000;
-								} else {
-									delay = 0;
-								}
-							});
-					}).catch((error) => {
-						logger.error('An error occurred while receiving message(s) from queue [', qualifiedQueueName, ']');
-						logger.error(error);
-					}).then(() => {
-						if (disposed) {
-							return;
-						}
-
-						if (!is.number(delay)) {
-							delay = 5000;
-						}
-
-						this._scheduler.schedule(checkQueue, delay, 'Check queue (' + qualifiedQueueName + ')');
-					});
+				setTimeout(checkQueue, delay);
 			};
 
-			checkQueue();
+			const ignored = checkQueue();
 
 			return this._queueObservers[qualifiedQueueName];
 		}
@@ -713,34 +701,22 @@ module.exports = (() => {
 			logger.debug('Updating queue policy [', qualifiedQueueName, ']');
 			logger.trace(policy);
 
-			return new Promise((resolveCallback, rejectCallback) => {
-				this._sqs.setQueueAttributes({
-					QueueUrl: queueUrl,
-					Attributes: {
-						Policy: JSON.stringify(policy)
-					}
-				}, (error, data) => {
-					if (error === null) {
-						logger.info('Queue policy updated for [', qualifiedQueueName, ']');
+			try {
+				await this._sqs.setQueueAttributes({ QueueUrl: queueUrl, Attributes: { Policy: JSON.stringify(policy) } }).promise();
+			} catch (e) {
+				logger.error('Queue policy update failed [', qualifiedQueueName, ']');
+				logger.error(e);
 
-						resolveCallback();
-					} else {
-						logger.error('Queue policy update failed [', qualifiedQueueName, ']');
-						logger.error(error);
+				throw e;
+			}
 
-						rejectCallback('Failed to update queue policy.');
-					}
-				});
-			});
+			logger.info('Queue policy updated for [', qualifiedQueueName, ']');
 		}
 
 		_onDispose() {
 			Object.keys(this._queueObservers).forEach((key) => {
 				this._queueObservers[key].dispose();
 			});
-
-			this._scheduler.dispose();
-			this._scheduler = null;
 
 			this._queueUrlPromises = null;
 			this._queueArnPromises = null;
@@ -780,11 +756,7 @@ module.exports = (() => {
 		let waitTimeToUse;
 
 		if (is.number(waitTime)) {
-			if (waitTime === 0) {
-				waitTimeToUse = 0;
-			} else {
-				waitTimeToUse = Math.round(waitTime / 1000);
-			}
+			waitTimeToUse = Math.round(waitTime / 1000);
 		} else {
 			waitTimeToUse = 20;
 		}
@@ -798,69 +770,58 @@ module.exports = (() => {
 		}
 
 		const queueUrl = await this.getQueueUrl(queueName, createOptions);
+		const qualifiedQueueName = getQualifiedQueueName(this._configuration.prefix, queueName);
 
-		return new Promise((resolveCallback, rejectCallback) => {
-			const qualifiedQueueName = getQualifiedQueueName(this._configuration.prefix, queueName);
+		logger.debug('Receiving message(s) from queue [', qualifiedQueueName, ']');
 
-			logger.debug('Receiving message(s) from queue [', qualifiedQueueName, ']');
+		let data;
 
-			this._sqs.receiveMessage({
-				QueueUrl: queueUrl,
-				MaxNumberOfMessages: maximumMessagesToUse,
-				WaitTimeSeconds: waitTimeToUse
-			}, (error, data) => {
-				if (error !== null) {
-					const messagesExist = is.array(data.Messages) && data.Messages.length !== 0;
+		try {
+			data = await this._sqs.receiveMessage({ QueueUrl: queueUrl, MaxNumberOfMessages: maximumMessagesToUse, WaitTimeSeconds: waitTimeToUse }).promise();
+		} catch (e) {
+			logger.error('SQS receive messages failed [', qualifiedQueueName, ']');
+			logger.error(e);
 
-					if (messagesExist) {
-						logger.info('Received [', data.Messages.length, '] message(s) from queue [', qualifiedQueueName, ']');
+			throw e;
+		}
 
-						logger.trace(data.Messages);
-					} else {
-						logger.debug('Received [ 0 ] message(s) from queue [', qualifiedQueueName, ']');
+		if (is.array(data.Messages) && data.Messages.length !== 0) {
+			logger.info('Received [', data.Messages.length, '] message(s) from queue [', qualifiedQueueName, ']');
 
-						resolveCallback([ ]);
-					}
+			logger.trace(data.Messages);
+		} else {
+			logger.debug('Received [ 0 ] message(s) from queue [', qualifiedQueueName, ']');
 
-					let messages;
+			return [ ];
+		}
 
-					try {
-						messages = (data.Messages || []).map((message) => {
-							return JSON.parse(message.Body);
-						});
-					} catch (parseError) {
-						logger.error('Failed to parse message(s) received from queue.', parseError);
+		let messages;
 
-						messages = null;
-					}
+		try {
+			messages = data.Messages.map(message => JSON.parse(message.Body));
+		} catch (e) {
+			logger.error('Failed to parse message(s) received from queue.', e);
 
-					let deletePromise = deleteMessages.call(this, qualifiedQueueName, queueUrl, data.Messages);
+			messages = null;
+		}
 
-					if (!synchronousDelete) {
-						deletePromise = Promise.resolve();
-					}
+		let deletePromise = deleteMessages.call(this, qualifiedQueueName, queueUrl, data.Messages).catch((e) => {
+			try {
+				logger.error('Failed to delete message(s) received from queue [', qualifiedQueueName, '], continuing.', e);
+			} catch (ignored) {
 
-					deletePromise.catch((e) => {
-						try {
-							logger.error('Failed to delete message(s) received from queue [', qualifiedQueueName, '], continuing.', e);
-						} catch (error) {
-
-						}
-					}).then(() => {
-						if (messages) {
-							resolveCallback(messages);
-						} else {
-							rejectCallback('Failed to parse message(s) received from queue.');
-						}
-					});
-				} else {
-					logger.error('SQS receive messages failed [', qualifiedQueueName, ']');
-					logger.error(error);
-
-					rejectCallback('Failed to receive messages from queue.');
-				}
-			});
+			}
 		});
+
+		if (synchronousDelete) {
+			await deletePromise;
+		}
+
+		if (messages === null) {
+			throw new Error(`Failed to parse message(s) received from queue [ ${qualifiedQueueName} ].`);
+		}
+
+		return messages;
 	}
 
 	async function deleteMessages(qualifiedQueueName, queueUrl, messages) {
@@ -870,65 +831,59 @@ module.exports = (() => {
 			return;
 		}
 
-		return new Promise((resolveCallback, rejectCallback) => {
-			logger.debug('Deleting [', messageCount, '] message(s) from queue [', qualifiedQueueName, ']');
+		logger.debug('Deleting [', messageCount, '] message(s) from queue [', qualifiedQueueName, ']');
 
-			this._sqs.deleteMessageBatch({
-				QueueUrl: queueUrl,
-				Entries: messages.map((message, index) => {
-					return {
-						Id: index.toString(),
-						ReceiptHandle: message.ReceiptHandle
-					};
-				})
-			}, (error, data) => {
-				if (error === null) {
-					let deletedCount;
+		const payload = {
+			QueueUrl: queueUrl,
+			Entries: messages.map((message, index) => {
+				return {
+					Id: index.toString(),
+					ReceiptHandle: message.ReceiptHandle
+				};
+			})
+		};
 
-					if (is.array(data.Failed)) {
-						deletedCount = messageCount - data.Failed.length;
-					} else {
-						deletedCount = messageCount;
-					}
+		let data;
 
-					logger.info('Deleted [', deletedCount, '] message(s) from queue [', qualifiedQueueName, ']');
+		try {
+			data = await this._sqs.deleteMessageBatch(payload).promise();
+		} catch (e) {
+			logger.error('SQS message delete failed [', qualifiedQueueName, ']');
+			logger.error(e);
 
-					if (deletedCount !== messageCount) {
-						logger.warn('Failed to delete [', data.Failed.length, '] message(s) from queue [', qualifiedQueueName, ']');
+			throw e;
+		}
 
-						rejectCallback('Failed to delete some messages from queue.');
-					} else {
-						resolveCallback();
-					}
-				} else {
-					logger.error('SQS message delete failed [', qualifiedQueueName, ']');
-					logger.error(error);
+		let deletedCount;
 
-					rejectCallback('Failed to delete messages from queue.');
-				}
-			});
-		});
+		if (is.array(data.Failed)) {
+			deletedCount = messageCount - data.Failed.length;
+		} else {
+			deletedCount = messageCount;
+		}
+
+		logger.info('Deleted [', deletedCount, '] message(s) from queue [', qualifiedQueueName, ']');
+
+		if (deletedCount !== messageCount) {
+			logger.error(`Failed to delete [ ${data.Failed.length} ] message(s) from queue [ ${qualifiedQueueName} ]`);
+
+			throw new Error(`Failed to delete [ ${data.Failed.length} ] message(s) from queue [ ${qualifiedQueueName} ]`);
+		}
 	}
 
 	async function executeQueueDelete(qualifiedQueueName, queueUrl) {
-		return new Promise((resolveCallback, rejectCallback) => {
-			logger.debug('Deleting queue [', qualifiedQueueName, '] at URL [', queueUrl, ']');
+		logger.debug('Deleting queue [', qualifiedQueueName, '] at URL [', queueUrl, ']');
 
-			this._sqs.deleteQueue({
-				QueueUrl: queueUrl
-			}, (error, data) => {
-				if (error === null) {
-					logger.info('Queue deleted [', qualifiedQueueName, '] at URL [', queueUrl, ']');
+		try {
+			await this._sqs.deleteQueue({ QueueUrl: queueUrl }).promise();
+		} catch (e) {
+			logger.error('Queue delete failed [', qualifiedQueueName, '] at URL [', queueUrl, ']');
+			logger.error(e);
 
-					resolveCallback();
-				} else {
-					logger.error('Queue delete failed [', qualifiedQueueName, '] at URL [', queueUrl, ']');
-					logger.error(error);
+			throw e;
+		}
 
-					rejectCallback('Failed to delete queue.');
-				}
-			});
-		});
+		logger.info('Queue deleted [', qualifiedQueueName, '] at URL [', queueUrl, ']');
 	}
 
 	function checkReady() {
