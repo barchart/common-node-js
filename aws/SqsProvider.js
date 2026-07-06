@@ -642,20 +642,25 @@ module.exports = (() => {
 				}
 
 				const executors = messages.map((message, i) => {
-					return () => {
-						return Promise.resolve()
-							.then(() => {
-								if (disposed) {
-									return;
-								}
+					return async () => {
+						if (disposed) {
+							return;
+						}
 
-								return callback(message);
-							}).catch((e) => {
-								logger.error(`An error occurred while processing message [ ${i} ] of [ ${messages.length} ] from queue [ ${qualifiedQueueName} ]`);
+						let result;
 
-								logger.error(message);
-								logger.error(e);
-							});
+						try {
+							result = callback(message);
+						} catch (e) {
+							logger.error(`An error occurred while processing message [ ${i} ] of [ ${messages.length} ] from queue [ ${qualifiedQueueName} ]`);
+
+							logger.error(message);
+							logger.error(e);
+
+							return;
+						}
+
+						return result;
 					};
 				});
 
