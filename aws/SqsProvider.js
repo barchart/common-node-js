@@ -60,7 +60,7 @@ module.exports = (() => {
 		 */
 		async start() {
 			if (this.disposed) {
-				return Promise.reject('Unable to start, the SQS provider has been disposed.');
+				throw new Error('Unable to start, the SQS provider has been disposed.');
 			}
 
 			if (this._startPromise === null) {
