@@ -99,6 +99,7 @@ module.exports = (() => {
 				const subscriptionQueueName = getSubscriptionQueue.call(this, topic);
 
 				subscriptionStack.push(subscriptionEvent);
+				subscriptionStack.push(subscriptionEvents);
 
 				this._subscriptionPromises[topic] = Promise.all([
 					this._snsProvider.getTopicArn(topic, this._createOptions),
