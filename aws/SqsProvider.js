@@ -622,12 +622,21 @@ module.exports = (() => {
 				delete this._queueObservers[qualifiedQueueName];
 			});
 
+			const timeouts = { };
+
+			timeouts.current = null;
+			timeouts.watchdog = null;
+
+			timeouts.version = 1;
+
 			const checkQueue = async () => {
 				if (disposed) {
 					logger.warn(`The queue observer for [ ${qualifiedQueueName} ] has been disposed. Aborting processing.`);
 
 					return;
 				}
+
+				const version = timeouts.version;
 
 				let messages;
 
@@ -688,7 +697,41 @@ module.exports = (() => {
 					delay = 0;
 				}
 
-				setTimeout(checkQueue, delay);
+				const reschedule = () => {
+					if (timeouts.watchdog) {
+						logger.debug(`Clearing watchdog for queue observer [ ${qualifiedQueueName} ] [ ${version} ]`);
+
+						clearTimeout(timeouts.watchdog);
+					}
+
+					const timeout = timeouts.current = setTimeout(checkQueue, delay);
+
+					const watchdog = () => {
+						if (timeout !== timeouts.current) {
+							logger.error(`Watchdog executed improperly for queue observer [ ${qualifiedQueueName} ] [ ${version} ]. Aborting.`);
+
+							return;
+						}
+
+						logger.error(`Watchdog detected a queue observer [ ${qualifiedQueueName} ] [ ${version} ] that seems to have been abandoned. Restarting.`);
+
+						timeouts.version = timeouts.version + 1;
+
+						clearTimeout(timeout);
+
+						reschedule();
+					};
+
+					timeouts.watchdog = setTimeout(watchdog, Math.max(delay + 120000));
+				};
+
+				if (version !== timeouts.version) {
+					logger.error(`Skipping queue observer reschedule [ ${qualifiedQueueName} ] [ ${version} ] due to version mismatch. The watchdog has already rescheduled processing.`);
+
+					return;
+				}
+
+				reschedule();
 			};
 
 			const ignored = checkQueue();
