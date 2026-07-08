@@ -707,6 +707,10 @@ module.exports = (() => {
 					const timeout = timeouts.current = setTimeout(checkQueue, delay);
 
 					const watchdog = () => {
+						if (disposed) {
+							return;
+						}
+
 						if (timeout !== timeouts.current) {
 							logger.error(`Watchdog executed improperly for queue observer [ ${qualifiedQueueName} ] [ ${version} ]. Aborting.`);
 
