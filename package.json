@@ -18,6 +18,9 @@
     "lint": "gulp lint",
     "test": "jasmine --config=jasmine.json"
   },
+  "publishConfig": {
+    "tag": "legacy"
+  },
   "repository": {
     "type": "git",
     "url": "git+ssh://github.com/barchart/barchart-common-node-js"
